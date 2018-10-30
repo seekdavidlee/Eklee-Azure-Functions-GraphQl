@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Eklee.Azure.Functions.GraphQl</id>
+    <version>0.1.0</version>
+    <title>Eklee.Azure.Functions.GraphQl</title>
+    <authors>Eng-Keong David Lee</authors>
+    <owners>Eng-Keong David Lee</owners>
+    <projectUrl>https://github.com/seekdavidlee/Eklee-Azure-Functions-GraphQl</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>The purpose of this library is to help developers with implementing a GraphQl based Azure Function with dependency injection support.</description>
+    <releaseNotes>Initial release to support query and mutation.</releaseNotes>
+    <tags>GraphQl, Azure Functions, Functions, Azure</tags>
+    <dependencies>
+      <dependency id="Eklee.Azure.Functions.Http" version="0.5.0" />
+      <dependency id="GraphQL" version="2.3.0" />
+    </dependencies>
+  </metadata>
+</package>

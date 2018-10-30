@@ -1,0 +1,182 @@
+{
+	"info": {
+		"_postman_id": "2f8f85e7-b8e0-4ea4-9cd6-369b5723b5da",
+		"name": "Eklee.Azure.Functions.GraphQl",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Queries",
+			"item": [
+				{
+					"name": "ResolveBookQuery",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f4d1b51c-a22b-441a-a84a-4e6f5cd64085",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Query returns with match\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.book.id).to.eql(\"1\");",
+									"    pm.expect(jsonData.data.book.name).to.eql(\"Nancy in the Wonderland\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"{\\n  book(id: \\\"1\\\") {\\n    id\\n    name\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Mutations",
+			"item": [
+				{
+					"name": "CreateBookWithId",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "0c3f3e5f-0cae-44b0-82d6-ed1e8503875e",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Created data contains Id\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    var id = pm.environment.get(\"newId1\").toString(); ",
+									"    pm.expect(jsonData.data.createBook.id).to.eql(id);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "5d61d284-ccef-46b5-92d5-8867d081b060",
+								"exec": [
+									"var milliseconds = (new Date()).getTime().toString();",
+									"pm.environment.set(\"newId1\", milliseconds);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  createBook(book: {id: \\\"{{newId1}}\\\", name: \\\"abc\\\", category: \\\"aaa\\\"}) {\\n    id\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ResolveBookQueryWithId",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f4d1b51c-a22b-441a-a84a-4e6f5cd64085",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Query returns with match\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    ",
+									"    var id = pm.environment.get(\"newId1\"); ",
+									"    pm.expect(jsonData.data.book.id).to.eql(id);",
+									"    pm.expect(jsonData.data.book.name).to.eql(\"abc\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"{\\n  book(id: \\\"{{newId1}}\\\") {\\n    id\\n    name\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

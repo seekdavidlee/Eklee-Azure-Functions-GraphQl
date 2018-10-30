@@ -1,0 +1,42 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28010.2046
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Eklee.Azure.Functions.GraphQl", "Eklee.Azure.Functions.GraphQl\Eklee.Azure.Functions.GraphQl.csproj", "{8624FB98-269B-4773-B9AC-222A31A60E6A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{B6F2D74E-F1B4-413A-A4BD-04B272D1AD1B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Eklee.Azure.Functions.GraphQl.Example", "Examples\Eklee.Azure.Functions.GraphQl.Example\Eklee.Azure.Functions.GraphQl.Example.csproj", "{E1009365-5A55-4BFC-B7B2-7486EA91A502}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6D9DAF4F-1421-4A8D-B7C1-E3B0C8179C3E}"
+	ProjectSection(SolutionItems) = preProject
+		cicd.ps1 = cicd.ps1
+		README.md = README.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8624FB98-269B-4773-B9AC-222A31A60E6A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8624FB98-269B-4773-B9AC-222A31A60E6A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8624FB98-269B-4773-B9AC-222A31A60E6A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8624FB98-269B-4773-B9AC-222A31A60E6A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E1009365-5A55-4BFC-B7B2-7486EA91A502}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E1009365-5A55-4BFC-B7B2-7486EA91A502}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E1009365-5A55-4BFC-B7B2-7486EA91A502}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E1009365-5A55-4BFC-B7B2-7486EA91A502}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E1009365-5A55-4BFC-B7B2-7486EA91A502} = {B6F2D74E-F1B4-413A-A4BD-04B272D1AD1B}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {99063B4D-FACA-46CA-B1EC-1FB692B74296}
+	EndGlobalSection
+EndGlobal

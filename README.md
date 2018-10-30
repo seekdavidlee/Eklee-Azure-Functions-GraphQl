@@ -19,9 +19,9 @@ namespace FunctionApp1
     {
         protected override void Load(ContainerBuilder builder)
         {
-			builder.RegisterGraphQl<BooksSchema>();
+            builder.RegisterGraphQl<BooksSchema>();
             builder.RegisterType<BooksQuery>();
-			...
+            ...
         }
     }
 }

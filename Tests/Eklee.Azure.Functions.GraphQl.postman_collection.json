@@ -57,6 +57,61 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "ResolveBooksQuery",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f4d1b51c-a22b-441a-a84a-4e6f5cd64085",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Query returns with match\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.books[0].id).to.eql(\"2\");",
+									"    pm.expect(jsonData.data.books[0].name).to.eql(\"App in the Cloud\");",
+									"    pm.expect(jsonData.data.books[0].category).to.eql(\"Technology\");",
+									"    ",
+									"    pm.expect(jsonData.data.books[1].id).to.eql(\"4\");",
+									"    pm.expect(jsonData.data.books[1].name).to.eql(\"C/C++ for Beginners\");",
+									"    pm.expect(jsonData.data.books[1].category).to.eql(\"Technology\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"{\\n  books(category: \\\"Technology\\\") {\\n    id\\n    name\\n    category\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},

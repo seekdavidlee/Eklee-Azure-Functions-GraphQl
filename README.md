@@ -158,9 +158,66 @@ Connection<BookType>().Name("books_categoryConnection")
 
 The following example can be used with GraphQL Playground. Connect with your defined endpoint: http://localhost:7071/api/books/graph
 
+If you are following the example above, the default limit of 10 records will be returned.
+
 ```
 query {
   books_categoryConnection(category:"Art"){
+    totalCount
+    edges {
+      cursor, node{
+        id
+        name
+        category
+      }
+    }
+    items {
+      id
+      name
+      category
+    }
+    pageInfo {
+      startCursor
+      endCursor
+      hasNextPage
+      hasPreviousPage
+    }
+  }
+}
+```
+
+Return first 20 records. You may also pass in the total count of 26 to get all records.
+
+```
+query {
+  books_categoryConnection(category:"Art", first: 20){
+    totalCount
+    edges {
+      cursor, node{
+        id
+        name
+        category
+      }
+    }
+    items {
+      id
+      name
+      category
+    }
+    pageInfo {
+      startCursor
+      endCursor
+      hasNextPage
+      hasPreviousPage
+    }
+  }
+}
+```
+Return first 5 records after cursor "MA==" which in our case, it represents the first record. Thus, you will NOT see the first record. Instead you will see the next 5 records after the first.
+
+```
+query {
+  books_categoryConnection(category:"Art", first: 5, after: "MA=="){
     totalCount
     edges {
       cursor, node{

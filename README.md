@@ -150,9 +150,11 @@ Connection<BookType>().Name("books_categoryConnection_nocache")
 
 We are getting a list of paged Books with a argument to be passed in. You are defining the key to pass into the repository without having to use context directly. The cache repository which will cache the book result for a specific time you have defined. You will get paged results with a default page limit of 10 items per page if you don't specify.
 
+```
 Connection<BookType>().Name("books_categoryConnection")
     .Argument<NonNullGraphType<StringGraphType>>("category", "category of the book")
     .ResolveAsync(async context => await context.GetConnectionWithCacheAsync(graphQlCache, key => booksRepository.GetBooks((string)key), "category"));
+```
 
 ## Tracing support:
 

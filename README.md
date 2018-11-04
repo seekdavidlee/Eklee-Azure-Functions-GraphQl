@@ -98,7 +98,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 }
 ```
 
-### Example 1: No cache or paging (single item)
+### Example 1: No cache support or paging (single item)
 
 We are getting a single Book. You are defining the argument yourself to pass into the repository with context. There's no caching and paging support. This is what comes out-of-the-box.
 
@@ -128,7 +128,7 @@ Field<ListGraphType<BookType>>("books_category",
     resolve: graphQlCache.ResolverWithCache(key => booksRepository.GetBooks((string)key), 10, "category"));
 ```
 
-### Example 4: Paging without cache (list of items)
+### Example 4: Paging without cache support (list of items)
 
 We are getting a list of paged Books. Technically, you are able to get all books by using TotalCount, although there's already a default page limit of 10 items per page if you don't specify. There's no caching support.
 

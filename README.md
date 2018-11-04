@@ -128,16 +128,16 @@ Field<ListGraphType<BookType>>("books_category",
     resolve: graphQlCache.ResolverWithCache(key => booksRepository.GetBooks((string)key), 10, "category"));
 ```
 
-### Example 4: Paging without cache support (list of items)
+### Example 4: No cache support with paging (list of items)
 
-We are getting a list of paged Books. Technically, you are able to get all books by using TotalCount, although there's already a default page limit of 10 items per page if you don't specify. There's no caching support.
+We are getting a list of paged Books. There's already a default page limit of 10 items per page if you don't specify. There's no caching support.
 
 ```
 Connection<BookType>().Name("booksConnection_nocache")
     .ResolveAsync(async context => await context.GetConnectionAsync(booksRepository.GetBooks()));
 ```
 
-### Example 5: Paging with cache support (list of items)
+### Example 5: Cache support with paging (list of items)
 
 We are getting a list of paged Books with a argument to be passed in. You are defining the argument yourself to pass into the repository with context. Technically, you are able to get all books by using TotalCount, although there's already a default page limit of 10 if you don't specify. There's no caching support.
 
@@ -146,7 +146,7 @@ Connection<BookType>().Name("books_categoryConnection_nocache")
     .Argument<NonNullGraphType<StringGraphType>>("category", "category of the book")
     .ResolveAsync(async context => await context.GetConnectionAsync(booksRepository.GetBooks(context.GetArgument<string>("category"))));
 ```
-### Example 6: Paging with cache support (list of items)
+### Example 6: Cache support with paging (list of items)
 
 We are getting a list of paged Books with a argument to be passed in. You are defining the key to pass into the repository without having to use context directly. The cache repository which will cache the book result for a specific time you have defined. You will get paged results with a default page limit of 10 items per page if you don't specify.
 
@@ -154,6 +154,34 @@ We are getting a list of paged Books with a argument to be passed in. You are de
 Connection<BookType>().Name("books_categoryConnection")
     .Argument<NonNullGraphType<StringGraphType>>("category", "category of the book")
     .ResolveAsync(async context => await context.GetConnectionWithCacheAsync(graphQlCache, key => booksRepository.GetBooks((string)key), "category"));
+```
+
+The following example can be used with GraphQL Playground. Connect with your defined endpoint: http://localhost:7071/api/books/graph
+
+```
+query {
+  books_categoryConnection(category:"Art"){
+    totalCount
+    edges {
+      cursor, node{
+        id
+        name
+        category
+      }
+    }
+    items {
+      id
+      name
+      category
+    }
+    pageInfo {
+      startCursor
+      endCursor
+      hasNextPage
+      hasPreviousPage
+    }
+  }
+}
 ```
 
 ## Tracing support:

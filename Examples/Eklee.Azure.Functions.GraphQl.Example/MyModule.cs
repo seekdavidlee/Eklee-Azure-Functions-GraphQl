@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using Eklee.Azure.Functions.GraphQl.Example.BusinessLayer;
+using Microsoft.Extensions.Caching.Distributed;
 
 namespace Eklee.Azure.Functions.GraphQl.Example
 {
@@ -7,6 +8,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example
     {
         protected override void Load(ContainerBuilder builder)
         {
+            builder.EnableGraphQlCache<MemoryDistributedCache>();
             builder.RegisterGraphQl<BooksSchema>();
             builder.RegisterType<BooksQuery>();
             builder.RegisterType<BooksRepository>().SingleInstance();

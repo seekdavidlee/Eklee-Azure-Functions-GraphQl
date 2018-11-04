@@ -1,18 +1,19 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 
 namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 {
     public class BooksRepository
     {
-        private static readonly List<Book> _books = new List<Book>();
-        private static readonly List<Author> _authors = new List<Author>();
-        private static readonly List<BookAuthors> _booksAuthors = new List<BookAuthors>();
+        private readonly ILogger _logger;
+        private readonly List<Book> _books = new List<Book>();
+        private readonly List<Author> _authors = new List<Author>();
+        private readonly List<BookAuthors> _booksAuthors = new List<BookAuthors>();
 
-        public BooksRepository()
+        public BooksRepository(ILogger logger)
         {
-            if (_books.Count > 0) return;
-
+            _logger = logger;
             _books.Add(new Book { Id = "1", Name = "Nancy in the Wonderland", Category = "Children" });
             _books.Add(new Book { Id = "2", Name = "App in the Cloud", Category = "Technology" });
             _books.Add(new Book { Id = "3", Name = "History of China", Category = "History" });
@@ -66,6 +67,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 
         public Book GetBook(string id)
         {
+            _logger.LogDebug($"Executing query to get Book with id {id}.");
             return _books.Single(x => x.Id == id);
         }
 

@@ -52,3 +52,67 @@ return await executionContext.ProcessGraphQlRequest(req);
 ```
 
 For more information about dependency injection support, visit: https://github.com/seekdavidlee/Eklee-Azure-Functions-Http
+
+## Caching Usage:
+
+You can enable built-in caching capabilities per GraphQl best practices based on object type and instance Id. Please follow the steps below:
+
+In your Module setup, use the extension method EnableGraphQlCache. Note that MemoryDistributedCache is just an example. In a production senario, you may choose something like Azure Redis.
+
+```
+builder.EnableGraphQlCache<MemoryDistributedCache>();
+```
+
+You can use a convention based approach to identify based on object type and instance Id by decorating with the KeyAttribute of your object type.
+
+```
+using System.ComponentModel.DataAnnotations;
+...
+    public class Book
+    {
+        [Key]
+        public string Id { get; set; }
+```
+
+In your Query resolvers, you can use the extension method ResolverWithCache to create a resolver with caching support. The first "book" query is based on the Book object type's Id property to derive id from the context as a key to get the instance Id value. It is cached for 10 seconds.
+
+The second "books" query will derive category from the context as a key to get the instance Id value. It is cached for 10 seconds.
+
+Once the cache expires, the respository query will be executed and persisted into the cache for the duration of time specified.
+
+```
+using GraphQL.Types;
+
+namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
+{
+    public class BooksQuery : ObjectGraphType<object>
+    {
+        public BooksQuery(BooksRepository booksRepository, IGraphQlCache graphQlCache)
+        {
+            Name = "Query";
+
+            Field<BookType>("book",
+                arguments: new QueryArguments(new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "id", Description = "id of the book" }),
+                resolve: graphQlCache.ResolverWithCache(key => booksRepository.GetBook((string)key), 10));
+
+            Field<ListGraphType<BookType>>("books",
+                arguments: new QueryArguments(new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "category", Description = "category of the book" }),
+                resolve: graphQlCache.ResolverWithCache(key => booksRepository.GetBooks((string)key), 10, "category"));
+
+        }
+    }
+}
+```
+
+## Tracing support:
+
+To enable support for tracing, please add set EnableMetrics configuration to true under GraphQl.
+
+```
+{
+    ...
+    "GraphQl": {
+      "EnableMetrics": "true" 
+    } 
+}
+```

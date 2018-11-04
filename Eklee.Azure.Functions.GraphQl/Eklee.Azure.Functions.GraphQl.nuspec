@@ -2,15 +2,15 @@
 <package >
   <metadata>
     <id>Eklee.Azure.Functions.GraphQl</id>
-    <version>0.2.0</version>
+    <version>0.3.0</version>
     <title>Eklee.Azure.Functions.GraphQl</title>
     <authors>Eng-Keong David Lee</authors>
     <owners>Eng-Keong David Lee</owners>
     <projectUrl>https://github.com/seekdavidlee/Eklee-Azure-Functions-GraphQl</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>The purpose of this library is to help developers with implementing a GraphQl based Azure Function with dependency injection support.</description>
-    <releaseNotes>Added support for caching and enabling tracing.</releaseNotes>
-    <tags>GraphQl, Azure, Functions, Caching, .NET, Graph</tags>
+    <releaseNotes>Added support for paging.</releaseNotes>
+    <tags>GraphQl, Azure, Functions, Caching, .NET, Graph, Paging, Pagination</tags>
     <dependencies>
       <dependency id="Eklee.Azure.Functions.Http" version="0.6.1" />
       <dependency id="GraphQL" version="2.3.0" />

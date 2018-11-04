@@ -90,9 +90,8 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
         public BooksQuery(BooksRepository booksRepository, IGraphQlCache graphQlCache)
         {
             Name = "Query";
-
-			...
-			// See examples below.
+            ...
+            // See examples below.
         }
     }
 }

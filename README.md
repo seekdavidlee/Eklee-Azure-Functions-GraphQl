@@ -63,7 +63,7 @@ In your Module setup, use the extension method EnableGraphQlCache. Note that Mem
 builder.EnableGraphQlCache<MemoryDistributedCache>();
 ```
 
-You can use a convention based approach to identify based on object type and instance Id by decorating with the KeyAttribute of your object type.
+You can use a convention based approach to identify cache instances based on object type and instance Id by decorating with the KeyAttribute on your object type.
 
 ```
 using System.ComponentModel.DataAnnotations;
@@ -74,9 +74,11 @@ using System.ComponentModel.DataAnnotations;
         public string Id { get; set; }
 ```
 
-In your Query resolvers, you can use the extension method ResolverWithCache to create a resolver with caching support. The first "book" query is based on the Book object type's Id property to derive id from the context as a key to get the instance Id value. It is cached for 10 seconds.
+In your Query resolvers, you can use the extension method ResolverWithCache to create a resolver with caching support. 
 
-The second "books" query will derive category from the context as a key to get the instance Id value. It is cached for 10 seconds.
+The first "book" query is based on the Book object type's Id property to derive "id" from the context as a key to get the instance Id value. It is cached for 10 seconds.
+
+The second "books" query will derive "category" from the context as a key to get the instance Id value. It is cached for 10 seconds.
 
 Once the cache expires, the respository query will be executed and persisted into the cache for the duration of time specified.
 

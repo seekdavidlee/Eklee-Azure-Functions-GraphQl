@@ -421,6 +421,216 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "GetSecondPageForBooksWithCategoryArtWithCursor",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "d107c500-8644-4ea6-95f7-1ae256145461",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"function getPayLoad() {",
+									"    var jsonData = pm.response.json();",
+									"    var dto = jsonData.data.books_categoryConnection;",
+									"    return dto;",
+									"}",
+									"",
+									"pm.test(\"Total count is returned and valid.\", function () {",
+									"    var dto = getPayLoad();",
+									"    pm.expect(dto.totalCount).to.eql(26);",
+									"});",
+									"",
+									"pm.test(\"Edges return is defaulted to 10\", function () {",
+									"    var dto = getPayLoad();",
+									"    pm.expect(dto.edges.length).to.eql(10);",
+									"});",
+									"",
+									"pm.test(\"Items return is defaulted to 10\", function () {",
+									"    var dto = getPayLoad();",
+									"    pm.expect(dto.items.length).to.eql(10);",
+									"});",
+									"",
+									"pm.test(\"Previous page flag is true.\", function () {",
+									"    var dto = getPayLoad();",
+									"    pm.expect(dto.pageInfo.hasPreviousPage).to.eql(true);",
+									"});",
+									"",
+									"pm.test(\"Next page flag is true.\", function () {",
+									"    var dto = getPayLoad();",
+									"    pm.expect(dto.pageInfo.hasNextPage).to.eql(true);",
+									"});",
+									"",
+									"pm.test(\"Verify first item fetched has expected id.\", function () {",
+									"    var dto = getPayLoad();",
+									"    var first = dto.items[0];",
+									"    pm.expect(first.id).to.eql(\"15\");",
+									"});",
+									"",
+									"pm.test(\"Verify first edge fetched has expected id.\", function () {",
+									"    var dto = getPayLoad();",
+									"    var first = dto.edges[0].node;",
+									"    pm.expect(first.id).to.eql(\"15\");",
+									"});",
+									"",
+									"pm.test(\"Verify last item fetched has expected id.\", function () {",
+									"    var dto = getPayLoad();",
+									"    var last = dto.items[dto.items.length-1];",
+									"    pm.expect(last.id).to.eql(\"24\");",
+									"});",
+									"",
+									"pm.test(\"Verify last edge fetched has expected id.\", function () {",
+									"    var dto = getPayLoad();",
+									"    var last = dto.edges[dto.edges.length-1].node;",
+									"    pm.expect(last.id).to.eql(\"24\");",
+									"});",
+									"",
+									"",
+									"pm.test(\"Set next test from same sport.\", function () {",
+									"    var dto = getPayLoad();",
+									"",
+									"    pm.environment.set(\"thirdPageCursor\", dto.pageInfo.endCursor);",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"operationName\":null,\n\t\"variables\":{},\n\t\"query\":\"{\\n  books_categoryConnection(category: \\\"Art\\\", after:\\\"{{secondPageCursor}}\\\") {\\n    totalCount\\n    edges {\\n      cursor\\n      node {\\n        id\\n        name\\n        category\\n      }\\n    }\\n    items {\\n      id\\n      name\\n      category\\n    }\\n    pageInfo {\\n      startCursor\\n      endCursor\\n      hasNextPage\\n      hasPreviousPage\\n    }\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetLastPageForBooksWithCategoryArtWithCursor",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "d107c500-8644-4ea6-95f7-1ae256145461",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"function getPayLoad() {",
+									"    var jsonData = pm.response.json();",
+									"    var dto = jsonData.data.books_categoryConnection;",
+									"    return dto;",
+									"}",
+									"",
+									"pm.test(\"Total count is returned and valid.\", function () {",
+									"    var dto = getPayLoad();",
+									"    pm.expect(dto.totalCount).to.eql(26);",
+									"});",
+									"",
+									"pm.test(\"Edges return is defaulted to 6\", function () {",
+									"    var dto = getPayLoad();",
+									"    pm.expect(dto.edges.length).to.eql(6);",
+									"});",
+									"",
+									"pm.test(\"Items return is defaulted to 6\", function () {",
+									"    var dto = getPayLoad();",
+									"    pm.expect(dto.items.length).to.eql(6);",
+									"});",
+									"",
+									"pm.test(\"Previous page flag is true.\", function () {",
+									"    var dto = getPayLoad();",
+									"    pm.expect(dto.pageInfo.hasPreviousPage).to.eql(true);",
+									"});",
+									"",
+									"pm.test(\"Next page flag is false.\", function () {",
+									"    var dto = getPayLoad();",
+									"    pm.expect(dto.pageInfo.hasNextPage).to.eql(false);",
+									"});",
+									"",
+									"pm.test(\"Verify first item fetched has expected id.\", function () {",
+									"    var dto = getPayLoad();",
+									"    var first = dto.items[0];",
+									"    pm.expect(first.id).to.eql(\"25\");",
+									"});",
+									"",
+									"pm.test(\"Verify first edge fetched has expected id.\", function () {",
+									"    var dto = getPayLoad();",
+									"    var first = dto.edges[0].node;",
+									"    pm.expect(first.id).to.eql(\"25\");",
+									"});",
+									"",
+									"pm.test(\"Verify last item fetched has expected id.\", function () {",
+									"    var dto = getPayLoad();",
+									"    var last = dto.items[dto.items.length-1];",
+									"    pm.expect(last.id).to.eql(\"30\");",
+									"});",
+									"",
+									"pm.test(\"Verify last edge fetched has expected id.\", function () {",
+									"    var dto = getPayLoad();",
+									"    var last = dto.edges[dto.edges.length-1].node;",
+									"    pm.expect(last.id).to.eql(\"30\");",
+									"});",
+									"",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"operationName\":null,\n\t\"variables\":{},\n\t\"query\":\"{\\n  books_categoryConnection(category: \\\"Art\\\", after:\\\"{{thirdPageCursor}}\\\") {\\n    totalCount\\n    edges {\\n      cursor\\n      node {\\n        id\\n        name\\n        category\\n      }\\n    }\\n    items {\\n      id\\n      name\\n      category\\n    }\\n    pageInfo {\\n      startCursor\\n      endCursor\\n      hasNextPage\\n      hasPreviousPage\\n    }\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		}

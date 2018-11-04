@@ -22,27 +22,28 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
                 resolve: graphQlCache.ResolverWithCache(key => booksRepository.GetBook((string)key), 10));
 
 
-            // Example 3: We are getting a list of Books based on an argument. You are defining the argument yourself to pass into the repository without having to use context.
+            // Example 3: We are getting a list of Books based on an argument. You are defining the key to pass into the repository without having to use context directly.
             //            The cache repository which will cache the book result for a specific time you have defined. There's no paging support.
 
             Field<ListGraphType<BookType>>("books_category",
                 arguments: new QueryArguments(new QueryArgument<NonNullGraphType<StringGraphType>> { Name = "category", Description = "category of the book" }),
                 resolve: graphQlCache.ResolverWithCache(key => booksRepository.GetBooks((string)key), 10, "category"));
 
-            // Example 4: We are getting a list of paged Books. Technically, you are able to get all books by using TotalCount, although there's already a default page limit of 10 if you don't specify.
+            // Example 4: We are getting a list of paged Books. Technically, you are able to get all books by using TotalCount, although there's already a default page limit of 10 items per page if you don't specify.
             //            There's no caching support.
 
             Connection<BookType>().Name("booksConnection_nocache")
                 .ResolveAsync(async context => await context.GetConnectionAsync(booksRepository.GetBooks()));
 
-            // Example 5: We are getting a list of paged Books with a need for argument to be passed in. You are defining the argument yourself to pass into the repository with context.
+            // Example 5: We are getting a list of paged Books with a argument to be passed in. You are defining the argument yourself to pass into the repository with context.
             //            Technically, you are able to get all books by using TotalCount, although there's already a default page limit of 10 if you don't specify. There's no caching support.
 
             Connection<BookType>().Name("books_categoryConnection_nocache")
                 .Argument<NonNullGraphType<StringGraphType>>("category", "category of the book")
                 .ResolveAsync(async context => await context.GetConnectionAsync(booksRepository.GetBooks(context.GetArgument<string>("category"))));
 
-            // Example 6: 
+            // Example 6: We are getting a list of paged Books with a argument to be passed in. You are defining the key to pass into the repository without having to use context directly.
+            //            The cache repository which will cache the book result for a specific time you have defined. You will get paged results with a default page limit of 10 items per page if you don't specify.
 
             Connection<BookType>().Name("books_categoryConnection")
                 .Argument<NonNullGraphType<StringGraphType>>("category", "category of the book")

@@ -15,6 +15,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example
             builder.RegisterType<BookType>();
             builder.RegisterType<BooksMutation>();
             builder.RegisterType<BookInputType>();
+            builder.EnableGraphQlPagingFor<BookType>();
         }
     }
 }

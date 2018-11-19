@@ -10,15 +10,16 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 			Name = "mutations";
 
 			inputBuilderFactory.Create<Book>(this)
-				.Delete<BookIdInputType, StatusType, Status>(book => new Status { Message = $"Successfully removed book with Id {book.Id}" }).Build();
+				.Delete<BookId, Status>(book => new Status { Message = $"Successfully removed book with Id {book.Id}" })
+				.Build();
 
 			inputBuilderFactory.Create<Reviewer>(this).Build();
 
-			inputBuilderFactory.BuildWithModelConvention<Author>(this);
+			inputBuilderFactory.Create<Author>(this).Build();
 
-			inputBuilderFactory.BuildWithModelConvention<BookAuthors>(this);
+			inputBuilderFactory.Create<BookAuthors>(this).Build();
 
-			inputBuilderFactory.BuildWithModelConvention<BookReview>(this);
+			inputBuilderFactory.Create<BookReview>(this).Build();
 		}
 	}
 }

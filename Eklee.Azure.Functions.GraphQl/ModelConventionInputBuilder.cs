@@ -3,7 +3,7 @@ using GraphQL.Types;
 
 namespace Eklee.Azure.Functions.GraphQl
 {
-	public class ModelConventionInputBuilder<TSource> 
+	public class ModelConventionInputBuilder<TSource>
 	{
 		private readonly ObjectGraphType _objectGraphType;
 		private readonly IGraphQlRepository _graphQlRepository;
@@ -33,30 +33,12 @@ namespace Eklee.Azure.Functions.GraphQl
 			};
 		}
 
-		public ModelConventionInputBuilder<TSource> Delete<TDeleteOutputType, TDeleteOutput>(Func<TSource, TDeleteOutput> transform) where TDeleteOutputType : IGraphType
+		public ModelConventionInputBuilder<TSource> Delete<TDeleteInput, TDeleteOutput>(Func<TSource, TDeleteOutput> transform)
 		{
 			_deleteSetupAction = () =>
 			{
-				_objectGraphType.FieldAsync<TDeleteOutputType>($"delete{typeof(TSource).Name}", arguments: new QueryArguments(
-						new QueryArgument<NonNullGraphType<ModelConventionInputType<TSource>>> { Name = _sourceName }
-					),
-					resolve: async context =>
-					{
-						var item = context.GetArgument<TSource>(_sourceName);
-						await _graphQlRepository.DeleteAsync(item);
-						return transform(item);
-					});
-			};
-
-			return this;
-		}
-
-		public ModelConventionInputBuilder<TSource> Delete<TDeleteInputType, TDeleteOutputType, TDeleteOutput>(Func<TSource, TDeleteOutput> transform) where TDeleteInputType : GraphType where TDeleteOutputType : IGraphType
-		{
-			_deleteSetupAction = () =>
-			{
-				_objectGraphType.FieldAsync<TDeleteOutputType>($"delete{typeof(TSource).Name}", arguments: new QueryArguments(
-						new QueryArgument<NonNullGraphType<TDeleteInputType>> { Name = _sourceName }
+				_objectGraphType.FieldAsync<ModelConventionType<TDeleteInput>>($"delete{typeof(TSource).Name}", arguments: new QueryArguments(
+						new QueryArgument<NonNullGraphType<ModelConventionInputType<TDeleteOutput>>> { Name = _sourceName }
 					),
 					resolve: async context =>
 					{

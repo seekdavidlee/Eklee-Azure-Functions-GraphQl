@@ -18,15 +18,11 @@ namespace Eklee.Azure.Functions.GraphQl.Example
 	        builder.RegisterType<InputBuilderFactory>();
 	        builder.RegisterType<BooksMutation>();
 
-	        builder.RegisterType<BookIdInputType>();
-
 	        builder.RegisterGeneric(typeof(ModelConventionInputType<>));
 	        builder.RegisterGeneric(typeof(ModelConventionType<>));
 	        builder.RegisterGeneric(typeof(ConnectionType<>));
 	        builder.RegisterType<PageInfoType>();
 	        builder.RegisterGeneric(typeof(EdgeType<>));
-
-	        builder.RegisterType<StatusType>();
 
 	        builder.RegisterType<InMemoryDbRepository>().As<IGraphQlRepository>().SingleInstance();
 	        builder.RegisterType<MyStartup>().As<IStartable>().SingleInstance();

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
@@ -181,5 +182,45 @@ namespace Eklee.Azure.Functions.GraphQl
         {
             return !string.IsNullOrEmpty(cursor) ? Convert.ToInt32(Encoding.UTF8.GetString(Convert.FromBase64String(cursor))) : -1;
         }
-    }
+
+	    public static string GetCacheKey(this List<QueryParameter> list)
+	    {
+		    return string.Join("_", list.Select(x => x.ContextValue.Value.ToString()));
+	    }
+
+	    public static string GetDescription(this Member member)
+	    {
+		    var description = (DescriptionAttribute)member.GetAttribute(typeof(DescriptionAttribute), false);
+		    return description != null ? description.Description : "";
+	    }
+
+	    public static Member GetMember(this List<Member> members, string name)
+	    {
+		    return members.Single(x => x.Name.ToLower() == name);
+	    }
+
+	    public static void Add(this List<ModelMember> list, string name, bool isOptional)
+	    {
+		    list.Add(new ModelMember { Name = name, IsOptional = isOptional });
+	    }
+
+	    public static ContextValue GetContextValue(this Dictionary<string, object> args, string name)
+	    {
+		    var contextValue = new ContextValue { IsNotSet = !args.ContainsKey(name) };
+
+		    if (!contextValue.IsNotSet)
+		    {
+			    contextValue.Value = args[name];
+		    }
+
+		    return contextValue;
+	    }
+
+	    public static string GetKey<T>(this T item)
+	    {
+		    var f = TypeAccessor.Create(typeof(T));
+		    return string.Join("", f.GetMembers().Where(x => x.GetAttribute(typeof(KeyAttribute), false) != null)
+			    .Select(x => f[item, x.Name].ToString()));
+	    }
+	}
 }

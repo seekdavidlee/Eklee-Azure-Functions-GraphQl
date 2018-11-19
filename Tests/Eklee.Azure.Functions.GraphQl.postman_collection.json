@@ -22,8 +22,8 @@
 									"",
 									"pm.test(\"Query returns with match\", function () {",
 									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData.data.book.id).to.eql(\"1\");",
-									"    pm.expect(jsonData.data.book.name).to.eql(\"Nancy in the Wonderland\");",
+									"    pm.expect(jsonData.data.getBook.id).to.eql(\"1\");",
+									"    pm.expect(jsonData.data.getBook.name).to.eql(\"Nancy in the Wonderland\");",
 									"});"
 								],
 								"type": "text/javascript"
@@ -42,7 +42,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"{\\n  book(id: \\\"1\\\") {\\n    id\\n    name\\n  }\\n}\\n\"}"
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"{\\n  getBook(id: \\\"1\\\") {\\n    id\\n    name\\n  }\\n}\\n\"}"
 						},
 						"url": {
 							"raw": "{{endpoint}}/api/books/graph",
@@ -72,13 +72,13 @@
 									"",
 									"pm.test(\"Query returns with match\", function () {",
 									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData.data.books_category[0].id).to.eql(\"2\");",
-									"    pm.expect(jsonData.data.books_category[0].name).to.eql(\"App in the Cloud\");",
-									"    pm.expect(jsonData.data.books_category[0].category).to.eql(\"Technology\");",
+									"    pm.expect(jsonData.data.getBooksByCategory[0].id).to.eql(\"2\");",
+									"    pm.expect(jsonData.data.getBooksByCategory[0].name).to.eql(\"App in the Cloud\");",
+									"    pm.expect(jsonData.data.getBooksByCategory[0].category).to.eql(\"Technology\");",
 									"    ",
-									"    pm.expect(jsonData.data.books_category[1].id).to.eql(\"4\");",
-									"    pm.expect(jsonData.data.books_category[1].name).to.eql(\"C/C++ for Beginners\");",
-									"    pm.expect(jsonData.data.books_category[1].category).to.eql(\"Technology\");",
+									"    pm.expect(jsonData.data.getBooksByCategory[1].id).to.eql(\"4\");",
+									"    pm.expect(jsonData.data.getBooksByCategory[1].name).to.eql(\"C/C++ for Beginners\");",
+									"    pm.expect(jsonData.data.getBooksByCategory[1].category).to.eql(\"Technology\");",
 									"});"
 								],
 								"type": "text/javascript"
@@ -97,7 +97,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"{\\n  books_category(category: \\\"Technology\\\") {\\n    id\\n    name\\n    category\\n  }\\n}\\n\"}"
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"{\\n  getBooksByCategory(category: \\\"Technology\\\") {\\n    id\\n    name\\n    category\\n  }\\n}\\n\"}"
 						},
 						"url": {
 							"raw": "{{endpoint}}/api/books/graph",
@@ -130,9 +130,11 @@
 									"    pm.response.to.have.status(200);",
 									"});",
 									"",
-									"pm.test(\"Created data contains Id\", function () {",
+									"var id = pm.environment.get(\"newId1\").toString(); ",
+									"",
+									"pm.test(\"Created data contains Id \" + id, function () {",
 									"    var jsonData = pm.response.json();",
-									"    var id = pm.environment.get(\"newId1\").toString(); ",
+									"    ",
 									"    pm.expect(jsonData.data.createBook.id).to.eql(id);",
 									"});"
 								],
@@ -191,12 +193,12 @@
 									"    pm.response.to.have.status(200);",
 									"});",
 									"",
-									"pm.test(\"Query returns with match\", function () {",
-									"    var jsonData = pm.response.json();",
+									"var id = pm.environment.get(\"newId1\"); ",
 									"    ",
-									"    var id = pm.environment.get(\"newId1\"); ",
-									"    pm.expect(jsonData.data.book.id).to.eql(id);",
-									"    pm.expect(jsonData.data.book.name).to.eql(\"abc\");",
+									"pm.test(\"Query returns with match with Id \" + id, function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.getBook.id).to.eql(id);",
+									"    pm.expect(jsonData.data.getBook.name).to.eql(\"abc\");",
 									"});"
 								],
 								"type": "text/javascript"
@@ -215,7 +217,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"{\\n  book(id: \\\"{{newId1}}\\\") {\\n    id\\n    name\\n  }\\n}\\n\"}"
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"{\\n  getBook(id: \\\"{{newId1}}\\\") {\\n    id\\n    name\\n  }\\n}\\n\"}"
 						},
 						"url": {
 							"raw": "{{endpoint}}/api/books/graph",
@@ -250,7 +252,7 @@
 									"",
 									"function getPayLoad() {",
 									"    var jsonData = pm.response.json();",
-									"    var dto = jsonData.data.books_categoryConnection;",
+									"    var dto = jsonData.data.getPagedBooksByCategory;",
 									"    return dto;",
 									"}",
 									"",
@@ -316,7 +318,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"operationName\":null,\n\t\"variables\":{},\n\t\"query\":\"{\\n  books_categoryConnection(category: \\\"Art\\\") {\\n    totalCount\\n    edges {\\n      cursor\\n      node {\\n        id\\n        name\\n        category\\n      }\\n    }\\n    items {\\n      id\\n      name\\n      category\\n    }\\n    pageInfo {\\n      startCursor\\n      endCursor\\n      hasNextPage\\n      hasPreviousPage\\n    }\\n  }\\n}\\n\"}"
+							"raw": "{\n\t\"operationName\":null,\n\t\"variables\":{},\n\t\"query\":\"{\\n  getPagedBooksByCategory(category: \\\"Art\\\") {\\n    totalCount\\n    edges {\\n      cursor\\n      node {\\n        id\\n        name\\n        category\\n      }\\n    }\\n    items {\\n      id\\n      name\\n      category\\n    }\\n    pageInfo {\\n      startCursor\\n      endCursor\\n      hasNextPage\\n      hasPreviousPage\\n    }\\n  }\\n}\\n\"}"
 						},
 						"url": {
 							"raw": "{{endpoint}}/api/books/graph",
@@ -346,7 +348,7 @@
 									"",
 									"function getPayLoad() {",
 									"    var jsonData = pm.response.json();",
-									"    var dto = jsonData.data.books_categoryConnection;",
+									"    var dto = jsonData.data.getPagedBooksByCategory;",
 									"    return dto;",
 									"}",
 									"",
@@ -406,7 +408,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"operationName\":null,\n\t\"variables\":{},\n\t\"query\":\"{\\n  books_categoryConnection(category: \\\"Art\\\", after: \\\"{{nextPageCursor}}\\\" ) {\\n    totalCount\\n    edges {\\n      cursor\\n      node {\\n        id\\n        name\\n        category\\n      }\\n    }\\n    items {\\n      id\\n      name\\n      category\\n    }\\n    pageInfo {\\n      startCursor\\n      endCursor\\n      hasNextPage\\n      hasPreviousPage\\n    }\\n  }\\n}\\n\"}"
+							"raw": "{\n\t\"operationName\":null,\n\t\"variables\":{},\n\t\"query\":\"{\\n  getPagedBooksByCategory(category: \\\"Art\\\", after: \\\"{{nextPageCursor}}\\\" ) {\\n    totalCount\\n    edges {\\n      cursor\\n      node {\\n        id\\n        name\\n        category\\n      }\\n    }\\n    items {\\n      id\\n      name\\n      category\\n    }\\n    pageInfo {\\n      startCursor\\n      endCursor\\n      hasNextPage\\n      hasPreviousPage\\n    }\\n  }\\n}\\n\"}"
 						},
 						"url": {
 							"raw": "{{endpoint}}/api/books/graph",
@@ -436,7 +438,7 @@
 									"",
 									"function getPayLoad() {",
 									"    var jsonData = pm.response.json();",
-									"    var dto = jsonData.data.books_categoryConnection;",
+									"    var dto = jsonData.data.getPagedBooksByCategory;",
 									"    return dto;",
 									"}",
 									"",
@@ -514,7 +516,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"operationName\":null,\n\t\"variables\":{},\n\t\"query\":\"{\\n  books_categoryConnection(category: \\\"Art\\\", after:\\\"{{secondPageCursor}}\\\") {\\n    totalCount\\n    edges {\\n      cursor\\n      node {\\n        id\\n        name\\n        category\\n      }\\n    }\\n    items {\\n      id\\n      name\\n      category\\n    }\\n    pageInfo {\\n      startCursor\\n      endCursor\\n      hasNextPage\\n      hasPreviousPage\\n    }\\n  }\\n}\\n\"}"
+							"raw": "{\n\t\"operationName\":null,\n\t\"variables\":{},\n\t\"query\":\"{\\n  getPagedBooksByCategory(category: \\\"Art\\\", after:\\\"{{secondPageCursor}}\\\") {\\n    totalCount\\n    edges {\\n      cursor\\n      node {\\n        id\\n        name\\n        category\\n      }\\n    }\\n    items {\\n      id\\n      name\\n      category\\n    }\\n    pageInfo {\\n      startCursor\\n      endCursor\\n      hasNextPage\\n      hasPreviousPage\\n    }\\n  }\\n}\\n\"}"
 						},
 						"url": {
 							"raw": "{{endpoint}}/api/books/graph",
@@ -544,7 +546,7 @@
 									"",
 									"function getPayLoad() {",
 									"    var jsonData = pm.response.json();",
-									"    var dto = jsonData.data.books_categoryConnection;",
+									"    var dto = jsonData.data.getPagedBooksByCategory;",
 									"    return dto;",
 									"}",
 									"",
@@ -616,7 +618,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"operationName\":null,\n\t\"variables\":{},\n\t\"query\":\"{\\n  books_categoryConnection(category: \\\"Art\\\", after:\\\"{{thirdPageCursor}}\\\") {\\n    totalCount\\n    edges {\\n      cursor\\n      node {\\n        id\\n        name\\n        category\\n      }\\n    }\\n    items {\\n      id\\n      name\\n      category\\n    }\\n    pageInfo {\\n      startCursor\\n      endCursor\\n      hasNextPage\\n      hasPreviousPage\\n    }\\n  }\\n}\\n\"}"
+							"raw": "{\n\t\"operationName\":null,\n\t\"variables\":{},\n\t\"query\":\"{\\n  getPagedBooksByCategory(category: \\\"Art\\\", after:\\\"{{thirdPageCursor}}\\\") {\\n    totalCount\\n    edges {\\n      cursor\\n      node {\\n        id\\n        name\\n        category\\n      }\\n    }\\n    items {\\n      id\\n      name\\n      category\\n    }\\n    pageInfo {\\n      startCursor\\n      endCursor\\n      hasNextPage\\n      hasPreviousPage\\n    }\\n  }\\n}\\n\"}"
 						},
 						"url": {
 							"raw": "{{endpoint}}/api/books/graph",

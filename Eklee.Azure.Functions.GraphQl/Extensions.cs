@@ -12,13 +12,11 @@ using GraphQL;
 using GraphQL.Builders;
 using GraphQL.Http;
 using GraphQL.Types;
-using GraphQL.Types.Relay;
 using GraphQL.Types.Relay.DataObjects;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.Extensions.Caching.Distributed;
 using Newtonsoft.Json;
 
 namespace Eklee.Azure.Functions.GraphQl
@@ -33,19 +31,6 @@ namespace Eklee.Azure.Functions.GraphQl
             builder.RegisterType<TSchema>().As<ISchema>().SingleInstance();
 
             builder.RegisterType<GraphDependencyResolver>().As<IDependencyResolver>();
-        }
-
-        public static void EnableGraphQlCache<TDistributedCache>(this ContainerBuilder builder) where TDistributedCache : IDistributedCache
-        {
-            builder.RegisterType<GraphQlCache>().As<IGraphQlCache>().SingleInstance();
-            builder.UseDistributedCache<TDistributedCache>();
-        }
-
-        public static void EnableGraphQlPagingFor<TGraphType>(this ContainerBuilder builder) where TGraphType : IGraphType
-        {
-            builder.RegisterType<ConnectionType<TGraphType>>();
-            builder.RegisterType<PageInfoType>();
-            builder.RegisterType<EdgeType<TGraphType>>();
         }
 
         public static async Task<IActionResult> ProcessGraphQlRequest(this ExecutionContext executionContext, HttpRequest httpRequest)
@@ -82,36 +67,6 @@ namespace Eklee.Azure.Functions.GraphQl
             }
 
             throw new ArgumentException($"Type {t.Name} does not contain a property with Key attribute.");
-        }
-
-        /// <summary>
-        /// Creates a Resolver instance that can be used to satisfy the criteria for resolution of the T instance.
-        /// </summary>
-        /// <typeparam name="T">T to resolve.</typeparam>
-        /// <param name="graphQlCache">Cache implementation.</param>
-        /// <param name="getResult">Func to get the result if we are unable to get the result from cache.</param>
-        /// <param name="cacheDurationInSeconds">Cache duration in seconds.</param>
-        /// <param name="contextKey">Key in which we can use to interrogate the context with.</param>
-        /// <returns></returns>
-        public static Func<ResolveFieldContext<object>, object> ResolverWithCache<T>(
-            this IGraphQlCache graphQlCache, Func<object, T> getResult, int cacheDurationInSeconds, string contextKey = null)
-        {
-            // Ref: https://graphql.github.io/learn/caching/
-
-            return context => graphQlCache.GetByKeyAsync(getResult,
-                contextKey != null ? context.GetArgument<object>(contextKey) : context.DiscoverContextValueByKey<T>(), cacheDurationInSeconds).Result;
-        }
-
-        public static async Task<Connection<T>> GetConnectionWithCacheAsync<T>(this ResolveConnectionContext<object> context,
-            IGraphQlCache graphQlCache,
-            Func<object, IEnumerable<T>> getResults,
-            string contextKey,
-            int defaultPageLimit = 10, int cacheDurationInSeconds = 10)
-        {
-            var items = await graphQlCache.GetByKeyAsync(getResults, context.GetArgument<object>(contextKey),
-                     cacheDurationInSeconds);
-
-            return await context.GetConnectionAsync(items, defaultPageLimit);
         }
 
         /// <summary>

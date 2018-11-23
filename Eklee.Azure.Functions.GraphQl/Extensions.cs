@@ -12,6 +12,7 @@ using GraphQL;
 using GraphQL.Builders;
 using GraphQL.Http;
 using GraphQL.Types;
+using GraphQL.Types.Relay;
 using GraphQL.Types.Relay.DataObjects;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -31,7 +32,15 @@ namespace Eklee.Azure.Functions.GraphQl
             builder.RegisterType<TSchema>().As<ISchema>().SingleInstance();
 
             builder.RegisterType<GraphDependencyResolver>().As<IDependencyResolver>();
-        }
+
+	        builder.RegisterType<QueryBuilderFactory>();
+	        builder.RegisterType<InputBuilderFactory>();
+	        builder.RegisterGeneric(typeof(ModelConventionInputType<>));
+	        builder.RegisterGeneric(typeof(ModelConventionType<>));
+	        builder.RegisterGeneric(typeof(ConnectionType<>));
+	        builder.RegisterType<PageInfoType>();
+	        builder.RegisterGeneric(typeof(EdgeType<>));
+		}
 
         public static async Task<IActionResult> ProcessGraphQlRequest(this ExecutionContext executionContext, HttpRequest httpRequest)
         {
@@ -47,26 +56,6 @@ namespace Eklee.Azure.Functions.GraphQl
             // TODO: Log request Content-Type is unsupported.
 
             return new BadRequestResult();
-        }
-
-        /// <summary>
-        /// Attempt to discover the context key from referring to the type which will contain at least one KeyAttribute.
-        /// </summary>
-        /// <typeparam name="T">"T "Type.</typeparam>
-        /// <param name="context">Context.</param>
-        /// <returns></returns>
-        public static object DiscoverContextValueByKey<T>(this ResolveFieldContext<object> context)
-        {
-            var t = typeof(T);
-            var accessor = TypeAccessor.Create(t);
-
-            var member = accessor.GetMembers().FirstOrDefault(x => x.GetAttribute(typeof(KeyAttribute), false) != null);
-            if (member != null)
-            {
-                return context.GetArgument<object>(member.Name.ToLower());
-            }
-
-            throw new ArgumentException($"Type {t.Name} does not contain a property with Key attribute.");
         }
 
         /// <summary>

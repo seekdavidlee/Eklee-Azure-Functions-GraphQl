@@ -36,6 +36,11 @@ namespace Eklee.Azure.Functions.GraphQl
 			}
 		}
 
+		public async Task BatchAddAsync<T>(IEnumerable<T> items)
+		{
+			await GetRepository<T>().BatchAddAsync(items);
+		}
+
 		public async Task AddAsync<T>(T item)
 		{
 			await GetRepository<T>().AddAsync(item);

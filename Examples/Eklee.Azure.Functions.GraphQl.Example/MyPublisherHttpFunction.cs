@@ -44,7 +44,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example
 
 			var publisher = executionContext.Resolve<IHttpMockRepository<Publisher>>();
 			publisher.Update(instance);
-			return new OkResult();
+			return new OkObjectResult(instance);
 		}
 
 		[ExecutionContextDependencyInjection(typeof(MyMockHttpModule))]

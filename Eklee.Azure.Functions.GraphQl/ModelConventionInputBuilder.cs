@@ -60,6 +60,16 @@ namespace Eklee.Azure.Functions.GraphQl
 
 		public void Build()
 		{
+			_objectGraphType.FieldAsync<ListGraphType<ModelConventionType<TSource>>>($"batchCreate{typeof(TSource).Name}", arguments: new QueryArguments(
+					new QueryArgument<ListGraphType<ModelConventionInputType<TSource>>> { Name = _sourceName }
+				),
+				resolve: async context =>
+				{
+					var items = context.GetArgument<IEnumerable<TSource>>(_sourceName);
+					await _graphQlRepositoryProvider.BatchAddAsync(items);
+					return items;
+				});
+
 			_objectGraphType.FieldAsync<ModelConventionType<TSource>>($"create{typeof(TSource).Name}", arguments: new QueryArguments(
 					new QueryArgument<NonNullGraphType<ModelConventionInputType<TSource>>> { Name = _sourceName }
 				),

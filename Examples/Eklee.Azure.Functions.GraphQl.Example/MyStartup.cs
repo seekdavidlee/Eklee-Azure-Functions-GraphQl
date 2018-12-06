@@ -61,6 +61,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example
                 await _graphQlRepository.AddAsync(new Author { Id = "10", Name = "Michael Han" });
                 await _graphQlRepository.AddAsync(new Author { Id = "11", Name = "Fu Wen" });
                 await _graphQlRepository.AddAsync(new Author { Id = "12", Name = "Li Wei" });
+
                 /*
                 await _graphQlRepository.AddAsync(new BookAuthors
                 {

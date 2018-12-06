@@ -6,6 +6,11 @@ namespace Eklee.Azure.Functions.GraphQl
 {
 	public class HttpRepository : IGraphQlRepository
 	{
+		public Task BatchAddAsync<T>(IEnumerable<T> items)
+		{
+			throw new NotImplementedException();
+		}
+
 		public Task AddAsync<T>(T item)
 		{
 			throw new NotImplementedException();

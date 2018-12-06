@@ -11,7 +11,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example
 {
 	public static class MyPublisherHttpFunction
 	{
-		[ExecutionContextDependencyInjection(typeof(MyMockHttpModule))]
+		[ExecutionContextDependencyInjection(typeof(MyModule))]
 		[FunctionName("addPublisher")]
 		public static IActionResult Add(
 			[HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "publishers")] HttpRequest req,
@@ -26,7 +26,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example
 		}
 
 
-		[ExecutionContextDependencyInjection(typeof(MyMockHttpModule))]
+		[ExecutionContextDependencyInjection(typeof(MyModule))]
 		[FunctionName("updatePublisher")]
 		public static IActionResult Update(
 			[HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "publishers/{id}")] HttpRequest req,
@@ -47,7 +47,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example
 			return new OkObjectResult(instance);
 		}
 
-		[ExecutionContextDependencyInjection(typeof(MyMockHttpModule))]
+		[ExecutionContextDependencyInjection(typeof(MyModule))]
 		[FunctionName("deletePublisher")]
 		public static IActionResult Delete(
 			[HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "publishers/{id}")] HttpRequest req,
@@ -60,7 +60,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example
 			return new OkResult();
 		}
 
-		[ExecutionContextDependencyInjection(typeof(MyMockHttpModule))]
+		[ExecutionContextDependencyInjection(typeof(MyModule))]
 		[FunctionName("getPublisher")]
 		public static IActionResult Get(
 			[HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "publishers/{id}")] HttpRequest req,

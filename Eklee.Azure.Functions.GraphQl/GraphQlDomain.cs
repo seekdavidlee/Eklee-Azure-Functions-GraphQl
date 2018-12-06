@@ -39,14 +39,5 @@ namespace Eklee.Azure.Functions.GraphQl
 
             return results;
         }
-
-        public async Task<ExecutionResult> ExecuteAsync(string query)
-        {
-            return await _documentExecuter.ExecuteAsync(new ExecutionOptions
-            {
-                Schema = _schema,
-                Query = query
-            });
-        }
     }
 }

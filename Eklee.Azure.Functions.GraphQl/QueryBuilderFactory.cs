@@ -5,10 +5,10 @@ namespace Eklee.Azure.Functions.GraphQl
 {
 	public class QueryBuilderFactory
 	{
-		private readonly IGraphQlRepository _graphQlRepository;
+		private readonly IGraphQlRepositoryProvider _graphQlRepository;
 		private readonly IDistributedCache _distributedCache;
 
-		public QueryBuilderFactory(IGraphQlRepository graphQlRepository, IDistributedCache distributedCache)
+		public QueryBuilderFactory(IGraphQlRepositoryProvider graphQlRepository, IDistributedCache distributedCache)
 		{
 			_graphQlRepository = graphQlRepository;
 			_distributedCache = distributedCache;

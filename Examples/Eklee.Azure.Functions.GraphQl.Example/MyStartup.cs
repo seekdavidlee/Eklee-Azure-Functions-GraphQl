@@ -8,7 +8,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example
     {
         private readonly IGraphQlRepository _graphQlRepository;
 
-        public MyStartup(IGraphQlRepository graphQlRepository)
+        public MyStartup(IGraphQlRepositoryProvider graphQlRepository)
         {
             _graphQlRepository = graphQlRepository;
         }

@@ -6,13 +6,13 @@ namespace Eklee.Azure.Functions.GraphQl
 	public class InputBuilder<TInputType, TOutputType, TSource> where TInputType : GraphType where TOutputType : IGraphType
 	{
 		private readonly ObjectGraphType _objectGraphType;
-		private readonly IGraphQlRepository _graphQlRepository;
+		private readonly IGraphQlRepositoryProvider _graphQlRepository;
 		private readonly string _sourceName;
 		private Action _deleteSetupAction;
 
 		internal InputBuilder(
 			ObjectGraphType objectGraphType,
-			IGraphQlRepository graphQlRepository)
+			IGraphQlRepositoryProvider graphQlRepository)
 		{
 			_objectGraphType = objectGraphType;
 			_graphQlRepository = graphQlRepository;

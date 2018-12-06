@@ -16,6 +16,9 @@ namespace Eklee.Azure.Functions.GraphQl.Example
 			builder.RegisterType<BooksMutation>();
 
 			builder.RegisterType<InMemoryDbRepository>().As<IGraphQlRepository>().SingleInstance();
+			builder.RegisterType<HttpRepository>().As<IGraphQlRepository>().SingleInstance();
+			builder.RegisterType<GraphQlRepositoryProvider>().As<IGraphQlRepositoryProvider>().SingleInstance();
+
 			builder.RegisterType<MyStartup>().As<IStartable>().SingleInstance();
 		}
 	}

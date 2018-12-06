@@ -4,16 +4,16 @@ namespace Eklee.Azure.Functions.GraphQl
 {
 	public class InputBuilderFactory
 	{
-		private readonly IGraphQlRepository _graphQlRepository;
+		private readonly IGraphQlRepositoryProvider _graphQlRepositoryProvider;
 
-		public InputBuilderFactory(IGraphQlRepository graphQlRepository)
+		public InputBuilderFactory(IGraphQlRepositoryProvider graphQlRepositoryProvider)
 		{
-			_graphQlRepository = graphQlRepository;
+			_graphQlRepositoryProvider = graphQlRepositoryProvider;
 		}
 
 		public ModelConventionInputBuilder<TSource> Create<TSource>(ObjectGraphType objectGraphType)
 		{
-			return new ModelConventionInputBuilder<TSource>(objectGraphType, _graphQlRepository);
+			return new ModelConventionInputBuilder<TSource>(objectGraphType, _graphQlRepositoryProvider);
 		}
 	}
 }

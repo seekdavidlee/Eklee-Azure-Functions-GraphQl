@@ -16,7 +16,7 @@ namespace Eklee.Azure.Functions.GraphQl
 	{
 		private readonly ObjectGraphType<object> _objectGraphType;
 		private readonly string _queryName;
-		private readonly IGraphQlRepository _graphQlRepository;
+		private readonly IGraphQlRepositoryProvider _graphQlRepository;
 		private readonly IDistributedCache _distributedCache;
 		private readonly List<ModelMember> _modelMemberList = new List<ModelMember>();
 		private readonly TypeAccessor _typeAccessor;
@@ -24,7 +24,7 @@ namespace Eklee.Azure.Functions.GraphQl
 
 		internal QueryBuilder(ObjectGraphType<object> objectGraphType,
 			string queryName,
-			IGraphQlRepository graphQlRepository,
+			IGraphQlRepositoryProvider graphQlRepository,
 			IDistributedCache distributedCache)
 		{
 			_objectGraphType = objectGraphType;

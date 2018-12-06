@@ -6,6 +6,105 @@
 	},
 	"item": [
 		{
+			"name": "Publisher",
+			"item": [
+				{
+					"name": "Get Publisher",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "bc70d737-5542-430a-bb01-5f9563bd81c3",
+								"exec": [
+									"pm.test(\"Status code is 200.\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"",
+									"pm.test(\"Get publisher with Id 1.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.eql(\"1\");",
+									"    pm.expect(jsonData.name).to.eql(\"West House Publishing\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/publishers/1",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"publishers",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Publisher",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c97ec909-1dd9-4022-b457-4fa34dc5aae6",
+								"exec": [
+									"pm.test(\"Status code is 200.\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"",
+									"pm.test(\"Get publisher with Id 7.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.eql(\"7\");",
+									"    pm.expect(jsonData.name).to.eql(\"FOOBAR Publisher\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": \"7\",\n\t\"name\": \"FOOBAR Publisher\"\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/publishers",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"publishers"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "Queries",
 			"item": [
 				{

@@ -6,7 +6,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.HttpMocks
 	{
 		protected override void Load(ContainerBuilder builder)
 		{
-			builder.RegisterType<PublisherMockRepository>().As<IHttpMockRepository<Publisher>>();
+			builder.RegisterType<PublisherMockRepository>().As<IHttpMockRepository<Publisher>>().SingleInstance();
 		}
 	}
 }

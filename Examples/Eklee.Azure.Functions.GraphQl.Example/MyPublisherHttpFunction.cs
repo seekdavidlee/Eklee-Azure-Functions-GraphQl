@@ -20,8 +20,9 @@ namespace Eklee.Azure.Functions.GraphQl.Example
 		{
 			var ctx = executionContext.Resolve<IHttpRequestContext>();
 			var publisher = executionContext.Resolve<IHttpMockRepository<Publisher>>();
-			publisher.Add(ctx.GetModelFromBody<Publisher>());
-			return new OkResult();
+			var item = ctx.GetModelFromBody<Publisher>();
+			publisher.Add(item);
+			return new RedirectResult($"http://{req.Host}{req.Path}/{item.Id}");
 		}
 
 

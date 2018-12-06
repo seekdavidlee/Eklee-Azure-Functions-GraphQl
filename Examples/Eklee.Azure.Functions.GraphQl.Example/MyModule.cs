@@ -1,5 +1,6 @@
 ﻿using Autofac;
 using Eklee.Azure.Functions.GraphQl.Example.BusinessLayer;
+using Eklee.Azure.Functions.GraphQl.Example.HttpMocks;
 using Eklee.Azure.Functions.Http;
 using Microsoft.Extensions.Caching.Distributed;
 

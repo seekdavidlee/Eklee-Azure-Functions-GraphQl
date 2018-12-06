@@ -9,7 +9,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Eklee.Azure.Functions.GraphQl.Example
 {
-	public static class MyHttpFunctions
+	public static class MyPublisherHttpFunction
 	{
 		[ExecutionContextDependencyInjection(typeof(MyMockHttpModule))]
 		[FunctionName("addPublisher")]

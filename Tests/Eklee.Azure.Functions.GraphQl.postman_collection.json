@@ -309,6 +309,55 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Seed BookAuthors",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "90c54615-a264-46b5-8bc5-b77d09317f9b",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Created data contains 30 items\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.batchCreateBookAuthors.length).to.eql(7);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  batchCreateBookAuthors(bookauthors: [{id: \\\"1\\\", bookId: \\\"1\\\", authorIdList: [\\\"1\\\"], royaltyType: \\\"b1\\\"}, {id: \\\"2\\\", bookId: \\\"2\\\", authorIdList: [\\\"2\\\", \\\"3\\\", \\\"4\\\"], royaltyType: \\\"b1\\\"}, {id: \\\"3\\\", bookId: \\\"3\\\", authorIdList: [\\\"3\\\", \\\"5\\\"], royaltyType: \\\"b1\\\"}, {id: \\\"4\\\", bookId: \\\"4\\\", authorIdList: [\\\"2\\\"], royaltyType: \\\"b1\\\"}, {id: \\\"5\\\", bookId: \\\"5\\\", authorIdList: [\\\"7\\\"], royaltyType: \\\"b1\\\"}, {id: \\\"6\\\", bookId: \\\"6\\\", authorIdList: [\\\"8\\\"], royaltyType: \\\"c1\\\"}, {id: \\\"7\\\", bookId: \\\"7\\\", authorIdList: [\\\"9\\\"], royaltyType: \\\"c1\\\"}]) {\\n    id\\n    bookId\\n    authorIdList\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},

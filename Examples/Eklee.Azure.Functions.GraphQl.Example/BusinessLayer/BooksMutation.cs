@@ -18,7 +18,9 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 				.Use<Reviewer, InMemoryDbRepository>()
 				.Build();
 
-			inputBuilderFactory.Create<Author>(this).Build();
+			inputBuilderFactory.Create<Author>(this)
+				.Use<Author, InMemoryDbRepository>()
+				.Build();
 
 			inputBuilderFactory.Create<BookAuthors>(this)
 				.Use<BookAuthors, InMemoryDbRepository>()

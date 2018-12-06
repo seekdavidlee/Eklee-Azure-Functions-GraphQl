@@ -260,6 +260,55 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Seed Authors",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "90c54615-a264-46b5-8bc5-b77d09317f9b",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Created data contains 30 items\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.batchCreateAuthor.length).to.eql(12);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  batchCreateAuthor(author: [{id: \\\"1\\\", name: \\\"James Wood\\\"}, {id: \\\"2\\\", name: \\\"Andy Liu\\\"}, {id: \\\"3\\\", name: \\\"Derick North\\\"}, {id: \\\"4\\\", name: \\\"Mary Jane\\\"}, {id: \\\"5\\\", name: \\\"Sir Richard Ice\\\"}, {id: \\\"6\\\", name: \\\"Ken Poh\\\"}, {id: \\\"7\\\", name: \\\"Zac Mer\\\"}, {id: \\\"8\\\", name: \\\"Kathy Zhang\\\"}, {id: \\\"9\\\", name: \\\"Joe Cook\\\"}, {id: \\\"10\\\", name: \\\"Michael Han\\\"}, {id: \\\"11\\\", name: \\\"Fu Wen\\\"}, {id: \\\"12\\\", name: \\\"Li Wei\\\"}]) {\\n    id\\n    name\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},

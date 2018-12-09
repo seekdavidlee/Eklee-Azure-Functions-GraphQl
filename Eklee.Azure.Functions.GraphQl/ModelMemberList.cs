@@ -29,7 +29,7 @@ namespace Eklee.Azure.Functions.GraphQl
 
 		public void Add(string name, bool isOptional)
 		{
-			_modelMemberList.Add(name.ToLower(), isOptional);
+			_modelMemberList.Add(new ModelMember { Name = name.ToLower(), IsOptional = isOptional });
 		}
 
 		public IEnumerable<QueryParameter> GetQueryParameterList(Func<string, ContextValue> func)

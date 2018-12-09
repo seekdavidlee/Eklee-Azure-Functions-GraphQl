@@ -14,7 +14,7 @@ namespace Eklee.Azure.Functions.GraphQl
 	{
 		private readonly ObjectGraphType<object> _objectGraphType;
 		private readonly string _queryName;
-		private readonly IGraphQlRepositoryProvider _graphQlRepository;
+		private readonly IGraphQlRepositoryProvider _graphQlRepositoryProvider;
 		private readonly IDistributedCache _distributedCache;
 
 		private readonly List<QueryParameter> _queryParameterList = new List<QueryParameter>();
@@ -22,12 +22,12 @@ namespace Eklee.Azure.Functions.GraphQl
 		private readonly ModelMemberList<TSource> _modelMemberList;
 		internal QueryBuilder(ObjectGraphType<object> objectGraphType,
 			string queryName,
-			IGraphQlRepositoryProvider graphQlRepository,
+			IGraphQlRepositoryProvider graphQlRepositoryProvider,
 			IDistributedCache distributedCache)
 		{
 			_objectGraphType = objectGraphType;
 			_queryName = queryName;
-			_graphQlRepository = graphQlRepository;
+			_graphQlRepositoryProvider = graphQlRepositoryProvider;
 			_distributedCache = distributedCache;
 
 			_modelMemberList = new ModelMemberList<TSource>(_modelConvention);
@@ -68,7 +68,7 @@ namespace Eklee.Azure.Functions.GraphQl
 			{
 				_queryParameterList.Add(new QueryParameter
 				{
-					Name = memberExpression.Member.Name,
+					Name = memberExpression.Member.Name.ToLower(),
 					Description = modelType.GetMember(memberExpression.Member.Name).GetDescription(),
 					IsOptional = isOptional
 				});
@@ -132,7 +132,7 @@ namespace Eklee.Azure.Functions.GraphQl
 			if (_cacheInSeconds > 0)
 			{
 				list = (await TryGetOrSetIfNotExistAsync(
-					() => _graphQlRepository.QueryAsync<TSource>(queryParameters).Result.ToList(), key,
+					() => _graphQlRepositoryProvider.QueryAsync<TSource>(queryParameters).Result.ToList(), key,
 					new DistributedCacheEntryOptions
 					{
 						AbsoluteExpiration = DateTimeOffset.UtcNow.AddSeconds(_cacheInSeconds.Value)
@@ -140,7 +140,7 @@ namespace Eklee.Azure.Functions.GraphQl
 			}
 			else
 			{
-				list = await _graphQlRepository.QueryAsync<TSource>(queryParameters);
+				list = await _graphQlRepositoryProvider.QueryAsync<TSource>(queryParameters);
 			}
 
 			return list;

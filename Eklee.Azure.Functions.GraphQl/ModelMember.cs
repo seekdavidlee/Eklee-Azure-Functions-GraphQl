@@ -45,7 +45,7 @@ namespace Eklee.Azure.Functions.GraphQl
 
 		public bool PathMemberValueEquals(object targetObject, object compareValue)
 		{
-			return _typeAccessor[targetObject, IsNested() ? PathMember.Name : Member.Name].Equals(compareValue);
+			return _typeAccessor[targetObject, PathMember.Name].Equals(compareValue);
 		}
 	}
 }

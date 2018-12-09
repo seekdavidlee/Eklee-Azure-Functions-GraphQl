@@ -33,12 +33,7 @@ namespace Eklee.Azure.Functions.GraphQl
 
 		private void Add(string path, bool isOptional, Member member)
 		{
-			_modelMemberList.Add(new ModelMember(_modelConvention.ModelType.GetTypeAccessor())
-			{
-				Path = path,
-				IsOptional = isOptional,
-				Member = member
-			});
+			_modelMemberList.Add(new ModelMember(_modelConvention.ModelType.GetTypeAccessor(), path, member, isOptional));
 		}
 
 		public IEnumerable<QueryParameter> GetQueryParameterList(Func<string, ContextValue> func)

@@ -7,15 +7,18 @@ namespace Eklee.Azure.Functions.GraphQl
 	{
 		private TypeAccessor _typeAccessor;
 
-		public ModelMember(TypeAccessor typeAccessor)
+		public ModelMember(TypeAccessor typeAccessor, string path, Member member, bool isOptional)
 		{
 			_typeAccessor = typeAccessor;
+			Path = path;
+			Member = member;
+			IsOptional = isOptional;
+			if (IsNested()) Member = GetNestedMember();
 		}
 
-		public string Path { get; set; }
-		public bool IsOptional { get; set; }
-		public Member Member { private get; set; }
-		public Member PathMember => IsNested() ? GetNestedMember() : Member;
+		public string Path { get; }
+		public bool IsOptional { get; }
+		public Member Member { get; }
 
 		private Member _nestedMember;
 		private Member GetNestedMember()
@@ -39,13 +42,15 @@ namespace Eklee.Azure.Functions.GraphQl
 			return Path.Count(x => x == '.') > 0;
 		}
 
-		public string Name => (IsNested() ? GetNestedMember() : Member).Name.ToLower();
+		public string Name => Member.Name.ToLower();
 
-		public string Description => (IsNested() ? GetNestedMember() : Member).GetDescription();
+		public string Description => Member.GetDescription();
+
+		public bool IsString => Member.Type == typeof(string);
 
 		public bool PathMemberValueEquals(object targetObject, object compareValue)
 		{
-			return _typeAccessor[targetObject, PathMember.Name].Equals(compareValue);
+			return _typeAccessor[targetObject, Member.Name].Equals(compareValue);
 		}
 	}
 }

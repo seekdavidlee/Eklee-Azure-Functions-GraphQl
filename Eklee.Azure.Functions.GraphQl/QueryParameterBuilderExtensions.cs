@@ -13,7 +13,7 @@ namespace Eklee.Azure.Functions.GraphQl
 
 			queryParameterBuilder.ForEach(modelMember =>
 			{
-				if (modelMember.PathMember.Type == typeof(string))
+				if (modelMember.IsString)
 				{
 					if (modelMember.IsOptional)
 					{
@@ -47,7 +47,7 @@ namespace Eklee.Azure.Functions.GraphQl
 		{
 			queryParameterBuilder.ForEach(modelMember =>
 			{
-				if (modelMember.PathMember.Type == typeof(string))
+				if (modelMember.IsString)
 					connectionBuilder = modelMember.IsOptional ?
 						connectionBuilder.Argument<StringGraphType>(modelMember.Name, modelMember.Description) :
 						connectionBuilder.Argument<NonNullGraphType<StringGraphType>>(modelMember.Name, modelMember.Description);

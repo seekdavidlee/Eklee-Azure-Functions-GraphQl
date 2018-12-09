@@ -1,4 +1,5 @@
-﻿using GraphQL.Types;
+﻿using Eklee.Azure.Functions.GraphQl.Repository;
+using GraphQL.Types;
 using Microsoft.Extensions.Caching.Distributed;
 
 namespace Eklee.Azure.Functions.GraphQl

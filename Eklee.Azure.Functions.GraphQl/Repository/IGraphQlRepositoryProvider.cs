@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Eklee.Azure.Functions.GraphQl
+namespace Eklee.Azure.Functions.GraphQl.Repository
 {
 	public interface IGraphQlRepositoryProvider : IGraphQlRepository
 	{

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Eklee.Azure.Functions.GraphQl
+namespace Eklee.Azure.Functions.GraphQl.Repository
 {
-	public class GraphRepository
+	public class GraphQlRepository
 	{
 		public IGraphQlRepository Repository { get; set; }
 		public Dictionary<string, string> Configurations { get; set; }
@@ -14,7 +14,7 @@ namespace Eklee.Azure.Functions.GraphQl
 	public class GraphQlRepositoryProvider : IGraphQlRepositoryProvider
 	{
 		private readonly IEnumerable<IGraphQlRepository> _graphQlRepositories;
-		private readonly Dictionary<string, GraphRepository> _repositories = new Dictionary<string, GraphRepository>();
+		private readonly Dictionary<string, GraphQlRepository> _repositories = new Dictionary<string, GraphQlRepository>();
 
 		public GraphQlRepositoryProvider(IEnumerable<IGraphQlRepository> graphQlRepositories)
 		{
@@ -28,7 +28,7 @@ namespace Eklee.Azure.Functions.GraphQl
 
 			if (!_repositories.ContainsKey(typeSourceName ?? throw new InvalidOperationException()))
 			{
-				_repositories.Add(typeSourceName, new GraphRepository
+				_repositories.Add(typeSourceName, new GraphQlRepository
 				{
 					Repository = _graphQlRepositories.Single(x => x.GetType().Name == repositoryName),
 					Configurations = configurations

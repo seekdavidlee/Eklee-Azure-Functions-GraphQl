@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Eklee.Azure.Functions.GraphQl.Repository;
 using GraphQL.Types;
 
 namespace Eklee.Azure.Functions.GraphQl

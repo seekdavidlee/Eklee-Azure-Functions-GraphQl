@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Eklee.Azure.Functions.GraphQl
+namespace Eklee.Azure.Functions.GraphQl.Repository
 {
 	public interface IGraphQlRepository
 	{

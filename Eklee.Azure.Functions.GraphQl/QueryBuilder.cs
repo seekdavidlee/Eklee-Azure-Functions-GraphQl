@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Eklee.Azure.Functions.GraphQl.Repository;
 using GraphQL.Builders;
@@ -18,8 +17,7 @@ namespace Eklee.Azure.Functions.GraphQl
 		private readonly IGraphQlRepositoryProvider _graphQlRepositoryProvider;
 		private readonly IDistributedCache _distributedCache;
 
-		private readonly List<QueryParameter> _queryParameterList = new List<QueryParameter>();
-		private readonly ModelMemberList<TSource> _modelMemberList = new ModelMemberList<TSource>();
+		private readonly QueryParameterBuilder<TSource> _queryParameterBuilder;
 		internal QueryBuilder(ObjectGraphType<object> objectGraphType,
 			string queryName,
 			IGraphQlRepositoryProvider graphQlRepositoryProvider,
@@ -29,6 +27,8 @@ namespace Eklee.Azure.Functions.GraphQl
 			_queryName = queryName;
 			_graphQlRepositoryProvider = graphQlRepositoryProvider;
 			_distributedCache = distributedCache;
+
+			_queryParameterBuilder = new QueryParameterBuilder<TSource>(this);
 		}
 
 		private QueryOutput _output;
@@ -41,38 +41,9 @@ namespace Eklee.Azure.Functions.GraphQl
 			return this;
 		}
 
-		public QueryBuilder<TSource> WithKeys()
+		public QueryParameterBuilder<TSource> WithParameterBuilder()
 		{
-			_modelMemberList.PopulateWithKeyAttribute();
-
-			return this;
-		}
-
-		public QueryBuilder<TSource> WithProperty<TProperty>(Expression<Func<TSource, TProperty>> expression, bool isOptional = false)
-		{
-			if (expression.Body is MemberExpression memberExpression)
-			{
-				_modelMemberList.Add(memberExpression.Member.Name, isOptional);
-			}
-
-			return this;
-		}
-
-		public QueryBuilder<TSource> WithQueryParameter<TQuery>(Expression<Func<TQuery, object>> expression, bool isOptional = false)
-		{
-			var modelType = new ModelType<TQuery>();
-
-			if (expression.Body is MemberExpression memberExpression)
-			{
-				_queryParameterList.Add(new QueryParameter
-				{
-					Name = memberExpression.Member.Name.ToLower(),
-					Description = modelType.GetMember(memberExpression.Member.Name).GetDescription(),
-					IsOptional = isOptional
-				});
-			}
-
-			return this;
+			return _queryParameterBuilder;
 		}
 
 		public QueryBuilder<TSource> WithPaging(int pageLimit = 10)
@@ -95,7 +66,7 @@ namespace Eklee.Azure.Functions.GraphQl
 
 		private async Task<object> QueryResolver(ResolveFieldContext<object> context)
 		{
-			var queryParameters = GetQueryParameterList(name => context.Arguments.GetContextValue(name));
+			var queryParameters = _queryParameterBuilder.GetQueryParameterList(name => context.Arguments.GetContextValue(name)).ToList();
 
 			IEnumerable<TSource> list = await QueryAsync(queryParameters);
 
@@ -114,7 +85,7 @@ namespace Eklee.Azure.Functions.GraphQl
 
 		private async Task<object> ConnectionResolver(ResolveConnectionContext<object> context)
 		{
-			var queryParameters = GetQueryParameterList(name => context.Arguments.GetContextValue(name));
+			var queryParameters = _queryParameterBuilder.GetQueryParameterList(name => context.Arguments.GetContextValue(name)).ToList();
 
 			IEnumerable<TSource> list = await QueryAsync(queryParameters);
 
@@ -144,19 +115,6 @@ namespace Eklee.Azure.Functions.GraphQl
 			return list;
 		}
 
-		private List<QueryParameter> GetQueryParameterList(Func<string, ContextValue> func)
-		{
-			var list = _modelMemberList.GetQueryParameterList(func).ToList();
-
-			if (_queryParameterList.Count > 0)
-			{
-				_queryParameterList.ForEach(x => x.ContextValue = func(x.Name));
-
-				list.AddRange(_queryParameterList);
-			}
-			return list;
-		}
-
 		private void Build()
 		{
 			switch (_output)
@@ -169,7 +127,7 @@ namespace Eklee.Azure.Functions.GraphQl
 					if (_pageLimit > 0)
 					{
 						var cb = _objectGraphType.Connection<ModelConventionType<TSource>>().Name(_queryName);
-						_modelMemberList.ForEach((modelMember, m) =>
+						_queryParameterBuilder.ForEach((modelMember, m) =>
 						{
 							if (m.Type == typeof(string))
 								cb = modelMember.IsOptional ?
@@ -177,17 +135,6 @@ namespace Eklee.Azure.Functions.GraphQl
 									cb.Argument<NonNullGraphType<StringGraphType>>(modelMember.Name, m.GetDescription());
 						});
 
-						_queryParameterList.ForEach(qp =>
-						{
-							if (qp.IsOptional)
-							{
-								cb.Argument<StringGraphType>(qp.Name, qp.Description);
-							}
-							else
-							{
-								cb.Argument<NonNullGraphType<StringGraphType>>(qp.Name, qp.Description);
-							}
-						});
 						cb.ResolveAsync(ConnectionResolver);
 
 					}
@@ -204,27 +151,7 @@ namespace Eklee.Azure.Functions.GraphQl
 		{
 			var queryArguments = new List<QueryArgument>();
 
-			_queryParameterList.ForEach(x =>
-			{
-				if (x.IsOptional)
-				{
-					queryArguments.Add(new QueryArgument<StringGraphType>
-					{
-						Name = x.Name,
-						Description = x.Description
-					});
-				}
-				else
-				{
-					queryArguments.Add(new QueryArgument<NonNullGraphType<StringGraphType>>
-					{
-						Name = x.Name,
-						Description = x.Description
-					});
-				}
-			});
-
-			_modelMemberList.ForEach((modelMember, m) =>
+			_queryParameterBuilder.ForEach((modelMember, m) =>
 			{
 				if (m.Type == typeof(string))
 				{

@@ -3,15 +3,22 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Linq.Expressions;
 
 namespace Eklee.Azure.Functions.GraphQl
 {
-	public class ModelMemberList<TSource>
+	public class QueryParameterBuilder<TSource>
 	{
+		private readonly QueryBuilder<TSource> _queryBuilder;
 		private readonly ModelConvention<TSource> _modelConvention = new ModelConvention<TSource>();
 		private readonly List<ModelMember> _modelMemberList = new List<ModelMember>();
 
-		public void PopulateWithKeyAttribute()
+		public QueryParameterBuilder(QueryBuilder<TSource> queryBuilder)
+		{
+			_queryBuilder = queryBuilder;
+		}
+
+		public QueryParameterBuilder<TSource> WithKeys()
 		{
 			_modelConvention.ModelType.ForEach(m =>
 			{
@@ -20,9 +27,11 @@ namespace Eklee.Azure.Functions.GraphQl
 					Add(m.Name, false);
 				}
 			});
+
+			return this;
 		}
 
-		public void Add(string name, bool isOptional)
+		private void Add(string name, bool isOptional)
 		{
 			_modelMemberList.Add(new ModelMember { Name = name.ToLower(), IsOptional = isOptional });
 		}
@@ -45,6 +54,21 @@ namespace Eklee.Azure.Functions.GraphQl
 		public void ForEach(Action<ModelMember, Member> action)
 		{
 			_modelMemberList.ForEach(x => action(x, _modelConvention.ModelType.GetMember(x.Name)));
+		}
+
+		public QueryParameterBuilder<TSource> WithProperty<TProperty>(Expression<Func<TSource, TProperty>> expression, bool isOptional = false)
+		{
+			if (expression.Body is MemberExpression memberExpression)
+			{
+				Add(memberExpression.Member.Name, isOptional);
+			}
+
+			return this;
+		}
+
+		public QueryBuilder<TSource> Build()
+		{
+			return _queryBuilder;
 		}
 	}
 }

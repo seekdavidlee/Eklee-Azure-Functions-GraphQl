@@ -13,7 +13,9 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 			// Example 1: We are getting a single Book. You are defining the argument yourself to pass into the repository with context. There's no caching and paging support. This is what comes out-of-the-box.
 
 			queryBuilderFactory.Create<Book>(this, "getBookNoCache")
-				.WithProperty(x => x.Id)
+				.WithParameterBuilder()
+					.WithProperty(x => x.Id)
+					.Build()
 				.BuildWithSingleResult();
 
 			// Example 2: We are getting a single Book. The argument to pass into the repository is defined by the Model with at least one property with the KeyAttribute.
@@ -21,7 +23,9 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 
 			queryBuilderFactory.Create<Book>(this, "getBook")
 				.WithCache(TimeSpan.FromSeconds(10))
-				.WithKeys()
+					.WithParameterBuilder()
+					.WithKeys()
+					.Build()
 				.BuildWithSingleResult();
 
 			// Example 3: We are getting a list of Books based on an argument. You are defining the key to pass into the repository without having to use context directly.
@@ -29,7 +33,9 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 
 			queryBuilderFactory.Create<Book>(this, "getBooksByCategory")
 				.WithCache(TimeSpan.FromSeconds(10))
-				.WithProperty(x => x.Category)
+				.WithParameterBuilder()
+					.WithProperty(x => x.Category)
+					.Build()
 				.BuildWithListResult();
 
 			// Example 4: We are getting a list of paged Books. Technically, you are able to get all books by using TotalCount, although there's already a default page limit of 10 items per page if you don't specify.
@@ -41,7 +47,9 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 
 			queryBuilderFactory.Create<Book>(this, "getPagedBooksByCategory")
 				.WithPaging()
-				.WithProperty(x => x.Category, true)
+				.WithParameterBuilder()
+					.WithProperty(x => x.Category, true)
+					.Build()
 				.BuildWithListResult();
 
 			// Example 6: We are getting a list of paged Books with a argument to be passed in. You are defining the key to pass into the repository without having to use context directly.
@@ -50,14 +58,18 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 			queryBuilderFactory.Create<Book>(this, "getCachedPagedBooksByCategory")
 				.WithPaging()
 				.WithCache(TimeSpan.FromSeconds(10))
-				.WithProperty(x => x.Category)
+				.WithParameterBuilder()
+					.WithProperty(x => x.Category)
+					.Build()
 				.BuildWithListResult();
 
-			queryBuilderFactory.Create<BookAuthorsOutput>(this, "getBookAuthors")
-				.WithPaging()
-				.WithCache(TimeSpan.FromSeconds(10))
-				.WithQueryParameter<BookAuthorsQuery>(x => x.BookCategory)	
-				.BuildWithListResult();
+			//queryBuilderFactory.Create<BookAuthorsOutput>(this, "getBookAuthors")
+			//	.WithPaging()
+			//	.WithCache(TimeSpan.FromSeconds(10))
+			//	.WithParameterBuilder()
+			//		.WithProperty(x => x.Book.Category)
+			//		.Build()
+			//	.BuildWithListResult();
 		}
 	}
 }

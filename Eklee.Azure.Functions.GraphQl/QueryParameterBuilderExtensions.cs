@@ -11,24 +11,24 @@ namespace Eklee.Azure.Functions.GraphQl
 		{
 			var queryArguments = new List<QueryArgument>();
 
-			queryParameterBuilder.ForEach((modelMember, m) =>
+			queryParameterBuilder.ForEach(modelMember =>
 			{
-				if (m.Type == typeof(string))
+				if (modelMember.PathMember.Type == typeof(string))
 				{
 					if (modelMember.IsOptional)
 					{
 						queryArguments.Add(new QueryArgument<StringGraphType>
 						{
-							Name = m.Name,
-							Description = m.GetDescription()
+							Name = modelMember.Name,
+							Description = modelMember.Description
 						});
 					}
 					else
 					{
 						queryArguments.Add(new QueryArgument<NonNullGraphType<StringGraphType>>
 						{
-							Name = m.Name,
-							Description = m.GetDescription()
+							Name = modelMember.Name,
+							Description = modelMember.Description
 						});
 					}
 
@@ -45,12 +45,12 @@ namespace Eklee.Azure.Functions.GraphQl
 		public static void PopulateWithArguments<TSource>(this QueryParameterBuilder<TSource> queryParameterBuilder,
 			ConnectionBuilder<ModelConventionType<TSource>, object> connectionBuilder)
 		{
-			queryParameterBuilder.ForEach((modelMember, m) =>
+			queryParameterBuilder.ForEach(modelMember =>
 			{
-				if (m.Type == typeof(string))
+				if (modelMember.PathMember.Type == typeof(string))
 					connectionBuilder = modelMember.IsOptional ?
-						connectionBuilder.Argument<StringGraphType>(modelMember.Name, m.GetDescription()) :
-						connectionBuilder.Argument<NonNullGraphType<StringGraphType>>(modelMember.Name, m.GetDescription());
+						connectionBuilder.Argument<StringGraphType>(modelMember.Name, modelMember.Description) :
+						connectionBuilder.Argument<NonNullGraphType<StringGraphType>>(modelMember.Name, modelMember.Description);
 			});
 		}
 	}

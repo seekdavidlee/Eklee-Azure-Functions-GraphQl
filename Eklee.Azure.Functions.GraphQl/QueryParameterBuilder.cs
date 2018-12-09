@@ -24,43 +24,54 @@ namespace Eklee.Azure.Functions.GraphQl
 			{
 				if ((KeyAttribute)m.GetAttribute(typeof(KeyAttribute), false) != null)
 				{
-					Add(m.Name, false);
+					Add(m.Name, false, m);
 				}
 			});
 
 			return this;
 		}
 
-		private void Add(string name, bool isOptional)
+		private void Add(string path, bool isOptional, Member member)
 		{
-			_modelMemberList.Add(new ModelMember { Name = name.ToLower(), IsOptional = isOptional });
+			_modelMemberList.Add(new ModelMember(_modelConvention.ModelType.GetTypeAccessor())
+			{
+				Path = path,
+				IsOptional = isOptional,
+				Member = member
+			});
 		}
 
 		public IEnumerable<QueryParameter> GetQueryParameterList(Func<string, ContextValue> func)
 		{
-			return _modelMemberList.Select(memberSetup =>
+			return _modelMemberList.Select(modelMember =>
 			{
 				var queryParameter = new QueryParameter
 				{
-					ContextValue = func(memberSetup.Name),
-					Member = _modelConvention.ModelType.GetMember(memberSetup.Name),
-					MemberParent = _modelConvention.ModelType.GetTypeAccessor(),
-					IsOptional = memberSetup.IsOptional
+					ContextValue = func(modelMember.Name),
+					MemberModel = modelMember
 				};
 				return queryParameter;
 			});
 		}
 
-		public void ForEach(Action<ModelMember, Member> action)
+		public void ForEach(Action<ModelMember> action)
 		{
-			_modelMemberList.ForEach(x => action(x, _modelConvention.ModelType.GetMember(x.Name)));
+			_modelMemberList.ForEach(action);
 		}
 
 		public QueryParameterBuilder<TSource> WithProperty<TProperty>(Expression<Func<TSource, TProperty>> expression, bool isOptional = false)
 		{
 			if (expression.Body is MemberExpression memberExpression)
 			{
-				Add(memberExpression.Member.Name, isOptional);
+				// Find the member.
+
+				var rawMemberExpression = memberExpression.ToString();
+				var depth = rawMemberExpression.Count(x => x == '.');
+				string path = depth > 1 ? rawMemberExpression.Substring(rawMemberExpression.IndexOf('.') + 1) : memberExpression.Member.Name;
+
+				Add(path, isOptional, _modelConvention.ModelType.GetMember(depth > 1 ? 
+					path.Substring(0, path.IndexOf('.')) : 
+					memberExpression.Member.Name));
 			}
 
 			return this;

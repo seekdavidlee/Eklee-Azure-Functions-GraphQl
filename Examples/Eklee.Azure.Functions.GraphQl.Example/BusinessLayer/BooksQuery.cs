@@ -53,7 +53,11 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 				.WithProperty(x => x.Category)
 				.BuildWithListResult();
 
-			//queryBuilderFactory.Create<BookReview>()
+			queryBuilderFactory.Create<BookAuthorsOutput>(this, "getBookAuthors")
+				.WithPaging()
+				.WithCache(TimeSpan.FromSeconds(10))
+				.WithQueryParameter("bookCategory", "Category of the books ")
+				.BuildWithListResult();
 		}
 	}
 }

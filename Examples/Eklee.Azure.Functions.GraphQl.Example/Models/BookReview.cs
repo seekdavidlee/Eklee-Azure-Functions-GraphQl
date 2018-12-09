@@ -10,11 +10,9 @@ namespace Eklee.Azure.Functions.GraphQl.Example.Models
 		public string Id { get; set; }
 
 		[Description("Id of Reviewer")]
-		[Edge(typeof(Reviewer))]
 		public string ReviewerId { get; set; }
 
 		[Description("Id of book")]
-		[Edge(typeof(Reviewer))]
 		public string BookId { get; set; }
 
 		[Description("Commentary by reviewer")]

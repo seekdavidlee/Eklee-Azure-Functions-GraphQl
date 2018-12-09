@@ -19,6 +19,7 @@ namespace Eklee.Azure.Functions.GraphQl
 		private readonly IGraphQlRepositoryProvider _graphQlRepository;
 		private readonly IDistributedCache _distributedCache;
 		private readonly List<ModelMember> _modelMemberList = new List<ModelMember>();
+		private readonly List<QueryParameter> _queryParameterList = new List<QueryParameter>();
 		private readonly TypeAccessor _typeAccessor;
 		private readonly List<Member> _members;
 
@@ -68,6 +69,13 @@ namespace Eklee.Azure.Functions.GraphQl
 			return this;
 		}
 
+		public QueryBuilder<TSource> WithQueryParameter(string name, string description, bool isOptional = false)
+		{
+			_queryParameterList.Add(new QueryParameter { Name = name, Description = description, IsOptional = isOptional });
+
+			return this;
+		}
+
 		public QueryBuilder<TSource> WithPaging(int pageLimit = 10)
 		{
 			_pageLimit = pageLimit;
@@ -86,7 +94,7 @@ namespace Eklee.Azure.Functions.GraphQl
 			Build();
 		}
 
-		async Task<object> QueryResolver(ResolveFieldContext<object> context)
+		private async Task<object> QueryResolver(ResolveFieldContext<object> context)
 		{
 			var queryParameters = GetQueryParameterList(name => context.Arguments.GetContextValue(name));
 
@@ -105,7 +113,7 @@ namespace Eklee.Azure.Functions.GraphQl
 			}
 		}
 
-		async Task<object> ConnectionResolver(ResolveConnectionContext<object> context)
+		private async Task<object> ConnectionResolver(ResolveConnectionContext<object> context)
 		{
 			var queryParameters = GetQueryParameterList(name => context.Arguments.GetContextValue(name));
 
@@ -139,7 +147,7 @@ namespace Eklee.Azure.Functions.GraphQl
 
 		private List<QueryParameter> GetQueryParameterList(Func<string, ContextValue> func)
 		{
-			return _modelMemberList.Select(memberSetup =>
+			var list = _modelMemberList.Select(memberSetup =>
 			{
 				var queryParameter = new QueryParameter
 				{
@@ -150,6 +158,14 @@ namespace Eklee.Azure.Functions.GraphQl
 				};
 				return queryParameter;
 			}).ToList();
+
+			if (_queryParameterList.Count > 0)
+			{
+				_queryParameterList.ForEach(x => x.ContextValue = func(x.Name));
+
+				list.AddRange(_queryParameterList);
+			}
+			return list;
 		}
 
 		private void Build()
@@ -173,6 +189,18 @@ namespace Eklee.Azure.Functions.GraphQl
 									cb.Argument<StringGraphType>(memberSetup.Name, m.GetDescription()) :
 									cb.Argument<NonNullGraphType<StringGraphType>>(memberSetup.Name, m.GetDescription());
 						});
+
+						_queryParameterList.ForEach(qp =>
+						{
+							if (qp.IsOptional)
+							{
+								cb.Argument<StringGraphType>(qp.Name, qp.Description);
+							}
+							else
+							{
+								cb.Argument<NonNullGraphType<StringGraphType>>(qp.Name, qp.Description);
+							}
+						});
 						cb.ResolveAsync(ConnectionResolver);
 
 					}
@@ -188,6 +216,26 @@ namespace Eklee.Azure.Functions.GraphQl
 		private QueryArguments GetQueryArguments()
 		{
 			var queryArguments = new List<QueryArgument>();
+
+			_queryParameterList.ForEach(x =>
+			{
+				if (x.IsOptional)
+				{
+					queryArguments.Add(new QueryArgument<StringGraphType>
+					{
+						Name = x.Name,
+						Description = x.Description
+					});
+				}
+				else
+				{
+					queryArguments.Add(new QueryArgument<NonNullGraphType<StringGraphType>>
+					{
+						Name = x.Name,
+						Description = x.Description
+					});
+				}
+			});
 
 			_modelMemberList.ForEach(memberSetup =>
 			{

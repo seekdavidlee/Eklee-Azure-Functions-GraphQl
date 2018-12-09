@@ -4,9 +4,6 @@ namespace Eklee.Azure.Functions.GraphQl
 {
     public class QueryParameter
     {
-		public string Name { get; set; }
-		public string Description { get; set; }
-
         public TypeAccessor MemberParent { get; set; }
         public Member Member { get; set; }
         public ContextValue ContextValue { get; set; }

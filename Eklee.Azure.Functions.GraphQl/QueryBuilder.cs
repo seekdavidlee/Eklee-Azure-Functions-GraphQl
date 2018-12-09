@@ -120,66 +120,25 @@ namespace Eklee.Azure.Functions.GraphQl
 			switch (_output)
 			{
 				case QueryOutput.Single:
-					_objectGraphType.FieldAsync<ModelConventionType<TSource>>(_queryName, arguments: GetQueryArguments(), resolve: QueryResolver);
+					_objectGraphType.FieldAsync<ModelConventionType<TSource>>(_queryName,
+						arguments: _queryParameterBuilder.GetQueryArguments(), resolve: QueryResolver);
 					break;
 
 				case QueryOutput.List:
 					if (_pageLimit > 0)
 					{
 						var cb = _objectGraphType.Connection<ModelConventionType<TSource>>().Name(_queryName);
-						_queryParameterBuilder.ForEach((modelMember, m) =>
-						{
-							if (m.Type == typeof(string))
-								cb = modelMember.IsOptional ?
-									cb.Argument<StringGraphType>(modelMember.Name, m.GetDescription()) :
-									cb.Argument<NonNullGraphType<StringGraphType>>(modelMember.Name, m.GetDescription());
-						});
-
+						_queryParameterBuilder.PopulateWithArguments(cb);
 						cb.ResolveAsync(ConnectionResolver);
-
 					}
 					else
 					{
-						_objectGraphType.FieldAsync<ListGraphType<ModelConventionType<TSource>>>(_queryName, arguments: GetQueryArguments(), resolve: QueryResolver);
+						_objectGraphType.FieldAsync<ListGraphType<ModelConventionType<TSource>>>(_queryName,
+							arguments: _queryParameterBuilder.GetQueryArguments(), resolve: QueryResolver);
 					}
 
 					break;
 			}
-		}
-
-		private QueryArguments GetQueryArguments()
-		{
-			var queryArguments = new List<QueryArgument>();
-
-			_queryParameterBuilder.ForEach((modelMember, m) =>
-			{
-				if (m.Type == typeof(string))
-				{
-					if (modelMember.IsOptional)
-					{
-						queryArguments.Add(new QueryArgument<StringGraphType>
-						{
-							Name = m.Name,
-							Description = m.GetDescription()
-						});
-					}
-					else
-					{
-						queryArguments.Add(new QueryArgument<NonNullGraphType<StringGraphType>>
-						{
-							Name = m.Name,
-							Description = m.GetDescription()
-						});
-					}
-
-					return;
-				}
-
-				throw new NotImplementedException();
-			});
-
-
-			return new QueryArguments(queryArguments);
 		}
 
 		private async Task<ObjectCacheResult<IEnumerable<TSource>>> TryGetOrSetIfNotExistAsync(

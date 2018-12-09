@@ -19,8 +19,7 @@ namespace Eklee.Azure.Functions.GraphQl
 		private readonly IDistributedCache _distributedCache;
 
 		private readonly List<QueryParameter> _queryParameterList = new List<QueryParameter>();
-		private readonly ModelConvention<TSource> _modelConvention = new ModelConvention<TSource>();
-		private readonly ModelMemberList<TSource> _modelMemberList;
+		private readonly ModelMemberList<TSource> _modelMemberList = new ModelMemberList<TSource>();
 		internal QueryBuilder(ObjectGraphType<object> objectGraphType,
 			string queryName,
 			IGraphQlRepositoryProvider graphQlRepositoryProvider,
@@ -30,8 +29,6 @@ namespace Eklee.Azure.Functions.GraphQl
 			_queryName = queryName;
 			_graphQlRepositoryProvider = graphQlRepositoryProvider;
 			_distributedCache = distributedCache;
-
-			_modelMemberList = new ModelMemberList<TSource>(_modelConvention);
 		}
 
 		private QueryOutput _output;
@@ -275,11 +272,6 @@ namespace Eklee.Azure.Functions.GraphQl
 				await _distributedCache.SetStringAsync(key, JsonConvert.SerializeObject(result), distributedCacheEntryOptions);
 
 			return new ObjectCacheResult<IEnumerable<TSource>>(result, false);
-		}
-
-		public QueryBuilder<TSource> From<TInputSource>(Func<TInputSource, TSource> mapper)
-		{
-			return this;
 		}
 	}
 }

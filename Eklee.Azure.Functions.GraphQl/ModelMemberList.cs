@@ -8,13 +8,8 @@ namespace Eklee.Azure.Functions.GraphQl
 {
 	public class ModelMemberList<TSource>
 	{
-		private readonly ModelConvention<TSource> _modelConvention;
+		private readonly ModelConvention<TSource> _modelConvention = new ModelConvention<TSource>();
 		private readonly List<ModelMember> _modelMemberList = new List<ModelMember>();
-
-		public ModelMemberList(ModelConvention<TSource> modelConvention)
-		{
-			_modelConvention = modelConvention;
-		}
 
 		public void PopulateWithKeyAttribute()
 		{

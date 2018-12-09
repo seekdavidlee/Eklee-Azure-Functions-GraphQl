@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
+using GraphQL.Types;
 
 namespace Eklee.Azure.Functions.GraphQl
 {
@@ -20,11 +21,11 @@ namespace Eklee.Azure.Functions.GraphQl
 
 		public QueryParameterBuilder<TSource> WithKeys()
 		{
-			_modelConvention.ModelType.ForEach(m =>
+			_modelConvention.ModelType.ForEach(member =>
 			{
-				if ((KeyAttribute)m.GetAttribute(typeof(KeyAttribute), false) != null)
+				if ((KeyAttribute)member.GetAttribute(typeof(KeyAttribute), false) != null)
 				{
-					Add(m.Name, false, m);
+					Add(member.Name, false, member);
 				}
 			});
 
@@ -36,13 +37,13 @@ namespace Eklee.Azure.Functions.GraphQl
 			_modelMemberList.Add(new ModelMember(_modelConvention.ModelType.GetTypeAccessor(), path, member, isOptional));
 		}
 
-		public IEnumerable<QueryParameter> GetQueryParameterList(Func<string, ContextValue> func)
+		public IEnumerable<QueryParameter> GetQueryParameterList(ResolveFieldContext<object> context)
 		{
 			return _modelMemberList.Select(modelMember =>
 			{
 				var queryParameter = new QueryParameter
 				{
-					ContextValue = func(modelMember.Name),
+					ContextValue = context.Arguments.GetContextValue(modelMember.Name),
 					MemberModel = modelMember
 				};
 				return queryParameter;

@@ -13,7 +13,7 @@ namespace Eklee.Azure.Functions.GraphQl
 			Path = path;
 			Member = member;
 			IsOptional = isOptional;
-			if (IsNested()) Member = GetNestedMember();
+			if (IsNested) Member = GetNestedMember();
 		}
 
 		public string Path { get; }
@@ -37,10 +37,7 @@ namespace Eklee.Azure.Functions.GraphQl
 			return _nestedMember;
 		}
 
-		private bool IsNested()
-		{
-			return Path.Count(x => x == '.') > 0;
-		}
+		public bool IsNested => Path.Count(x => x == '.') > 0;
 
 		public string Name => Member.Name.ToLower();
 

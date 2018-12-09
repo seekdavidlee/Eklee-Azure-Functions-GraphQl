@@ -66,7 +66,7 @@ namespace Eklee.Azure.Functions.GraphQl
 
 		private async Task<object> QueryResolver(ResolveFieldContext<object> context)
 		{
-			var queryParameters = _queryParameterBuilder.GetQueryParameterList(name => context.Arguments.GetContextValue(name)).ToList();
+			var queryParameters = _queryParameterBuilder.GetQueryParameterList(context).ToList();
 
 			IEnumerable<TSource> list = await QueryAsync(queryParameters);
 
@@ -83,14 +83,15 @@ namespace Eklee.Azure.Functions.GraphQl
 			}
 		}
 
-		private async Task<object> ConnectionResolver(ResolveConnectionContext<object> context)
+		private async Task<object> ConnectionResolver(ResolveConnectionContext<object> connectionContext)
 		{
-			var queryParameters = _queryParameterBuilder.GetQueryParameterList(name => context.Arguments.GetContextValue(name)).ToList();
+			var context = connectionContext as ResolveFieldContext<object>;
+			var queryParameters = _queryParameterBuilder.GetQueryParameterList(context).ToList();
 
 			IEnumerable<TSource> list = await QueryAsync(queryParameters);
 
 			// ReSharper disable once PossibleInvalidOperationException
-			return await context.GetConnectionAsync(list, _pageLimit.Value);
+			return await connectionContext.GetConnectionAsync(list, _pageLimit.Value);
 		}
 
 		private async Task<IEnumerable<TSource>> QueryAsync(List<QueryParameter> queryParameters)

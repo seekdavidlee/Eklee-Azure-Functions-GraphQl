@@ -14,7 +14,7 @@ namespace Eklee.Azure.Functions.GraphQl
 	{
 		private readonly ObjectGraphType<object> _objectGraphType;
 		private readonly string _queryName;
-		private readonly IGraphQlRepositoryProvider _graphQlRepositoryProvider;
+		private readonly QueryExecutor<TSource> _queryExecutor;
 		private readonly IDistributedCache _distributedCache;
 
 		private readonly QueryParameterBuilder<TSource> _queryParameterBuilder;
@@ -25,7 +25,7 @@ namespace Eklee.Azure.Functions.GraphQl
 		{
 			_objectGraphType = objectGraphType;
 			_queryName = queryName;
-			_graphQlRepositoryProvider = graphQlRepositoryProvider;
+			_queryExecutor = new QueryExecutor<TSource>(graphQlRepositoryProvider);
 			_distributedCache = distributedCache;
 
 			_queryParameterBuilder = new QueryParameterBuilder<TSource>(this);
@@ -66,9 +66,7 @@ namespace Eklee.Azure.Functions.GraphQl
 
 		private async Task<object> QueryResolver(ResolveFieldContext<object> context)
 		{
-			var queryParameters = _queryParameterBuilder.GetQueryParameterList(context).ToList();
-
-			IEnumerable<TSource> list = await QueryAsync(queryParameters);
+			IEnumerable<TSource> list = await QueryAsync(context);
 
 			switch (_output)
 			{
@@ -85,23 +83,21 @@ namespace Eklee.Azure.Functions.GraphQl
 
 		private async Task<object> ConnectionResolver(ResolveConnectionContext<object> connectionContext)
 		{
-			var context = connectionContext as ResolveFieldContext<object>;
-			var queryParameters = _queryParameterBuilder.GetQueryParameterList(context).ToList();
-
-			IEnumerable<TSource> list = await QueryAsync(queryParameters);
+			IEnumerable<TSource> list = await QueryAsync(connectionContext);
 
 			// ReSharper disable once PossibleInvalidOperationException
 			return await connectionContext.GetConnectionAsync(list, _pageLimit.Value);
 		}
 
-		private async Task<IEnumerable<TSource>> QueryAsync(List<QueryParameter> queryParameters)
+		private async Task<IEnumerable<TSource>> QueryAsync(ResolveFieldContext<object> context)
 		{
+			var queryParameters = _queryParameterBuilder.GetQueryParameterList(context).ToList();
 			var key = queryParameters.GetCacheKey();
 
 			if (_cacheInSeconds > 0)
 			{
 				return (await TryGetOrSetIfNotExistAsync(
-					() => ExecuteQueryAsync(queryParameters).Result.ToList(), key,
+					() => _queryExecutor.ExecuteAsync(queryParameters).Result.ToList(), key,
 					new DistributedCacheEntryOptions
 					{
 						// ReSharper disable once PossibleInvalidOperationException
@@ -109,12 +105,7 @@ namespace Eklee.Azure.Functions.GraphQl
 					})).Value;
 			}
 
-			return await ExecuteQueryAsync(queryParameters);
-		}
-
-		private async Task<IEnumerable<TSource>> ExecuteQueryAsync(List<QueryParameter> queryParameters)
-		{
-			return await _graphQlRepositoryProvider.QueryAsync<TSource>(queryParameters);
+			return await _queryExecutor.ExecuteAsync(queryParameters);
 		}
 
 		private void Build()

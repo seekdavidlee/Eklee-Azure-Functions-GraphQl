@@ -127,11 +127,6 @@ namespace Eklee.Azure.Functions.GraphQl
 			return !string.IsNullOrEmpty(cursor) ? Convert.ToInt32(Encoding.UTF8.GetString(Convert.FromBase64String(cursor))) : -1;
 		}
 
-		public static string GetCacheKey(this List<QueryParameter> list)
-		{
-			return string.Join("_", list.Select(x => x.ContextValue.Value.ToString()));
-		}
-
 		public static string GetDescription(this Member member)
 		{
 			var description = (DescriptionAttribute)member.GetAttribute(typeof(DescriptionAttribute), false);

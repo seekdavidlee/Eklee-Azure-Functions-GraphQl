@@ -39,14 +39,10 @@ namespace Eklee.Azure.Functions.GraphQl
 
 		public IEnumerable<QueryParameter> GetQueryParameterList(ResolveFieldContext<object> context)
 		{
-			return _modelMemberList.Select(modelMember =>
+			return _modelMemberList.Select(modelMember => new QueryParameter
 			{
-				var queryParameter = new QueryParameter
-				{
-					ContextValue = context.Arguments.GetContextValue(modelMember.Name),
-					MemberModel = modelMember
-				};
-				return queryParameter;
+				ContextValue = context.Arguments.GetContextValue(modelMember.Name),
+				MemberModel = modelMember
 			});
 		}
 
@@ -65,8 +61,8 @@ namespace Eklee.Azure.Functions.GraphQl
 				var depth = rawMemberExpression.Count(x => x == '.');
 				string path = depth > 1 ? rawMemberExpression.Substring(rawMemberExpression.IndexOf('.') + 1) : memberExpression.Member.Name;
 
-				Add(path, isOptional, _modelConvention.ModelType.GetMember(depth > 1 ? 
-					path.Substring(0, path.IndexOf('.')) : 
+				Add(path, isOptional, _modelConvention.ModelType.GetMember(depth > 1 ?
+					path.Substring(0, path.IndexOf('.')) :
 					memberExpression.Member.Name));
 			}
 

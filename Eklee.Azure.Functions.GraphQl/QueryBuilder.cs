@@ -97,22 +97,23 @@ namespace Eklee.Azure.Functions.GraphQl
 		{
 			var key = queryParameters.GetCacheKey();
 
-			IEnumerable<TSource> list;
 			if (_cacheInSeconds > 0)
 			{
-				list = (await TryGetOrSetIfNotExistAsync(
-					() => _graphQlRepositoryProvider.QueryAsync<TSource>(queryParameters).Result.ToList(), key,
+				return (await TryGetOrSetIfNotExistAsync(
+					() => ExecuteQueryAsync(queryParameters).Result.ToList(), key,
 					new DistributedCacheEntryOptions
 					{
+						// ReSharper disable once PossibleInvalidOperationException
 						AbsoluteExpiration = DateTimeOffset.UtcNow.AddSeconds(_cacheInSeconds.Value)
 					})).Value;
 			}
-			else
-			{
-				list = await _graphQlRepositoryProvider.QueryAsync<TSource>(queryParameters);
-			}
 
-			return list;
+			return await ExecuteQueryAsync(queryParameters);
+		}
+
+		private async Task<IEnumerable<TSource>> ExecuteQueryAsync(List<QueryParameter> queryParameters)
+		{
+			return await _graphQlRepositoryProvider.QueryAsync<TSource>(queryParameters);
 		}
 
 		private void Build()

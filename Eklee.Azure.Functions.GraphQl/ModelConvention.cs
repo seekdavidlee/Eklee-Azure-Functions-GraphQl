@@ -1,33 +1,24 @@
-﻿using FastMember;
-using GraphQL;
+﻿using GraphQL;
 using GraphQL.Types;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Eklee.Azure.Functions.GraphQl
 {
 	public class ModelConvention<TSourceType>
 	{
-		private readonly TypeAccessor _typeAccessor;
 		public ModelConvention()
 		{
-			var type = typeof(TSourceType);
-			_typeAccessor = TypeAccessor.Create(type);
-
-			Name = type.Name.ToLower();
+			Name = ModelType.Name.ToLower();
 		}
 
 		public string Name { get; }
 
-		private void ForEach(Action<Member> memberAction)
-		{
-			_typeAccessor.GetMembers().ToList().ForEach(memberAction);
-		}
+		public ModelType<TSourceType> ModelType { get; } = new ModelType<TSourceType>();
 
 		public void ForEachWithField(Action<Type, string, string> addFieldAction)
 		{
-			ForEach(m =>
+			ModelType.ForEach(m =>
 			{
 				// See: https://graphql-dotnet.github.io/docs/getting-started/schema-types
 

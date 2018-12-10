@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using FastMember;
 
 namespace Eklee.Azure.Functions.GraphQl
@@ -13,28 +14,25 @@ namespace Eklee.Azure.Functions.GraphQl
 			Path = path;
 			Member = member;
 			IsOptional = isOptional;
-			if (IsNested) Member = GetNestedMember();
+			if (IsNested) SetNestedMember();
 		}
 
 		public string Path { get; }
 		public bool IsOptional { get; }
-		public Member Member { get; }
+		public Member Member { get; private set; }
 
-		private Member _nestedMember;
-		private Member GetNestedMember()
+
+		private void SetNestedMember()
 		{
-			if (_nestedMember != null) return _nestedMember;
-
 			var levels = Path.Count(x => x == '.');
 			var paths = Path.Split('.');
 
 			for (var level = 0; level < levels; level++)
 			{
 				_typeAccessor = TypeAccessor.Create(Member.Type);
-				_nestedMember = _typeAccessor.GetMembers().Single(x => x.Name == paths[level + 1]);
+				SourceType = Member.Type;
+				Member = _typeAccessor.GetMembers().Single(x => x.Name == paths[level + 1]);
 			}
-
-			return _nestedMember;
 		}
 
 		public bool IsNested => Path.Count(x => x == '.') > 0;
@@ -49,5 +47,7 @@ namespace Eklee.Azure.Functions.GraphQl
 		{
 			return _typeAccessor[targetObject, Member.Name].Equals(compareValue);
 		}
+
+		public Type SourceType { get; private set; }
 	}
 }

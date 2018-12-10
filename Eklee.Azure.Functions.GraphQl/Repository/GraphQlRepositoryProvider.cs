@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace Eklee.Azure.Functions.GraphQl.Repository
@@ -34,6 +35,28 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 					Configurations = configurations
 				});
 			}
+		}
+
+		public async Task<IEnumerable<object>> QueryAsync(IEnumerable<QueryParameter> queryParameters)
+		{
+			var list = queryParameters.ToList();
+
+			// ReSharper disable once AssignNullToNotNullAttribute
+			var repo = _repositories[list.First().MemberModel.SourceType.FullName].Repository;
+
+			MethodInfo method = repo.GetType().GetMethod("QueryAsync");
+
+			// ReSharper disable once PossibleNullReferenceException
+			MethodInfo generic = method.MakeGenericMethod(list.First().MemberModel.SourceType);
+
+			var task = (Task)generic.Invoke(repo, new object[] { list });
+
+			await task.ConfigureAwait(false);
+
+			var resultProperty = task.GetType().GetProperty("Result");
+
+			// ReSharper disable once PossibleNullReferenceException
+			return (IEnumerable<object>)resultProperty.GetValue(task);
 		}
 
 		public async Task BatchAddAsync<T>(IEnumerable<T> items)

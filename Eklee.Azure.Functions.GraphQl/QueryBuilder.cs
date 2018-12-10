@@ -97,7 +97,7 @@ namespace Eklee.Azure.Functions.GraphQl
 			if (_cacheInSeconds > 0)
 			{
 				return (await TryGetOrSetIfNotExistAsync(
-					() => _queryExecutor.ExecuteAsync(queryParameters).Result.ToList(), key,
+					() => _queryExecutor.ExecuteAsync(queryParameters, _queryParameterBuilder.Mapper).Result.ToList(), key,
 					new DistributedCacheEntryOptions
 					{
 						// ReSharper disable once PossibleInvalidOperationException
@@ -105,7 +105,7 @@ namespace Eklee.Azure.Functions.GraphQl
 					})).Value;
 			}
 
-			return await _queryExecutor.ExecuteAsync(queryParameters);
+			return await _queryExecutor.ExecuteAsync(queryParameters, _queryParameterBuilder.Mapper);
 		}
 
 		private void Build()

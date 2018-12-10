@@ -69,8 +69,11 @@ namespace Eklee.Azure.Functions.GraphQl
 			return this;
 		}
 
-		public QueryBuilder<TSource> Build()
+		public Func<List<List<object>>, List<TSource>> Mapper { get; private set; }
+
+		public QueryBuilder<TSource> Build(Func<List<List<object>>, List<TSource>> mapper = null)
 		{
+			Mapper = mapper;
 			return _queryBuilder;
 		}
 	}

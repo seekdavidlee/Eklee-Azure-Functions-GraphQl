@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Eklee.Azure.Functions.GraphQl.Example.Models;
 using GraphQL.Types;
 
@@ -68,7 +69,12 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 				.WithCache(TimeSpan.FromSeconds(10))
 				.WithParameterBuilder()
 					.WithProperty(x => x.Book.Category)
-					.Build()
+					.Build(list =>
+					{
+						var books = list[0].Select(x => (Book)x).ToList();
+
+						return books.Select(book => new BookAuthorsOutput { Book = book, BookId = book.Id }).ToList();
+					})
 				.BuildWithListResult();
 		}
 	}

@@ -3,9 +3,10 @@ using System.Threading.Tasks;
 
 namespace Eklee.Azure.Functions.GraphQl.Repository
 {
-	public interface IGraphQlRepositoryProvider : IGraphQlRepository
+	public interface IGraphQlRepositoryProvider
 	{
-		void Use<TType, TRepository>(Dictionary<string, string> configurations = null) where TRepository : IGraphQlRepository;
+		IGraphQlRepository Use<TType, TRepository>() where TRepository : IGraphQlRepository;
 		Task<IEnumerable<object>> QueryAsync(IEnumerable<QueryParameter> queryParameters);
+		IGraphQlRepository GetRepository<TRepository>();
 	}
 }

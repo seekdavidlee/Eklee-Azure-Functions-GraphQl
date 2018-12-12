@@ -5,6 +5,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 {
 	public interface IGraphQlRepository
 	{
+		void Configure(Dictionary<string, string> configurations);
 		Task BatchAddAsync<T>(IEnumerable<T> items);
 		Task AddAsync<T>(T item);
 		Task UpdateAsync<T>(T item);

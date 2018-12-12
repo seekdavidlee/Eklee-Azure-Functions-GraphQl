@@ -11,6 +11,7 @@ namespace Eklee.Azure.Functions.GraphQl
 		private readonly IGraphQlRepositoryProvider _graphQlRepositoryProvider;
 		private readonly string _sourceName;
 		private Action _deleteSetupAction;
+		private readonly Dictionary<string, string> _configurations = new Dictionary<string, string>();
 
 		internal ModelConventionInputBuilder(
 			ObjectGraphType objectGraphType,
@@ -29,15 +30,27 @@ namespace Eklee.Azure.Functions.GraphQl
 					resolve: async context =>
 					{
 						var item = context.GetArgument<TSource>(_sourceName);
-						await _graphQlRepositoryProvider.DeleteAsync(item);
+						await _graphQlRepositoryProvider.GetRepository<TSource>().DeleteAsync(item);
 						return item;
 					});
 			};
 		}
 
-		public ModelConventionInputBuilder<TSource> Use<TType, TRepository>(Dictionary<string, string> configurations = null) where TRepository : IGraphQlRepository
+		private IGraphQlRepository _graphQlRepository;
+		public ModelConventionInputBuilder<TSource> Use<TType, TRepository>() where TRepository : IGraphQlRepository
 		{
-			_graphQlRepositoryProvider.Use<TType, TRepository>();
+			_graphQlRepository = _graphQlRepositoryProvider.Use<TType, TRepository>();
+			return this;
+		}
+
+		public HttpRepositoryConfiguration<TSource> ConfigureHttp()
+		{
+			return new HttpRepositoryConfiguration<TSource>(this);
+		}
+
+		public ModelConventionInputBuilder<TSource> AddConfiguration(string key, string value)
+		{
+			_configurations.Add(key, value);
 			return this;
 		}
 
@@ -51,7 +64,7 @@ namespace Eklee.Azure.Functions.GraphQl
 					resolve: async context =>
 					{
 						var item = context.GetArgument<TSource>(_sourceName);
-						await _graphQlRepositoryProvider.DeleteAsync(item);
+						await _graphQlRepositoryProvider.GetRepository<TSource>().DeleteAsync(item);
 						return transform(item);
 					});
 			};
@@ -61,13 +74,15 @@ namespace Eklee.Azure.Functions.GraphQl
 
 		public void Build()
 		{
+			_graphQlRepository.Configure(_configurations);
+
 			_objectGraphType.FieldAsync<ListGraphType<ModelConventionType<TSource>>>($"batchCreate{typeof(TSource).Name}", arguments: new QueryArguments(
 					new QueryArgument<ListGraphType<ModelConventionInputType<TSource>>> { Name = _sourceName }
 				),
 				resolve: async context =>
 				{
 					var items = context.GetArgument<IEnumerable<TSource>>(_sourceName);
-					await _graphQlRepositoryProvider.BatchAddAsync(items);
+					await _graphQlRepositoryProvider.GetRepository<TSource>().BatchAddAsync(items);
 					return items;
 				});
 
@@ -77,7 +92,7 @@ namespace Eklee.Azure.Functions.GraphQl
 				resolve: async context =>
 				{
 					var item = context.GetArgument<TSource>(_sourceName);
-					await _graphQlRepositoryProvider.AddAsync(item);
+					await _graphQlRepositoryProvider.GetRepository<TSource>().AddAsync(item);
 					return item;
 				});
 
@@ -87,7 +102,7 @@ namespace Eklee.Azure.Functions.GraphQl
 				resolve: async context =>
 				{
 					var item = context.GetArgument<TSource>(_sourceName);
-					await _graphQlRepositoryProvider.UpdateAsync(item);
+					await _graphQlRepositoryProvider.GetRepository<TSource>().UpdateAsync(item);
 					return item;
 				});
 

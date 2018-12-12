@@ -20,6 +20,11 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			return _database[key];
 		}
 
+		public void Configure(Dictionary<string, string> configurations)
+		{
+			// Do nothing.
+		}
+
 		public Task BatchAddAsync<T>(IEnumerable<T> items)
 		{
 			Dictionary<string, object> collection = GetCollection<T>();

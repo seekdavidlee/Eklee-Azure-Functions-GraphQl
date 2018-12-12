@@ -6,35 +6,29 @@ using System.Threading.Tasks;
 
 namespace Eklee.Azure.Functions.GraphQl.Repository
 {
-	public class GraphQlRepository
-	{
-		public IGraphQlRepository Repository { get; set; }
-		public Dictionary<string, string> Configurations { get; set; }
-	}
-
 	public class GraphQlRepositoryProvider : IGraphQlRepositoryProvider
 	{
 		private readonly IEnumerable<IGraphQlRepository> _graphQlRepositories;
-		private readonly Dictionary<string, GraphQlRepository> _repositories = new Dictionary<string, GraphQlRepository>();
+		private readonly Dictionary<string, IGraphQlRepository> _repositories = new Dictionary<string, IGraphQlRepository>();
 
 		public GraphQlRepositoryProvider(IEnumerable<IGraphQlRepository> graphQlRepositories)
 		{
 			_graphQlRepositories = graphQlRepositories;
 		}
 
-		public void Use<TType, TRepository>(Dictionary<string, string> configurations = null) where TRepository : IGraphQlRepository
+		public IGraphQlRepository Use<TType, TRepository>() where TRepository : IGraphQlRepository
 		{
 			var repositoryName = typeof(TRepository).Name;
 			var typeSourceName = typeof(TType).FullName;
 
 			if (!_repositories.ContainsKey(typeSourceName ?? throw new InvalidOperationException()))
 			{
-				_repositories.Add(typeSourceName, new GraphQlRepository
-				{
-					Repository = _graphQlRepositories.Single(x => x.GetType().Name == repositoryName),
-					Configurations = configurations
-				});
+				var repo = _graphQlRepositories.Single(x => x.GetType().Name == repositoryName);
+				_repositories.Add(typeSourceName, repo);
+				return repo;
 			}
+
+			return _repositories[typeSourceName];
 		}
 
 		public async Task<IEnumerable<object>> QueryAsync(IEnumerable<QueryParameter> queryParameters)
@@ -42,7 +36,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			var list = queryParameters.ToList();
 
 			// ReSharper disable once AssignNullToNotNullAttribute
-			var repo = _repositories[list.First().MemberModel.SourceType.FullName].Repository;
+			var repo = _repositories[list.First().MemberModel.SourceType.FullName];
 
 			MethodInfo method = repo.GetType().GetMethod("QueryAsync");
 
@@ -59,34 +53,9 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			return (IEnumerable<object>)resultProperty.GetValue(task);
 		}
 
-		public async Task BatchAddAsync<T>(IEnumerable<T> items)
+		public IGraphQlRepository GetRepository<T>()
 		{
-			await GetRepository<T>().BatchAddAsync(items);
-		}
-
-		public async Task AddAsync<T>(T item)
-		{
-			await GetRepository<T>().AddAsync(item);
-		}
-
-		public async Task UpdateAsync<T>(T item)
-		{
-			await GetRepository<T>().UpdateAsync(item);
-		}
-
-		public async Task DeleteAsync<T>(T item)
-		{
-			await GetRepository<T>().DeleteAsync(item);
-		}
-
-		public async Task<IEnumerable<T>> QueryAsync<T>(IEnumerable<QueryParameter> queryParameters)
-		{
-			return await GetRepository<T>().QueryAsync<T>(queryParameters);
-		}
-
-		private IGraphQlRepository GetRepository<T>()
-		{
-			return _repositories[typeof(T).FullName ?? throw new InvalidOperationException()].Repository;
+			return _repositories[typeof(T).FullName ?? throw new InvalidOperationException()];
 		}
 	}
 }

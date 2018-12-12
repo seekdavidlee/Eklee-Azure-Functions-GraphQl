@@ -1,11 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace Eklee.Azure.Functions.GraphQl.Repository
 {
 	public class HttpRepository : IGraphQlRepository
 	{
+		private readonly HttpClient _httpClient = new HttpClient();
+
+		private string _baseUrl;
+
+		public void Configure(Dictionary<string, string> configurations)
+		{
+			_baseUrl = configurations[Constants.BaseUrl];
+		}
+
 		public Task BatchAddAsync<T>(IEnumerable<T> items)
 		{
 			throw new NotImplementedException();

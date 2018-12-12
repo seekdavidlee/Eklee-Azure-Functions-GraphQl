@@ -7,16 +7,16 @@ namespace Eklee.Azure.Functions.GraphQl
 	public class InputBuilder<TInputType, TOutputType, TSource> where TInputType : GraphType where TOutputType : IGraphType
 	{
 		private readonly ObjectGraphType _objectGraphType;
-		private readonly IGraphQlRepositoryProvider _graphQlRepository;
+		private readonly IGraphQlRepositoryProvider _graphQlRepositoryProvider;
 		private readonly string _sourceName;
 		private Action _deleteSetupAction;
 
 		internal InputBuilder(
 			ObjectGraphType objectGraphType,
-			IGraphQlRepositoryProvider graphQlRepository)
+			IGraphQlRepositoryProvider graphQlRepositoryProvider)
 		{
 			_objectGraphType = objectGraphType;
-			_graphQlRepository = graphQlRepository;
+			_graphQlRepositoryProvider = graphQlRepositoryProvider;
 			_sourceName = typeof(TSource).Name.ToLower();
 
 			// Default setup for delete.
@@ -28,7 +28,7 @@ namespace Eklee.Azure.Functions.GraphQl
 					resolve: async context =>
 					{
 						var item = context.GetArgument<TSource>(_sourceName);
-						await _graphQlRepository.DeleteAsync(item);
+						await _graphQlRepositoryProvider.GetRepository<TSource>().DeleteAsync(item);
 						return item;
 					});
 			};
@@ -44,7 +44,7 @@ namespace Eklee.Azure.Functions.GraphQl
 					resolve: async context =>
 					{
 						var item = context.GetArgument<TSource>(_sourceName);
-						await _graphQlRepository.DeleteAsync(item);
+						await _graphQlRepositoryProvider.GetRepository<TSource>().DeleteAsync(item);
 						return transform(item);
 					});
 			};
@@ -62,7 +62,7 @@ namespace Eklee.Azure.Functions.GraphQl
 					resolve: async context =>
 					{
 						var item = context.GetArgument<TSource>(_sourceName);
-						await _graphQlRepository.DeleteAsync(item);
+						await _graphQlRepositoryProvider.GetRepository<TSource>().DeleteAsync(item);
 						return transform(item);
 					});
 			};
@@ -78,7 +78,7 @@ namespace Eklee.Azure.Functions.GraphQl
 				resolve: async context =>
 				{
 					var item = context.GetArgument<TSource>(_sourceName);
-					await _graphQlRepository.AddAsync(item);
+					await _graphQlRepositoryProvider.GetRepository<TSource>().AddAsync(item);
 					return item;
 				});
 
@@ -88,7 +88,7 @@ namespace Eklee.Azure.Functions.GraphQl
 				resolve: async context =>
 				{
 					var item = context.GetArgument<TSource>(_sourceName);
-					await _graphQlRepository.UpdateAsync(item);
+					await _graphQlRepositoryProvider.GetRepository<TSource>().UpdateAsync(item);
 					return item;
 				});
 

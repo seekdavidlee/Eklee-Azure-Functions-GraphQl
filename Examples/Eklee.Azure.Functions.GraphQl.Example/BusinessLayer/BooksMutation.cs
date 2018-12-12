@@ -13,25 +13,25 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 
 			inputBuilderFactory.Create<Book>(this)
 				.Delete<BookId, Status>(book => new Status { Message = $"Successfully removed book with Id {book.Id}" })
-				.Use<Book, InMemoryDbRepository>()
+				.Use<Book, InMemoryRepository>()
 				.Build();
 
 			inputBuilderFactory.Create<Reviewer>(this)
-				.Use<Reviewer, InMemoryDbRepository>()
+				.Use<Reviewer, InMemoryRepository>()
 				.Build();
 
 			inputBuilderFactory.Create<Author>(this)
-				.Use<Author, InMemoryDbRepository>()
+				.Use<Author, InMemoryRepository>()
 				.Build();
 
 			inputBuilderFactory.Create<BookAuthors>(this)
-				.Use<BookAuthors, InMemoryDbRepository>()
-				.Use<Author, InMemoryDbRepository>()
-				.Use<Book, InMemoryDbRepository>()
+				.Use<BookAuthors, InMemoryRepository>()
+				.Use<Author, InMemoryRepository>()
+				.Use<Book, InMemoryRepository>()
 				.Build();
 
 			inputBuilderFactory.Create<BookReview>(this)
-				.Use<BookReview, InMemoryDbRepository>()
+				.Use<BookReview, InMemoryRepository>()
 				.Build();
 
 			const string publishersResource = "publishers";

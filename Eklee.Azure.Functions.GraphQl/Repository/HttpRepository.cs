@@ -11,7 +11,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 
 		private string _baseUrl;
 
-		public void Configure(Dictionary<string, string> configurations)
+		public void Configure(Type sourceType, Dictionary<string, string> configurations)
 		{
 			_baseUrl = configurations[Constants.BaseUrl];
 		}

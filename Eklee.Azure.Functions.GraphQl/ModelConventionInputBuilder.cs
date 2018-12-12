@@ -37,9 +37,12 @@ namespace Eklee.Azure.Functions.GraphQl
 		}
 
 		private IGraphQlRepository _graphQlRepository;
+		private Type _typeSourceName;
+
 		public ModelConventionInputBuilder<TSource> Use<TType, TRepository>() where TRepository : IGraphQlRepository
 		{
 			_graphQlRepository = _graphQlRepositoryProvider.Use<TType, TRepository>();
+			_typeSourceName = typeof(TType);
 			return this;
 		}
 
@@ -74,7 +77,7 @@ namespace Eklee.Azure.Functions.GraphQl
 
 		public void Build()
 		{
-			_graphQlRepository.Configure(_configurations);
+			_graphQlRepository.Configure(_typeSourceName, _configurations);
 
 			_objectGraphType.FieldAsync<ListGraphType<ModelConventionType<TSource>>>($"batchCreate{typeof(TSource).Name}", arguments: new QueryArguments(
 					new QueryArgument<ListGraphType<ModelConventionInputType<TSource>>> { Name = _sourceName }

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Eklee.Azure.Functions.GraphQl.Repository
 {
-	public class InMemoryDbRepository : IGraphQlRepository
+	public class InMemoryRepository : IGraphQlRepository
 	{
 		private readonly Dictionary<string, Dictionary<string, object>> _database = new Dictionary<string, Dictionary<string, object>>();
 
@@ -20,7 +20,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			return _database[key];
 		}
 
-		public void Configure(Dictionary<string, string> configurations)
+		public void Configure(Type sourceType, Dictionary<string, string> configurations)
 		{
 			// Do nothing.
 		}

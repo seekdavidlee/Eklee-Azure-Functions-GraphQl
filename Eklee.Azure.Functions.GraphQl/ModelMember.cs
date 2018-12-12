@@ -1,41 +1,40 @@
 ﻿using System;
-using System.Linq;
 using FastMember;
 
 namespace Eklee.Azure.Functions.GraphQl
 {
 	public class ModelMember
 	{
-		private TypeAccessor _typeAccessor;
+		private readonly TypeAccessor _typeAccessor;
 
-		public ModelMember(TypeAccessor typeAccessor, string path, Member member, bool isOptional)
+		public ModelMember(Type sourceType, TypeAccessor typeAccessor, /*string path,*/ Member member, bool isOptional)
 		{
 			_typeAccessor = typeAccessor;
-			Path = path;
+			//Path = path;
 			Member = member;
 			IsOptional = isOptional;
-			if (IsNested) SetNestedMember();
+			SourceType = sourceType;
+			//if (IsNested) SetNestedMember();
 		}
 
-		public string Path { get; }
+		//public string Path { get; }
 		public bool IsOptional { get; }
-		public Member Member { get; private set; }
+		public Member Member { get; }
 
+		//private void SetNestedMember()
+		//{
+		//	var levels = Path.Count(x => x == '.');
+		//	var paths = Path.Split('.');
 
-		private void SetNestedMember()
-		{
-			var levels = Path.Count(x => x == '.');
-			var paths = Path.Split('.');
+		//	for (var level = 0; level < levels; level++)
+		//	{
+		//		_typeAccessor = TypeAccessor.Create(Member.Type);
+		//		SourceType = Member.Type;
+		//		Member = _typeAccessor.GetMembers().Single(x => x.Name == paths[level + 1]);
+		//	}
+		//}
 
-			for (var level = 0; level < levels; level++)
-			{
-				_typeAccessor = TypeAccessor.Create(Member.Type);
-				SourceType = Member.Type;
-				Member = _typeAccessor.GetMembers().Single(x => x.Name == paths[level + 1]);
-			}
-		}
-
-		public bool IsNested => Path.Count(x => x == '.') > 0;
+		//private bool IsNested => Path.Count(x => x == '.') > 0;
 
 		public string Name => Member.Name.ToLower();
 
@@ -48,6 +47,6 @@ namespace Eklee.Azure.Functions.GraphQl
 			return _typeAccessor[targetObject, Member.Name].Equals(compareValue);
 		}
 
-		public Type SourceType { get; private set; }
+		public Type SourceType { get; }
 	}
 }

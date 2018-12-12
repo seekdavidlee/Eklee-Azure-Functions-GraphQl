@@ -58,7 +58,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			if (parameters.Count > 0)
 			{
 				var list = collection.Values.Where(x =>
-					parameters.Count(queryParameter => queryParameter.ValueEquals(x)) == parameters.Count)
+					parameters.Count(queryParameter => queryParameter.Comparison == Comparisons.Equals && queryParameter.ValueEquals(x)) == parameters.Count)
 					.Select(x => (T)x);
 
 				return Task.FromResult(list);

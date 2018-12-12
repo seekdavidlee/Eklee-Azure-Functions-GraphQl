@@ -91,13 +91,13 @@ namespace Eklee.Azure.Functions.GraphQl
 
 		private async Task<IEnumerable<TSource>> QueryAsync(ResolveFieldContext<object> context)
 		{
-			var queryParameters = _queryParameterBuilder.GetQueryParameterList(context).ToList();
-			var key = queryParameters.GetCacheKey();
+			var steps = _queryParameterBuilder.GetQuerySteps(context).ToList();
+			var key = steps.First().QueryParameters.GetCacheKey();
 
 			if (_cacheInSeconds > 0)
 			{
 				return (await TryGetOrSetIfNotExistAsync(
-					() => _queryExecutor.ExecuteAsync(queryParameters, _queryParameterBuilder.Mapper).Result.ToList(), key,
+					() => _queryExecutor.ExecuteAsync(steps).Result.ToList(), key,
 					new DistributedCacheEntryOptions
 					{
 						// ReSharper disable once PossibleInvalidOperationException
@@ -105,7 +105,7 @@ namespace Eklee.Azure.Functions.GraphQl
 					})).Value;
 			}
 
-			return await _queryExecutor.ExecuteAsync(queryParameters, _queryParameterBuilder.Mapper);
+			return await _queryExecutor.ExecuteAsync(steps);
 		}
 
 		private void Build()

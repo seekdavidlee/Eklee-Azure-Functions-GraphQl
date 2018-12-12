@@ -15,38 +15,43 @@ namespace Eklee.Azure.Functions.GraphQl
 			_graphQlRepositoryProvider = graphQlRepositoryProvider;
 		}
 
-		public async Task<IEnumerable<TSource>> ExecuteAsync(IEnumerable<QueryParameter> queryParameters, Func<List<List<object>>, List<TSource>> mapper)
+		public async Task<IEnumerable<TSource>> ExecuteAsync(IEnumerable<QueryStep> querySteps)
 		{
-			var list = queryParameters.ToList();
-			var hasAnyNestedQueries = list.Count(x => x.MemberModel.IsNested) > 0;
+			var ctx = new QueryExecutionContext();
 
-			if (hasAnyNestedQueries)
+			foreach (var queryStep in querySteps)
 			{
-				var dictionary = new Dictionary<string, List<QueryParameter>>();
+				queryStep.Started = DateTime.UtcNow;
 
-				list.Where(x => x.MemberModel.IsNested).ToList().ForEach(qp =>
+				if (queryStep.Mapper != null)
 				{
-					var typeFullName = qp.MemberModel.SourceType.FullName;
-					if (dictionary.ContainsKey(typeFullName))
-					{
-						dictionary[typeFullName].Add(qp);
-					}
-					else
-					{
-						dictionary.Add(typeFullName, new List<QueryParameter> { qp });
-					}
-				});
+					// We may have to make several queries.
+					var nextQueryResults = new List<object>();
 
-				var all = new List<List<object>>();
-				foreach (var key in dictionary.Keys)
+					var queryValues = queryStep.Mapper(ctx);
+
+					var first = queryStep.QueryParameters.First();
+
+					foreach (var queryValue in queryValues)
+					{
+						first.ContextValue = new ContextValue { Value = queryValue };
+						var results = (await _graphQlRepositoryProvider.QueryAsync(queryStep.QueryParameters)).ToList();
+						nextQueryResults.AddRange(results);
+					}
+
+					ctx.SetQueryResult(nextQueryResults);
+				}
+				else
 				{
-					all.Add((await _graphQlRepositoryProvider.QueryAsync(dictionary[key])).ToList());
+					ctx.SetQueryResult((await _graphQlRepositoryProvider.QueryAsync(queryStep.QueryParameters)).ToList());
 				}
 
-				return mapper(all);
+				queryStep.ContextAction?.Invoke(ctx);
+
+				queryStep.Ended = DateTime.UtcNow;
 			}
 
-			return await _graphQlRepositoryProvider.QueryAsync<TSource>(list);
+			return ctx.GetResults<TSource>();
 		}
 	}
 }

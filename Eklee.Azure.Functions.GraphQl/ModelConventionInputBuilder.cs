@@ -46,9 +46,12 @@ namespace Eklee.Azure.Functions.GraphQl
 			return this;
 		}
 
+		private HttpRepositoryConfiguration<TSource> _httpRepositoryConfiguration;
+
 		public HttpRepositoryConfiguration<TSource> ConfigureHttp()
 		{
-			return new HttpRepositoryConfiguration<TSource>(this);
+			_httpRepositoryConfiguration = new HttpRepositoryConfiguration<TSource>(this);
+			return _httpRepositoryConfiguration;
 		}
 
 		public ModelConventionInputBuilder<TSource> AddConfiguration(string key, string value)
@@ -78,6 +81,16 @@ namespace Eklee.Azure.Functions.GraphQl
 		public void Build()
 		{
 			_graphQlRepository.Configure(_typeSourceName, _configurations);
+
+			if (_httpRepositoryConfiguration != null)
+			{
+				if (_graphQlRepository is HttpRepository repo)
+				{
+					repo.AddTransform(_typeSourceName, _httpRepositoryConfiguration.AddTransform);
+					repo.UpdateTransform(_typeSourceName, _httpRepositoryConfiguration.UpdateTransform);
+					repo.DeleteTransform(_typeSourceName, _httpRepositoryConfiguration.DeleteTransform);
+				}
+			}
 
 			_objectGraphType.FieldAsync<ListGraphType<ModelConventionType<TSource>>>($"batchCreate{typeof(TSource).Name}", arguments: new QueryArguments(
 					new QueryArgument<ListGraphType<ModelConventionInputType<TSource>>> { Name = _sourceName }

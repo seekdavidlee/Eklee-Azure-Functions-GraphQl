@@ -1,5 +1,15 @@
-﻿namespace Eklee.Azure.Functions.GraphQl.Repository
+﻿using System;
+using System.Net.Http;
+
+namespace Eklee.Azure.Functions.GraphQl.Repository
 {
+	public class HttpResource
+	{
+		public string AppendUrl { get; set; }
+		public HttpMethod Method { get; set; }
+		public bool? ContainsBody { get; set; }
+	}
+
 	public class HttpRepositoryConfiguration<TSource>
 	{
 		private readonly ModelConventionInputBuilder<TSource> _modelConventionInputBuilder;
@@ -15,24 +25,25 @@
 			return this;
 		}
 
-		public HttpRepositoryConfiguration<TSource> AddResource(string value, string verb)
+		public Func<object, HttpResource> AddTransform { get; set; }
+		public Func<object, HttpResource> UpdateTransform { get; set; }
+		public Func<object, HttpResource> DeleteTransform { get; set; }
+
+		public HttpRepositoryConfiguration<TSource> AddResource(Func<TSource, HttpResource> transform)
 		{
-			_modelConventionInputBuilder.AddConfiguration(Constants.AddResource, value);
-			_modelConventionInputBuilder.AddConfiguration(Constants.AddResourceVerb, verb);
+			AddTransform = item => transform((TSource)item);
 			return this;
 		}
 
-		public HttpRepositoryConfiguration<TSource> UpdateResource(string value, string verb)
+		public HttpRepositoryConfiguration<TSource> UpdateResource(Func<TSource, HttpResource> transform)
 		{
-			_modelConventionInputBuilder.AddConfiguration(Constants.UpdateResource, value);
-			_modelConventionInputBuilder.AddConfiguration(Constants.UpdateResourceVerb, verb);
+			UpdateTransform = item => transform((TSource)item);
 			return this;
 		}
 
-		public HttpRepositoryConfiguration<TSource> DeleteResource(string value, string verb)
+		public HttpRepositoryConfiguration<TSource> DeleteResource(Func<TSource, HttpResource> transform)
 		{
-			_modelConventionInputBuilder.AddConfiguration(Constants.DeleteResource, value);
-			_modelConventionInputBuilder.AddConfiguration(Constants.DeleteResourceVerb, verb);
+			DeleteTransform = item => transform((TSource)item);
 			return this;
 		}
 

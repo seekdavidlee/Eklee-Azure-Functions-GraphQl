@@ -5,7 +5,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 {
 	public static class BooksQueryExtensions
 	{
-		public static void AddBooksQuery(this BooksQuery booksQuery, QueryBuilderFactory queryBuilderFactory)
+		public static void AddBooksQueries(this BooksQuery booksQuery, QueryBuilderFactory queryBuilderFactory)
 		{
 			// Example 1: We are getting a single Book. You are defining the argument yourself to pass into the repository with context. There's no caching and paging support. This is what comes out-of-the-box.
 

@@ -15,7 +15,7 @@ namespace Eklee.Azure.Functions.GraphQl
 			_graphQlRepositoryProvider = graphQlRepositoryProvider;
 		}
 
-		public async Task<IEnumerable<TSource>> ExecuteAsync(IEnumerable<QueryStep> querySteps)
+		public async Task<IEnumerable<TSource>> ExecuteAsync(string queryName, IEnumerable<QueryStep> querySteps)
 		{
 			var ctx = new QueryExecutionContext();
 
@@ -35,7 +35,7 @@ namespace Eklee.Azure.Functions.GraphQl
 					foreach (var queryValue in queryValues)
 					{
 						first.ContextValue = new ContextValue { Value = queryValue };
-						var results = (await _graphQlRepositoryProvider.QueryAsync(queryStep.QueryParameters)).ToList();
+						var results = (await _graphQlRepositoryProvider.QueryAsync(queryName, queryStep.QueryParameters)).ToList();
 						nextQueryResults.AddRange(results);
 					}
 
@@ -43,7 +43,7 @@ namespace Eklee.Azure.Functions.GraphQl
 				}
 				else
 				{
-					ctx.SetQueryResult((await _graphQlRepositoryProvider.QueryAsync(queryStep.QueryParameters)).ToList());
+					ctx.SetQueryResult((await _graphQlRepositoryProvider.QueryAsync(queryName, queryStep.QueryParameters)).ToList());
 				}
 
 				queryStep.ContextAction?.Invoke(ctx);

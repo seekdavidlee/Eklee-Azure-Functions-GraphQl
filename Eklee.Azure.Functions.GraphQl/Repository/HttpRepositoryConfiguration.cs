@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net.Http;
 
 namespace Eklee.Azure.Functions.GraphQl.Repository
@@ -8,6 +9,20 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 		public string AppendUrl { get; set; }
 		public HttpMethod Method { get; set; }
 		public bool? ContainsBody { get; set; }
+	}
+
+	public enum HttpQueryTypes
+	{
+		JsonBodyPost,
+		AppendToUrl
+	}
+
+	public class HttpQueryResource
+	{
+		public string ForQueryName { get; set; }
+		public HttpQueryTypes QueryType { get; set; }
+		public string AppendUrl { get; set; }
+		public bool IsListResult { get; set; }
 	}
 
 	public class HttpRepositoryConfiguration<TSource>
@@ -44,6 +59,14 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 		public HttpRepositoryConfiguration<TSource> DeleteResource(Func<TSource, HttpResource> transform)
 		{
 			DeleteTransform = item => transform((TSource)item);
+			return this;
+		}
+
+		public Func<Dictionary<string, string>, HttpQueryResource> QueryTransform { get; set; }
+
+		public HttpRepositoryConfiguration<TSource> QueryResource(Func<Dictionary<string, string>, HttpQueryResource> transform)
+		{
+			QueryTransform = transform;
 			return this;
 		}
 

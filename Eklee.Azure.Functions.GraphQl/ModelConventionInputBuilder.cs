@@ -37,12 +37,12 @@ namespace Eklee.Azure.Functions.GraphQl
 		}
 
 		private IGraphQlRepository _graphQlRepository;
-		private Type _typeSourceName;
+		private Type _typeSource;
 
 		public ModelConventionInputBuilder<TSource> Use<TType, TRepository>() where TRepository : IGraphQlRepository
 		{
 			_graphQlRepository = _graphQlRepositoryProvider.Use<TType, TRepository>();
-			_typeSourceName = typeof(TType);
+			_typeSource = typeof(TType);
 			return this;
 		}
 
@@ -80,15 +80,16 @@ namespace Eklee.Azure.Functions.GraphQl
 
 		public void Build()
 		{
-			_graphQlRepository.Configure(_typeSourceName, _configurations);
+			_graphQlRepository.Configure(_typeSource, _configurations);
 
 			if (_httpRepositoryConfiguration != null)
 			{
 				if (_graphQlRepository is HttpRepository repo)
 				{
-					repo.AddTransform(_typeSourceName, _httpRepositoryConfiguration.AddTransform);
-					repo.UpdateTransform(_typeSourceName, _httpRepositoryConfiguration.UpdateTransform);
-					repo.DeleteTransform(_typeSourceName, _httpRepositoryConfiguration.DeleteTransform);
+					repo.SetAddTransform(_typeSource, _httpRepositoryConfiguration.AddTransform);
+					repo.SetUpdateTransform(_typeSource, _httpRepositoryConfiguration.UpdateTransform);
+					repo.SetDeleteTransform(_typeSource, _httpRepositoryConfiguration.DeleteTransform);
+					repo.SetQueryTransform(_typeSource, _httpRepositoryConfiguration.QueryTransform);
 				}
 			}
 

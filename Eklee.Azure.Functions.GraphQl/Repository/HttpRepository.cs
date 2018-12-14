@@ -24,6 +24,9 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 		private readonly Dictionary<string, Func<object, HttpResource>> _deleteTransforms =
 			new Dictionary<string, Func<object, HttpResource>>();
 
+		private readonly Dictionary<string, Func<Dictionary<string, string>, HttpQueryResource>> _queryTransforms =
+			new Dictionary<string, Func<Dictionary<string, string>, HttpQueryResource>>();
+
 		public void Configure(Type sourceType, Dictionary<string, string> configurations)
 		{
 			// ReSharper disable once AssignNullToNotNullAttribute
@@ -56,22 +59,28 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			await InternalSendAsync(item, resource);
 		}
 
-		public void AddTransform(Type sourceType, Func<object, HttpResource> transform)
+		public void SetAddTransform(Type sourceType, Func<object, HttpResource> transform)
 		{
 			// ReSharper disable once AssignNullToNotNullAttribute
 			_addTransforms.Add(sourceType.FullName, transform);
 		}
 
-		public void UpdateTransform(Type sourceType, Func<object, HttpResource> transform)
+		public void SetUpdateTransform(Type sourceType, Func<object, HttpResource> transform)
 		{
 			// ReSharper disable once AssignNullToNotNullAttribute
 			_updateTransforms.Add(sourceType.FullName, transform);
 		}
 
-		public void DeleteTransform(Type sourceType, Func<object, HttpResource> transform)
+		public void SetDeleteTransform(Type sourceType, Func<object, HttpResource> transform)
 		{
 			// ReSharper disable once AssignNullToNotNullAttribute
 			_deleteTransforms.Add(sourceType.FullName, transform);
+		}
+
+		public void SetQueryTransform(Type sourceType, Func<Dictionary<string, string>, HttpQueryResource> transform)
+		{
+			// ReSharper disable once AssignNullToNotNullAttribute
+			_queryTransforms.Add(sourceType.FullName, transform);
 		}
 
 		private async Task InternalSendAsync<T>(T item, HttpResource resource)
@@ -105,9 +114,36 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			await InternalSendAsync(item, resource);
 		}
 
-		public Task<IEnumerable<T>> QueryAsync<T>(IEnumerable<QueryParameter> queryParameters)
+		public async Task<IEnumerable<T>> QueryAsync<T>(string queryName, IEnumerable<QueryParameter> queryParameters)
 		{
-			throw new NotImplementedException();
+			var parameters = queryParameters.ToList();
+
+			Dictionary<string, string> items =
+				parameters.ToDictionary(x => x.MemberModel.Name, x => x.ContextValue.Value.ToString());
+
+			// ReSharper disable once AssignNullToNotNullAttribute
+			var resourceQuery = _queryTransforms[typeof(T).FullName](items);
+
+			var httpClient = GetHttpClient<T>();
+
+			HttpResponseMessage response;
+			switch (resourceQuery.QueryType)
+			{
+				case HttpQueryTypes.AppendToUrl:
+					response = await httpClient.GetAsync(resourceQuery.AppendUrl);
+					break;
+
+				default:
+					throw new NotImplementedException();
+			}
+
+			response.EnsureSuccessStatusCode();
+
+			var result = await response.Content.ReadAsStringAsync();
+
+			return resourceQuery.IsListResult
+				? JsonConvert.DeserializeObject<List<T>>(result)
+				: new List<T> { JsonConvert.DeserializeObject<T>(result) };
 		}
 	}
 }

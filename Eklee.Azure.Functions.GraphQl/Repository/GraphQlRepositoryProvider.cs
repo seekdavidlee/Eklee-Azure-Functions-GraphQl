@@ -31,7 +31,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			return _repositories[typeSourceName];
 		}
 
-		public async Task<IEnumerable<object>> QueryAsync(IEnumerable<QueryParameter> queryParameters)
+		public async Task<IEnumerable<object>> QueryAsync(string queryName, IEnumerable<QueryParameter> queryParameters)
 		{
 			var list = queryParameters.ToList();
 
@@ -43,7 +43,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			// ReSharper disable once PossibleNullReferenceException
 			MethodInfo generic = method.MakeGenericMethod(list.First().MemberModel.SourceType);
 
-			var task = (Task)generic.Invoke(repo, new object[] { list });
+			var task = (Task)generic.Invoke(repo, new object[] { queryName, list });
 
 			await task.ConfigureAwait(false);
 

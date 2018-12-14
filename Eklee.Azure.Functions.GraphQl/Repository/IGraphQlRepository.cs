@@ -11,6 +11,6 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 		Task AddAsync<T>(T item);
 		Task UpdateAsync<T>(T item);
 		Task DeleteAsync<T>(T item);
-		Task<IEnumerable<T>> QueryAsync<T>(IEnumerable<QueryParameter> queryParameters);
+		Task<IEnumerable<T>> QueryAsync<T>(string queryName, IEnumerable<QueryParameter> queryParameters);
 	}
 }

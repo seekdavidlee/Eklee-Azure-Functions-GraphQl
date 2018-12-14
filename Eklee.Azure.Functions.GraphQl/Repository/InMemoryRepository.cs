@@ -56,7 +56,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			return Task.CompletedTask;
 		}
 
-		public Task<IEnumerable<T>> QueryAsync<T>(IEnumerable<QueryParameter> queryParameters)
+		public Task<IEnumerable<T>> QueryAsync<T>(string queryName, IEnumerable<QueryParameter> queryParameters)
 		{
 			Dictionary<string, object> collection = GetCollection<T>();
 			var parameters = queryParameters.ToList();

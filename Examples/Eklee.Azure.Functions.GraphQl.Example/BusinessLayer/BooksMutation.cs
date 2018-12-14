@@ -44,6 +44,12 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 					.AddResource(publisher => new HttpResource { AppendUrl = publishersResource, Method = HttpMethod.Post })
 					.UpdateResource(publisher => new HttpResource { AppendUrl = $"{publishersResource}/{publisher.Id}", Method = HttpMethod.Put })
 					.DeleteResource(publisher => new HttpResource { AppendUrl = $"{publishersResource}/{publisher.Id}", Method = HttpMethod.Delete })
+					.QueryResource(items => new HttpQueryResource
+					{
+						AppendUrl = $"{publishersResource}/{items["id"]}",
+						QueryType = HttpQueryTypes.AppendToUrl,
+						ForQueryName = PublisherQueryExtensions.GetPublisherByIdQuery
+					})
 					.Build()
 				.Build();
 		}

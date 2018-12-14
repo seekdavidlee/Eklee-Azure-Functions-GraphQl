@@ -358,6 +358,55 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Seed Publishers",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "90c54615-a264-46b5-8bc5-b77d09317f9b",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Created data contains 30 items\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.batchCreateBookAuthors.length).to.eql(7);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  batchCreatePublisher(publisher: [{id: \\\"8\\\", name: \\\"King Publishing House\\\"}, {id: \\\"9\\\", name: \\\"Queen Publishing House\\\"}, {id: \\\"10\\\", name: \\\"John Publishing House\\\"}, {id: \\\"11\\\", name: \\\"Mark Publishing House\\\"}, {id: \\\"12\\\", name: \\\"Bao Publisher\\\"}]) {\\n    id\\n    name\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -509,6 +558,56 @@
 						"body": {
 							"mode": "raw",
 							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"{\\n  getBooksByCategory(category: \\\"Technology\\\") {\\n    id\\n    name\\n    category\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getPublisherById",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "8cdd0da6-f4bd-427b-ba71-cde39b62de87",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Query returns with match\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.getPublisherById.id).to.eql(\"4\");",
+									"    pm.expect(jsonData.data.getPublisherById.name).to.eql(\"ACME\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"{\\n  getPublisherById(id: \\\"4\\\") {\\n    id\\n    name\\n  }\\n}\\n\"}"
 						},
 						"url": {
 							"raw": "{{endpoint}}/api/books/graph",

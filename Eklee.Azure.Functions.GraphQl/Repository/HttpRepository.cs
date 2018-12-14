@@ -10,7 +10,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 {
 	public class HttpRepository : IGraphQlRepository
 	{
-		private readonly HttpClient _httpClient = new HttpClient();
+		private readonly Dictionary<string, HttpClient> _httpClients = new Dictionary<string, HttpClient>();
 
 		private readonly Dictionary<string, HttpTypeConfiguration> _httpTypeConfigurations
 			= new Dictionary<string, HttpTypeConfiguration>();
@@ -38,10 +38,26 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 
 		private HttpClient GetHttpClient<T>()
 		{
+			var key = typeof(T).FullName;
+
+			HttpClient httpClient;
+
 			// ReSharper disable once AssignNullToNotNullAttribute
-			var configuration = _httpTypeConfigurations[typeof(T).FullName];
-			_httpClient.BaseAddress = new Uri(configuration.BaseUrl);
-			return _httpClient;
+			if (!_httpClients.ContainsKey(key))
+			{
+				httpClient = new HttpClient();
+				// ReSharper disable once AssignNullToNotNullAttribute
+				var configuration = _httpTypeConfigurations[typeof(T).FullName];
+				httpClient.BaseAddress = new Uri(configuration.BaseUrl);
+
+				_httpClients.Add(key, httpClient);
+			}
+			else
+			{
+				httpClient = _httpClients[key];
+			}
+
+			return httpClient;
 		}
 
 		public async Task BatchAddAsync<T>(IEnumerable<T> items)
@@ -83,7 +99,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			_queryTransforms.Add(sourceType.FullName, transform);
 		}
 
-		private async Task InternalSendAsync<T>(T item, HttpResource resource)
+		private async Task<string> InternalSendAsync<T>(T item, HttpResource resource)
 		{
 			var httpClient = GetHttpClient<T>();
 
@@ -94,7 +110,11 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			var request = new HttpRequestMessage(resource.Method, resource.AppendUrl) { Content = content };
 			var response = await httpClient.SendAsync(request);
 
+			var responseContent = await response.Content.ReadAsStringAsync();
+
 			response.EnsureSuccessStatusCode();
+
+			return responseContent;
 		}
 
 		public async Task UpdateAsync<T>(T item)

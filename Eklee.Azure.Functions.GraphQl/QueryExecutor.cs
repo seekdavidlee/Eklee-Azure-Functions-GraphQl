@@ -3,16 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Eklee.Azure.Functions.GraphQl.Repository;
+using Microsoft.Extensions.Logging;
 
 namespace Eklee.Azure.Functions.GraphQl
 {
 	public class QueryExecutor<TSource>
 	{
 		private readonly IGraphQlRepositoryProvider _graphQlRepositoryProvider;
+		private readonly ILogger _logger;
 
-		public QueryExecutor(IGraphQlRepositoryProvider graphQlRepositoryProvider)
+		public QueryExecutor(IGraphQlRepositoryProvider graphQlRepositoryProvider, ILogger logger)
 		{
 			_graphQlRepositoryProvider = graphQlRepositoryProvider;
+			_logger = logger;
 		}
 
 		public async Task<IEnumerable<TSource>> ExecuteAsync(string queryName, IEnumerable<QueryStep> querySteps)
@@ -35,8 +38,17 @@ namespace Eklee.Azure.Functions.GraphQl
 					foreach (var queryValue in queryValues)
 					{
 						first.ContextValue = new ContextValue { Value = queryValue };
-						var results = (await _graphQlRepositoryProvider.QueryAsync(queryName, queryStep.QueryParameters)).ToList();
-						nextQueryResults.AddRange(results);
+
+						try
+						{
+							var results = (await _graphQlRepositoryProvider.QueryAsync(queryName, queryStep.QueryParameters)).ToList();
+							nextQueryResults.AddRange(results);
+						}
+						catch (Exception e)
+						{
+							_logger.LogError(e, "An error has occured while executing query on repository.");
+							throw;
+						}
 					}
 
 					ctx.SetQueryResult(nextQueryResults);

@@ -40,7 +40,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 			inputBuilderFactory.Create<Publisher>(this)
 				.Use<Publisher, HttpRepository>()
 				.ConfigureHttp()
-					.AddBaseUrl("http://localhost:7071")
+					.AddBaseUrl("http://localhost:7071/api/")
 					.AddResource(publisher => new HttpResource { AppendUrl = publishersResource, Method = HttpMethod.Post })
 					.UpdateResource(publisher => new HttpResource { AppendUrl = $"{publishersResource}/{publisher.Id}", Method = HttpMethod.Put })
 					.DeleteResource(publisher => new HttpResource { AppendUrl = $"{publishersResource}/{publisher.Id}", Method = HttpMethod.Delete })

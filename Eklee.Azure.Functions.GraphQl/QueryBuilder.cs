@@ -6,6 +6,7 @@ using Eklee.Azure.Functions.GraphQl.Repository;
 using GraphQL.Builders;
 using GraphQL.Types;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace Eklee.Azure.Functions.GraphQl
@@ -21,11 +22,12 @@ namespace Eklee.Azure.Functions.GraphQl
 		internal QueryBuilder(ObjectGraphType<object> objectGraphType,
 			string queryName,
 			IGraphQlRepositoryProvider graphQlRepositoryProvider,
-			IDistributedCache distributedCache)
+			IDistributedCache distributedCache,
+			ILogger logger)
 		{
 			_objectGraphType = objectGraphType;
 			_queryName = queryName;
-			_queryExecutor = new QueryExecutor<TSource>(graphQlRepositoryProvider);
+			_queryExecutor = new QueryExecutor<TSource>(graphQlRepositoryProvider, logger);
 			_distributedCache = distributedCache;
 
 			_queryParameterBuilder = new QueryParameterBuilder<TSource>(this);

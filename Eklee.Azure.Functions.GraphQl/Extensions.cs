@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace Eklee.Azure.Functions.GraphQl
@@ -45,10 +46,13 @@ namespace Eklee.Azure.Functions.GraphQl
 		public static async Task<IActionResult> ProcessGraphQlRequest(this ExecutionContext executionContext, HttpRequest httpRequest)
 		{
 			var graphQlDomain = executionContext.Resolve<IGraphQlDomain>();
+			var logger = executionContext.Resolve<ILogger>();
 
 			if (httpRequest.ContentType == "application/json")
 			{
 				var requestBody = await httpRequest.ReadAsStringAsync();
+
+				logger.LogInformation($"Request-Body: {requestBody}");
 
 				return new OkObjectResult(await graphQlDomain.ExecuteAsync(JsonConvert.DeserializeObject<GraphQlDomainRequest>(requestBody)));
 			}

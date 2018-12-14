@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Eklee.Azure.Functions.GraphQl.Repository;
 using GraphQL.Types;
+using Microsoft.Extensions.Logging;
 
 namespace Eklee.Azure.Functions.GraphQl
 {
@@ -9,16 +10,19 @@ namespace Eklee.Azure.Functions.GraphQl
 	{
 		private readonly ObjectGraphType _objectGraphType;
 		private readonly IGraphQlRepositoryProvider _graphQlRepositoryProvider;
+		private readonly ILogger _logger;
 		private readonly string _sourceName;
 		private Action _deleteSetupAction;
 		private readonly Dictionary<string, string> _configurations = new Dictionary<string, string>();
 
 		internal ModelConventionInputBuilder(
 			ObjectGraphType objectGraphType,
-			IGraphQlRepositoryProvider graphQlRepositoryProviderProvider)
+			IGraphQlRepositoryProvider graphQlRepositoryProviderProvider,
+			ILogger logger)
 		{
 			_objectGraphType = objectGraphType;
 			_graphQlRepositoryProvider = graphQlRepositoryProviderProvider;
+			_logger = logger;
 			_sourceName = typeof(TSource).Name.ToLower();
 
 			// Default setup for delete.
@@ -99,8 +103,16 @@ namespace Eklee.Azure.Functions.GraphQl
 				resolve: async context =>
 				{
 					var items = context.GetArgument<IEnumerable<TSource>>(_sourceName);
-					await _graphQlRepositoryProvider.GetRepository<TSource>().BatchAddAsync(items);
-					return items;
+					try
+					{
+						await _graphQlRepositoryProvider.GetRepository<TSource>().BatchAddAsync(items);
+						return items;
+					}
+					catch (Exception e)
+					{
+						_logger.LogError(e, "An error has occured while performing a batch add operation.");
+						throw;
+					}
 				});
 
 			_objectGraphType.FieldAsync<ModelConventionType<TSource>>($"create{typeof(TSource).Name}", arguments: new QueryArguments(

@@ -373,7 +373,7 @@
 									"",
 									"pm.test(\"Created data contains 30 items\", function () {",
 									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData.data.batchCreateBookAuthors.length).to.eql(7);",
+									"    pm.expect(jsonData.data.batchCreatePublisher.length).to.eql(5);",
 									"});"
 								],
 								"type": "text/javascript"

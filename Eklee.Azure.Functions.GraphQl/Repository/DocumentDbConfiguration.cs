@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Eklee.Azure.Functions.GraphQl.Repository
+﻿namespace Eklee.Azure.Functions.GraphQl.Repository
 {
 	public class DocumentDbConfiguration<TSource>
 	{
@@ -11,6 +7,16 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 		public DocumentDbConfiguration(ModelConventionInputBuilder<TSource> modelConventionInputBuilder)
 		{
 			_modelConventionInputBuilder = modelConventionInputBuilder;
+		}
+
+		public DocumentDbConfiguration<TSource> AddUrl(string url)
+		{
+			return this;
+		}
+
+		public DocumentDbConfiguration<TSource> AddKey(string key)
+		{
+			return this;
 		}
 
 		public ModelConventionInputBuilder<TSource> Build()

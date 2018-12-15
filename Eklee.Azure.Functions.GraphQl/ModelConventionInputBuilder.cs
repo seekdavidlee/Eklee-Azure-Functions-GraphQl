@@ -13,7 +13,6 @@ namespace Eklee.Azure.Functions.GraphQl
 		private readonly ILogger _logger;
 		private readonly string _sourceName;
 		private Action _deleteSetupAction;
-		private readonly Dictionary<string, string> _configurations = new Dictionary<string, string>();
 
 		internal ModelConventionInputBuilder(
 			ObjectGraphType objectGraphType,
@@ -54,7 +53,7 @@ namespace Eklee.Azure.Functions.GraphQl
 
 		public HttpConfiguration<TSource> ConfigureHttp()
 		{
-			_httpRepositoryConfiguration = new HttpConfiguration<TSource>(this);
+			_httpRepositoryConfiguration = new HttpConfiguration<TSource>(this, _graphQlRepository, _typeSource);
 			return _httpRepositoryConfiguration;
 		}
 
@@ -64,12 +63,6 @@ namespace Eklee.Azure.Functions.GraphQl
 		{
 			_documentDbConfiguration = new DocumentDbConfiguration<TSource>(this);
 			return _documentDbConfiguration;
-		}
-
-		public ModelConventionInputBuilder<TSource> AddConfiguration(string key, string value)
-		{
-			_configurations.Add(key, value);
-			return this;
 		}
 
 		public ModelConventionInputBuilder<TSource> Delete<TDeleteInput, TDeleteOutput>(Func<TSource, TDeleteOutput> transform)
@@ -92,19 +85,6 @@ namespace Eklee.Azure.Functions.GraphQl
 
 		public void Build()
 		{
-			_graphQlRepository.Configure(_typeSource, _configurations);
-
-			if (_httpRepositoryConfiguration != null)
-			{
-				if (_graphQlRepository is HttpRepository repo)
-				{
-					repo.SetAddTransform(_typeSource, _httpRepositoryConfiguration.AddTransform);
-					repo.SetUpdateTransform(_typeSource, _httpRepositoryConfiguration.UpdateTransform);
-					repo.SetDeleteTransform(_typeSource, _httpRepositoryConfiguration.DeleteTransform);
-					repo.SetQueryTransform(_typeSource, _httpRepositoryConfiguration.QueryTransform);
-				}
-			}
-
 			_objectGraphType.FieldAsync<ListGraphType<ModelConventionType<TSource>>>($"batchCreate{typeof(TSource).Name}", arguments: new QueryArguments(
 					new QueryArgument<ListGraphType<ModelConventionInputType<TSource>>> { Name = _sourceName }
 				),

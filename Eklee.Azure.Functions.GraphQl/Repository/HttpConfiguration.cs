@@ -27,21 +27,30 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 	public class HttpConfiguration<TSource>
 	{
 		private readonly ModelConventionInputBuilder<TSource> _modelConventionInputBuilder;
+		private readonly IGraphQlRepository _graphQlRepository;
+		private readonly Type _typeSource;
+		private readonly Dictionary<string, string> _configurations = new Dictionary<string, string>();
 
-		public HttpConfiguration(ModelConventionInputBuilder<TSource> modelConventionInputBuilder)
+		public HttpConfiguration(
+			ModelConventionInputBuilder<TSource> modelConventionInputBuilder,
+			IGraphQlRepository graphQlRepository,
+			Type typeSource)
 		{
 			_modelConventionInputBuilder = modelConventionInputBuilder;
+			_graphQlRepository = graphQlRepository;
+			_typeSource = typeSource;
 		}
 
 		public HttpConfiguration<TSource> AddBaseUrl(string value)
 		{
-			_modelConventionInputBuilder.AddConfiguration(HttpConstants.BaseUrl, value);
+			AddConfiguration(HttpConstants.BaseUrl, value);
 			return this;
 		}
 
-		public Func<object, HttpResource> AddTransform { get; set; }
-		public Func<object, HttpResource> UpdateTransform { get; set; }
-		public Func<object, HttpResource> DeleteTransform { get; set; }
+		private Func<object, HttpResource> AddTransform { get; set; }
+		private Func<object, HttpResource> UpdateTransform { get; set; }
+		private Func<object, HttpResource> DeleteTransform { get; set; }
+		private Func<Dictionary<string, string>, HttpQueryResource> QueryTransform { get; set; }
 
 		public HttpConfiguration<TSource> AddResource(Func<TSource, HttpResource> transform)
 		{
@@ -61,16 +70,28 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			return this;
 		}
 
-		public Func<Dictionary<string, string>, HttpQueryResource> QueryTransform { get; set; }
-
 		public HttpConfiguration<TSource> QueryResource(Func<Dictionary<string, string>, HttpQueryResource> transform)
 		{
 			QueryTransform = transform;
 			return this;
 		}
 
+		private void AddConfiguration(string key, string value)
+		{
+			_configurations.Add(key, value);
+		}
+
 		public ModelConventionInputBuilder<TSource> Build()
 		{
+			_graphQlRepository.Configure(_typeSource, _configurations);
+
+			if (_graphQlRepository is HttpRepository repo)
+			{
+				repo.SetAddTransform(_typeSource, AddTransform);
+				repo.SetUpdateTransform(_typeSource, UpdateTransform);
+				repo.SetDeleteTransform(_typeSource, DeleteTransform);
+				repo.SetQueryTransform(_typeSource, QueryTransform);
+			}
 			return _modelConventionInputBuilder;
 		}
 	}

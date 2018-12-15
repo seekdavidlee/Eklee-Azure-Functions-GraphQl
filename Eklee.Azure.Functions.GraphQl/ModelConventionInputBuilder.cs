@@ -50,12 +50,20 @@ namespace Eklee.Azure.Functions.GraphQl
 			return this;
 		}
 
-		private HttpRepositoryConfiguration<TSource> _httpRepositoryConfiguration;
+		private HttpConfiguration<TSource> _httpRepositoryConfiguration;
 
-		public HttpRepositoryConfiguration<TSource> ConfigureHttp()
+		public HttpConfiguration<TSource> ConfigureHttp()
 		{
-			_httpRepositoryConfiguration = new HttpRepositoryConfiguration<TSource>(this);
+			_httpRepositoryConfiguration = new HttpConfiguration<TSource>(this);
 			return _httpRepositoryConfiguration;
+		}
+
+		private DocumentDbConfiguration<TSource> _documentDbConfiguration;
+
+		public DocumentDbConfiguration<TSource> ConfigureDocumentDb()
+		{
+			_documentDbConfiguration = new DocumentDbConfiguration<TSource>(this);
+			return _documentDbConfiguration;
 		}
 
 		public ModelConventionInputBuilder<TSource> AddConfiguration(string key, string value)

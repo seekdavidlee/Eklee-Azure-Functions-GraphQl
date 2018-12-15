@@ -13,7 +13,6 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 
 	public enum HttpQueryTypes
 	{
-		JsonBodyPost,
 		AppendToUrl
 	}
 
@@ -25,16 +24,16 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 		public bool IsListResult { get; set; }
 	}
 
-	public class HttpRepositoryConfiguration<TSource>
+	public class HttpConfiguration<TSource>
 	{
 		private readonly ModelConventionInputBuilder<TSource> _modelConventionInputBuilder;
 
-		public HttpRepositoryConfiguration(ModelConventionInputBuilder<TSource> modelConventionInputBuilder)
+		public HttpConfiguration(ModelConventionInputBuilder<TSource> modelConventionInputBuilder)
 		{
 			_modelConventionInputBuilder = modelConventionInputBuilder;
 		}
 
-		public HttpRepositoryConfiguration<TSource> AddBaseUrl(string value)
+		public HttpConfiguration<TSource> AddBaseUrl(string value)
 		{
 			_modelConventionInputBuilder.AddConfiguration(HttpConstants.BaseUrl, value);
 			return this;
@@ -44,19 +43,19 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 		public Func<object, HttpResource> UpdateTransform { get; set; }
 		public Func<object, HttpResource> DeleteTransform { get; set; }
 
-		public HttpRepositoryConfiguration<TSource> AddResource(Func<TSource, HttpResource> transform)
+		public HttpConfiguration<TSource> AddResource(Func<TSource, HttpResource> transform)
 		{
 			AddTransform = item => transform((TSource)item);
 			return this;
 		}
 
-		public HttpRepositoryConfiguration<TSource> UpdateResource(Func<TSource, HttpResource> transform)
+		public HttpConfiguration<TSource> UpdateResource(Func<TSource, HttpResource> transform)
 		{
 			UpdateTransform = item => transform((TSource)item);
 			return this;
 		}
 
-		public HttpRepositoryConfiguration<TSource> DeleteResource(Func<TSource, HttpResource> transform)
+		public HttpConfiguration<TSource> DeleteResource(Func<TSource, HttpResource> transform)
 		{
 			DeleteTransform = item => transform((TSource)item);
 			return this;
@@ -64,7 +63,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 
 		public Func<Dictionary<string, string>, HttpQueryResource> QueryTransform { get; set; }
 
-		public HttpRepositoryConfiguration<TSource> QueryResource(Func<Dictionary<string, string>, HttpQueryResource> transform)
+		public HttpConfiguration<TSource> QueryResource(Func<Dictionary<string, string>, HttpQueryResource> transform)
 		{
 			QueryTransform = transform;
 			return this;

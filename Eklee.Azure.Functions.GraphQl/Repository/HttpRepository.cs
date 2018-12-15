@@ -32,7 +32,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			// ReSharper disable once AssignNullToNotNullAttribute
 			_httpTypeConfigurations.Add(sourceType.FullName, new HttpTypeConfiguration
 			{
-				BaseUrl = configurations[Constants.BaseUrl]
+				BaseUrl = configurations[HttpConstants.BaseUrl]
 			});
 		}
 

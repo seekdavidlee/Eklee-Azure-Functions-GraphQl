@@ -9,6 +9,7 @@
     <PackageReference Include="Eklee.Azure.Functions.Http" Version="0.6.1" />
     <PackageReference Include="FastMember" Version="1.4.1" />
     <PackageReference Include="GraphQL" Version="2.4.0" />
+    <PackageReference Include="Microsoft.Azure.DocumentDB" Version="2.2.0" />
   </ItemGroup>
 
 </Project>

@@ -1,6 +1,6 @@
 ﻿namespace Eklee.Azure.Functions.GraphQl.Repository
 {
-	public static class Constants
+	public static class HttpConstants
 	{
 		public const string BaseUrl = "BaseUrl";
 	}

@@ -36,7 +36,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 
 		public HttpRepositoryConfiguration<TSource> AddBaseUrl(string value)
 		{
-			_modelConventionInputBuilder.AddConfiguration(Constants.BaseUrl, value);
+			_modelConventionInputBuilder.AddConfiguration(HttpConstants.BaseUrl, value);
 			return this;
 		}
 

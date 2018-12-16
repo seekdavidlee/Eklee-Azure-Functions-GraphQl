@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Eklee.Azure.Functions.GraphQl.Repository;
+using Eklee.Azure.Functions.Http;
 using GraphQL.Types;
 using Microsoft.Extensions.Logging;
 
@@ -11,17 +12,20 @@ namespace Eklee.Azure.Functions.GraphQl
 		private readonly ObjectGraphType _objectGraphType;
 		private readonly IGraphQlRepositoryProvider _graphQlRepositoryProvider;
 		private readonly ILogger _logger;
+		private readonly IHttpRequestContext _httpRequestContext;
 		private readonly string _sourceName;
 		private Action _deleteSetupAction;
 
 		internal ModelConventionInputBuilder(
 			ObjectGraphType objectGraphType,
 			IGraphQlRepositoryProvider graphQlRepositoryProviderProvider,
-			ILogger logger)
+			ILogger logger,
+			IHttpRequestContext httpRequestContext)
 		{
 			_objectGraphType = objectGraphType;
 			_graphQlRepositoryProvider = graphQlRepositoryProviderProvider;
 			_logger = logger;
+			_httpRequestContext = httpRequestContext;
 			_sourceName = typeof(TSource).Name.ToLower();
 
 			// Default setup for delete.
@@ -49,20 +53,14 @@ namespace Eklee.Azure.Functions.GraphQl
 			return this;
 		}
 
-		private HttpConfiguration<TSource> _httpRepositoryConfiguration;
-
 		public HttpConfiguration<TSource> ConfigureHttp()
 		{
-			_httpRepositoryConfiguration = new HttpConfiguration<TSource>(this, _graphQlRepository, _typeSource);
-			return _httpRepositoryConfiguration;
+			return new HttpConfiguration<TSource>(this, _graphQlRepository, _typeSource);
 		}
-
-		private DocumentDbConfiguration<TSource> _documentDbConfiguration;
 
 		public DocumentDbConfiguration<TSource> ConfigureDocumentDb()
 		{
-			_documentDbConfiguration = new DocumentDbConfiguration<TSource>(this);
-			return _documentDbConfiguration;
+			return new DocumentDbConfiguration<TSource>(this, _graphQlRepository, _typeSource, _httpRequestContext);
 		}
 
 		public ModelConventionInputBuilder<TSource> Delete<TDeleteInput, TDeleteOutput>(Func<TSource, TDeleteOutput> transform)
@@ -109,7 +107,16 @@ namespace Eklee.Azure.Functions.GraphQl
 				resolve: async context =>
 				{
 					var item = context.GetArgument<TSource>(_sourceName);
-					await _graphQlRepositoryProvider.GetRepository<TSource>().AddAsync(item);
+
+					try
+					{
+						await _graphQlRepositoryProvider.GetRepository<TSource>().AddAsync(item);
+					}
+					catch (Exception e)
+					{
+						_logger.LogError(e, "An error has occured while performing an add operation.");
+						throw;
+					}
 					return item;
 				});
 
@@ -119,7 +126,15 @@ namespace Eklee.Azure.Functions.GraphQl
 				resolve: async context =>
 				{
 					var item = context.GetArgument<TSource>(_sourceName);
-					await _graphQlRepositoryProvider.GetRepository<TSource>().UpdateAsync(item);
+					try
+					{
+						await _graphQlRepositoryProvider.GetRepository<TSource>().UpdateAsync(item);
+					}
+					catch (Exception e)
+					{
+						_logger.LogError(e, "An error has occured while performing an update operation.");
+						throw;
+					}
 					return item;
 				});
 

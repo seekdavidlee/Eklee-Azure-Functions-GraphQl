@@ -27,12 +27,12 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 		private readonly Dictionary<string, Func<Dictionary<string, string>, HttpQueryResource>> _queryTransforms =
 			new Dictionary<string, Func<Dictionary<string, string>, HttpQueryResource>>();
 
-		public void Configure(Type sourceType, Dictionary<string, string> configurations)
+		public void Configure(Type sourceType, Dictionary<string, object> configurations)
 		{
 			// ReSharper disable once AssignNullToNotNullAttribute
 			_httpTypeConfigurations.Add(sourceType.FullName, new HttpTypeConfiguration
 			{
-				BaseUrl = configurations[HttpConstants.BaseUrl]
+				BaseUrl = (string)configurations[HttpConstants.BaseUrl]
 			});
 		}
 

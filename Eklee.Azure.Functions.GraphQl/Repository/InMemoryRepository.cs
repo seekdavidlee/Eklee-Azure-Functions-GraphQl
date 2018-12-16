@@ -20,7 +20,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			return _database[key];
 		}
 
-		public void Configure(Type sourceType, Dictionary<string, string> configurations)
+		public void Configure(Type sourceType, Dictionary<string, object> configurations)
 		{
 			// Do nothing.
 		}

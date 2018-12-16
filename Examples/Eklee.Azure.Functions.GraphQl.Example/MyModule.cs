@@ -19,6 +19,8 @@ namespace Eklee.Azure.Functions.GraphQl.Example
 
 			builder.RegisterType<InMemoryRepository>().As<IGraphQlRepository>().SingleInstance();
 			builder.RegisterType<HttpRepository>().As<IGraphQlRepository>().SingleInstance();
+			builder.RegisterType<DocumentDbRepository>().As<IGraphQlRepository>().SingleInstance();
+
 			builder.RegisterType<GraphQlRepositoryProvider>().As<IGraphQlRepositoryProvider>().SingleInstance();
 
 			builder.RegisterType<PublisherMockRepository>().As<IHttpMockRepository<Publisher>>().SingleInstance();

@@ -29,7 +29,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 		private readonly ModelConventionInputBuilder<TSource> _modelConventionInputBuilder;
 		private readonly IGraphQlRepository _graphQlRepository;
 		private readonly Type _typeSource;
-		private readonly Dictionary<string, string> _configurations = new Dictionary<string, string>();
+		private readonly Dictionary<string, object> _configurations = new Dictionary<string, object>();
 
 		public HttpConfiguration(
 			ModelConventionInputBuilder<TSource> modelConventionInputBuilder,

@@ -31,13 +31,26 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 				.Use<Book, InMemoryRepository>()
 				.Build();
 
-			//inputBuilderFactory.Create<BookReview>(this)
-			//	.Use<BookReview, DocumentDbRepository>()
-			//	.ConfigureDocumentDb()
-			//		.AddUrl("https://localhost:8081")
-			//		.AddKey("C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==")
-			//		.Build()
-			//	.Build();
+			inputBuilderFactory.Create<BookReview>(this)
+				.Use<BookReview, DocumentDbRepository>()
+				.ConfigureDocumentDb()
+					.AddUrl("https://localhost:8081")
+					.AddKey("C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==")
+					.AddDatabase(rc =>
+					{
+						try
+						{
+							return rc.Security != null ? rc.Security.Principal.Name : "local";
+						}
+						catch
+						{
+							return "local";
+						}
+					})
+					.AddRequestUnit(400)
+					.AddPartition(bookReview => bookReview.BookId)
+					.Build()
+				.Build();
 
 			const string publishersResource = "publishers";
 

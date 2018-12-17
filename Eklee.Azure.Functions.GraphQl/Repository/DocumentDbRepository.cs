@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Dynamic;
-using System.IO;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
+using GraphQL;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 using Newtonsoft.Json;
@@ -14,6 +15,8 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 		private const int DefaultRequestUnits = 400;
 		private readonly DocumentClient _documentClient;
 		private readonly Dictionary<string, string> _databases = new Dictionary<string, string>();
+		private readonly Dictionary<string, MemberExpression> _memberExpressions =
+			new Dictionary<string, MemberExpression>();
 
 		public DocumentClientProvider(string url, string key)
 		{
@@ -24,11 +27,11 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 		{
 			int requestUnit = DefaultRequestUnits;
 
-			var databaseId = (string)configurations[DocumentDbConstants.Database];
+			var databaseId = configurations.GetStringValue(DocumentDbConstants.Database, sourceType);
 
-			if (configurations.ContainsKey(DocumentDbConstants.RequestUnit))
+			if (configurations.ContainsKey(DocumentDbConfigurationExtensions.GetKey(DocumentDbConstants.RequestUnit, sourceType)))
 			{
-				int.TryParse((string)configurations[DocumentDbConstants.RequestUnit], out requestUnit);
+				int.TryParse(configurations.GetStringValue(DocumentDbConstants.RequestUnit, sourceType), out requestUnit);
 			}
 
 			if (!_databases.ContainsKey(databaseId))
@@ -41,8 +44,8 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 
 			_databases[sourceType.Name.ToLower()] = databaseId;
 
-			var partitionKey = configurations[DocumentDbConstants.Partition]
-				as PartitionKeyDefinition;
+			var partitionKey =
+				configurations.GetValue<PartitionKeyDefinition>(DocumentDbConstants.Partition, sourceType);
 
 			_documentClient.CreateDocumentCollectionIfNotExistsAsync(
 				UriFactory.CreateDatabaseUri(databaseId), new DocumentCollection
@@ -51,10 +54,15 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 					PartitionKey = partitionKey
 				}, new RequestOptions
 				{
-					OfferThroughput = requestUnit,
+					OfferThroughput = requestUnit
 
 				})
 				.GetAwaiter().GetResult();
+
+			var memberExpressionKey = DocumentDbConfigurationExtensions.GetKey(DocumentDbConstants.MemberExpression, sourceType);
+
+			if (configurations.ContainsKey(memberExpressionKey))
+				_memberExpressions.Add(sourceType.Name, (MemberExpression)configurations[memberExpressionKey]);
 		}
 
 		public async Task CreateAsync<T>(T item)
@@ -100,7 +108,18 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 
 		public async Task DeleteAsync<T>(T item)
 		{
-			await _documentClient.DeleteDocumentAsync(GetDocumentUri(item));
+			PartitionKey partitionKey = null;
+			if (_memberExpressions.ContainsKey(typeof(T).Name))
+			{
+				var memberExpression = _memberExpressions[typeof(T).Name];
+				var value = item.GetPropertyValue(memberExpression.Member.Name);
+				partitionKey = new PartitionKey(value);
+			}
+
+			await _documentClient.DeleteDocumentAsync(GetDocumentUri(item), new RequestOptions
+			{
+				PartitionKey = partitionKey
+			});
 		}
 	}
 
@@ -111,11 +130,11 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 
 		public void Configure(Type sourceType, Dictionary<string, object> configurations)
 		{
-			var url = (string)configurations[DocumentDbConstants.Url];
+			var url = configurations.GetStringValue(DocumentDbConstants.Url, sourceType);
 
 			var provider = _providers.ContainsKey(url)
 				? _providers[url]
-				: new DocumentClientProvider(url, (string)configurations[DocumentDbConstants.Key]);
+				: new DocumentClientProvider(url, configurations.GetStringValue(DocumentDbConstants.Key, sourceType));
 
 			provider.ConfigureDatabaseAndCollection(configurations, sourceType);
 

@@ -14,6 +14,31 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 		public const string Database = "Database";
 		public const string RequestUnit = "RequestUnit";
 		public const string Partition = "Partition";
+		public const string MemberExpression = "MemberExpression";
+	}
+
+	public static class DocumentDbConfigurationExtensions
+	{
+		public static void Add<TSource>(this Dictionary<string, object> configurations, string name, object value)
+		{
+			configurations[$"{typeof(TSource).Name}{name}"] = value;
+		}
+
+		public static T GetValue<T>(this Dictionary<string, object> configurations, string key, Type sourceType)
+		{
+			return (T)configurations[GetKey(key, sourceType)];
+		}
+
+
+		public static string GetStringValue(this Dictionary<string, object> configurations, string key, Type sourceType)
+		{
+			return (string)configurations[GetKey(key, sourceType)];
+		}
+
+		public static string GetKey(string key, Type sourceType)
+		{
+			return $"{sourceType.Name}{key}";
+		}
 	}
 
 	public class DocumentDbConfiguration<TSource>
@@ -39,19 +64,20 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 
 		public DocumentDbConfiguration<TSource> AddUrl(string url)
 		{
-			_configurations[DocumentDbConstants.Url] = url;
+			_configurations.Add<TSource>(DocumentDbConstants.Url, url);
 			return this;
 		}
 
+
 		public DocumentDbConfiguration<TSource> AddKey(string key)
 		{
-			_configurations[DocumentDbConstants.Key] = key;
+			_configurations.Add<TSource>(DocumentDbConstants.Key, key);
 			return this;
 		}
 
 		public DocumentDbConfiguration<TSource> AddDatabase(Func<IHttpRequestContext, string> getDatabase)
 		{
-			_configurations[DocumentDbConstants.Database] = getDatabase(_httpRequestContext);
+			_configurations.Add<TSource>(DocumentDbConstants.Database, getDatabase(_httpRequestContext));
 			return this;
 		}
 
@@ -59,10 +85,12 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 		{
 			if (expression.Body is MemberExpression memberExpression)
 			{
-				_configurations[DocumentDbConstants.Partition] = new PartitionKeyDefinition
+				_configurations.Add<TSource>(DocumentDbConstants.Partition, new PartitionKeyDefinition
 				{
 					Paths = new Collection<string> { $"/{memberExpression.Member.Name}" }
-				};
+				});
+
+				_configurations.Add<TSource>(DocumentDbConstants.MemberExpression, memberExpression);
 			}
 
 			return this;
@@ -70,7 +98,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 
 		public DocumentDbConfiguration<TSource> AddRequestUnit(int requestUnit)
 		{
-			_configurations[DocumentDbConstants.RequestUnit] = requestUnit.ToString();
+			_configurations.Add<TSource>(DocumentDbConstants.RequestUnit, requestUnit.ToString());
 			return this;
 		}
 

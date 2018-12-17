@@ -13,7 +13,9 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 			Name = "mutations";
 
 			inputBuilderFactory.Create<Book>(this)
-				.Delete<BookId, Status>(book => new Status { Message = $"Successfully removed book with Id {book.Id}" })
+				.Delete<BookId, Status>(
+					bookInput => new Book { Id = bookInput.Id },
+					book => new Status { Message = $"Successfully removed book with Id {book.Id}" })
 				.Use<Book, InMemoryRepository>()
 				.Build();
 
@@ -32,21 +34,14 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 				.Build();
 
 			inputBuilderFactory.Create<BookReview>(this)
+				.Delete<BookReviewId, Status>(
+					bookReviewInput => new BookReview { Id = bookReviewInput.Id, BookId = bookReviewInput.BookId },
+					bookReview => new Status { Message = $"Successfully removed book review with Id {bookReview.Id}" })
 				.Use<BookReview, DocumentDbRepository>()
 				.ConfigureDocumentDb()
 					.AddUrl("https://localhost:8081")
 					.AddKey("C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==")
-					.AddDatabase(rc =>
-					{
-						try
-						{
-							return rc.Security != null ? rc.Security.Principal.Name : "local";
-						}
-						catch
-						{
-							return "local";
-						}
-					})
+					.AddDatabase(rc => "local")
 					.AddRequestUnit(400)
 					.AddPartition(bookReview => bookReview.BookId)
 					.Build()

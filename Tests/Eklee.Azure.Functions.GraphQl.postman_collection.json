@@ -742,6 +742,194 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "CreateBookReview",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "0c3f3e5f-0cae-44b0-82d6-ed1e8503875e",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Book review is created.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    ",
+									"    pm.expect(jsonData.data.createBookReview.id).to.eql(\"1\");",
+									"    pm.expect(jsonData.data.createBookReview.bookId).to.eql(\"1\");",
+									"    pm.expect(jsonData.data.createBookReview.reviewerId).to.eql(\"1\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "5d61d284-ccef-46b5-92d5-8867d081b060",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  createBookReview(bookreview: {id: \\\"1\\\", bookId: \\\"1\\\", reviewerId: \\\"1\\\", comments: \\\"It was good\\\", stars: 5}) {\\n    id\\n    bookId\\n    reviewerId\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateBookReview",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "0c3f3e5f-0cae-44b0-82d6-ed1e8503875e",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"var id = pm.environment.get(\"newId1\").toString(); ",
+									"",
+									"pm.test(\"Bookreview is updated.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    ",
+									"    pm.expect(jsonData.data.updateBookReview.id).to.eql(\"1\");",
+									"    pm.expect(jsonData.data.updateBookReview.bookId).to.eql(\"1\");",
+									"    pm.expect(jsonData.data.updateBookReview.reviewerId).to.eql(\"1\");",
+									"    pm.expect(jsonData.data.updateBookReview.comments).to.eql(\"It was good ish I think\");",
+									"    pm.expect(jsonData.data.updateBookReview.stars).to.eql(1);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "5d61d284-ccef-46b5-92d5-8867d081b060",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  updateBookReview(bookreview: {id: \\\"1\\\", bookId: \\\"1\\\", reviewerId: \\\"1\\\", comments: \\\"It was good ish I think\\\", stars: 1}) {\\n    id\\n    bookId\\n    reviewerId\\n    comments\\n    stars\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteBookReview",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "0c3f3e5f-0cae-44b0-82d6-ed1e8503875e",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Book review is deleted.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    ",
+									"    pm.expect(jsonData.data.deleteBookReview.message).not.equal(null);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "5d61d284-ccef-46b5-92d5-8867d081b060",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  deleteBookReview(bookreview: {id: \\\"1\\\", bookId: \\\"1\\\"}) {\\n    message\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},

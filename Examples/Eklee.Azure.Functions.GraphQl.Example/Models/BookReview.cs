@@ -21,4 +21,14 @@ namespace Eklee.Azure.Functions.GraphQl.Example.Models
 		[Description("1-5 starts rating")]
 		public int Stars { get; set; }
 	}
+
+	public class BookReviewId
+	{
+		[Description("Id of book review.")]
+		[Key]
+		public string Id { get; set; }
+
+		[Description("Id of book")]
+		public string BookId { get; set; }
+	}
 }

@@ -37,7 +37,16 @@ namespace Eklee.Azure.Functions.GraphQl
 					resolve: async context =>
 					{
 						var item = context.GetArgument<TSource>(_sourceName);
-						await _graphQlRepositoryProvider.GetRepository<TSource>().DeleteAsync(item);
+
+						try
+						{
+							await _graphQlRepositoryProvider.GetRepository<TSource>().DeleteAsync(item);
+						}
+						catch (Exception e)
+						{
+							_logger.LogError(e, "An error has occured while performing a delete operation.");
+							throw;
+						}
 						return item;
 					});
 			};
@@ -63,17 +72,30 @@ namespace Eklee.Azure.Functions.GraphQl
 			return new DocumentDbConfiguration<TSource>(this, _graphQlRepository, _typeSource, _httpRequestContext);
 		}
 
-		public ModelConventionInputBuilder<TSource> Delete<TDeleteInput, TDeleteOutput>(Func<TSource, TDeleteOutput> transform)
+		public ModelConventionInputBuilder<TSource> Delete<TDeleteInput, TDeleteOutput>(
+			Func<TDeleteInput, TSource> mapDelete,
+			Func<TSource, TDeleteOutput> transform)
 		{
 			_deleteSetupAction = () =>
 			{
-				_objectGraphType.FieldAsync<ModelConventionType<TDeleteInput>>($"delete{typeof(TSource).Name}", arguments: new QueryArguments(
-						new QueryArgument<NonNullGraphType<ModelConventionInputType<TDeleteOutput>>> { Name = _sourceName }
+				_objectGraphType.FieldAsync<ModelConventionType<TDeleteOutput>>($"delete{typeof(TSource).Name}", arguments: new QueryArguments(
+						new QueryArgument<NonNullGraphType<ModelConventionInputType<TDeleteInput>>> { Name = _sourceName }
 					),
 					resolve: async context =>
 					{
-						var item = context.GetArgument<TSource>(_sourceName);
-						await _graphQlRepositoryProvider.GetRepository<TSource>().DeleteAsync(item);
+						var arg = context.GetArgument<TDeleteInput>(_sourceName);
+						var item = mapDelete(arg);
+
+						try
+						{
+							await _graphQlRepositoryProvider.GetRepository<TSource>().DeleteAsync(item);
+						}
+						catch (Exception e)
+						{
+							_logger.LogError(e, "An error has occured while performing a delete operation.");
+							throw;
+						}
+						
 						return transform(item);
 					});
 			};

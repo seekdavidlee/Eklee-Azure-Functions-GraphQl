@@ -19,8 +19,25 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 				.Use<Book, InMemoryRepository>()
 				.Build();
 
+			// Typically, you want to store these settings somewhere safe and access it from services like Azure KeyVault. Since
+			// this is local setting which is static, I am using it directly.
+
+			const string documentDbKey = "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==";
+			const string documentDbUrl = "https://localhost:8081";
+
 			inputBuilderFactory.Create<Reviewer>(this)
-				.Use<Reviewer, InMemoryRepository>()
+				.Delete<ReviewerId, Status>(
+					reviewerInput => new Reviewer { Id = reviewerInput.Id },
+					bookReview => new Status { Message = $"Successfully removed reviewer with Id {bookReview.Id}" })
+				.Use<Reviewer, DocumentDbRepository>()
+				.ConfigureDocumentDb()
+					.AddUrl(documentDbUrl)
+					.AddKey(documentDbKey)
+					.AddDatabase(rc => "local")
+					.AddRequestUnit(400)
+					.AddPartition(reviewer => reviewer.Region)
+					.Build()
+				.DeleteAll(() => new Status { Message = "All reviewers has been removed." })    // Used more for local development to reset local database than having any operational value.
 				.Build();
 
 			inputBuilderFactory.Create<Author>(this)
@@ -39,8 +56,8 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 					bookReview => new Status { Message = $"Successfully removed book review with Id {bookReview.Id}" })
 				.Use<BookReview, DocumentDbRepository>()
 				.ConfigureDocumentDb()
-					.AddUrl("https://localhost:8081")
-					.AddKey("C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==")
+					.AddUrl(documentDbUrl)
+					.AddKey(documentDbKey)
 					.AddDatabase(rc => "local")
 					.AddRequestUnit(400)
 					.AddPartition(bookReview => bookReview.BookId)

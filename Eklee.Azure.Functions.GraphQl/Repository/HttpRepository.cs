@@ -165,5 +165,10 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 				? JsonConvert.DeserializeObject<List<T>>(result)
 				: new List<T> { JsonConvert.DeserializeObject<T>(result) };
 		}
+
+		public Task DeleteAllAsync<T>()
+		{
+			throw new NotImplementedException();
+		}
 	}
 }

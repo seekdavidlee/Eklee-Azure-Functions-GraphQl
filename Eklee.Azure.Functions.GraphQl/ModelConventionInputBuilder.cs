@@ -95,11 +95,36 @@ namespace Eklee.Azure.Functions.GraphQl
 							_logger.LogError(e, "An error has occured while performing a delete operation.");
 							throw;
 						}
-						
+
 						return transform(item);
 					});
 			};
 
+			return this;
+		}
+
+		private Action _deleteAllAction;
+
+		public ModelConventionInputBuilder<TSource> DeleteAll<TDeleteOutput>(Func<TDeleteOutput> getOutput)
+		{
+			_deleteAllAction = () =>
+			{
+				_objectGraphType.FieldAsync<ModelConventionType<TDeleteOutput>>($"deleteAll{typeof(TSource).Name}",
+					resolve: async context =>
+					{
+						try
+						{
+							await _graphQlRepositoryProvider.GetRepository<TSource>().DeleteAllAsync<TSource>();
+						}
+						catch (Exception e)
+						{
+							_logger.LogError(e, "An error has occured while performing a delete-all operation.");
+							throw;
+						}
+
+						return getOutput();
+					});
+			};
 			return this;
 		}
 
@@ -161,6 +186,8 @@ namespace Eklee.Azure.Functions.GraphQl
 				});
 
 			_deleteSetupAction();
+
+			_deleteAllAction?.Invoke();
 		}
 	}
 }

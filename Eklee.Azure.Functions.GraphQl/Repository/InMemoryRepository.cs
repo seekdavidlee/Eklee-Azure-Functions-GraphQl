@@ -71,5 +71,12 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 
 			return Task.FromResult(collection.Values.Select(x => (T)x).AsEnumerable());
 		}
+
+		public Task DeleteAllAsync<T>()
+		{
+			Dictionary<string, object> collection = GetCollection<T>();
+			collection.Clear();
+			return Task.CompletedTask;
+		}
 	}
 }

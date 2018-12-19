@@ -273,7 +273,7 @@
 									"    pm.response.to.have.status(200);",
 									"});",
 									"",
-									"pm.test(\"Created data contains 30 items\", function () {",
+									"pm.test(\"Created data contains 12 items\", function () {",
 									"    var jsonData = pm.response.json();",
 									"    pm.expect(jsonData.data.batchCreateAuthor.length).to.eql(12);",
 									"});"
@@ -322,7 +322,7 @@
 									"    pm.response.to.have.status(200);",
 									"});",
 									"",
-									"pm.test(\"Created data contains 30 items\", function () {",
+									"pm.test(\"Created data contains 7 items\", function () {",
 									"    var jsonData = pm.response.json();",
 									"    pm.expect(jsonData.data.batchCreateBookAuthors.length).to.eql(7);",
 									"});"
@@ -371,7 +371,7 @@
 									"    pm.response.to.have.status(200);",
 									"});",
 									"",
-									"pm.test(\"Created data contains 30 items\", function () {",
+									"pm.test(\"Created data contains 5 items\", function () {",
 									"    var jsonData = pm.response.json();",
 									"    pm.expect(jsonData.data.batchCreatePublisher.length).to.eql(5);",
 									"});"
@@ -393,6 +393,55 @@
 						"body": {
 							"mode": "raw",
 							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  batchCreatePublisher(publisher: [{id: \\\"8\\\", name: \\\"King Publishing House\\\"}, {id: \\\"9\\\", name: \\\"Queen Publishing House\\\"}, {id: \\\"10\\\", name: \\\"John Publishing House\\\"}, {id: \\\"11\\\", name: \\\"Mark Publishing House\\\"}, {id: \\\"12\\\", name: \\\"Bao Publisher\\\"}]) {\\n    id\\n    name\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Seed Reviewers",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "90c54615-a264-46b5-8bc5-b77d09317f9b",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Created data contains 10 items\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.batchCreateReviewer.length).to.eql(10);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  batchCreateReviewer(reviewer: [{id: \\\"1\\\", name: \\\"James A\\\", interests: [\\\"Technology\\\", \\\"Arts\\\"], region: \\\"Dallas/Fort Worth\\\"}, {id: \\\"2\\\", name: \\\"Mec James\\\", interests: [\\\"Technology\\\"], region: \\\"Austin\\\"}, {id: \\\"3\\\", name: \\\"Hal Bet\\\", interests: [\\\"Children\\\"], region: \\\"Houston\\\"}, {id: \\\"4\\\", name: \\\"Mary P\\\", interests: [\\\"Technology\\\"], region: \\\"Dallas/Fort Worth\\\"}, {id: \\\"5\\\", name: \\\"Rick James\\\", interests: [\\\"History\\\"], region: \\\"Seattle\\\"}, {id: \\\"6\\\", name: \\\"David Kim\\\", interests: [\\\"Technology\\\", \\\"Arts\\\"], region: \\\"St Paul/Minneapolis\\\"}, {id: \\\"7\\\", name: \\\"Phil Hack\\\", interests: [\\\"Arts\\\"], region: \\\"Baltimore\\\"}, {id: \\\"8\\\", name: \\\"Becky Far\\\", interests: [\\\"Politics\\\", \\\"Arts\\\"], region: \\\"San Fransico\\\"}, {id: \\\"9\\\", name: \\\"Kate Lim\\\", interests: [\\\"Technology\\\"], region: \\\"LA\\\"}, {id: \\\"10\\\", name: \\\"Mary Ann\\\", interests: [\\\"Children\\\"], region: \\\"Washington DC\\\"}]) {\\n    id\\n    name\\n    interests\\n  }\\n}\\n\"}"
 						},
 						"url": {
 							"raw": "{{endpoint}}/api/books/graph",
@@ -1317,6 +1366,55 @@
 						"body": {
 							"mode": "raw",
 							"raw": "{\n\t\"operationName\":null,\n\t\"variables\":{},\n\t\"query\":\"{\\n  getPagedBooksByCategory(category: \\\"Art\\\", after:\\\"{{thirdPageCursor}}\\\") {\\n    totalCount\\n    edges {\\n      cursor\\n      node {\\n        id\\n        name\\n        category\\n      }\\n    }\\n    items {\\n      id\\n      name\\n      category\\n    }\\n    pageInfo {\\n      startCursor\\n      endCursor\\n      hasNextPage\\n      hasPreviousPage\\n    }\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Cleanup",
+			"item": [
+				{
+					"name": "CleanupReviewers",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "8dca96fc-11b4-4254-9244-74661e5ab199",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  deleteAllReviewer {\\n    message\\n  }\\n}\\n\"}"
 						},
 						"url": {
 							"raw": "{{endpoint}}/api/books/graph",

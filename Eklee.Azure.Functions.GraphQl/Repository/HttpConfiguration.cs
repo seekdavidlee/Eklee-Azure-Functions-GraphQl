@@ -18,7 +18,6 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 
 	public class HttpQueryResource
 	{
-		public string ForQueryName { get; set; }
 		public HttpQueryTypes QueryType { get; set; }
 		public string AppendUrl { get; set; }
 		public bool IsListResult { get; set; }
@@ -50,7 +49,8 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 		private Func<object, HttpResource> AddTransform { get; set; }
 		private Func<object, HttpResource> UpdateTransform { get; set; }
 		private Func<object, HttpResource> DeleteTransform { get; set; }
-		private Func<Dictionary<string, string>, HttpQueryResource> QueryTransform { get; set; }
+		private Func<HttpResource> DeleteAllTransform { get; set; }
+		private readonly Dictionary<string, Func<Dictionary<string, string>, HttpQueryResource>> _queryTransforms = new Dictionary<string, Func<Dictionary<string, string>, HttpQueryResource>>();
 
 		public HttpConfiguration<TSource> AddResource(Func<TSource, HttpResource> transform)
 		{
@@ -70,9 +70,15 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			return this;
 		}
 
-		public HttpConfiguration<TSource> QueryResource(Func<Dictionary<string, string>, HttpQueryResource> transform)
+		public HttpConfiguration<TSource> DeleteAllResource(Func<HttpResource> transform)
 		{
-			QueryTransform = transform;
+			DeleteAllTransform = transform;
+			return this;
+		}
+
+		public HttpConfiguration<TSource> QueryResource(string queryName, Func<Dictionary<string, string>, HttpQueryResource> transform)
+		{
+			_queryTransforms.Add(queryName, transform);
 			return this;
 		}
 
@@ -81,16 +87,21 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			_configurations.Add(key, value);
 		}
 
-		public ModelConventionInputBuilder<TSource> Build()
+		public ModelConventionInputBuilder<TSource> BuildHttp()
 		{
 			_graphQlRepository.Configure(_typeSource, _configurations);
 
 			if (_graphQlRepository is HttpRepository repo)
 			{
-				repo.SetAddTransform(_typeSource, AddTransform);
-				repo.SetUpdateTransform(_typeSource, UpdateTransform);
-				repo.SetDeleteTransform(_typeSource, DeleteTransform);
-				repo.SetQueryTransform(_typeSource, QueryTransform);
+				if (AddTransform != null) repo.SetAddTransform(_typeSource, AddTransform);
+
+				if (UpdateTransform != null) repo.SetUpdateTransform(_typeSource, UpdateTransform);
+
+				if (DeleteTransform != null) repo.SetDeleteTransform(_typeSource, DeleteTransform);
+
+				if (_queryTransforms.Count > 0) repo.SetQueryTransforms(_typeSource, _queryTransforms);
+
+				if (DeleteAllTransform != null) repo.SetDeleteAllTransform(_typeSource, DeleteAllTransform);
 			}
 			return _modelConventionInputBuilder;
 		}

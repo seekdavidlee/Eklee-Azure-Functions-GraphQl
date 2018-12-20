@@ -8,5 +8,6 @@ namespace Eklee.Azure.Functions.GraphQl.Example.HttpMocks
 		T Update(T item);
 		void Delete(string id);
 		IQueryable<T> Search();
+		void ClearAll();
 	}
 }

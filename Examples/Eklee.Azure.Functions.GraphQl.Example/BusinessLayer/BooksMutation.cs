@@ -37,7 +37,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 					.AddRequestUnit(400)
 					.AddPartition(reviewer => reviewer.Region)
 					.Build()
-				.DeleteAll(() => new Status { Message = "All reviewers has been removed." })    // Used more for local development to reset local database than having any operational value.
+				.DeleteAll(() => new Status { Message = "All reviewers have been removed." })    // Used more for local development to reset local database than having any operational value.
 				.Build();
 
 			inputBuilderFactory.Create<Author>(this)
@@ -73,13 +73,14 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 					.AddResource(publisher => new HttpResource { AppendUrl = publishersResource, Method = HttpMethod.Post })
 					.UpdateResource(publisher => new HttpResource { AppendUrl = $"{publishersResource}/{publisher.Id}", Method = HttpMethod.Put })
 					.DeleteResource(publisher => new HttpResource { AppendUrl = $"{publishersResource}/{publisher.Id}", Method = HttpMethod.Delete })
-					.QueryResource(items => new HttpQueryResource
+					.QueryResource(PublisherQueryExtensions.GetPublisherByIdQuery, items => new HttpQueryResource
 					{
 						AppendUrl = $"{publishersResource}/{items["id"]}",
-						QueryType = HttpQueryTypes.AppendToUrl,
-						ForQueryName = PublisherQueryExtensions.GetPublisherByIdQuery
+						QueryType = HttpQueryTypes.AppendToUrl
 					})
-					.Build()
+					.DeleteAllResource(() => new HttpResource { AppendUrl = publishersResource, Method = HttpMethod.Delete })
+					.BuildHttp()
+				.DeleteAll(() => new Status { Message = "All publishers have been removed." })
 				.Build();
 		}
 	}

@@ -42,5 +42,10 @@ namespace Eklee.Azure.Functions.GraphQl.Example.HttpMocks
 		{
 			return _publishers.AsQueryable();
 		}
+
+		public void ClearAll()
+		{
+			_publishers.Clear();
+		}
 	}
 }

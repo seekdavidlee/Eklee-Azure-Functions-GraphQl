@@ -71,5 +71,17 @@ namespace Eklee.Azure.Functions.GraphQl.Example
 			var publisher = executionContext.Resolve<IHttpMockRepository<Publisher>>();
 			return new OkObjectResult(publisher.Search().Single(x => x.Id == id));
 		}
+
+		[ExecutionContextDependencyInjection(typeof(MyModule))]
+		[FunctionName("deleteAllPublisher")]
+		public static IActionResult DeleteAll(
+			[HttpTrigger(AuthorizationLevel.Anonymous, "delete", Route = "publishers")] HttpRequest req,
+			ILogger log,
+			ExecutionContext executionContext)
+		{
+			var publisher = executionContext.Resolve<IHttpMockRepository<Publisher>>();
+			publisher.ClearAll();
+			return new OkResult();
+		}
 	}
 }

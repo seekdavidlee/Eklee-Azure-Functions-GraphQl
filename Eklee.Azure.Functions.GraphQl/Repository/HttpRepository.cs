@@ -24,8 +24,11 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 		private readonly Dictionary<string, Func<object, HttpResource>> _deleteTransforms =
 			new Dictionary<string, Func<object, HttpResource>>();
 
-		private readonly Dictionary<string, Func<Dictionary<string, string>, HttpQueryResource>> _queryTransforms =
-			new Dictionary<string, Func<Dictionary<string, string>, HttpQueryResource>>();
+		private readonly Dictionary<string, Func<HttpResource>> _deleteAllTransforms =
+			new Dictionary<string, Func<HttpResource>>();
+
+		private readonly Dictionary<string, Dictionary<string, Func<Dictionary<string, string>, HttpQueryResource>>> _queryTransforms =
+			new Dictionary<string, Dictionary<string, Func<Dictionary<string, string>, HttpQueryResource>>>();
 
 		public void Configure(Type sourceType, Dictionary<string, object> configurations)
 		{
@@ -93,10 +96,16 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			_deleteTransforms.Add(sourceType.FullName, transform);
 		}
 
-		public void SetQueryTransform(Type sourceType, Func<Dictionary<string, string>, HttpQueryResource> transform)
+		public void SetDeleteAllTransform(Type sourceType, Func<HttpResource> transform)
 		{
 			// ReSharper disable once AssignNullToNotNullAttribute
-			_queryTransforms.Add(sourceType.FullName, transform);
+			_deleteAllTransforms.Add(sourceType.FullName, transform);
+		}
+
+		public void SetQueryTransforms(Type sourceType, Dictionary<string, Func<Dictionary<string, string>, HttpQueryResource>> transforms)
+		{
+			// ReSharper disable once AssignNullToNotNullAttribute
+			_queryTransforms.Add(sourceType.FullName, transforms);
 		}
 
 		private async Task<string> InternalSendAsync<T>(T item, HttpResource resource)
@@ -142,7 +151,9 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 				parameters.ToDictionary(x => x.MemberModel.Name, x => x.ContextValue.Value.ToString());
 
 			// ReSharper disable once AssignNullToNotNullAttribute
-			var resourceQuery = _queryTransforms[typeof(T).FullName](items);
+			var resourceQueries = _queryTransforms[typeof(T).FullName];
+
+			var resourceQuery = resourceQueries[queryName](items);
 
 			var httpClient = GetHttpClient<T>();
 
@@ -166,9 +177,14 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 				: new List<T> { JsonConvert.DeserializeObject<T>(result) };
 		}
 
-		public Task DeleteAllAsync<T>()
+		public async Task DeleteAllAsync<T>()
 		{
-			throw new NotImplementedException();
+			// ReSharper disable once AssignNullToNotNullAttribute
+			var resource = _deleteAllTransforms[typeof(T).FullName]();
+
+			resource.ContainsBody = false;
+
+			await InternalSendAsync(default(T), resource);
 		}
 	}
 }

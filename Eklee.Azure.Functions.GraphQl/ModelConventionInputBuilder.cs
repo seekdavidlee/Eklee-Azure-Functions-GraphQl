@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Eklee.Azure.Functions.GraphQl
 {
-	public class ModelConventionInputBuilder<TSource>
+	public class ModelConventionInputBuilder<TSource> : IModelConventionInputBuilder<TSource>
 	{
 		private readonly ObjectGraphType _objectGraphType;
 		private readonly IGraphQlRepositoryProvider _graphQlRepositoryProvider;

@@ -61,7 +61,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 					.AddKey(documentDbKey)
 					.AddDatabase(rc => "local")
 					.AddRequestUnit(400)
-					.AddPartition(bookReview => bookReview.BookId)
+					.AddPartition(bookReview => bookReview.Stars)
 					.BuildDocumentDb()
 				.DeleteAll(() => new Status { Message = "All book reviews relationships have been removed." })
 				.Build();

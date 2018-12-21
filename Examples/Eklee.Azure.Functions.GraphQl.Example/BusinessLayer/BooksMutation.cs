@@ -30,14 +30,13 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 				.Delete<ReviewerId, Status>(
 					reviewerInput => new Reviewer { Id = reviewerInput.Id },
 					bookReview => new Status { Message = $"Successfully removed reviewer with Id {bookReview.Id}" })
-				.Use<Reviewer, DocumentDbRepository>()
-				.ConfigureDocumentDb()
+				.ConfigureDocumentDb<Reviewer>()
 					.AddUrl(documentDbUrl)
 					.AddKey(documentDbKey)
 					.AddDatabase(rc => "local")
 					.AddRequestUnit(400)
 					.AddPartition(reviewer => reviewer.Region)
-					.Build()
+					.BuildDocumentDb()
 				.DeleteAll(() => new Status { Message = "All reviewers have been removed." })    // Used more for local development to reset local database than having any operational value.
 				.Build();
 
@@ -57,22 +56,20 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 				.Delete<BookReviewId, Status>(
 					bookReviewInput => new BookReview { Id = bookReviewInput.Id, BookId = bookReviewInput.BookId },
 					bookReview => new Status { Message = $"Successfully removed book review with Id {bookReview.Id}" })
-				.Use<BookReview, DocumentDbRepository>()
-				.ConfigureDocumentDb()
+				.ConfigureDocumentDb<BookReview>()
 					.AddUrl(documentDbUrl)
 					.AddKey(documentDbKey)
 					.AddDatabase(rc => "local")
 					.AddRequestUnit(400)
 					.AddPartition(bookReview => bookReview.BookId)
-					.Build()
+					.BuildDocumentDb()
 				.DeleteAll(() => new Status { Message = "All book reviews relationships have been removed." })
 				.Build();
 
 			const string publishersResource = "publishers";
 
-			inputBuilderFactory.Create<Publisher>(this)
-				.Use<Publisher, HttpRepository>()
-				.ConfigureHttp()
+			inputBuilderFactory.Create<Publisher>(this)				
+				.ConfigureHttp<Publisher>()
 					.AddBaseUrl("http://localhost:7071/api/")
 					.AddResource(publisher => new HttpResource { AppendUrl = publishersResource, Method = HttpMethod.Post })
 					.UpdateResource(publisher => new HttpResource { AppendUrl = $"{publishersResource}/{publisher.Id}", Method = HttpMethod.Put })

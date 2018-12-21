@@ -102,7 +102,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			return this;
 		}
 
-		public ModelConventionInputBuilder<TSource> Build()
+		public ModelConventionInputBuilder<TSource> BuildDocumentDb()
 		{
 			_graphQlRepository.Configure(_typeSource, _configurations);
 

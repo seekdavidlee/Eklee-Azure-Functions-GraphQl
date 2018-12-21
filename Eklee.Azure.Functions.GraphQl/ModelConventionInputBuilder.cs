@@ -62,13 +62,17 @@ namespace Eklee.Azure.Functions.GraphQl
 			return this;
 		}
 
-		public HttpConfiguration<TSource> ConfigureHttp()
+		public HttpConfiguration<TSource> ConfigureHttp<TType>()
 		{
+			_graphQlRepository = _graphQlRepositoryProvider.Use<TType, HttpRepository>();
+			_typeSource = typeof(TType);
 			return new HttpConfiguration<TSource>(this, _graphQlRepository, _typeSource);
 		}
 
-		public DocumentDbConfiguration<TSource> ConfigureDocumentDb()
+		public DocumentDbConfiguration<TSource> ConfigureDocumentDb<TType>()
 		{
+			_graphQlRepository = _graphQlRepositoryProvider.Use<TType, DocumentDbRepository>();
+			_typeSource = typeof(TType);
 			return new DocumentDbConfiguration<TSource>(this, _graphQlRepository, _typeSource, _httpRequestContext);
 		}
 

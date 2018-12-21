@@ -55,11 +55,11 @@ namespace Eklee.Azure.Functions.GraphQl
 		private IGraphQlRepository _graphQlRepository;
 		private Type _typeSource;
 
-		public ModelConventionInputBuilder<TSource> Use<TType, TRepository>() where TRepository : IGraphQlRepository
+		public InMemoryConfiguration<TSource> ConfigureInMemory<TType>()
 		{
-			_graphQlRepository = _graphQlRepositoryProvider.Use<TType, TRepository>();
+			_graphQlRepository = _graphQlRepositoryProvider.Use<TType, InMemoryRepository>();
 			_typeSource = typeof(TType);
-			return this;
+			return new InMemoryConfiguration<TSource>(this);
 		}
 
 		public HttpConfiguration<TSource> ConfigureHttp<TType>()

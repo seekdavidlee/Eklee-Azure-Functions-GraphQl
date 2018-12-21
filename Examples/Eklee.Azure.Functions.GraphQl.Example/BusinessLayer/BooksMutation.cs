@@ -17,7 +17,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 				.Delete<BookId, Status>(
 					bookInput => new Book { Id = bookInput.Id },
 					book => new Status { Message = $"Successfully removed book with Id {book.Id}" })
-				.Use<Book, InMemoryRepository>()
+				.ConfigureInMemory<Book>().BuildInMemory()
 				.DeleteAll(() => new Status { Message = "All books have been removed." })
 				.Build();
 
@@ -41,14 +41,14 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 				.Build();
 
 			inputBuilderFactory.Create<Author>(this)
-				.Use<Author, InMemoryRepository>()
+				.ConfigureInMemory<Author>().BuildInMemory()
 				.DeleteAll(() => new Status { Message = "All authors have been removed." })
 				.Build();
 
 			inputBuilderFactory.Create<BookAuthors>(this)
-				.Use<BookAuthors, InMemoryRepository>()
-				.Use<Author, InMemoryRepository>()
-				.Use<Book, InMemoryRepository>()
+				.ConfigureInMemory<BookAuthors>().BuildInMemory()
+				.ConfigureInMemory<Author>().BuildInMemory()
+				.ConfigureInMemory<Book>().BuildInMemory()
 				.DeleteAll(() => new Status { Message = "All book authors relationships have been removed." })
 				.Build();
 
@@ -68,7 +68,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 
 			const string publishersResource = "publishers";
 
-			inputBuilderFactory.Create<Publisher>(this)				
+			inputBuilderFactory.Create<Publisher>(this)
 				.ConfigureHttp<Publisher>()
 					.AddBaseUrl("http://localhost:7071/api/")
 					.AddResource(publisher => new HttpResource { AppendUrl = publishersResource, Method = HttpMethod.Post })

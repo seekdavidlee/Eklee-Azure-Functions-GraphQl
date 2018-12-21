@@ -41,10 +41,11 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 					ctx =>
 					{
 						var reviewers = ctx.GetQueryResults<Reviewer>();
-						ctx.GetResults<BookReviewOutput>().ForEach(x => x.Reviewer = reviewers.Single(y => y.Id == x.Id));
+						ctx.GetResults<BookReviewOutput>().ForEach(
+							x => x.Reviewer = reviewers.Single(y => y.Id == x.ReviewerId));
 					})
 				.Build()
-				.BuildWithSingleResult();
+				.BuildWithListResult();
 		}
 	}
 }

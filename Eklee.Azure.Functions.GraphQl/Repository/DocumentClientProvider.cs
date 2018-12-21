@@ -135,13 +135,22 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			});
 		}
 
-		public Task<IEnumerable<T>> QueryAsync<T>(IEnumerable<QueryParameter> queryParameters)
+		public async Task<IEnumerable<T>> QueryAsync<T>(IEnumerable<QueryParameter> queryParameters)
 		{
-			var sql = $"SELECT * FROM {typeof(T).Name} x WHERE ";
+			var sql = "SELECT * FROM x WHERE ";
 
 			queryParameters.ToList().ForEach(x => { sql += TranslateQueryParameter(x); });
 
-			return Task.FromResult<IEnumerable<T>>(_documentClient.CreateDocumentQuery<T>(GetDocumentCollectionUri<T>(), sql, new FeedOptions { PartitionKey = new PartitionKey("") }));
+			var options = new FeedOptions
+			{
+				EnableCrossPartitionQuery = true
+			};
+
+			var query = _documentClient.CreateDocumentQuery<T>(
+				GetDocumentCollectionUri<T>(), sql, options).AsDocumentQuery();
+
+			var results = await query.ExecuteNextAsync<T>();
+			return results.ToList();
 		}
 
 		private string TranslateQueryParameter(QueryParameter queryParameter)
@@ -154,10 +163,10 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 					break;
 
 				default:
-					throw new NotImplementedException($"Comparison {queryParameter.Comparison} is not impleted.");
+					throw new NotImplementedException($"Comparison {queryParameter.Comparison} is not implemented.");
 			}
 
-			return $" x.{queryParameter.MemberModel.Name} {comparison} '{queryParameter.ContextValue.Value}'";
+			return $" x.{queryParameter.MemberModel.Member.Name} {comparison} '{queryParameter.ContextValue.Value}'";
 		}
 
 		public async Task DeleteAllAsync<T>()

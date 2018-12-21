@@ -721,6 +721,63 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "getBookReviewByBookName",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "8cdd0da6-f4bd-427b-ba71-cde39b62de87",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Query returns with match\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.getBookReviewByBookName.length).to.eql(1);",
+									"    ",
+									"    var entity = jsonData.data.getBookReviewByBookName[0];",
+									"    ",
+									"    pm.expect(entity.id).to.eql(\"3\");",
+									"    pm.expect(entity.comments).to.eql(\"Sounds OK\");",
+									"    pm.expect(entity.book.id).to.eql(\"1\");",
+									"    pm.expect(entity.book.name).to.eql(\"Nancy in the Wonderland\");",
+									"    pm.expect(entity.reviewer.id).to.eql(\"8\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"{\\n  getBookReviewByBookName(name: \\\"Nancy in the Wonderland\\\") {\\n    id\\n    comments\\n    stars\\n    book {\\n      id\\n      name\\n    }\\n    reviewer {\\n      id\\n      interests\\n      region\\n    }\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},

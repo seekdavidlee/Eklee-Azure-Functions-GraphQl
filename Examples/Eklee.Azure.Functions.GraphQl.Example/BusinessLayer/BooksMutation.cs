@@ -3,12 +3,13 @@ using Eklee.Azure.Functions.GraphQl.Example.HttpMocks;
 using Eklee.Azure.Functions.GraphQl.Example.Models;
 using Eklee.Azure.Functions.GraphQl.Repository;
 using GraphQL.Types;
+using Microsoft.Extensions.Configuration;
 
 namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 {
 	public class BooksMutation : ObjectGraphType
 	{
-		public BooksMutation(InputBuilderFactory inputBuilderFactory)
+		public BooksMutation(InputBuilderFactory inputBuilderFactory, IConfiguration configuration)
 		{
 			Name = "mutations";
 
@@ -20,11 +21,10 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 				.DeleteAll(() => new Status { Message = "All books have been removed." })
 				.Build();
 
-			// Typically, you want to store these settings somewhere safe and access it from services like Azure KeyVault. Since
-			// this is local setting which is static, I am using it directly.
+			// Typically, you want to store these settings somewhere safe and access it from services like Azure KeyVault.
 
-			const string documentDbKey = "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==";
-			const string documentDbUrl = "https://localhost:8081";
+			string documentDbKey = configuration["DocumentDb:Key"];
+			string documentDbUrl = configuration["DocumentDb:Url"];
 
 			inputBuilderFactory.Create<Reviewer>(this)
 				.Delete<ReviewerId, Status>(
@@ -65,6 +65,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 					.AddRequestUnit(400)
 					.AddPartition(bookReview => bookReview.BookId)
 					.Build()
+				.DeleteAll(() => new Status { Message = "All book reviews relationships have been removed." })
 				.Build();
 
 			const string publishersResource = "publishers";

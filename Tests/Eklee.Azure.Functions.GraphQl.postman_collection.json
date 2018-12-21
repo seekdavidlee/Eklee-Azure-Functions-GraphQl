@@ -457,6 +457,55 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Seed BookReviews",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "90c54615-a264-46b5-8bc5-b77d09317f9b",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Created data contains 7 items\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.batchCreateBookReview.length).to.eql(7);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  batchCreateBookReview(bookreview: [{id: \\\"1\\\", bookId: \\\"10\\\", comments: \\\"It's not a good book because the color is too dark.\\\", reviewerId: \\\"10\\\", stars: 1}, {id: \\\"2\\\", bookId: \\\"11\\\", comments: \\\"It was awesome!\\\", reviewerId: \\\"8\\\", stars: 4}, {id: \\\"3\\\", bookId: \\\"1\\\", comments: \\\"Sounds OK\\\", reviewerId: \\\"8\\\", stars: 3}, {id: \\\"4\\\", bookId: \\\"3\\\", comments: \\\"I really enjoyed it!\\\", reviewerId: \\\"6\\\", stars: 4}, {id: \\\"5\\\", bookId: \\\"4\\\", comments: \\\"Wow, amazing!\\\", reviewerId: \\\"5\\\", stars: 5}, {id: \\\"6\\\", bookId: \\\"7\\\", comments: \\\"I love it!\\\", reviewerId: \\\"5\\\", stars: 5}, {id: \\\"7\\\", bookId: \\\"9\\\", comments: \\\"Worst book ever. Don't even need to think about it.\\\", reviewerId: \\\"1\\\", stars: 1}]) {\\n    id\\n    bookId\\n    reviewerId\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -1592,6 +1641,50 @@
 						"body": {
 							"mode": "raw",
 							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  deleteAllAuthor {\\n    message\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CleanupBookReviews",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "8dca96fc-11b4-4254-9244-74661e5ab199",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  deleteAllBookReview {\\n    message\\n  }\\n}\\n\"}"
 						},
 						"url": {
 							"raw": "{{endpoint}}/api/books/graph",

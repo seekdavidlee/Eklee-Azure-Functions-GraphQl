@@ -9,50 +9,6 @@
 			"name": "Publisher",
 			"item": [
 				{
-					"name": "Get Publisher",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"id": "bc70d737-5542-430a-bb01-5f9563bd81c3",
-								"exec": [
-									"pm.test(\"Status code is 200.\", function () {",
-									"    pm.response.to.have.status(200);",
-									"});",
-									"",
-									"",
-									"pm.test(\"Get publisher with Id 1.\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData.id).to.eql(\"1\");",
-									"    pm.expect(jsonData.name).to.eql(\"West House Publishing\");",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"url": {
-							"raw": "{{endpoint}}/api/publishers/1",
-							"host": [
-								"{{endpoint}}"
-							],
-							"path": [
-								"api",
-								"publishers",
-								"1"
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "Add Publisher",
 					"event": [
 						{
@@ -181,6 +137,51 @@
 					},
 					"request": {
 						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": \"7\",\n\t\"name\": \"FOOBAR Publisher V2\"\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/publishers/7",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"publishers",
+								"7"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Publisher",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c97ec909-1dd9-4022-b457-4fa34dc5aae6",
+								"exec": [
+									"pm.test(\"Status code is 200.\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
 						"header": [
 							{
 								"key": "Content-Type",
@@ -373,7 +374,7 @@
 									"",
 									"pm.test(\"Created data contains 5 items\", function () {",
 									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData.data.batchCreatePublisher.length).to.eql(5);",
+									"    pm.expect(jsonData.data.batchCreatePublisher.length).to.eql(11);",
 									"});"
 								],
 								"type": "text/javascript"
@@ -392,7 +393,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  batchCreatePublisher(publisher: [{id: \\\"8\\\", name: \\\"King Publishing House\\\"}, {id: \\\"9\\\", name: \\\"Queen Publishing House\\\"}, {id: \\\"10\\\", name: \\\"John Publishing House\\\"}, {id: \\\"11\\\", name: \\\"Mark Publishing House\\\"}, {id: \\\"12\\\", name: \\\"Bao Publisher\\\"}]) {\\n    id\\n    name\\n  }\\n}\\n\"}"
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  batchCreatePublisher(publisher: [{id: \\\"1\\\", name: \\\"West House Publishing\\\"}, {id: \\\"2\\\", name: \\\"Northwest Inc\\\"}, {id: \\\"3\\\", name: \\\"Texas Publishers\\\"}, {id: \\\"4\\\", name: \\\"ACME\\\"}, {id: \\\"5\\\", name: \\\"Jane Publishing\\\"}, {id: \\\"6\\\", name: \\\"App Pub\\\"}, {id: \\\"8\\\", name: \\\"King Publishing House\\\"}, {id: \\\"9\\\", name: \\\"Queen Publishing House\\\"}, {id: \\\"10\\\", name: \\\"John Publishing House\\\"}, {id: \\\"11\\\", name: \\\"Mark Publishing House\\\"}, {id: \\\"12\\\", name: \\\"Bao Publisher\\\"}]) {\\n    id\\n    name\\n  }\\n}\\n\"}"
 						},
 						"url": {
 							"raw": "{{endpoint}}/api/books/graph",
@@ -1415,6 +1416,182 @@
 						"body": {
 							"mode": "raw",
 							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  deleteAllReviewer {\\n    message\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CleanupPublishers",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "8dca96fc-11b4-4254-9244-74661e5ab199",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  deleteAllPublisher {\\n    message\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CleanupBookAuthors",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "8dca96fc-11b4-4254-9244-74661e5ab199",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  deleteAllBookAuthors {\\n    message\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CleanupBooks",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "8dca96fc-11b4-4254-9244-74661e5ab199",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  deleteAllBook {\\n    message\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CleanupAuthors",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "8dca96fc-11b4-4254-9244-74661e5ab199",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  deleteAllAuthor {\\n    message\\n  }\\n}\\n\"}"
 						},
 						"url": {
 							"raw": "{{endpoint}}/api/books/graph",

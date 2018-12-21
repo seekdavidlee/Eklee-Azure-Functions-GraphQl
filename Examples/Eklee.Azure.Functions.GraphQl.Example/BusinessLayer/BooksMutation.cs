@@ -17,6 +17,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 					bookInput => new Book { Id = bookInput.Id },
 					book => new Status { Message = $"Successfully removed book with Id {book.Id}" })
 				.Use<Book, InMemoryRepository>()
+				.DeleteAll(() => new Status { Message = "All books have been removed." })
 				.Build();
 
 			// Typically, you want to store these settings somewhere safe and access it from services like Azure KeyVault. Since
@@ -42,12 +43,14 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 
 			inputBuilderFactory.Create<Author>(this)
 				.Use<Author, InMemoryRepository>()
+				.DeleteAll(() => new Status { Message = "All authors have been removed." })
 				.Build();
 
 			inputBuilderFactory.Create<BookAuthors>(this)
 				.Use<BookAuthors, InMemoryRepository>()
 				.Use<Author, InMemoryRepository>()
 				.Use<Book, InMemoryRepository>()
+				.DeleteAll(() => new Status { Message = "All book authors relationships have been removed." })
 				.Build();
 
 			inputBuilderFactory.Create<BookReview>(this)

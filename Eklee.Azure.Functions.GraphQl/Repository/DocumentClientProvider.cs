@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using GraphQL;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
+using Microsoft.Azure.Documents.Linq;
 using Newtonsoft.Json;
 
 namespace Eklee.Azure.Functions.GraphQl.Repository
@@ -67,7 +68,6 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 				}, new RequestOptions
 				{
 					OfferThroughput = documentTypeInfo.RequestUnit
-
 				});
 
 			_documentTypeInfos.Add(sourceType.Name, documentTypeInfo);
@@ -139,27 +139,55 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 		{
 			var sql = $"SELECT * FROM {typeof(T).Name} x WHERE ";
 
-			queryParameters.ToList().ForEach(x => { sql += $" x.{x.MemberModel.Name} = '{x.ContextValue.Value}'"; });
+			queryParameters.ToList().ForEach(x => { sql += TranslateQueryParameter(x); });
 
 			return Task.FromResult<IEnumerable<T>>(_documentClient.CreateDocumentQuery<T>(GetDocumentCollectionUri<T>(), sql, new FeedOptions { PartitionKey = new PartitionKey("") }));
 		}
 
+		private string TranslateQueryParameter(QueryParameter queryParameter)
+		{
+			string comparison;
+			switch (queryParameter.Comparison)
+			{
+				case Comparisons.Equals:
+					comparison = "=";
+					break;
+
+				default:
+					throw new NotImplementedException($"Comparison {queryParameter.Comparison} is not impleted.");
+			}
+
+			return $" x.{queryParameter.MemberModel.Name} {comparison} '{queryParameter.ContextValue.Value}'";
+		}
+
 		public async Task DeleteAllAsync<T>()
 		{
-			await _documentClient.DeleteDocumentCollectionAsync(GetDocumentCollectionUri<T>());
-
 			var documentTypeInfo = _documentTypeInfos[typeof(T).Name];
 
-			await _documentClient.CreateDocumentCollectionIfNotExistsAsync(
-				UriFactory.CreateDatabaseUri(_databases[typeof(T).Name.ToLower()]), new DocumentCollection
-				{
-					Id = documentTypeInfo.Id,
-					PartitionKey = documentTypeInfo.Partition
-				}, new RequestOptions
-				{
-					OfferThroughput = documentTypeInfo.RequestUnit
+			var uri = UriFactory.CreateDocumentCollectionUri(_databases[typeof(T).Name.ToLower()], documentTypeInfo.Id);
 
-				});
+			var options = new FeedOptions
+			{
+				MaxItemCount = 100
+			};
+
+			while (true)
+			{
+				var query = _documentClient.CreateDocumentQuery<T>(uri, options).AsDocumentQuery();
+
+				var response = await query.ExecuteNextAsync<T>();
+
+				if (response.Count == 0) break;
+
+				foreach (var item in response)
+				{
+					await DeleteAsync(item);
+				}
+
+				if (string.IsNullOrEmpty(response.ResponseContinuation)) break;
+
+				options.RequestContinuation = response.ResponseContinuation;
+			}
 		}
 	}
 }

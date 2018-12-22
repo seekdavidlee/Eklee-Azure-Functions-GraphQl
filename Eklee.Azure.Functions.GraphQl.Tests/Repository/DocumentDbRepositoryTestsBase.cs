@@ -21,7 +21,10 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 		{
 			var logger = Substitute.For<ILogger>();
 
-			DocumentDbRepository = new DocumentDbRepository(logger);
+			DocumentDbRepository = new DocumentDbRepository(logger, new List<IDocumentDbComparison>
+			{
+				new DocumentDbComparisonInt(), new DocumentDbComparisonString()
+			});
 		}
 
 		protected Dictionary<string, object> GetBaseConfigurations<TSource>(MemberExpression memberExpression)

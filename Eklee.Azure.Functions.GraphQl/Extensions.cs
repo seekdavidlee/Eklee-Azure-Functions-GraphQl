@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Autofac;
+using Eklee.Azure.Functions.GraphQl.Repository;
 using Eklee.Azure.Functions.Http;
 using FastMember;
 using GraphQL;
@@ -31,6 +32,9 @@ namespace Eklee.Azure.Functions.GraphQl
 			builder.RegisterType<DocumentExecuter>().As<IDocumentExecuter>().SingleInstance();
 			builder.RegisterType<DocumentWriter>().As<IDocumentWriter>().SingleInstance();
 			builder.RegisterType<TSchema>().As<ISchema>().SingleInstance();
+
+			builder.RegisterType<DocumentDbComparisonInt>().As<IDocumentDbComparison>().SingleInstance();
+			builder.RegisterType<DocumentDbComparisonString>().As<IDocumentDbComparison>().SingleInstance();
 
 			builder.RegisterType<GraphDependencyResolver>().As<IDependencyResolver>();
 

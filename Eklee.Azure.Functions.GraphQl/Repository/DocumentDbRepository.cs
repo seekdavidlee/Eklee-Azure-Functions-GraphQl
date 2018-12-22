@@ -8,12 +8,14 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 	public class DocumentDbRepository : IGraphQlRepository
 	{
 		private readonly ILogger _logger;
+		private readonly IEnumerable<IDocumentDbComparison> _documentDbComparisons;
 		private readonly Dictionary<string, DocumentClientProvider> _providers = new Dictionary<string, DocumentClientProvider>();
 		private readonly Dictionary<string, DocumentClientProvider> _typedProviders = new Dictionary<string, DocumentClientProvider>();
 
-		public DocumentDbRepository(ILogger logger)
+		public DocumentDbRepository(ILogger logger, IEnumerable<IDocumentDbComparison> documentDbComparisons)
 		{
 			_logger = logger;
+			_documentDbComparisons = documentDbComparisons;
 		}
 
 		public void Configure(Type sourceType, Dictionary<string, object> configurations)
@@ -28,7 +30,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			}
 			else
 			{
-				provider = new DocumentClientProvider(url, configurations.GetStringValue(DocumentDbConstants.Key, sourceType));
+				provider = new DocumentClientProvider(url, configurations.GetStringValue(DocumentDbConstants.Key, sourceType), _documentDbComparisons);
 				_providers.Add(url, provider);
 			}
 

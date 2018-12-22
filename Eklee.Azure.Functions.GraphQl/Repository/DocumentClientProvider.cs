@@ -22,6 +22,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 
 	public class DocumentClientProvider
 	{
+		private readonly IEnumerable<IDocumentDbComparison> _documentDbComparisons;
 		private const int DefaultRequestUnits = 400;
 		private readonly DocumentClient _documentClient;
 
@@ -33,8 +34,9 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 		private readonly Dictionary<string, DocumentTypeInfo> _documentTypeInfos =
 			new Dictionary<string, DocumentTypeInfo>();
 
-		public DocumentClientProvider(string url, string key)
+		public DocumentClientProvider(string url, string key, IEnumerable<IDocumentDbComparison> documentDbComparisons)
 		{
+			_documentDbComparisons = documentDbComparisons;
 			_documentClient = new DocumentClient(new Uri(url), key);
 		}
 
@@ -214,25 +216,16 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 
 		private string TranslateQueryParameter(QueryParameter queryParameter)
 		{
-			switch (queryParameter.Comparison)
-			{
-				case Comparisons.Equals:
-					return new DocumentDbComparisonEqual(queryParameter).ToString();
+			var comparison = _documentDbComparisons.FirstOrDefault(x => x.CanHandle(queryParameter));
 
-				case Comparisons.StringContains:
-				case Comparisons.StringStartsWith:
-				case Comparisons.StringEndsWith:
-					return new DocumentDbComparisonString(queryParameter).ToString();
+			if (comparison == null) throw new NotImplementedException($"Comparison {queryParameter.Comparison} is not implemented for type.");
 
-				default:
-					throw new NotImplementedException(
-						$"Comparison {queryParameter.Comparison} is not implemented.");
-			}
+			var statement = comparison.Generate();
 
+			if (statement == null) throw new NotImplementedException($"Comparison {queryParameter.Comparison} is not implemented by {comparison.GetType().FullName}.");
+
+			return statement;
 		}
-
-		public const string SyntaxNotYetSupported =
-			"Unable to generate appropriate comparison syntax because field value type is not yet supported.";
 
 		public async Task DeleteAllAsync<T>()
 		{

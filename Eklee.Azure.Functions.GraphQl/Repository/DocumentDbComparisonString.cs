@@ -1,47 +1,50 @@
-﻿using System;
-
-namespace Eklee.Azure.Functions.GraphQl.Repository
+﻿namespace Eklee.Azure.Functions.GraphQl.Repository
 {
-	public class DocumentDbComparisonString
+	public class DocumentDbComparisonString : IDocumentDbComparison
 	{
-		private readonly QueryParameter _queryParameter;
+		private QueryParameter _queryParameter;
 
-		public DocumentDbComparisonString(QueryParameter queryParameter)
+		private string _value;
+		public bool CanHandle(QueryParameter queryParameter)
 		{
 			_queryParameter = queryParameter;
-		}
+			_value = null;
 
-		public override string ToString()
-		{
-			var fieldName = _queryParameter.MemberModel.Member.Name;
-			var fieldValue = _queryParameter.ContextValue.Value;
-
-			if (fieldValue is string strFieldValue)
+			if (queryParameter.ContextValue.Value is string value && !string.IsNullOrEmpty(value))
 			{
-				string comparison;
-
-				switch (_queryParameter.Comparison)
-				{
-					case Comparisons.StringContains:
-						comparison = "CONTAINS";
-						break;
-
-					case Comparisons.StringStartsWith:
-						comparison = "STARTSWITH";
-						break;
-
-					case Comparisons.StringEndsWith:
-						comparison = "ENDSWITH";
-						break;
-
-					default:
-						throw new NotImplementedException($"Comparison {_queryParameter.Comparison} is not implemented.");
-				}
-
-				return $" {comparison}(x.{fieldName}, '{strFieldValue}')";
+				_value = value;
+				return true;
 			}
 
-			throw new InvalidOperationException("It does not appear the value is a string type. Hence, this comparison is not valid.");
+			return false;
+		}
+
+		public string Generate()
+		{
+			if (_queryParameter.Comparison == Comparisons.Equals)
+				return $"x.{_queryParameter.MemberModel.Member.Name} = '{_value}'";
+
+			string comparison;
+
+			switch (_queryParameter.Comparison)
+			{
+				case Comparisons.StringContains:
+					comparison = "CONTAINS";
+					break;
+
+				case Comparisons.StringStartsWith:
+					comparison = "STARTSWITH";
+					break;
+
+				case Comparisons.StringEndsWith:
+					comparison = "ENDSWITH";
+					break;
+
+				default:
+					return null;
+			}
+
+			return $" {comparison}(x.{_queryParameter.MemberModel.Member.Name}, '{_value}')";
 		}
 	}
 }

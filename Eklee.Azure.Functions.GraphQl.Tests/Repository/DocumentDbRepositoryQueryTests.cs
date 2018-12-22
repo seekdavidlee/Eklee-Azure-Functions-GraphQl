@@ -133,6 +133,30 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 		}
 
 		[Fact]
+		public async Task CanQueryWith_Contains()
+		{
+			await Seed();
+
+			QueryParameter[] args = {
+				new QueryParameter
+				{
+					Comparison = Comparisons.StringContains,
+					ContextValue = new ContextValue { Value = "ha" },
+					MemberModel = new ModelMember(_type, _accessor,
+						_members.Single(x=>x.Name == "Description"), false)
+				}
+			};
+
+			var results = (await DocumentDbRepository.QueryAsync<DocumentDbFoo3>("test", args)).ToList();
+
+			results.Count.ShouldBe(4);
+			results[0].Description.ShouldContain("ha");
+			results[1].Description.ShouldContain("ha");
+			results[2].Description.ShouldContain("ha");
+			results[3].Description.ShouldContain("ha");
+		}
+
+		[Fact]
 		public async Task CanQueryWith_TwoArgsOfTypesStringAndInt()
 		{
 			await Seed();

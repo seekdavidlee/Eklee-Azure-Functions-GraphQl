@@ -155,7 +155,8 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 
 					if (results.Count > 1)
 					{
-						throw new InvalidOperationException("Unable to determine partition key value due to multiple matches.");
+						throw new InvalidOperationException(
+							"Unable to determine partition key value due to multiple matches.");
 					}
 
 					if (results.Count == 1)
@@ -164,7 +165,8 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 					}
 					else
 					{
-						throw new InvalidOperationException("Unable to determine partition key value due to missing data.");
+						throw new InvalidOperationException(
+							"Unable to determine partition key value due to missing data.");
 					}
 				}
 
@@ -183,8 +185,12 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 		public async Task<IEnumerable<T>> QueryAsync<T>(IEnumerable<QueryParameter> queryParameters)
 		{
 			var sql = "SELECT * FROM x WHERE ";
+			const string and = " AND ";
 
-			queryParameters.ToList().ForEach(x => { sql += TranslateQueryParameter(x); });
+			queryParameters.ToList().ForEach(x => sql += TranslateQueryParameter(x) + and);
+
+			if (sql.EndsWith(and))
+				sql = sql.Substring(0, sql.LastIndexOf("AND ", StringComparison.Ordinal));
 
 			var options = new FeedOptions
 			{
@@ -215,8 +221,21 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			var fieldName = queryParameter.MemberModel.Member.Name;
 			var fieldValue = queryParameter.ContextValue.Value;
 
-			return $" x.{fieldName} {comparison} '{fieldValue}'";
+			if (fieldValue is string strFieldValue)
+			{
+				return $" x.{fieldName} {comparison} '{strFieldValue}'";
+			}
+
+			if (fieldValue is int intFieldValue)
+			{
+				return $" x.{fieldName} {comparison} {intFieldValue}";
+			}
+
+			throw new NotImplementedException(SyntaxNotYetSupported);
 		}
+
+		private const string SyntaxNotYetSupported =
+			"Unable to generate appropriate comparison syntax because field value type is not yet supported.";
 
 		public async Task DeleteAllAsync<T>()
 		{

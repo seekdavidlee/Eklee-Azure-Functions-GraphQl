@@ -38,6 +38,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 			return configurations;
 		}
 
+
+
 		protected async Task<IEnumerable<T>> GetByIdAsync<T>(string id)
 		{
 			var type = typeof(T);

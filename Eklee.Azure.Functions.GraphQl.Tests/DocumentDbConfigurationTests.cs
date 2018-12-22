@@ -30,6 +30,27 @@ namespace Eklee.Azure.Functions.GraphQl.Tests
 		public int MyIntCategory { get; set; }
 	}
 
+	/// <summary>
+	/// Used mainly for comparisons.
+	/// </summary>
+	public class DocumentDbFoo3
+	{
+		[Key]
+		public string Id { get; set; }
+
+		public string Name { get; set; }
+
+		public string Description { get; set; }
+
+		public int Level { get; set; }
+
+		public DateTime Effective { get; set; }
+
+		public DateTime? Expires { get; set; }
+
+		public string Category { get; set; }
+	}
+
 	[Trait(Constants.Category, Constants.UnitTests)]
 	public class DocumentDbConfigurationTests
 	{

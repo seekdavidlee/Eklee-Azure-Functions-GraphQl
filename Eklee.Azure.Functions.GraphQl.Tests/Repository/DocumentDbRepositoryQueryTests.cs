@@ -10,13 +10,20 @@ using Xunit;
 namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 {
 	[Trait(Constants.Category, Constants.IntegrationTests)]
-	public class DocumentDbRepositoryQueryTests : DocumentDbRepositoryTestsBase
+	public class DocumentDbRepositoryQueryTests : DocumentDbRepositoryTestsBase, IDisposable
 	{
+		private readonly Type _type = typeof(DocumentDbFoo3);
+		private readonly TypeAccessor _accessor;
+		private readonly MemberSet _members;
+
 		public DocumentDbRepositoryQueryTests()
 		{
 			Expression<Func<DocumentDbFoo3, string>> expression = x => x.Category;
 			var configurations = GetBaseConfigurations<DocumentDbFoo3>((MemberExpression)expression.Body);
 			DocumentDbRepository.Configure(typeof(DocumentDbFoo3), configurations);
+
+			_accessor = TypeAccessor.Create(_type);
+			_members = _accessor.GetMembers();
 		}
 
 		private async Task Seed()
@@ -59,6 +66,16 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 					Description = "Ba ha Ba",
 					Level = 2,
 					Effective = new DateTime(2014, 12, 1)
+				},
+				new DocumentDbFoo3
+				{
+					Id = "5",
+					Name = "Bar 5",
+					Category = "cat 5",
+					Description = "Sa Sa Ba",
+					Level = 6,
+					Effective = new DateTime(2014, 1, 1),
+					Expires = new DateTime(2015, 12, 31)
 				}
 			};
 
@@ -69,29 +86,71 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 		}
 
 		[Fact]
-		public async Task CanQueryWithTwoArgs()
+		public async Task CanQueryWith_StartsWith()
 		{
 			await Seed();
 
-			var type = typeof(DocumentDbFoo3);
-			var accessor = TypeAccessor.Create(type);
-			var members = accessor.GetMembers();
+			QueryParameter[] args = {
+				new QueryParameter
+				{
+					Comparison = Comparisons.StringStartsWith,
+					ContextValue = new ContextValue { Value = "Foo" },
+					MemberModel = new ModelMember(_type, _accessor,
+						_members.Single(x=>x.Name == "Name"), false)
+				}
+			};
 
-			QueryParameter[] args = new[]
-			{
+			var results = (await DocumentDbRepository.QueryAsync<DocumentDbFoo3>("test", args)).ToList();
+
+			results.Count.ShouldBe(4);
+			results[0].Name.ShouldStartWith("Foo");
+			results[1].Name.ShouldStartWith("Foo");
+			results[2].Name.ShouldStartWith("Foo");
+			results[3].Name.ShouldStartWith("Foo");
+		}
+
+		[Fact]
+		public async Task CanQueryWith_EndsWith()
+		{
+			await Seed();
+
+			QueryParameter[] args = {
+				new QueryParameter
+				{
+					Comparison = Comparisons.StringEndsWith,
+					ContextValue = new ContextValue { Value = "ha ha" },
+					MemberModel = new ModelMember(_type, _accessor,
+						_members.Single(x=>x.Name == "Description"), false)
+				}
+			};
+
+			var results = (await DocumentDbRepository.QueryAsync<DocumentDbFoo3>("test", args)).ToList();
+
+			results.Count.ShouldBe(3);
+			results[0].Description.ShouldEndWith("ha ha");
+			results[1].Description.ShouldEndWith("ha ha");
+			results[2].Description.ShouldEndWith("ha ha");
+		}
+
+		[Fact]
+		public async Task CanQueryWith_TwoArgsOfTypesStringAndInt()
+		{
+			await Seed();
+
+			QueryParameter[] args = {
 				new QueryParameter
 				{
 					Comparison = Comparisons.Equals,
 					ContextValue = new ContextValue { Value = "cat 1" },
-					MemberModel = new ModelMember(type, accessor,
-						members.Single(x=>x.Name == "Category"), false)
+					MemberModel = new ModelMember(_type, _accessor,
+						_members.Single(x=>x.Name == "Category"), false)
 				},
 				new QueryParameter
 				{
 					Comparison = Comparisons.Equals,
 					ContextValue = new ContextValue { Value = 2 },
-					MemberModel = new ModelMember(type, accessor,
-						members.Single(x=>x.Name == "Level"), false)
+					MemberModel = new ModelMember(_type, _accessor,
+						_members.Single(x=>x.Name == "Level"), false)
 				}
 			};
 
@@ -100,8 +159,18 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 			results.Count.ShouldBe(2);
 
 			var item2 = results.Single(x => x.Id == "2");
+			item2.Category.ShouldBe("cat 1");
+			item2.Level.ShouldBe(2);
 
 			var item4 = results.Single(x => x.Id == "4");
+			item4.Category.ShouldBe("cat 1");
+			item4.Level.ShouldBe(2);
+		}
+
+		public void Dispose()
+		{
+			DocumentDbRepository.DeleteAllAsync<DocumentDbFoo3>()
+				.GetAwaiter().GetResult();
 		}
 	}
 }

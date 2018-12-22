@@ -187,14 +187,22 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			var sql = "SELECT * FROM x WHERE ";
 			const string and = " AND ";
 
-			queryParameters.ToList().ForEach(x => sql += TranslateQueryParameter(x) + and);
+			var queryParametersList = queryParameters.ToList();
+			queryParametersList.ForEach(x => sql += TranslateQueryParameter(x) + and);
 
 			if (sql.EndsWith(and))
 				sql = sql.Substring(0, sql.LastIndexOf("AND ", StringComparison.Ordinal));
 
 			var options = new FeedOptions
 			{
-				EnableCrossPartitionQuery = true
+				EnableCrossPartitionQuery = true,
+
+				// See: https://docs.microsoft.com/en-us/azure/cosmos-db/index-policy
+
+				EnableScanInQuery = queryParametersList.Any(
+					x => x.Comparison == Comparisons.StringContains ||
+						 x.Comparison == Comparisons.StringEndsWith ||
+						 x.Comparison == Comparisons.StringStartsWith)
 			};
 
 			var query = _documentClient.CreateDocumentQuery<T>(
@@ -206,35 +214,24 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 
 		private string TranslateQueryParameter(QueryParameter queryParameter)
 		{
-			string comparison;
 			switch (queryParameter.Comparison)
 			{
 				case Comparisons.Equals:
-					comparison = "=";
-					break;
+					return new DocumentDbComparisonEqual(queryParameter).ToString();
+
+				case Comparisons.StringContains:
+				case Comparisons.StringStartsWith:
+				case Comparisons.StringEndsWith:
+					return new DocumentDbComparisonString(queryParameter).ToString();
 
 				default:
 					throw new NotImplementedException(
 						$"Comparison {queryParameter.Comparison} is not implemented.");
 			}
 
-			var fieldName = queryParameter.MemberModel.Member.Name;
-			var fieldValue = queryParameter.ContextValue.Value;
-
-			if (fieldValue is string strFieldValue)
-			{
-				return $" x.{fieldName} {comparison} '{strFieldValue}'";
-			}
-
-			if (fieldValue is int intFieldValue)
-			{
-				return $" x.{fieldName} {comparison} {intFieldValue}";
-			}
-
-			throw new NotImplementedException(SyntaxNotYetSupported);
 		}
 
-		private const string SyntaxNotYetSupported =
+		public const string SyntaxNotYetSupported =
 			"Unable to generate appropriate comparison syntax because field value type is not yet supported.";
 
 		public async Task DeleteAllAsync<T>()

@@ -62,7 +62,8 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			_databases[sourceType.Name.ToLower()] = databaseId;
 
 
-			var memberExpression = configurations.GetValue<MemberExpression>(DocumentDbConstants.PartitionMemberExpression, sourceType);
+			var memberExpression = configurations.GetValue<MemberExpression>(
+				DocumentDbConstants.PartitionMemberExpression, sourceType);
 
 			var documentTypeInfo = new DocumentTypeInfo
 			{
@@ -91,7 +92,8 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 
 		public async Task CreateAsync<T>(T item)
 		{
-			await _documentClient.CreateDocumentAsync(GetDocumentCollectionUri<T>(), GetTransformed(item), null, true);
+			await _documentClient.CreateDocumentAsync(
+				GetDocumentCollectionUri<T>(), GetTransformed(item), null, true);
 		}
 
 		private dynamic GetTransformed<T>(T item)
@@ -128,26 +130,54 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 		public async Task UpdateAsync<T>(T item)
 		{
 			await _documentClient.ReplaceDocumentAsync(
-				GetDocumentUri(item), GetTransformed(item), GetRequestOptions(item));
+				GetDocumentUri(item), GetTransformed(item), await GetRequestOptions(item));
 		}
 
-		private RequestOptions GetRequestOptions<T>(T item)
+		private async Task<RequestOptions> GetRequestOptions<T>(T item)
 		{
-			PartitionKey partitionKey = null;
-
 			if (_memberExpressions.ContainsKey(typeof(T).Name))
 			{
 				var memberExpression = _memberExpressions[typeof(T).Name];
 				var value = item.GetPropertyValue(memberExpression.Member.Name);
-				partitionKey = new PartitionKey(value);
+
+				if (value == null ||
+					value is int intValue && intValue == 0 ||
+					value is string strValue && strValue == "")
+				{
+					// Let's query for the partition.
+
+					var query = _documentClient.CreateDocumentQuery<T>(GetDocumentCollectionUri<T>(),
+						$"SELECT * FROM x WHERE x.id='{item.GetKey()}'",
+							new FeedOptions { EnableCrossPartitionQuery = true })
+						.AsDocumentQuery();
+
+					var results = (await query.ExecuteNextAsync<T>()).ToList();
+
+					if (results.Count > 1)
+					{
+						throw new InvalidOperationException("Unable to determine partition key value due to multiple matches.");
+					}
+
+					if (results.Count == 1)
+					{
+						value = results.Single().GetPropertyValue(memberExpression.Member.Name);
+					}
+					else
+					{
+						throw new InvalidOperationException("Unable to determine partition key value due to missing data.");
+					}
+				}
+
+				return new RequestOptions { PartitionKey = new PartitionKey(value) };
 			}
 
-			return new RequestOptions { PartitionKey = partitionKey };
+			return null;
 		}
 
 		public async Task DeleteAsync<T>(T item)
 		{
-			await _documentClient.DeleteDocumentAsync(GetDocumentUri(item), GetRequestOptions(item));
+			await _documentClient.DeleteDocumentAsync(
+				GetDocumentUri(item), await GetRequestOptions(item));
 		}
 
 		public async Task<IEnumerable<T>> QueryAsync<T>(IEnumerable<QueryParameter> queryParameters)

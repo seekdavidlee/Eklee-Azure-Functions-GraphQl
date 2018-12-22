@@ -27,8 +27,5 @@ namespace Eklee.Azure.Functions.GraphQl.Example.Models
 		[Description("Id of book review.")]
 		[Key]
 		public string Id { get; set; }
-
-		[Description("Id of book")]
-		public string BookId { get; set; }
 	}
 }

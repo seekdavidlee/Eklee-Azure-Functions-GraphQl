@@ -21,7 +21,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 				.DeleteAll(() => new Status { Message = "All books have been removed." })
 				.Build();
 
-			// Typically, you want to store these settings somewhere safe and access it from services like Azure KeyVault.
+			// You want to store these settings somewhere safe and access using services like Azure KeyVault.
 
 			string documentDbKey = configuration["DocumentDb:Key"];
 			string documentDbUrl = configuration["DocumentDb:Url"];
@@ -54,14 +54,14 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 
 			inputBuilderFactory.Create<BookReview>(this)
 				.Delete<BookReviewId, Status>(
-					bookReviewInput => new BookReview { Id = bookReviewInput.Id, BookId = bookReviewInput.BookId },
+					bookReviewInput => new BookReview { Id = bookReviewInput.Id },
 					bookReview => new Status { Message = $"Successfully removed book review with Id {bookReview.Id}" })
 				.ConfigureDocumentDb<BookReview>()
 					.AddUrl(documentDbUrl)
 					.AddKey(documentDbKey)
 					.AddDatabase(rc => "local")
 					.AddRequestUnit(400)
-					.AddPartition(bookReview => bookReview.Stars)
+					.AddPartition(bookReview => bookReview.ReviewerId)
 					.BuildDocumentDb()
 				.DeleteAll(() => new Status { Message = "All book reviews relationships have been removed." })
 				.Build();

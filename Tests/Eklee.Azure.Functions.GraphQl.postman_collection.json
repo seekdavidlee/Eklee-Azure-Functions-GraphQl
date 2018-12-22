@@ -914,7 +914,7 @@
 									"pm.test(\"Book review is created.\", function () {",
 									"    var jsonData = pm.response.json();",
 									"    ",
-									"    pm.expect(jsonData.data.createBookReview.id).to.eql(\"1\");",
+									"    pm.expect(jsonData.data.createBookReview.id).to.eql(\"101\");",
 									"    pm.expect(jsonData.data.createBookReview.bookId).to.eql(\"1\");",
 									"    pm.expect(jsonData.data.createBookReview.reviewerId).to.eql(\"1\");",
 									"});"
@@ -945,7 +945,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  createBookReview(bookreview: {id: \\\"1\\\", bookId: \\\"1\\\", reviewerId: \\\"1\\\", comments: \\\"It was good\\\", stars: 5}) {\\n    id\\n    bookId\\n    reviewerId\\n  }\\n}\\n\"}"
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  createBookReview(bookreview: {id: \\\"101\\\", bookId: \\\"1\\\", reviewerId: \\\"1\\\", comments: \\\"It was good\\\", stars: 5}) {\\n    id\\n    bookId\\n    reviewerId\\n  }\\n}\\n\"}"
 						},
 						"url": {
 							"raw": "{{endpoint}}/api/books/graph",
@@ -978,7 +978,7 @@
 									"pm.test(\"Bookreview is updated.\", function () {",
 									"    var jsonData = pm.response.json();",
 									"    ",
-									"    pm.expect(jsonData.data.updateBookReview.id).to.eql(\"1\");",
+									"    pm.expect(jsonData.data.updateBookReview.id).to.eql(\"101\");",
 									"    pm.expect(jsonData.data.updateBookReview.bookId).to.eql(\"1\");",
 									"    pm.expect(jsonData.data.updateBookReview.reviewerId).to.eql(\"1\");",
 									"    pm.expect(jsonData.data.updateBookReview.comments).to.eql(\"It was good ish I think\");",
@@ -1011,7 +1011,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  updateBookReview(bookreview: {id: \\\"1\\\", bookId: \\\"1\\\", reviewerId: \\\"1\\\", comments: \\\"It was good ish I think\\\", stars: 1}) {\\n    id\\n    bookId\\n    reviewerId\\n    comments\\n    stars\\n  }\\n}\\n\"}"
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  updateBookReview(bookreview: {id: \\\"101\\\", bookId: \\\"1\\\", reviewerId: \\\"1\\\", comments: \\\"It was good ish I think\\\", stars: 1}) {\\n    id\\n    bookId\\n    reviewerId\\n    comments\\n    stars\\n  }\\n}\\n\"}"
 						},
 						"url": {
 							"raw": "{{endpoint}}/api/books/graph",
@@ -1071,7 +1071,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  deleteBookReview(bookreview: {id: \\\"1\\\", bookId: \\\"1\\\"}) {\\n    message\\n  }\\n}\\n\"}"
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  deleteBookReview(bookreview: {id: \\\"101\\\"}) {\\n    message\\n  }\\n}\\n\"}"
 						},
 						"url": {
 							"raw": "{{endpoint}}/api/books/graph",

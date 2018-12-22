@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Dynamic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -23,25 +24,32 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 	{
 		private const int DefaultRequestUnits = 400;
 		private readonly DocumentClient _documentClient;
+
 		private readonly Dictionary<string, string> _databases = new Dictionary<string, string>();
+
 		private readonly Dictionary<string, MemberExpression> _memberExpressions =
 			new Dictionary<string, MemberExpression>();
-		private readonly Dictionary<string, DocumentTypeInfo> _documentTypeInfos = new Dictionary<string, DocumentTypeInfo>();
+
+		private readonly Dictionary<string, DocumentTypeInfo> _documentTypeInfos =
+			new Dictionary<string, DocumentTypeInfo>();
 
 		public DocumentClientProvider(string url, string key)
 		{
 			_documentClient = new DocumentClient(new Uri(url), key);
 		}
 
-		public async Task ConfigureDatabaseAndCollection(Dictionary<string, object> configurations, Type sourceType)
+		public async Task ConfigureDatabaseAndCollection(
+			Dictionary<string, object> configurations, Type sourceType)
 		{
 			int requestUnit = DefaultRequestUnits;
 
 			var databaseId = configurations.GetStringValue(DocumentDbConstants.Database, sourceType);
 
-			if (configurations.ContainsKey(DocumentDbConfigurationExtensions.GetKey(DocumentDbConstants.RequestUnit, sourceType)))
+			if (configurations.ContainsKey(DocumentDbConfigurationExtensions.GetKey(
+				DocumentDbConstants.RequestUnit, sourceType)))
 			{
-				int.TryParse(configurations.GetStringValue(DocumentDbConstants.RequestUnit, sourceType), out requestUnit);
+				int.TryParse(configurations.GetStringValue(
+					DocumentDbConstants.RequestUnit, sourceType), out requestUnit);
 			}
 
 			if (!_databases.ContainsKey(databaseId))
@@ -53,10 +61,16 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 
 			_databases[sourceType.Name.ToLower()] = databaseId;
 
+
+			var memberExpression = configurations.GetValue<MemberExpression>(DocumentDbConstants.PartitionMemberExpression, sourceType);
+
 			var documentTypeInfo = new DocumentTypeInfo
 			{
 				Id = sourceType.Name.ToLower(),
-				Partition = configurations.GetValue<PartitionKeyDefinition>(DocumentDbConstants.Partition, sourceType),
+				Partition = new PartitionKeyDefinition
+				{
+					Paths = new Collection<string> { $"/{memberExpression.Member.Name}" }
+				},
 				RequestUnit = requestUnit
 			};
 
@@ -72,10 +86,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 
 			_documentTypeInfos.Add(sourceType.Name, documentTypeInfo);
 
-			var memberExpressionKey = DocumentDbConfigurationExtensions.GetKey(DocumentDbConstants.MemberExpression, sourceType);
-
-			if (configurations.ContainsKey(memberExpressionKey))
-				_memberExpressions.Add(sourceType.Name, (MemberExpression)configurations[memberExpressionKey]);
+			_memberExpressions.Add(sourceType.Name, memberExpression);
 		}
 
 		public async Task CreateAsync<T>(T item)
@@ -116,12 +127,14 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 
 		public async Task UpdateAsync<T>(T item)
 		{
-			await _documentClient.ReplaceDocumentAsync(GetDocumentUri(item), GetTransformed(item));
+			await _documentClient.ReplaceDocumentAsync(
+				GetDocumentUri(item), GetTransformed(item), GetRequestOptions(item));
 		}
 
-		public async Task DeleteAsync<T>(T item)
+		private RequestOptions GetRequestOptions<T>(T item)
 		{
 			PartitionKey partitionKey = null;
+
 			if (_memberExpressions.ContainsKey(typeof(T).Name))
 			{
 				var memberExpression = _memberExpressions[typeof(T).Name];
@@ -129,10 +142,12 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 				partitionKey = new PartitionKey(value);
 			}
 
-			await _documentClient.DeleteDocumentAsync(GetDocumentUri(item), new RequestOptions
-			{
-				PartitionKey = partitionKey
-			});
+			return new RequestOptions { PartitionKey = partitionKey };
+		}
+
+		public async Task DeleteAsync<T>(T item)
+		{
+			await _documentClient.DeleteDocumentAsync(GetDocumentUri(item), GetRequestOptions(item));
 		}
 
 		public async Task<IEnumerable<T>> QueryAsync<T>(IEnumerable<QueryParameter> queryParameters)
@@ -163,17 +178,22 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 					break;
 
 				default:
-					throw new NotImplementedException($"Comparison {queryParameter.Comparison} is not implemented.");
+					throw new NotImplementedException(
+						$"Comparison {queryParameter.Comparison} is not implemented.");
 			}
 
-			return $" x.{queryParameter.MemberModel.Member.Name} {comparison} '{queryParameter.ContextValue.Value}'";
+			var fieldName = queryParameter.MemberModel.Member.Name;
+			var fieldValue = queryParameter.ContextValue.Value;
+
+			return $" x.{fieldName} {comparison} '{fieldValue}'";
 		}
 
 		public async Task DeleteAllAsync<T>()
 		{
 			var documentTypeInfo = _documentTypeInfos[typeof(T).Name];
 
-			var uri = UriFactory.CreateDocumentCollectionUri(_databases[typeof(T).Name.ToLower()], documentTypeInfo.Id);
+			var uri = UriFactory.CreateDocumentCollectionUri(
+				_databases[typeof(T).Name.ToLower()], documentTypeInfo.Id);
 
 			var options = new FeedOptions
 			{

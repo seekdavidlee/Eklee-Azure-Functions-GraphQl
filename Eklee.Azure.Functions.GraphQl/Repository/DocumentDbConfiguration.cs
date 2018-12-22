@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq.Expressions;
 using Eklee.Azure.Functions.Http;
-using Microsoft.Azure.Documents;
 
 namespace Eklee.Azure.Functions.GraphQl.Repository
 {
@@ -13,8 +11,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 		public const string Key = "Key";
 		public const string Database = "Database";
 		public const string RequestUnit = "RequestUnit";
-		public const string Partition = "Partition";
-		public const string MemberExpression = "MemberExpression";
+		public const string PartitionMemberExpression = "PartitionMemberExpression";
 	}
 
 	public static class DocumentDbConfigurationExtensions
@@ -27,6 +24,11 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 		public static T GetValue<T>(this Dictionary<string, object> configurations, string key, Type sourceType)
 		{
 			return (T)configurations[GetKey(key, sourceType)];
+		}
+
+		public static bool ContainsKey<TSource>(this Dictionary<string, object> configurations, string key)
+		{
+			return configurations.ContainsKey(GetKey(key, typeof(TSource)));
 		}
 
 
@@ -81,16 +83,13 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			return this;
 		}
 
-		public DocumentDbConfiguration<TSource> AddPartition(Expression<Func<TSource, object>> expression)
+		public DocumentDbConfiguration<TSource> AddPartition<TProperty>(Expression<Func<TSource, TProperty>> expression)
 		{
 			if (expression.Body is MemberExpression memberExpression)
 			{
-				_configurations.Add<TSource>(DocumentDbConstants.Partition, new PartitionKeyDefinition
-				{
-					Paths = new Collection<string> { $"/{memberExpression.Member.Name}" }
-				});
 
-				_configurations.Add<TSource>(DocumentDbConstants.MemberExpression, memberExpression);
+
+				_configurations.Add<TSource>(DocumentDbConstants.PartitionMemberExpression, memberExpression);
 			}
 
 			return this;
@@ -104,7 +103,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 
 		public IModelConventionInputBuilder<TSource> BuildDocumentDb()
 		{
-			if (!_configurations.ContainsKey(DocumentDbConstants.Partition))
+			if (!_configurations.ContainsKey<TSource>(DocumentDbConstants.PartitionMemberExpression))
 			{
 				throw new InvalidOperationException("Partition is not set!");
 			}

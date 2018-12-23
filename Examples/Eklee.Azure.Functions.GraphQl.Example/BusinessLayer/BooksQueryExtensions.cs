@@ -11,7 +11,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 
 			queryBuilderFactory.Create<Book>(booksQuery, "getBookNoCache")
 				.WithParameterBuilder()
-				.WithProperty(x => x.Id, Comparisons.Equals)
+				.WithProperty(x => x.Id)
 				.Build()
 				.BuildWithSingleResult();
 
@@ -31,7 +31,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 			queryBuilderFactory.Create<Book>(booksQuery, "getBooksByCategory")
 				.WithCache(TimeSpan.FromSeconds(10))
 				.WithParameterBuilder()
-					.WithProperty(x => x.Category, Comparisons.Equals)
+					.WithProperty(x => x.Category)
 					.Build()
 				.BuildWithListResult();
 
@@ -45,7 +45,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 			queryBuilderFactory.Create<Book>(booksQuery, "getPagedBooksByCategory")
 				.WithPaging()
 				.WithParameterBuilder()
-					.WithProperty(x => x.Category, Comparisons.Equals, true)
+					.WithProperty(x => x.Category, true)
 					.Build()
 				.BuildWithListResult();
 
@@ -56,7 +56,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 				.WithPaging()
 				.WithCache(TimeSpan.FromSeconds(10))
 				.WithParameterBuilder()
-					.WithProperty(x => x.Category, Comparisons.Equals)
+					.WithProperty(x => x.Category)
 					.Build()
 				.BuildWithListResult();
 		}

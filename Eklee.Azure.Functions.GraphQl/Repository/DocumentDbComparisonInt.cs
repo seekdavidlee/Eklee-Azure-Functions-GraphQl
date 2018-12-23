@@ -24,7 +24,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 
 		public string Generate()
 		{
-			if (_queryParameter.Comparison == Comparisons.Equals)
+			if (_queryParameter.ContextValue.Comparison == Comparisons.Equal)
 				return $" x.{_queryParameter.MemberModel.Member.Name} = {_value}";
 
 			return null;

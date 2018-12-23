@@ -37,7 +37,7 @@ namespace Eklee.Azure.Functions.GraphQl
 
 					foreach (var queryValue in queryValues)
 					{
-						first.ContextValue = new ContextValue { Value = queryValue };
+						first.ContextValue = new ContextValue { Value = queryValue, Comparison = Comparisons.Equal };
 
 						try
 						{

@@ -2,6 +2,8 @@
 using GraphQL.Types;
 using System;
 using System.Collections.Generic;
+using Eklee.Azure.Functions.GraphQl.Attributes;
+using FastMember;
 
 namespace Eklee.Azure.Functions.GraphQl
 {
@@ -16,6 +18,18 @@ namespace Eklee.Azure.Functions.GraphQl
 
 		public ModelType<TSourceType> ModelType { get; } = new ModelType<TSourceType>();
 
+		private Type GetGraphTypeFromTypeWithModelFieldAttribute(Member member)
+		{
+			var modelField = member.GetAttribute(typeof(ModelFieldAttribute), false) as ModelFieldAttribute;
+
+			if (modelField != null)
+			{
+				return member.Type.GetGraphTypeFromType(!modelField.IsRequired);
+			}
+
+			return member.Type.GetGraphTypeFromType();
+		}
+
 		public void ForEachWithField(Action<Type, string, string> addFieldAction)
 		{
 			ModelType.ForEach(m =>
@@ -29,7 +43,8 @@ namespace Eklee.Azure.Functions.GraphQl
 					m.Type == typeof(double) ||
 					m.Type == typeof(List<string>))
 				{
-					addFieldAction(m.Type.GetGraphTypeFromType(), m.Name, m.GetDescription());
+					addFieldAction(GetGraphTypeFromTypeWithModelFieldAttribute(m),
+						m.Name, m.GetDescription());
 				}
 				else
 				{

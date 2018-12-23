@@ -7,14 +7,7 @@ namespace Eklee.Azure.Functions.GraphQl
 	{
 		public ModelMember MemberModel { get; set; }
 		public ContextValue ContextValue { get; set; }
-		public Comparisons Comparison { get; set; }
-
 		public bool HasContextValue { get; set; }
-		public bool ValueEquals(object target)
-		{
-			return (MemberModel.IsOptional && ContextValue == null) ||
-				   MemberModel.PathMemberValueEquals(target, ContextValue.Value);
-		}
 	}
 
 	public class QueryStep

@@ -30,18 +30,20 @@ namespace Eklee.Azure.Functions.GraphQl
 			{
 				if ((KeyAttribute)member.GetAttribute(typeof(KeyAttribute), false) != null)
 				{
-					Add(false, member, Comparisons.Equals);
+					Add(false, member);
 				}
 			});
 
 			return this;
 		}
 
-		private void Add(bool isOptional, Member member, Comparisons comparison)
+		private void Add(bool isOptional, Member member)
 		{
-			var modelMember = new ModelMember(typeof(TSource), _modelConvention.ModelType.GetTypeAccessor(), member, isOptional);
+			var modelMember = new ModelMember(typeof(TSource),
+				_modelConvention.ModelType.GetTypeAccessor(), member, isOptional);
+
 			_modelMemberList.Add(modelMember);
-			_queryStep.QueryParameters.Add(new QueryParameter { MemberModel = modelMember, Comparison = comparison, HasContextValue = true });
+			_queryStep.QueryParameters.Add(new QueryParameter { MemberModel = modelMember, HasContextValue = true });
 		}
 
 		public List<QueryStep> GetQuerySteps(ResolveFieldContext<object> context)
@@ -62,7 +64,7 @@ namespace Eklee.Azure.Functions.GraphQl
 			_modelMemberList.ForEach(action);
 		}
 
-		public QueryParameterBuilder<TSource> WithProperty(Expression<Func<TSource, object>> expression, Comparisons comparison, bool isOptional = false)
+		public QueryParameterBuilder<TSource> WithProperty(Expression<Func<TSource, object>> expression, bool isOptional = false)
 		{
 			if (expression.Body is MemberExpression memberExpression)
 			{
@@ -75,27 +77,27 @@ namespace Eklee.Azure.Functions.GraphQl
 					throw new InvalidOperationException("WithProperty is used directly on the type properties and cannot include hierarchy because it then needs mapping. Consider using BeginWithProperty.");
 				}
 
-				Add(isOptional, _modelConvention.ModelType.GetMember(memberExpression.Member.Name), comparison);
+				Add(isOptional, _modelConvention.ModelType.GetMember(memberExpression.Member.Name));
 			}
 
 			return this;
 		}
 
-		public QueryParameterBuilder<TSource> BeginWithProperty<TProperty>(Expression<Func<TProperty, object>> expression, Comparisons comparison,
+		public QueryParameterBuilder<TSource> BeginWithProperty<TProperty>(Expression<Func<TProperty, object>> expression,
 			Action<QueryExecutionContext> contextAction)
 		{
-			Add(expression, comparison, null, contextAction, true);
+			Add(expression, null, contextAction, true);
 			return this;
 		}
 
-		public QueryParameterBuilder<TSource> ThenWithProperty<TProperty>(Expression<Func<TProperty, object>> expression, Comparisons comparison,
+		public QueryParameterBuilder<TSource> ThenWithProperty<TProperty>(Expression<Func<TProperty, object>> expression,
 			Func<QueryExecutionContext, List<object>> mapper, Action<QueryExecutionContext> contextAction)
 		{
-			Add(expression, comparison, mapper, contextAction, false);
+			Add(expression, mapper, contextAction, false);
 			return this;
 		}
 
-		private void Add<TProperty>(Expression<Func<TProperty, object>> expression, Comparisons comparison,
+		private void Add<TProperty>(Expression<Func<TProperty, object>> expression,
 			Func<QueryExecutionContext, List<object>> mapper,
 			Action<QueryExecutionContext> contextAction, bool hasContextValue)
 		{
@@ -123,7 +125,6 @@ namespace Eklee.Azure.Functions.GraphQl
 				step.QueryParameters.Add(new QueryParameter
 				{
 					MemberModel = modelMember,
-					Comparison = comparison,
 					HasContextValue = hasContextValue
 				});
 
@@ -135,13 +136,5 @@ namespace Eklee.Azure.Functions.GraphQl
 		{
 			return _queryBuilder;
 		}
-	}
-
-	public enum Comparisons
-	{
-		Equals,
-		StringContains,
-		StringStartsWith,
-		StringEndsWith
 	}
 }

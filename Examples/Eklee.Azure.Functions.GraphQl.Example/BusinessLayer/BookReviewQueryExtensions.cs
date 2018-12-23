@@ -12,12 +12,12 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 			queryBuilderFactory.Create<BookReviewOutput>(booksQuery, "GetBookReviewByBookName")
 				.WithCache(TimeSpan.FromSeconds(10))
 				.WithParameterBuilder()
-					.BeginWithProperty<Book>(x => x.Name, Comparisons.Equals, ctx =>
-					{
+					.BeginWithProperty<Book>(x => x.Name, ctx =>
+					 {
 						// Temporary store books in storage.
 						ctx.Items["books"] = ctx.GetQueryResults<Book>();
-					})
-				.ThenWithProperty<BookReview>(x => x.BookId, Comparisons.Equals,
+					 })
+				.ThenWithProperty<BookReview>(x => x.BookId,
 					ctx => ctx.GetItems<Book>("books").Select(y => (object)y.Id).ToList(),
 					ctx =>
 					{
@@ -37,7 +37,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 							Book = books.Single(x => x.Id == br.BookId)
 						}).ToList());
 					})
-				.ThenWithProperty<Reviewer>(x => x.Id, Comparisons.Equals, ctx => (List<object>)ctx.Items["reviewerIdList"],
+				.ThenWithProperty<Reviewer>(x => x.Id, ctx => (List<object>)ctx.Items["reviewerIdList"],
 					ctx =>
 					{
 						var reviewers = ctx.GetQueryResults<Reviewer>();

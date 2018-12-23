@@ -93,8 +93,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 			QueryParameter[] args = {
 				new QueryParameter
 				{
-					Comparison = Comparisons.StringStartsWith,
-					ContextValue = new ContextValue { Value = "Foo" },
+					ContextValue = new ContextValue { Value = "Foo",
+						Comparison = Comparisons.StringStartsWith },
 					MemberModel = new ModelMember(_type, _accessor,
 						_members.Single(x=>x.Name == "Name"), false)
 				}
@@ -117,8 +117,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 			QueryParameter[] args = {
 				new QueryParameter
 				{
-					Comparison = Comparisons.StringEndsWith,
-					ContextValue = new ContextValue { Value = "ha ha" },
+					ContextValue = new ContextValue { Value = "ha ha",
+						Comparison = Comparisons.StringEndsWith},
 					MemberModel = new ModelMember(_type, _accessor,
 						_members.Single(x=>x.Name == "Description"), false)
 				}
@@ -140,8 +140,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 			QueryParameter[] args = {
 				new QueryParameter
 				{
-					Comparison = Comparisons.StringContains,
-					ContextValue = new ContextValue { Value = "ha" },
+					ContextValue = new ContextValue { Value = "ha",
+						Comparison = Comparisons.StringContains },
 					MemberModel = new ModelMember(_type, _accessor,
 						_members.Single(x=>x.Name == "Description"), false)
 				}
@@ -164,15 +164,19 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 			QueryParameter[] args = {
 				new QueryParameter
 				{
-					Comparison = Comparisons.Equals,
-					ContextValue = new ContextValue { Value = "cat 1" },
+					ContextValue = new ContextValue
+					{
+						Value = "cat 1",
+						Comparison = Comparisons.Equal
+					},
 					MemberModel = new ModelMember(_type, _accessor,
 						_members.Single(x=>x.Name == "Category"), false)
 				},
 				new QueryParameter
 				{
-					Comparison = Comparisons.Equals,
-					ContextValue = new ContextValue { Value = 2 },
+					ContextValue = new ContextValue {
+						Value = 2,
+						Comparison = Comparisons.Equal },
 					MemberModel = new ModelMember(_type, _accessor,
 						_members.Single(x=>x.Name == "Level"), false)
 				}

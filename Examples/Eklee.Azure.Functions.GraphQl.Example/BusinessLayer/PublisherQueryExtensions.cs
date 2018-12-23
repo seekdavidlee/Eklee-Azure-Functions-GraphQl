@@ -11,7 +11,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 			queryBuilderFactory.Create<Publisher>(booksQuery, GetPublisherByIdQuery)
 				.WithCache(TimeSpan.FromSeconds(10))
 					.WithParameterBuilder()
-					.WithProperty(x => x.Id, Comparisons.Equals)
+					.WithProperty(x => x.Id)
 					.Build()
 				.BuildWithSingleResult();
 		}

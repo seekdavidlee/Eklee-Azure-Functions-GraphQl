@@ -63,13 +63,55 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			if (parameters.Count > 0)
 			{
 				var list = collection.Values.Where(x =>
-					parameters.Count(queryParameter => queryParameter.Comparison == Comparisons.Equals && queryParameter.ValueEquals(x)) == parameters.Count)
+					parameters.Count(queryParameter =>
+						AssertIfStrings(x, queryParameter) ||
+						AssertIfIntegers(x, queryParameter)) == parameters.Count)
 					.Select(x => (T)x);
 
 				return Task.FromResult(list);
 			}
 
 			return Task.FromResult(collection.Values.Select(x => (T)x).AsEnumerable());
+		}
+
+		private bool AssertIfIntegers(object x, QueryParameter queryParameter)
+		{
+			if (x is int xStr && queryParameter.ContextValue.Comparison.HasValue &&
+				queryParameter.ContextValue.Value is int ctxValueStr)
+			{
+				switch (queryParameter.ContextValue.Comparison)
+				{
+					case Comparisons.Equal:
+						return xStr == ctxValueStr;
+				}
+			}
+
+			return false;
+		}
+
+		private bool AssertIfStrings(object obj, QueryParameter queryParameter)
+		{
+			var x = queryParameter.MemberModel.TypeAccessor[obj, queryParameter.MemberModel.Member.Name];
+			//queryParameter.MemberModel.
+			if (x is string xStr && queryParameter.ContextValue.Comparison.HasValue &&
+				queryParameter.ContextValue.Value is string ctxValueStr)
+			{
+				switch (queryParameter.ContextValue.Comparison)
+				{
+					case Comparisons.Equal:
+						return xStr == ctxValueStr;
+
+					case Comparisons.StringContains:
+						return xStr.Contains(ctxValueStr);
+
+					case Comparisons.StringStartsWith:
+						return xStr.StartsWith(ctxValueStr);
+
+					case Comparisons.StringEndsWith:
+						return xStr.EndsWith(ctxValueStr);
+				}
+			}
+			return false;
 		}
 
 		public Task DeleteAllAsync<T>()

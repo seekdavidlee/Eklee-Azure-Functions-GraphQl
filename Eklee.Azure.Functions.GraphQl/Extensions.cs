@@ -147,7 +147,29 @@ namespace Eklee.Azure.Functions.GraphQl
 
 			if (!contextValue.IsNotSet)
 			{
-				contextValue.Value = args[name];
+				Dictionary<string, object> arg = (Dictionary<string, object>)args[name];
+				contextValue.Value = arg.First().Value;
+
+				string comparison = arg.First().Key;
+				if (comparison == "equal")
+				{
+					contextValue.Comparison = Comparisons.Equal;
+				}
+
+				if (comparison == "contains" && contextValue.Value is string)
+				{
+					contextValue.Comparison = Comparisons.StringContains;
+				}
+
+				if (comparison == "startsWith" && contextValue.Value is string)
+				{
+					contextValue.Comparison = Comparisons.StringStartsWith;
+				}
+
+				if (comparison == "endsWith" && contextValue.Value is string)
+				{
+					contextValue.Comparison = Comparisons.StringEndsWith;
+				}
 			}
 
 			return contextValue;
@@ -156,8 +178,13 @@ namespace Eklee.Azure.Functions.GraphQl
 		public static string GetKey<T>(this T item)
 		{
 			var f = TypeAccessor.Create(typeof(T));
-			return string.Join("", f.GetMembers().Where(x => x.GetAttribute(typeof(KeyAttribute), false) != null)
+
+			var keys = string.Join("", f.GetMembers().Where(x => x.GetAttribute(typeof(KeyAttribute), false) != null)
 				.Select(x => f[item, x.Name].ToString()));
+
+			if (string.IsNullOrEmpty(keys)) throw new InvalidOperationException("Missing Key Attribute");
+
+			return keys;
 		}
 
 		public static void AddFields<TSourceType>(this ModelConventionType<TSourceType> modelConventionType)

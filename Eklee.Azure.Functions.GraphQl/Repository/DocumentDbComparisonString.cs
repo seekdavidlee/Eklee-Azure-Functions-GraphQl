@@ -21,12 +21,12 @@
 
 		public string Generate()
 		{
-			if (_queryParameter.Comparison == Comparisons.Equals)
+			if (_queryParameter.ContextValue.Comparison == Comparisons.Equal)
 				return $"x.{_queryParameter.MemberModel.Member.Name} = '{_value}'";
 
 			string comparison;
 
-			switch (_queryParameter.Comparison)
+			switch (_queryParameter.ContextValue.Comparison)
 			{
 				case Comparisons.StringContains:
 					comparison = "CONTAINS";

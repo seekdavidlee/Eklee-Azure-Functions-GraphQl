@@ -202,9 +202,9 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 				// See: https://docs.microsoft.com/en-us/azure/cosmos-db/index-policy
 
 				EnableScanInQuery = queryParametersList.Any(
-					x => x.Comparison == Comparisons.StringContains ||
-						 x.Comparison == Comparisons.StringEndsWith ||
-						 x.Comparison == Comparisons.StringStartsWith)
+					x => x.ContextValue.Comparison == Comparisons.StringContains ||
+					     x.ContextValue.Comparison == Comparisons.StringEndsWith ||
+					     x.ContextValue.Comparison == Comparisons.StringStartsWith)
 			};
 
 			var query = _documentClient.CreateDocumentQuery<T>(
@@ -218,11 +218,11 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 		{
 			var comparison = _documentDbComparisons.FirstOrDefault(x => x.CanHandle(queryParameter));
 
-			if (comparison == null) throw new NotImplementedException($"Comparison {queryParameter.Comparison} is not implemented for type.");
+			if (comparison == null) throw new NotImplementedException($"Comparison {queryParameter.ContextValue.Comparison} is not implemented for type.");
 
 			var statement = comparison.Generate();
 
-			if (statement == null) throw new NotImplementedException($"Comparison {queryParameter.Comparison} is not implemented by {comparison.GetType().FullName}.");
+			if (statement == null) throw new NotImplementedException($"Comparison {queryParameter.ContextValue.Comparison} is not implemented by {comparison.GetType().FullName}.");
 
 			return statement;
 		}

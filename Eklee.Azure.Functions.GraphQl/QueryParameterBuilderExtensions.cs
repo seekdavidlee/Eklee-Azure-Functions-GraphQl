@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Eklee.Azure.Functions.GraphQl.Filters;
 using GraphQL.Builders;
 using GraphQL.Types;
 
@@ -17,7 +18,7 @@ namespace Eklee.Azure.Functions.GraphQl
 				{
 					if (modelMember.IsOptional)
 					{
-						queryArguments.Add(new QueryArgument<StringGraphType>
+						queryArguments.Add(new QueryArgument<ModelConventionInputType<StringFilter>>
 						{
 							Name = modelMember.Name,
 							Description = modelMember.Description
@@ -25,7 +26,7 @@ namespace Eklee.Azure.Functions.GraphQl
 					}
 					else
 					{
-						queryArguments.Add(new QueryArgument<NonNullGraphType<StringGraphType>>
+						queryArguments.Add(new QueryArgument<NonNullGraphType<ModelConventionInputType<StringFilter>>>
 						{
 							Name = modelMember.Name,
 							Description = modelMember.Description
@@ -35,7 +36,7 @@ namespace Eklee.Azure.Functions.GraphQl
 					return;
 				}
 
-				throw new NotImplementedException();
+				throw new NotImplementedException($"QueryArgument type is not yet implemented for {modelMember.Name}");
 			});
 
 
@@ -48,9 +49,15 @@ namespace Eklee.Azure.Functions.GraphQl
 			queryParameterBuilder.ForEach(modelMember =>
 			{
 				if (modelMember.IsString)
+				{
 					connectionBuilder = modelMember.IsOptional ?
-						connectionBuilder.Argument<StringGraphType>(modelMember.Name, modelMember.Description) :
-						connectionBuilder.Argument<NonNullGraphType<StringGraphType>>(modelMember.Name, modelMember.Description);
+						connectionBuilder.Argument<ModelConventionInputType<StringFilter>>(modelMember.Name, modelMember.Description) :
+						connectionBuilder.Argument<NonNullGraphType<ModelConventionInputType<StringFilter>>>(modelMember.Name, modelMember.Description);
+				}
+				else
+				{
+					throw new NotImplementedException($"QueryArgument type is not yet implemented for {modelMember.Name}");
+				}
 			});
 		}
 	}

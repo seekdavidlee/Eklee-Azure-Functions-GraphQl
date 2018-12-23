@@ -14,13 +14,13 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 				.WithCache(TimeSpan.FromSeconds(10))
 				.WithParameterBuilder()
 					// We need to get all book-authors by book category. In order to perform this, we need to get all books with the category first. 
-					.BeginWithProperty<Book>(x => x.Category, Comparisons.Equals, ctx =>
+					.BeginWithProperty<Book>(x => x.Category, ctx =>
 					{
 						// Temporary store books in storage.
 						ctx.Items["books"] = ctx.GetQueryResults<Book>();
 					})
 					// Then, we can get all book authors what has the book ids.
-					.ThenWithProperty<BookAuthors>(x => x.BookId, Comparisons.Equals, ctx => ctx.GetItems<Book>("books").Select(y => (object)y.Id).ToList(), ctx =>
+					.ThenWithProperty<BookAuthors>(x => x.BookId, ctx => ctx.GetItems<Book>("books").Select(y => (object)y.Id).ToList(), ctx =>
 					{
 						// Map initial result.
 						var bookAuthors = ctx.GetQueryResults<BookAuthors>();
@@ -36,7 +36,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 						}).ToList());
 					})
 					// Lastly, we can get all the authors for all the found books.
-					.ThenWithProperty<Author>(x => x.Id, Comparisons.Equals, ctx =>
+					.ThenWithProperty<Author>(x => x.Id, ctx =>
 					{
 						var list = new List<string>();
 						ctx.GetResults<BookAuthorsOutput>().ForEach(y => list.AddRange(y.AuthorIdList));
@@ -56,29 +56,29 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 				.WithPaging()
 				.WithCache(TimeSpan.FromSeconds(10))
 				.WithParameterBuilder()
-				.BeginWithProperty<BookAuthors>(x => x.Id, Comparisons.Equals, ctx =>
-				{
-					ctx.SetResults(ctx.GetQueryResults<BookAuthors>().Select(ba => new BookAuthorsOutput
-					{
-						Id = ba.Id,
-						AuthorIdList = ba.AuthorIdList,
-						BookId = ba.BookId,
-						RoyaltyType = ba.RoyaltyType
-					}).ToList());
-				})
-				.ThenWithProperty<Author>(x => x.Id, Comparisons.Equals, ctx =>
-				{
-					var list = new List<string>();
-					ctx.GetResults<BookAuthorsOutput>().ForEach(y => list.AddRange(y.AuthorIdList));
-					return list.Distinct().Select(y => (object)y).ToList();
-				}, ctx =>
-				{
-					// Map authors to result.
-					var authors = ctx.GetQueryResults<Author>();
+				.BeginWithProperty<BookAuthors>(x => x.Id, ctx =>
+				 {
+					 ctx.SetResults(ctx.GetQueryResults<BookAuthors>().Select(ba => new BookAuthorsOutput
+					 {
+						 Id = ba.Id,
+						 AuthorIdList = ba.AuthorIdList,
+						 BookId = ba.BookId,
+						 RoyaltyType = ba.RoyaltyType
+					 }).ToList());
+				 })
+				.ThenWithProperty<Author>(x => x.Id, ctx =>
+				 {
+					 var list = new List<string>();
+					 ctx.GetResults<BookAuthorsOutput>().ForEach(y => list.AddRange(y.AuthorIdList));
+					 return list.Distinct().Select(y => (object)y).ToList();
+				 }, ctx =>
+				 {
+					 // Map authors to result.
+					 var authors = ctx.GetQueryResults<Author>();
 
-					// Only include authors who are in the AuthorIdList in each individual book author.
-					ctx.GetResults<BookAuthorsOutput>().ForEach(ba => ba.Authors = authors.Where(x => ba.AuthorIdList.Contains(x.Id)).ToList());
-				})
+					 // Only include authors who are in the AuthorIdList in each individual book author.
+					 ctx.GetResults<BookAuthorsOutput>().ForEach(ba => ba.Authors = authors.Where(x => ba.AuthorIdList.Contains(x.Id)).ToList());
+				 })
 				.Build()
 				.BuildWithSingleResult();
 
@@ -86,7 +86,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 				.WithPaging()
 				.WithCache(TimeSpan.FromSeconds(10))
 				.WithParameterBuilder()
-				.BeginWithProperty<BookAuthors>(x => x.RoyaltyType, Comparisons.Equals, ctx =>
+				.BeginWithProperty<BookAuthors>(x => x.RoyaltyType, ctx =>
 				{
 					ctx.SetResults(ctx.GetQueryResults<BookAuthors>().Select(ba => new BookAuthorsOutput
 					{
@@ -96,18 +96,18 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 						RoyaltyType = ba.RoyaltyType
 					}).ToList());
 				})
-				.ThenWithProperty<Author>(x => x.Id, Comparisons.Equals, ctx =>
+				.ThenWithProperty<Author>(x => x.Id, ctx =>
 				{
 					var list = new List<string>();
 					ctx.GetResults<BookAuthorsOutput>().ForEach(y => list.AddRange(y.AuthorIdList));
 					return list.Distinct().Select(y => (object)y).ToList();
 				}, ctx =>
 				{
-					// Map authors to result.
-					var authors = ctx.GetQueryResults<Author>();
+					 // Map authors to result.
+					 var authors = ctx.GetQueryResults<Author>();
 
-					// Only include authors who are in the AuthorIdList in each individual book author.
-					ctx.GetResults<BookAuthorsOutput>().ForEach(ba => ba.Authors = authors.Where(x => ba.AuthorIdList.Contains(x.Id)).ToList());
+					 // Only include authors who are in the AuthorIdList in each individual book author.
+					 ctx.GetResults<BookAuthorsOutput>().ForEach(ba => ba.Authors = authors.Where(x => ba.AuthorIdList.Contains(x.Id)).ToList());
 				})
 				.Build()
 				.BuildWithListResult();

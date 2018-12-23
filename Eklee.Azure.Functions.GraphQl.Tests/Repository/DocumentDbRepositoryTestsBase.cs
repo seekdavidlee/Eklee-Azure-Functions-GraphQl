@@ -47,13 +47,11 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 			var accessor = TypeAccessor.Create(type);
 			var member = accessor.GetMembers().Single(x => x.Name == "Id");
 
-			var inputList = new Dictionary<string, object> { { "equal", id } };
-
 			return await DocumentDbRepository.QueryAsync<T>("test1", new[]
 			{
 				new QueryParameter
 				{
-					ContextValue = new ContextValue { Value =inputList  },
+					ContextValue = new ContextValue { Value = id, Comparison = Comparisons.Equal},
 					MemberModel = new ModelMember(type, accessor, member, false)
 				}
 			});

@@ -14,9 +14,51 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 				.WithParameterBuilder()
 					.BeginWithProperty<Book>(x => x.Name, ctx =>
 					 {
+						 // Temporary store books in storage.
+						 ctx.Items["books"] = ctx.GetQueryResults<Book>();
+					 })
+				.ThenWithProperty<BookReview>(x => x.BookId,
+					ctx => ctx.GetItems<Book>("books").Select(y => (object)y.Id).ToList(),
+					ctx =>
+					{
+						var bookReviews = ctx.GetQueryResults<BookReview>();
+
+						ctx.Items["reviewerIdList"] = bookReviews.Select(x => (object)x.ReviewerId).ToList();
+
+						var books = ctx.GetItems<Book>("books");
+
+						ctx.SetResults(bookReviews.Select(br => new BookReviewOutput
+						{
+							Id = br.Id,
+							BookId = br.BookId,
+							Comments = br.Comments,
+							ReviewerId = br.ReviewerId,
+							Stars = br.Stars,
+							Book = books.Single(x => x.Id == br.BookId)
+						}).ToList());
+					})
+				.ThenWithProperty<Reviewer>(x => x.Id, ctx => (List<object>)ctx.Items["reviewerIdList"],
+					ctx =>
+					{
+						var reviewers = ctx.GetQueryResults<Reviewer>();
+						ctx.GetResults<BookReviewOutput>().ForEach(
+							x => x.Reviewer = reviewers.Single(y => y.Id == x.ReviewerId));
+					})
+				.Build()
+				.BuildWithListResult();
+
+
+			queryBuilderFactory.Create<BookReviewOutput>(booksQuery, "GetBookReviewsWithBookNameAndCategory")
+				.WithCache(TimeSpan.FromSeconds(10))
+				.WithParameterBuilder()
+				.BeginQuery<Book>()  // Gives you the ability to query with both book name and category.
+					.WithProperty(x => x.Name)
+					.WithProperty(x => x.Category)
+					.BuildQuery(ctx =>
+					{
 						// Temporary store books in storage.
 						ctx.Items["books"] = ctx.GetQueryResults<Book>();
-					 })
+					})
 				.ThenWithProperty<BookReview>(x => x.BookId,
 					ctx => ctx.GetItems<Book>("books").Select(y => (object)y.Id).ToList(),
 					ctx =>

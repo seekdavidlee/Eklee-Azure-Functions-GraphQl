@@ -54,8 +54,17 @@ namespace Eklee.Azure.Functions.GraphQl
 				return new List<QueryStep> { _queryStep };
 			}
 
-			var qp = _querySteps.Single(x => x.QueryParameters.Single().HasContextValue).QueryParameters.Single();
-			qp.ContextValue = context.Arguments.GetContextValue(qp.MemberModel.Name);
+			_querySteps.ForEach(queryStep =>
+			{
+				queryStep.QueryParameters.ForEach(queryParameter =>
+				{
+					if (queryParameter.HasContextValue)
+					{
+						queryParameter.ContextValue = context.Arguments.GetContextValue(queryParameter.MemberModel.Name);
+					}
+				});
+			});
+
 			return _querySteps;
 		}
 
@@ -83,6 +92,11 @@ namespace Eklee.Azure.Functions.GraphQl
 			return this;
 		}
 
+		public QueryStepBuilder<TSource, TProperty> BeginQuery<TProperty>()
+		{
+			return new QueryStepBuilder<TSource, TProperty>(this);
+		}
+
 		public QueryParameterBuilder<TSource> BeginWithProperty<TProperty>(Expression<Func<TProperty, object>> expression,
 			Action<QueryExecutionContext> contextAction)
 		{
@@ -101,35 +115,46 @@ namespace Eklee.Azure.Functions.GraphQl
 			Func<QueryExecutionContext, List<object>> mapper,
 			Action<QueryExecutionContext> contextAction, bool hasContextValue)
 		{
-			if (expression.Body is MemberExpression memberExpression)
+			Add(new List<Expression<Func<TProperty, object>>> { expression }, mapper, contextAction, hasContextValue);
+		}
+
+		internal void Add<TProperty>(List<Expression<Func<TProperty, object>>> expressions,
+			Func<QueryExecutionContext, List<object>> mapper,
+			Action<QueryExecutionContext> contextAction, bool hasContextValue)
+		{
+			var step = new QueryStep
 			{
-				// Find the member.
-				var rawMemberExpression = memberExpression.ToString();
-				var depth = rawMemberExpression.Count(x => x == '.');
-				string path = depth > 1 ? rawMemberExpression.Substring(rawMemberExpression.IndexOf('.') + 1) : memberExpression.Member.Name;
+				ContextAction = contextAction,
+				Mapper = mapper
+			};
 
-				var accessor = TypeAccessor.Create(typeof(TProperty));
-				var member = accessor.GetMembers().ToList().Single(x =>
-					x.Name == (depth > 1 ? path.Substring(0, path.IndexOf('.')) : memberExpression.Member.Name));
-
-				var modelMember = new ModelMember(typeof(TProperty), accessor, member, false);
-
-				if (hasContextValue) _modelMemberList.Add(modelMember);
-
-				var step = new QueryStep
+			expressions.ForEach(expression =>
+			{
+				if (expression.Body is MemberExpression memberExpression)
 				{
-					ContextAction = contextAction,
-					Mapper = mapper
-				};
+					// Find the member.
+					var rawMemberExpression = memberExpression.ToString();
+					var depth = rawMemberExpression.Count(x => x == '.');
+					string path = depth > 1 ? rawMemberExpression.Substring(rawMemberExpression.IndexOf('.') + 1) : memberExpression.Member.Name;
 
-				step.QueryParameters.Add(new QueryParameter
-				{
-					MemberModel = modelMember,
-					HasContextValue = hasContextValue
-				});
+					var accessor = TypeAccessor.Create(typeof(TProperty));
+					var member = accessor.GetMembers().ToList().Single(x =>
+						x.Name == (depth > 1 ? path.Substring(0, path.IndexOf('.')) : memberExpression.Member.Name));
 
-				_querySteps.Add(step);
-			}
+					var modelMember = new ModelMember(typeof(TProperty), accessor, member, false);
+
+					if (hasContextValue) _modelMemberList.Add(modelMember);
+
+					step.QueryParameters.Add(new QueryParameter
+					{
+						MemberModel = modelMember,
+						HasContextValue = hasContextValue
+					});
+				}
+			});
+
+			_querySteps.Add(step);
+
 		}
 
 		public QueryBuilder<TSource> Build()

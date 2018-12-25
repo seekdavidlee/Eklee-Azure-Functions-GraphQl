@@ -39,6 +39,7 @@ namespace Eklee.Azure.Functions.GraphQl
 					m.Type == typeof(long) ||
 					m.Type == typeof(bool) ||
 					m.Type == typeof(double) ||
+				    m.Type == typeof(DateTime) ||
 					m.Type == typeof(List<string>))
 				{
 					addFieldAction(GetGraphTypeFromTypeWithModelFieldAttribute(m),

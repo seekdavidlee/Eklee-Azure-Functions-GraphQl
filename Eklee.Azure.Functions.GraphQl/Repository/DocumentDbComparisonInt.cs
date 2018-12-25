@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Eklee.Azure.Functions.GraphQl.Repository
+﻿namespace Eklee.Azure.Functions.GraphQl.Repository
 {
 	public class DocumentDbComparisonInt : IDocumentDbComparison
 	{

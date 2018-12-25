@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace Eklee.Azure.Functions.GraphQl.Example.Models
@@ -20,6 +21,12 @@ namespace Eklee.Azure.Functions.GraphQl.Example.Models
 
 		[Description("1-5 starts rating")]
 		public int Stars { get; set; }
+
+		[Description("Determines whether book review is currently active or disabled.")]
+		public bool Active { get; set; }
+
+		[Description("Determine when book review is written.")]
+		public DateTime WrittenOn { get; set; }
 	}
 
 	public class BookReviewId

@@ -491,7 +491,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  batchCreateBookReview(bookreview: [{id: \\\"1\\\", bookId: \\\"10\\\", comments: \\\"It's not a good book because the color is too dark.\\\", reviewerId: \\\"10\\\", stars: 1}, {id: \\\"2\\\", bookId: \\\"11\\\", comments: \\\"It was awesome!\\\", reviewerId: \\\"8\\\", stars: 4}, {id: \\\"3\\\", bookId: \\\"1\\\", comments: \\\"Sounds OK\\\", reviewerId: \\\"8\\\", stars: 3}, {id: \\\"4\\\", bookId: \\\"3\\\", comments: \\\"I really enjoyed it!\\\", reviewerId: \\\"6\\\", stars: 4}, {id: \\\"5\\\", bookId: \\\"4\\\", comments: \\\"Wow, amazing!\\\", reviewerId: \\\"5\\\", stars: 5}, {id: \\\"6\\\", bookId: \\\"7\\\", comments: \\\"I love it!\\\", reviewerId: \\\"5\\\", stars: 5}, {id: \\\"7\\\", bookId: \\\"9\\\", comments: \\\"Worst book ever. Don't even need to think about it.\\\", reviewerId: \\\"1\\\", stars: 1}]) {\\n    id\\n    bookId\\n    reviewerId\\n  }\\n}\\n\"}"
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  batchCreateBookReview(bookreview: [{id: \\\"1\\\", bookId: \\\"10\\\", comments: \\\"It's not a good book because the color is too dark.\\\", reviewerId: \\\"10\\\", stars: 1, active: true, writtenOn: \\\"2018-01-19\\\" }, {id: \\\"2\\\", bookId: \\\"11\\\", comments: \\\"It was awesome!\\\", reviewerId: \\\"8\\\", stars: 4, active: true, writtenOn: \\\"2018-11-03\\\"}, {id: \\\"3\\\", bookId: \\\"1\\\", comments: \\\"Sounds OK\\\", reviewerId: \\\"8\\\", stars: 3, active: false, writtenOn: \\\"2011-05-19\\\"}, {id: \\\"4\\\", bookId: \\\"3\\\", comments: \\\"I really enjoyed it!\\\", reviewerId: \\\"6\\\", stars: 4, active: true, writtenOn: \\\"2010-12-31\\\"}, {id: \\\"5\\\", bookId: \\\"4\\\", comments: \\\"Wow, amazing!\\\", reviewerId: \\\"5\\\", stars: 5, active: false, writtenOn: \\\"2018-02-09\\\"}, {id: \\\"6\\\", bookId: \\\"7\\\", comments: \\\"I love it!\\\", reviewerId: \\\"5\\\", stars: 5, active: true, writtenOn: \\\"2018-11-10\\\"}, {id: \\\"7\\\", bookId: \\\"9\\\", comments: \\\"Worst book ever. Don't even need to think about it.\\\", reviewerId: \\\"1\\\", stars: 1, active: true, writtenOn: \\\"2017-08-08\\\"}]) {\\n    id\\n    bookId\\n    reviewerId\\n  }\\n}\\n\"}"
 						},
 						"url": {
 							"raw": "{{endpoint}}/api/books/graph",
@@ -945,7 +945,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  createBookReview(bookreview: {id: \\\"101\\\", bookId: \\\"1\\\", reviewerId: \\\"1\\\", comments: \\\"It was good\\\", stars: 5}) {\\n    id\\n    bookId\\n    reviewerId\\n  }\\n}\\n\"}"
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  createBookReview(bookreview: {id: \\\"101\\\", bookId: \\\"1\\\", reviewerId: \\\"1\\\", comments: \\\"It was good\\\", stars: 5, active: true, writtenOn: \\\"2018-12-01\\\"}) {\\n    id\\n    bookId\\n    reviewerId\\n  }\\n}\\n\"}"
 						},
 						"url": {
 							"raw": "{{endpoint}}/api/books/graph",
@@ -1011,7 +1011,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  updateBookReview(bookreview: {id: \\\"101\\\", bookId: \\\"1\\\", reviewerId: \\\"1\\\", comments: \\\"It was good ish I think\\\", stars: 1}) {\\n    id\\n    bookId\\n    reviewerId\\n    comments\\n    stars\\n  }\\n}\\n\"}"
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  updateBookReview(bookreview: {id: \\\"101\\\", bookId: \\\"1\\\", reviewerId: \\\"1\\\", comments: \\\"It was good ish I think\\\", stars: 1, active: false, writtenOn: \\\"2017-12-01\\\"}) {\\n    id\\n    bookId\\n    reviewerId\\n    comments\\n    stars\\n  }\\n}\\n\"}"
 						},
 						"url": {
 							"raw": "{{endpoint}}/api/books/graph",

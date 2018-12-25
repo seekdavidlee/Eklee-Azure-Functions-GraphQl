@@ -20,9 +20,7 @@ namespace Eklee.Azure.Functions.GraphQl
 
 		private Type GetGraphTypeFromTypeWithModelFieldAttribute(Member member)
 		{
-			var modelField = member.GetAttribute(typeof(ModelFieldAttribute), false) as ModelFieldAttribute;
-
-			if (modelField != null)
+			if (member.GetAttribute(typeof(ModelFieldAttribute), false) is ModelFieldAttribute modelField)
 			{
 				return member.Type.GetGraphTypeFromType(!modelField.IsRequired);
 			}

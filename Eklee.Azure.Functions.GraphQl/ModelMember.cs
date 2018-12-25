@@ -24,6 +24,7 @@ namespace Eklee.Azure.Functions.GraphQl
 		public string Description => Member.GetDescription();
 
 		public bool IsString => Member.Type == typeof(string);
+		public bool IsInt => Member.Type == typeof(int);
 
 		public Type SourceType { get; }
 	}

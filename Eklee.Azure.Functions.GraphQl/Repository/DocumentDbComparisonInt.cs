@@ -27,6 +27,21 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			if (_queryParameter.ContextValue.Comparison == Comparisons.Equal)
 				return $" x.{_queryParameter.MemberModel.Member.Name} = {_value}";
 
+			if (_queryParameter.ContextValue.Comparison == Comparisons.NotEqual)
+				return $" x.{_queryParameter.MemberModel.Member.Name} != {_value}";
+
+			if (_queryParameter.ContextValue.Comparison == Comparisons.GreaterThan)
+				return $" x.{_queryParameter.MemberModel.Member.Name} > {_value}";
+
+			if (_queryParameter.ContextValue.Comparison == Comparisons.GreaterEqualThan)
+				return $" x.{_queryParameter.MemberModel.Member.Name} >= {_value}";
+
+			if (_queryParameter.ContextValue.Comparison == Comparisons.SmallerThan)
+				return $" x.{_queryParameter.MemberModel.Member.Name} < {_value}";
+
+			if (_queryParameter.ContextValue.Comparison == Comparisons.SmallerEqualThan)
+				return $" x.{_queryParameter.MemberModel.Member.Name} <= {_value}";
+
 			return null;
 		}
 	}

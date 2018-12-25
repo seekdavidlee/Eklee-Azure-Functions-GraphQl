@@ -36,6 +36,28 @@ namespace Eklee.Azure.Functions.GraphQl
 					return;
 				}
 
+				if (modelMember.IsInt)
+				{
+					if (modelMember.IsOptional)
+					{
+						queryArguments.Add(new QueryArgument<ModelConventionInputType<IntFilter>>
+						{
+							Name = modelMember.Name,
+							Description = modelMember.Description
+						});
+					}
+					else
+					{
+						queryArguments.Add(new QueryArgument<NonNullGraphType<ModelConventionInputType<IntFilter>>>
+						{
+							Name = modelMember.Name,
+							Description = modelMember.Description
+						});
+					}
+
+					return;
+				}
+
 				throw new NotImplementedException($"QueryArgument type is not yet implemented for {modelMember.Name}");
 			});
 
@@ -53,11 +75,20 @@ namespace Eklee.Azure.Functions.GraphQl
 					connectionBuilder = modelMember.IsOptional ?
 						connectionBuilder.Argument<ModelConventionInputType<StringFilter>>(modelMember.Name, modelMember.Description) :
 						connectionBuilder.Argument<NonNullGraphType<ModelConventionInputType<StringFilter>>>(modelMember.Name, modelMember.Description);
+
+					return;
 				}
-				else
+
+				if (modelMember.IsInt)
 				{
-					throw new NotImplementedException($"QueryArgument type is not yet implemented for {modelMember.Name}");
+					connectionBuilder = modelMember.IsOptional ?
+						connectionBuilder.Argument<ModelConventionInputType<IntFilter>>(modelMember.Name, modelMember.Description) :
+						connectionBuilder.Argument<NonNullGraphType<ModelConventionInputType<IntFilter>>>(modelMember.Name, modelMember.Description);
+
+					return;
 				}
+
+				throw new NotImplementedException($"QueryArgument type is not yet implemented for {modelMember.Name}");
 			});
 		}
 	}

@@ -83,6 +83,24 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 				{
 					case Comparisons.Equal:
 						return xStr == ctxValueStr;
+
+					case Comparisons.NotEqual:
+						return xStr != ctxValueStr;
+
+					case Comparisons.GreaterThan:
+						return xStr > ctxValueStr;
+
+					case Comparisons.GreaterEqualThan:
+						return xStr >= ctxValueStr;
+
+					case Comparisons.SmallerThan:
+						return xStr < ctxValueStr;
+
+					case Comparisons.SmallerEqualThan:
+						return xStr <= ctxValueStr;
+
+					default:
+						throw new NotImplementedException($"Int comparison {queryParameter.ContextValue.Comparison} is not implemented by InMemoryRepository.");
 				}
 			}
 
@@ -109,6 +127,9 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 
 					case Comparisons.StringEndsWith:
 						return xStr.EndsWith(ctxValueStr);
+
+					default:
+						throw new NotImplementedException($"String comparison {queryParameter.ContextValue.Comparison} is not implemented by InMemoryRepository.");
 				}
 			}
 			return false;

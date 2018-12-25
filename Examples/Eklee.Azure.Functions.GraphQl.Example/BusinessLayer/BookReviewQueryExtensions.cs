@@ -12,14 +12,16 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 			queryBuilderFactory.Create<BookReviewOutput>(booksQuery, "GetBookReviewByBookName")
 				.WithCache(TimeSpan.FromSeconds(10))
 				.WithParameterBuilder()
-					.BeginWithProperty<Book>(x => x.Name, ctx =>
-					 {
-						 // Temporary store books in storage.
-						 ctx.Items["books"] = ctx.GetQueryResults<Book>();
-					 })
-				.ThenWithProperty<BookReview>(x => x.BookId,
-					ctx => ctx.GetItems<Book>("books").Select(y => (object)y.Id).ToList(),
-					ctx =>
+				.BeginQuery<Book>()
+					.WithProperty(x => x.Name)
+					.BuildQuery(ctx =>
+					{
+						// Temporary store books in storage.
+						ctx.Items["books"] = ctx.GetQueryResults<Book>();
+					})
+				.ThenWithQuery<BookReview>()
+					.WithPropertyFromSource(x => x.BookId, ctx => ctx.GetItems<Book>("books").Select(y => (object)y.Id).ToList())
+					.BuildQuery(ctx =>
 					{
 						var bookReviews = ctx.GetQueryResults<BookReview>();
 
@@ -37,8 +39,9 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 							Book = books.Single(x => x.Id == br.BookId)
 						}).ToList());
 					})
-				.ThenWithProperty<Reviewer>(x => x.Id, ctx => (List<object>)ctx.Items["reviewerIdList"],
-					ctx =>
+				.ThenWithQuery<Reviewer>()
+					.WithPropertyFromSource(x => x.Id, ctx => (List<object>)ctx.Items["reviewerIdList"])
+					.BuildQuery(ctx =>
 					{
 						var reviewers = ctx.GetQueryResults<Reviewer>();
 						ctx.GetResults<BookReviewOutput>().ForEach(
@@ -59,9 +62,10 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 						// Temporary store books in storage.
 						ctx.Items["books"] = ctx.GetQueryResults<Book>();
 					})
-				.ThenWithProperty<BookReview>(x => x.BookId,
-					ctx => ctx.GetItems<Book>("books").Select(y => (object)y.Id).ToList(),
-					ctx =>
+				.ThenWithQuery<BookReview>() // Gives you the ability to query with both book review star and book Id matches.
+					.WithPropertyFromSource(x => x.BookId, ctx => ctx.GetItems<Book>("books").Select(y => (object)y.Id).ToList())
+					.WithProperty(x => x.Stars)
+					.BuildQuery(ctx =>
 					{
 						var bookReviews = ctx.GetQueryResults<BookReview>();
 
@@ -79,8 +83,9 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 							Book = books.Single(x => x.Id == br.BookId)
 						}).ToList());
 					})
-				.ThenWithProperty<Reviewer>(x => x.Id, ctx => (List<object>)ctx.Items["reviewerIdList"],
-					ctx =>
+				.ThenWithQuery<Reviewer>()
+					.WithPropertyFromSource(x => x.Id, ctx => (List<object>)ctx.Items["reviewerIdList"])
+					.BuildQuery(ctx =>
 					{
 						var reviewers = ctx.GetQueryResults<Reviewer>();
 						ctx.GetResults<BookReviewOutput>().ForEach(

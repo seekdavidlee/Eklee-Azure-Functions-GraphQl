@@ -154,22 +154,57 @@ namespace Eklee.Azure.Functions.GraphQl
 				if (comparison == "equal")
 				{
 					contextValue.Comparison = Comparisons.Equal;
+					return contextValue;
 				}
 
 				if (comparison == "contains" && contextValue.Value is string)
 				{
 					contextValue.Comparison = Comparisons.StringContains;
+					return contextValue;
 				}
 
 				if (comparison == "startsWith" && contextValue.Value is string)
 				{
 					contextValue.Comparison = Comparisons.StringStartsWith;
+					return contextValue;
 				}
 
 				if (comparison == "endsWith" && contextValue.Value is string)
 				{
 					contextValue.Comparison = Comparisons.StringEndsWith;
+					return contextValue;
 				}
+
+				if (comparison == "notEqual" && contextValue.Value is int)
+				{
+					contextValue.Comparison = Comparisons.NotEqual;
+					return contextValue;
+				}
+
+				if (comparison == "greaterThan" && contextValue.Value is int)
+				{
+					contextValue.Comparison = Comparisons.GreaterThan;
+					return contextValue;
+				}
+
+				if (comparison == "greaterEqualThan" && contextValue.Value is int)
+				{
+					contextValue.Comparison = Comparisons.GreaterEqualThan;
+					return contextValue;
+				}
+
+				if (comparison == "smallerThan" && contextValue.Value is int)
+				{
+					contextValue.Comparison = Comparisons.SmallerThan;
+					return contextValue;
+				}
+
+				if (comparison == "smallerEqualThan" && contextValue.Value is int)
+				{
+					contextValue.Comparison = Comparisons.SmallerEqualThan;
+					return contextValue;
+				}
+				throw new NotImplementedException($"Comparison: {comparison} is not implemented.");
 			}
 
 			return contextValue;

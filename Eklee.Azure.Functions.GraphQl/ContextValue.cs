@@ -12,6 +12,11 @@
 		Equal,
 		StringStartsWith,
 		StringEndsWith,
-		StringContains
+		StringContains,
+		NotEqual,
+		GreaterThan,
+		GreaterEqualThan,
+		SmallerThan,
+		SmallerEqualThan
 	}
 }

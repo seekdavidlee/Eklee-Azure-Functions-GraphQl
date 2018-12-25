@@ -7,7 +7,6 @@ namespace Eklee.Azure.Functions.GraphQl
 	{
 		public ModelMember MemberModel { get; set; }
 		public ContextValue ContextValue { get; set; }
-		public bool HasContextValue { get; set; }
 	}
 
 	public class QueryStep

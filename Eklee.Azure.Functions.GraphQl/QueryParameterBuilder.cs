@@ -43,7 +43,7 @@ namespace Eklee.Azure.Functions.GraphQl
 				_modelConvention.ModelType.GetTypeAccessor(), member, isOptional);
 
 			_modelMemberList.Add(modelMember);
-			_queryStep.QueryParameters.Add(new QueryParameter { MemberModel = modelMember, HasContextValue = true });
+			_queryStep.QueryParameters.Add(new QueryParameter { MemberModel = modelMember });
 		}
 
 		public List<QueryStep> GetQuerySteps(ResolveFieldContext<object> context)
@@ -56,9 +56,14 @@ namespace Eklee.Azure.Functions.GraphQl
 
 			_querySteps.ForEach(queryStep =>
 			{
+				var first = queryStep.Mapper != null;
 				queryStep.QueryParameters.ForEach(queryParameter =>
 				{
-					if (queryParameter.HasContextValue)
+					if (first)
+					{
+						first = false;
+					}
+					else
 					{
 						queryParameter.ContextValue = context.Arguments.GetContextValue(queryParameter.MemberModel.Name);
 					}
@@ -100,27 +105,34 @@ namespace Eklee.Azure.Functions.GraphQl
 		public QueryParameterBuilder<TSource> BeginWithProperty<TProperty>(Expression<Func<TProperty, object>> expression,
 			Action<QueryExecutionContext> contextAction)
 		{
-			Add(expression, null, contextAction, true);
+			Add(expression, null, contextAction);
 			return this;
 		}
 
-		public QueryParameterBuilder<TSource> ThenWithProperty<TProperty>(Expression<Func<TProperty, object>> expression,
+		public QueryStepBuilder<TSource, TProperty> ThenWithQuery<TProperty>()
+		{
+			return new QueryStepBuilder<TSource, TProperty>(this);
+		}
+
+		public QueryParameterBuilder<TSource> ThenWithProperty<TProperty>(
+			Expression<Func<TProperty, object>> expression,
 			Func<QueryExecutionContext, List<object>> mapper, Action<QueryExecutionContext> contextAction)
 		{
-			Add(expression, mapper, contextAction, false);
+			Add(expression, mapper, contextAction);
 			return this;
 		}
 
 		private void Add<TProperty>(Expression<Func<TProperty, object>> expression,
 			Func<QueryExecutionContext, List<object>> mapper,
-			Action<QueryExecutionContext> contextAction, bool hasContextValue)
+			Action<QueryExecutionContext> contextAction)
 		{
-			Add(new List<Expression<Func<TProperty, object>>> { expression }, mapper, contextAction, hasContextValue);
+			Add(new List<Expression<Func<TProperty, object>>> { expression }, mapper, contextAction);
 		}
 
-		internal void Add<TProperty>(List<Expression<Func<TProperty, object>>> expressions,
+		internal void Add<TProperty>(
+			List<Expression<Func<TProperty, object>>> expressions,
 			Func<QueryExecutionContext, List<object>> mapper,
-			Action<QueryExecutionContext> contextAction, bool hasContextValue)
+			Action<QueryExecutionContext> contextAction)
 		{
 			var step = new QueryStep
 			{
@@ -128,9 +140,15 @@ namespace Eklee.Azure.Functions.GraphQl
 				Mapper = mapper
 			};
 
+			bool first = mapper != null;
+
 			expressions.ForEach(expression =>
 			{
-				if (expression.Body is MemberExpression memberExpression)
+				// The property access might be getting converted to object to match the func.
+				// If so, get the operand and see if that's a member expression.
+				MemberExpression memberExpression = expression.Body as MemberExpression ?? (expression.Body as UnaryExpression)?.Operand as MemberExpression;
+
+				if (memberExpression != null)
 				{
 					// Find the member.
 					var rawMemberExpression = memberExpression.ToString();
@@ -143,13 +161,23 @@ namespace Eklee.Azure.Functions.GraphQl
 
 					var modelMember = new ModelMember(typeof(TProperty), accessor, member, false);
 
-					if (hasContextValue) _modelMemberList.Add(modelMember);
+					if (first)
+					{
+						first = false;
+					}
+					else
+					{
+						_modelMemberList.Add(modelMember);
+					}
 
 					step.QueryParameters.Add(new QueryParameter
 					{
-						MemberModel = modelMember,
-						HasContextValue = hasContextValue
+						MemberModel = modelMember
 					});
+				}
+				else
+				{
+					throw new ArgumentException("Expression provided is not a member expression.");
 				}
 			});
 

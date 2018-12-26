@@ -14,14 +14,14 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 				.WithParameterBuilder()
 				.BeginQuery<Book>()
 					.WithProperty(x => x.Name)
-					.BuildQuery(ctx =>
+					.BuildQueryResult(ctx =>
 					{
 						// Temporary store books in storage.
 						ctx.Items["books"] = ctx.GetQueryResults<Book>();
 					})
 				.ThenWithQuery<BookReview>()
 					.WithPropertyFromSource(x => x.BookId, ctx => ctx.GetItems<Book>("books").Select(y => (object)y.Id).ToList())
-					.BuildQuery(ctx =>
+					.BuildQueryResult(ctx =>
 					{
 						var bookReviews = ctx.GetQueryResults<BookReview>();
 
@@ -41,7 +41,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 					})
 				.ThenWithQuery<Reviewer>()
 					.WithPropertyFromSource(x => x.Id, ctx => (List<object>)ctx.Items["reviewerIdList"])
-					.BuildQuery(ctx =>
+					.BuildQueryResult(ctx =>
 					{
 						var reviewers = ctx.GetQueryResults<Reviewer>();
 						ctx.GetResults<BookReviewOutput>().ForEach(
@@ -57,7 +57,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 				.BeginQuery<Book>()  // Gives you the ability to query with both book name and category.
 					.WithProperty(x => x.Name)
 					.WithProperty(x => x.Category)
-					.BuildQuery(ctx =>
+					.BuildQueryResult(ctx =>
 					{
 						// Temporary store books in storage.
 						ctx.Items["books"] = ctx.GetQueryResults<Book>();
@@ -67,7 +67,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 					.WithProperty(x => x.Stars)
 					.WithProperty(x => x.Active)
 					.WithProperty(x => x.WrittenOn)
-					.BuildQuery(ctx =>
+					.BuildQueryResult(ctx =>
 					{
 						var bookReviews = ctx.GetQueryResults<BookReview>();
 
@@ -89,7 +89,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 					})
 				.ThenWithQuery<Reviewer>()
 					.WithPropertyFromSource(x => x.Id, ctx => (List<object>)ctx.Items["reviewerIdList"])
-					.BuildQuery(ctx =>
+					.BuildQueryResult(ctx =>
 					{
 						var reviewers = ctx.GetQueryResults<Reviewer>();
 						ctx.GetResults<BookReviewOutput>().ForEach(

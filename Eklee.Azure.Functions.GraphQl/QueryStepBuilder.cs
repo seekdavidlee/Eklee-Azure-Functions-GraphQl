@@ -31,7 +31,7 @@ namespace Eklee.Azure.Functions.GraphQl
 			return this;
 		}
 
-		public QueryParameterBuilder<TSource> BuildQuery(Action<QueryExecutionContext> contextAction)
+		public QueryParameterBuilder<TSource> BuildQueryResult(Action<QueryExecutionContext> contextAction)
 		{
 			_builder.Add(_expressions, _mapper, contextAction);
 

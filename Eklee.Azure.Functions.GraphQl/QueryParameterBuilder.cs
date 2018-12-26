@@ -46,7 +46,7 @@ namespace Eklee.Azure.Functions.GraphQl
 			_queryStep.QueryParameters.Add(new QueryParameter { MemberModel = modelMember });
 		}
 
-		public List<QueryStep> GetQuerySteps(ResolveFieldContext<object> context)
+		internal List<QueryStep> GetQuerySteps(ResolveFieldContext<object> context)
 		{
 			if (_queryStep.QueryParameters.Count > 0)
 			{

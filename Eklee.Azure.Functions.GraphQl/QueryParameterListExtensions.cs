@@ -6,9 +6,9 @@ namespace Eklee.Azure.Functions.GraphQl
 {
 	public static class QueryParameterListExtensions
 	{
-		public static string GetCacheKey(this List<QueryStep> steps)
+		public static string GetCacheKey<TSource>(this List<QueryStep> steps)
 		{
-			var all = new StringBuilder();
+			var all = new StringBuilder(typeof(TSource).FullName);
 			steps.ForEach(list =>
 			{
 				all.Append(string.Join("_",

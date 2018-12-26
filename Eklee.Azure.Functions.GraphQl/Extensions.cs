@@ -47,6 +47,12 @@ namespace Eklee.Azure.Functions.GraphQl
 			builder.RegisterGeneric(typeof(ConnectionType<>));
 			builder.RegisterType<PageInfoType>();
 			builder.RegisterGeneric(typeof(EdgeType<>));
+
+			builder.RegisterType<InMemoryRepository>().As<IGraphQlRepository>().SingleInstance();
+			builder.RegisterType<HttpRepository>().As<IGraphQlRepository>().SingleInstance();
+			builder.RegisterType<DocumentDbRepository>().As<IGraphQlRepository>().SingleInstance();
+
+			builder.RegisterType<GraphQlRepositoryProvider>().As<IGraphQlRepositoryProvider>().SingleInstance();
 		}
 
 		public static async Task<IActionResult> ProcessGraphQlRequest(this ExecutionContext executionContext, HttpRequest httpRequest)

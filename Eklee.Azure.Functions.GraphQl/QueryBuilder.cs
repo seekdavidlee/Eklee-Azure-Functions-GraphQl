@@ -108,7 +108,7 @@ namespace Eklee.Azure.Functions.GraphQl
 
 			if (_cacheInSeconds > 0)
 			{
-				var key = steps.GetCacheKey();
+				var key = steps.GetCacheKey<TSource>();
 				_logger.LogInformation($"CacheKey: {key}");
 
 				return (await TryGetOrSetIfNotExistAsync(

@@ -23,7 +23,9 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 
 			DocumentDbRepository = new DocumentDbRepository(logger, new List<IDocumentDbComparison>
 			{
-				new DocumentDbComparisonInt(), new DocumentDbComparisonString()
+				new DocumentDbComparisonInt(), new DocumentDbComparisonString(),
+				new DocumentDbComparisonGuid(), new DocumentDbComparisonBool(),
+				new DocumentDbComparisonDate()
 			});
 		}
 

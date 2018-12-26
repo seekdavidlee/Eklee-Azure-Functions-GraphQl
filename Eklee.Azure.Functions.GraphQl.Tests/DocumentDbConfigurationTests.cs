@@ -49,6 +49,18 @@ namespace Eklee.Azure.Functions.GraphQl.Tests
 		public DateTime? Expires { get; set; }
 
 		public string Category { get; set; }
+
+		public Guid TypeId { get; set; }
+	}
+
+	public class DocumentDbFoo4
+	{
+		[Key]
+		public string Id { get; set; }
+
+		public string Name { get; set; }
+
+		public Guid MyGuidCategory { get; set; }
 	}
 
 	[Trait(Constants.Category, Constants.UnitTests)]

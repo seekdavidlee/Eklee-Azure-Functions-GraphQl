@@ -27,6 +27,7 @@ namespace Eklee.Azure.Functions.GraphQl
 		public bool IsInt => Member.Type == typeof(int);
 		public bool IsDate => Member.Type == typeof(DateTime);
 		public bool IsBool => Member.Type == typeof(bool);
+		public bool IsGuid => Member.Type == typeof(Guid);
 
 		public Type SourceType { get; }
 	}

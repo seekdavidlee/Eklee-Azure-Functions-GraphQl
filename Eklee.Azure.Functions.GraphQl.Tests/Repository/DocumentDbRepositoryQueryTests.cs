@@ -37,7 +37,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 					Category = "cat 1",
 					Description = "Ha ha ha",
 					Level = 4,
-					Effective = new DateTime(2017, 1, 1)
+					Effective = new DateTime(2017, 1, 1),
+					TypeId = Guid.Parse("AF359AD6-9B8E-43F7-B898-35CEB400051A")
 				},
 				new DocumentDbFoo3
 				{
@@ -46,7 +47,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 					Category = "cat 1",
 					Description = "Ra ha ha",
 					Level = 2,
-					Effective = new DateTime(2018, 1, 1)
+					Effective = new DateTime(2018, 1, 1),
+					TypeId = Guid.Parse("9B522321-B689-43EC-A3DC-DC17EE2A42DD")
 				},
 				new DocumentDbFoo3
 				{
@@ -56,7 +58,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 					Description = "Na ha ha",
 					Level = 3,
 					Effective = new DateTime(2016, 1, 1),
-					Expires = new DateTime(2018, 5, 1)
+					Expires = new DateTime(2018, 5, 1),
+					TypeId = Guid.Parse("CC562BC9-C2E5-46D8-B701-E5D57F5800B8")
 				},
 				new DocumentDbFoo3
 				{
@@ -65,7 +68,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 					Category = "cat 1",
 					Description = "Ba ha Ba",
 					Level = 2,
-					Effective = new DateTime(2014, 12, 1)
+					Effective = new DateTime(2014, 12, 1),
+					TypeId = Guid.Parse("4AB97B79-37DB-4AB7-BC32-D3EB1780C8AF")
 				},
 				new DocumentDbFoo3
 				{
@@ -75,7 +79,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 					Description = "Sa Sa Ba",
 					Level = 6,
 					Effective = new DateTime(2014, 1, 1),
-					Expires = new DateTime(2015, 12, 31)
+					Expires = new DateTime(2015, 12, 31),
+					TypeId = Guid.Parse("9B522321-B689-43EC-A3DC-DC17EE2A42DD")
 				}
 			};
 
@@ -193,6 +198,35 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 			var item4 = results.Single(x => x.Id == "4");
 			item4.Category.ShouldBe("cat 1");
 			item4.Level.ShouldBe(2);
+		}
+
+
+		[Fact]
+		public async Task CanQueryByGuid()
+		{
+			await Seed();
+
+			var typeId = Guid.Parse("AF359AD6-9B8E-43F7-B898-35CEB400051A");
+			QueryParameter[] args = {
+				new QueryParameter
+				{
+					ContextValue = new ContextValue
+					{
+						Value = typeId,
+						Comparison = Comparisons.Equal
+					},
+					MemberModel = new ModelMember(_type, _accessor,
+						_members.Single(x=>x.Name == "TypeId"), false)
+				}
+			};
+
+			var results = (await DocumentDbRepository.QueryAsync<DocumentDbFoo3>("test", args)).ToList();
+
+			results.Count.ShouldBe(1);
+
+			var item2 = results.Single(x => x.Id == "1");
+			item2.Category.ShouldBe("cat 1");
+			item2.TypeId.ShouldBe(typeId);
 		}
 
 		public void Dispose()

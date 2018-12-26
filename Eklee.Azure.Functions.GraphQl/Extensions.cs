@@ -37,6 +37,7 @@ namespace Eklee.Azure.Functions.GraphQl
 			builder.RegisterType<DocumentDbComparisonString>().As<IDocumentDbComparison>().SingleInstance();
 			builder.RegisterType<DocumentDbComparisonDate>().As<IDocumentDbComparison>().SingleInstance();
 			builder.RegisterType<DocumentDbComparisonBool>().As<IDocumentDbComparison>().SingleInstance();
+			builder.RegisterType<DocumentDbComparisonGuid>().As<IDocumentDbComparison>().SingleInstance();
 
 			builder.RegisterType<GraphDependencyResolver>().As<IDependencyResolver>();
 
@@ -189,40 +190,40 @@ namespace Eklee.Azure.Functions.GraphQl
 				}
 
 				if (comparison == "notEqual" && (
-					    contextValue.Value is int || 
-					    contextValue.Value is DateTime))
+						contextValue.Value is int ||
+						contextValue.Value is DateTime))
 				{
 					contextValue.Comparison = Comparisons.NotEqual;
 					return contextValue;
 				}
 
 				if (comparison == "greaterThan" && (
-					    contextValue.Value is int || 
-					    contextValue.Value is DateTime))
+						contextValue.Value is int ||
+						contextValue.Value is DateTime))
 				{
 					contextValue.Comparison = Comparisons.GreaterThan;
 					return contextValue;
 				}
 
 				if (comparison == "greaterEqualThan" && (
-					    contextValue.Value is int || 
-					    contextValue.Value is DateTime))
+						contextValue.Value is int ||
+						contextValue.Value is DateTime))
 				{
 					contextValue.Comparison = Comparisons.GreaterEqualThan;
 					return contextValue;
 				}
 
 				if (comparison == "lessThan" && (
-					    contextValue.Value is int || 
-					    contextValue.Value is DateTime))
+						contextValue.Value is int ||
+						contextValue.Value is DateTime))
 				{
 					contextValue.Comparison = Comparisons.LessThan;
 					return contextValue;
 				}
 
 				if (comparison == "lessEqualThan" && (
-					    contextValue.Value is int ||
-					    contextValue.Value is DateTime))
+						contextValue.Value is int ||
+						contextValue.Value is DateTime))
 				{
 					contextValue.Comparison = Comparisons.LessEqualThan;
 					return contextValue;

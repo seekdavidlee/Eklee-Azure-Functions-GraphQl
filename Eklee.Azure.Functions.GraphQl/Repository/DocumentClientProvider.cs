@@ -144,7 +144,8 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 
 				if (value == null ||
 					value is int intValue && intValue == 0 ||
-					value is string strValue && strValue == "")
+					value is string strValue && strValue == "" ||
+					value is Guid guidValue && guidValue == Guid.Empty)
 				{
 					// Let's query for the partition.
 
@@ -164,12 +165,23 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 					if (results.Count == 1)
 					{
 						value = results.Single().GetPropertyValue(memberExpression.Member.Name);
+
+						if (value == null)
+						{
+							throw new InvalidOperationException(
+								$"Unable to determine partition key value with member expression: {memberExpression.Member.Name}");
+						}
 					}
 					else
 					{
 						throw new InvalidOperationException(
 							"Unable to determine partition key value due to missing data.");
 					}
+				}
+
+				if (value is Guid)
+				{
+					value = value.ToString();
 				}
 
 				return new RequestOptions { PartitionKey = new PartitionKey(value) };
@@ -203,8 +215,8 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 
 				EnableScanInQuery = queryParametersList.Any(
 					x => x.ContextValue.Comparison == Comparisons.StringContains ||
-					     x.ContextValue.Comparison == Comparisons.StringEndsWith ||
-					     x.ContextValue.Comparison == Comparisons.StringStartsWith)
+						 x.ContextValue.Comparison == Comparisons.StringEndsWith ||
+						 x.ContextValue.Comparison == Comparisons.StringStartsWith)
 			};
 
 			var query = _documentClient.CreateDocumentQuery<T>(

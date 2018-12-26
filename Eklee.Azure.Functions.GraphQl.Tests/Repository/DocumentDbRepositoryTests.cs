@@ -73,6 +73,38 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 		}
 
 		[Fact]
+		public async Task CanHandleDocumentTypeWithGuidBasedPartition()
+		{
+			Expression<Func<DocumentDbFoo4, Guid>> expression = x => x.MyGuidCategory;
+			var configurations = GetBaseConfigurations<DocumentDbFoo4>((MemberExpression)expression.Body);
+
+			DocumentDbRepository.Configure(typeof(DocumentDbFoo4), configurations);
+
+			const string id = "5";
+			Guid guid = Guid.NewGuid();
+
+			await DocumentDbRepository.AddAsync(new DocumentDbFoo4
+			{
+				Id = id,
+				Name = "Foo 4",
+				MyGuidCategory = guid
+			});
+
+			await DocumentDbRepository.UpdateAsync(new DocumentDbFoo4
+			{
+				Id = id,
+				Name = "Foo 4 v2",
+				MyGuidCategory = guid
+			});
+
+			var item = (await GetByIdAsync<DocumentDbFoo4>(id)).Single();
+
+			item.Name.ShouldBe("Foo 4 v2");
+
+			DocumentDbRepository.DeleteAllAsync<DocumentDbFoo4>().GetAwaiter().GetResult();
+		}
+
+		[Fact]
 		public async Task CanDeleteWithPartition()
 		{
 			Expression<Func<DocumentDbFoo2, int>> expression = x => x.MyIntCategory;

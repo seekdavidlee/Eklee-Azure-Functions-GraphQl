@@ -91,6 +91,7 @@ To enable support for tracing, please add set EnableMetrics configuration to tru
 }
 ```
 
-## [Mutations](Documentation/Mutations.md)
+## Topics
+- [Mutations](Documentation/Mutations.md)
 
-** More documentation is coming. **
+** More documentation/topics are coming. **

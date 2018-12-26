@@ -21,7 +21,7 @@ namespace FunctionApp1
         {
             builder.RegisterGraphQl<BooksSchema>();
             builder.RegisterType<BooksQuery>();
-			builder.RegisterType<BooksMutation>();
+            builder.RegisterType<BooksMutation>();
             ...
         }
     }

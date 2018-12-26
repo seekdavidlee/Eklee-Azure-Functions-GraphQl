@@ -49,7 +49,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 						// Only include authors who are in the AuthorIdList in each individual book author.
 						ctx.GetResults<BookAuthorsOutput>().ForEach(ba => ba.Authors = authors.Where(x => ba.AuthorIdList.Contains(x.Id)).ToList());
 					})
-					.Build()
+					.BuildQuery()
 				.BuildWithListResult();
 
 			queryBuilderFactory.Create<BookAuthorsOutput>(booksQuery, "getBookAuthorsById")
@@ -79,7 +79,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 					 // Only include authors who are in the AuthorIdList in each individual book author.
 					 ctx.GetResults<BookAuthorsOutput>().ForEach(ba => ba.Authors = authors.Where(x => ba.AuthorIdList.Contains(x.Id)).ToList());
 				 })
-				.Build()
+				.BuildQuery()
 				.BuildWithSingleResult();
 
 			queryBuilderFactory.Create<BookAuthorsOutput>(booksQuery, "getBookAuthorsByRoyaltyType")
@@ -109,7 +109,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 					 // Only include authors who are in the AuthorIdList in each individual book author.
 					 ctx.GetResults<BookAuthorsOutput>().ForEach(ba => ba.Authors = authors.Where(x => ba.AuthorIdList.Contains(x.Id)).ToList());
 				})
-				.Build()
+				.BuildQuery()
 				.BuildWithListResult();
 		}
 	}

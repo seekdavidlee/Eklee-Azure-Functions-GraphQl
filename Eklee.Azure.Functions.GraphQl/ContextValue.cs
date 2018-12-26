@@ -16,7 +16,7 @@
 		NotEqual,
 		GreaterThan,
 		GreaterEqualThan,
-		SmallerThan,
-		SmallerEqualThan
+		LessThan,
+		LessEqualThan
 	}
 }

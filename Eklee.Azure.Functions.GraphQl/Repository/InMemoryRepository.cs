@@ -93,10 +93,10 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 					case Comparisons.GreaterEqualThan:
 						return xStr >= ctxValueStr;
 
-					case Comparisons.SmallerThan:
+					case Comparisons.LessThan:
 						return xStr < ctxValueStr;
 
-					case Comparisons.SmallerEqualThan:
+					case Comparisons.LessEqualThan:
 						return xStr <= ctxValueStr;
 
 					default:

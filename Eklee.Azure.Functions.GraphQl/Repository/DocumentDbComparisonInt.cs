@@ -34,10 +34,10 @@
 			if (_queryParameter.ContextValue.Comparison == Comparisons.GreaterEqualThan)
 				return $" x.{_queryParameter.MemberModel.Member.Name} >= {_value}";
 
-			if (_queryParameter.ContextValue.Comparison == Comparisons.SmallerThan)
+			if (_queryParameter.ContextValue.Comparison == Comparisons.LessThan)
 				return $" x.{_queryParameter.MemberModel.Member.Name} < {_value}";
 
-			if (_queryParameter.ContextValue.Comparison == Comparisons.SmallerEqualThan)
+			if (_queryParameter.ContextValue.Comparison == Comparisons.LessEqualThan)
 				return $" x.{_queryParameter.MemberModel.Member.Name} <= {_value}";
 
 			return null;

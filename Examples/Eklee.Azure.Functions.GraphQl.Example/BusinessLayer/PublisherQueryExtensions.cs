@@ -12,7 +12,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 				.WithCache(TimeSpan.FromSeconds(10))
 					.WithParameterBuilder()
 					.WithProperty(x => x.Id)
-					.Build()
+					.BuildQuery()
 				.BuildWithSingleResult();
 		}
 	}

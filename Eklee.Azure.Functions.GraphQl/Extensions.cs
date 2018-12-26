@@ -35,6 +35,8 @@ namespace Eklee.Azure.Functions.GraphQl
 
 			builder.RegisterType<DocumentDbComparisonInt>().As<IDocumentDbComparison>().SingleInstance();
 			builder.RegisterType<DocumentDbComparisonString>().As<IDocumentDbComparison>().SingleInstance();
+			builder.RegisterType<DocumentDbComparisonDate>().As<IDocumentDbComparison>().SingleInstance();
+			builder.RegisterType<DocumentDbComparisonBool>().As<IDocumentDbComparison>().SingleInstance();
 
 			builder.RegisterType<GraphDependencyResolver>().As<IDependencyResolver>();
 
@@ -150,6 +152,11 @@ namespace Eklee.Azure.Functions.GraphQl
 				Dictionary<string, object> arg = (Dictionary<string, object>)args[name];
 				contextValue.Value = arg.First().Value;
 
+				if (contextValue.Value == null)
+				{
+					throw new ArgumentNullException($"{name}.Value");
+				}
+
 				string comparison = arg.First().Key;
 				if (comparison == "equal")
 				{
@@ -175,36 +182,46 @@ namespace Eklee.Azure.Functions.GraphQl
 					return contextValue;
 				}
 
-				if (comparison == "notEqual" && contextValue.Value is int)
+				if (comparison == "notEqual" && (
+					    contextValue.Value is int || 
+					    contextValue.Value is DateTime))
 				{
 					contextValue.Comparison = Comparisons.NotEqual;
 					return contextValue;
 				}
 
-				if (comparison == "greaterThan" && contextValue.Value is int)
+				if (comparison == "greaterThan" && (
+					    contextValue.Value is int || 
+					    contextValue.Value is DateTime))
 				{
 					contextValue.Comparison = Comparisons.GreaterThan;
 					return contextValue;
 				}
 
-				if (comparison == "greaterEqualThan" && contextValue.Value is int)
+				if (comparison == "greaterEqualThan" && (
+					    contextValue.Value is int || 
+					    contextValue.Value is DateTime))
 				{
 					contextValue.Comparison = Comparisons.GreaterEqualThan;
 					return contextValue;
 				}
 
-				if (comparison == "smallerThan" && contextValue.Value is int)
+				if (comparison == "lessThan" && (
+					    contextValue.Value is int || 
+					    contextValue.Value is DateTime))
 				{
-					contextValue.Comparison = Comparisons.SmallerThan;
+					contextValue.Comparison = Comparisons.LessThan;
 					return contextValue;
 				}
 
-				if (comparison == "smallerEqualThan" && contextValue.Value is int)
+				if (comparison == "lessEqualThan" && (
+					    contextValue.Value is int ||
+					    contextValue.Value is DateTime))
 				{
-					contextValue.Comparison = Comparisons.SmallerEqualThan;
+					contextValue.Comparison = Comparisons.LessEqualThan;
 					return contextValue;
 				}
-				throw new NotImplementedException($"Comparison: {comparison} is not implemented.");
+				throw new NotImplementedException($"Comparison: {comparison} is not implemented for type {contextValue.Value.GetType().Name}.");
 			}
 
 			return contextValue;

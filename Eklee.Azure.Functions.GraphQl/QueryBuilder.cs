@@ -17,6 +17,7 @@ namespace Eklee.Azure.Functions.GraphQl
 		private readonly string _queryName;
 		private readonly QueryExecutor<TSource> _queryExecutor;
 		private readonly IDistributedCache _distributedCache;
+		private readonly ILogger _logger;
 
 		private readonly QueryParameterBuilder<TSource> _queryParameterBuilder;
 		internal QueryBuilder(ObjectGraphType<object> objectGraphType,
@@ -29,6 +30,7 @@ namespace Eklee.Azure.Functions.GraphQl
 			_queryName = queryName;
 			_queryExecutor = new QueryExecutor<TSource>(graphQlRepositoryProvider, logger);
 			_distributedCache = distributedCache;
+			_logger = logger;
 
 			_queryParameterBuilder = new QueryParameterBuilder<TSource>(this);
 		}
@@ -68,7 +70,16 @@ namespace Eklee.Azure.Functions.GraphQl
 
 		private async Task<object> QueryResolver(ResolveFieldContext<object> context)
 		{
-			IEnumerable<TSource> list = await QueryAsync(context);
+			IEnumerable<TSource> list;
+			try
+			{
+				list = await QueryAsync(context);
+			}
+			catch (Exception e)
+			{
+				_logger.LogError(e, "An error occured while performing a query.");
+				throw;
+			}
 
 			switch (_output)
 			{
@@ -94,10 +105,12 @@ namespace Eklee.Azure.Functions.GraphQl
 		private async Task<IEnumerable<TSource>> QueryAsync(ResolveFieldContext<object> context)
 		{
 			var steps = _queryParameterBuilder.GetQuerySteps(context).ToList();
-			var key = steps.First().QueryParameters.GetCacheKey();
 
 			if (_cacheInSeconds > 0)
 			{
+				var key = steps.GetCacheKey();
+				_logger.LogInformation($"CacheKey: {key}");
+
 				return (await TryGetOrSetIfNotExistAsync(
 					() => _queryExecutor.ExecuteAsync(context.FieldName, steps).Result.ToList(), key,
 					new DistributedCacheEntryOptions

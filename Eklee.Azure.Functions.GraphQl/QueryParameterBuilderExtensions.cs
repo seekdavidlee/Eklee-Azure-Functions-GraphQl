@@ -58,6 +58,50 @@ namespace Eklee.Azure.Functions.GraphQl
 					return;
 				}
 
+				if (modelMember.IsDate)
+				{
+					if (modelMember.IsOptional)
+					{
+						queryArguments.Add(new QueryArgument<ModelConventionInputType<DateFilter>>
+						{
+							Name = modelMember.Name,
+							Description = modelMember.Description
+						});
+					}
+					else
+					{
+						queryArguments.Add(new QueryArgument<NonNullGraphType<ModelConventionInputType<DateFilter>>>
+						{
+							Name = modelMember.Name,
+							Description = modelMember.Description
+						});
+					}
+
+					return;
+				}
+
+				if (modelMember.IsBool)
+				{
+					if (modelMember.IsOptional)
+					{
+						queryArguments.Add(new QueryArgument<ModelConventionInputType<BoolFilter>>
+						{
+							Name = modelMember.Name,
+							Description = modelMember.Description
+						});
+					}
+					else
+					{
+						queryArguments.Add(new QueryArgument<NonNullGraphType<ModelConventionInputType<BoolFilter>>>
+						{
+							Name = modelMember.Name,
+							Description = modelMember.Description
+						});
+					}
+
+					return;
+				}
+
 				throw new NotImplementedException($"QueryArgument type is not yet implemented for {modelMember.Name}");
 			});
 

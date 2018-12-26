@@ -47,7 +47,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 						ctx.GetResults<BookReviewOutput>().ForEach(
 							x => x.Reviewer = reviewers.Single(y => y.Id == x.ReviewerId));
 					})
-				.Build()
+				.BuildQuery()
 				.BuildWithListResult();
 
 
@@ -65,6 +65,8 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 				.ThenWithQuery<BookReview>() // Gives you the ability to query with both book review star and book Id matches.
 					.WithPropertyFromSource(x => x.BookId, ctx => ctx.GetItems<Book>("books").Select(y => (object)y.Id).ToList())
 					.WithProperty(x => x.Stars)
+					.WithProperty(x => x.Active)
+					.WithProperty(x => x.WrittenOn)
 					.BuildQuery(ctx =>
 					{
 						var bookReviews = ctx.GetQueryResults<BookReview>();
@@ -80,7 +82,9 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 							Comments = br.Comments,
 							ReviewerId = br.ReviewerId,
 							Stars = br.Stars,
-							Book = books.Single(x => x.Id == br.BookId)
+							Book = books.Single(x => x.Id == br.BookId),
+							WrittenOn = br.WrittenOn,
+							Active = br.Active
 						}).ToList());
 					})
 				.ThenWithQuery<Reviewer>()
@@ -91,7 +95,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 						ctx.GetResults<BookReviewOutput>().ForEach(
 							x => x.Reviewer = reviewers.Single(y => y.Id == x.ReviewerId));
 					})
-				.Build()
+				.BuildQuery()
 				.BuildWithListResult();
 		}
 	}

@@ -1,13 +1,22 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace Eklee.Azure.Functions.GraphQl
 {
 	public static class QueryParameterListExtensions
 	{
-		public static string GetCacheKey(this List<QueryParameter> list)
+		public static string GetCacheKey(this List<QueryStep> steps)
 		{
-			return string.Join("_", list.Where(x => x.ContextValue?.Value != null).Select(x => x.ContextValue.Value.ToString()));
+			var all = new StringBuilder();
+			steps.ForEach(list =>
+			{
+				all.Append(string.Join("_",
+					list.QueryParameters.Where(
+						x => x.ContextValue?.Value != null && x.ContextValue.Comparison.HasValue).Select(
+						x => $"{x.ContextValue.Comparison.Value}{ x.ContextValue.Value}")));
+			});
+			return all.ToString();
 		}
 	}
 }

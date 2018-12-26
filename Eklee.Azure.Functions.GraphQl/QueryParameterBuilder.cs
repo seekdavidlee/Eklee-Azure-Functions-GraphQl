@@ -185,7 +185,7 @@ namespace Eklee.Azure.Functions.GraphQl
 
 		}
 
-		public QueryBuilder<TSource> Build()
+		public QueryBuilder<TSource> BuildQuery()
 		{
 			return _queryBuilder;
 		}

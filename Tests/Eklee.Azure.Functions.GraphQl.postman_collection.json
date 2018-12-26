@@ -778,6 +778,183 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "getBookReviewsWithBookNameAndCategory_1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "8cdd0da6-f4bd-427b-ba71-cde39b62de87",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Query returns with match\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.getBookReviewsWithBookNameAndCategory.length).to.eql(2);",
+									"    ",
+									"    var entity1 = jsonData.data.getBookReviewsWithBookNameAndCategory[0];",
+									"    ",
+									"    pm.expect(entity1.id).to.eql(\"7\");",
+									"    pm.expect(entity1.stars).to.eql(1);",
+									"    pm.expect(entity1.writtenOn).to.eql('2017-08-08');",
+									"    pm.expect(entity1.active).to.eql(true);",
+									"    ",
+									"   var entity2 = jsonData.data.getBookReviewsWithBookNameAndCategory[1];",
+									"    ",
+									"    pm.expect(entity2.id).to.eql(\"1\");",
+									"    pm.expect(entity2.stars).to.eql(1);",
+									"    pm.expect(entity2.writtenOn).to.eql('2018-01-19');",
+									"    pm.expect(entity2.active).to.eql(true);",
+									"",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"{\\n  getBookReviewsWithBookNameAndCategory(name: {contains: \\\"Art\\\"}, category: {contains: \\\"Art\\\"}, stars: {greaterEqualThan: 1}, active: {equal: true}, writtenon: {greaterThan: \\\"2016-01-01\\\"}) {\\n    id\\n    comments\\n    stars\\n    writtenOn\\n    active\\n    book {\\n      id\\n      name\\n    }\\n    reviewer {\\n      id\\n      interests\\n      region\\n    }\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getBookReviewsWithBookNameAndCategory_2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "8cdd0da6-f4bd-427b-ba71-cde39b62de87",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Query returns with match\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.getBookReviewsWithBookNameAndCategory.length).to.eql(1);",
+									"    ",
+									"   var entity2 = jsonData.data.getBookReviewsWithBookNameAndCategory[0];",
+									"    ",
+									"    pm.expect(entity2.id).to.eql(\"1\");",
+									"    pm.expect(entity2.stars).to.eql(1);",
+									"    pm.expect(entity2.writtenOn).to.eql('2018-01-19');",
+									"    pm.expect(entity2.active).to.eql(true);",
+									"",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"{\\n  getBookReviewsWithBookNameAndCategory(name: {contains: \\\"Art\\\"}, category: {contains: \\\"Art\\\"}, stars: {greaterEqualThan: 1}, active: {equal: true}, writtenon: {greaterThan: \\\"2018-01-01\\\"}) {\\n    id\\n    comments\\n    stars\\n    writtenOn\\n    active\\n    book {\\n      id\\n      name\\n    }\\n    reviewer {\\n      id\\n      interests\\n      region\\n    }\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getBookReviewsWithBookNameAndCategory_3",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "8cdd0da6-f4bd-427b-ba71-cde39b62de87",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Query returns with match\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.getBookReviewsWithBookNameAndCategory.length).to.eql(1);",
+									"    ",
+									"    var entity1 = jsonData.data.getBookReviewsWithBookNameAndCategory[0];",
+									"    ",
+									"    pm.expect(entity1.id).to.eql(\"7\");",
+									"    pm.expect(entity1.stars).to.eql(1);",
+									"    pm.expect(entity1.writtenOn).to.eql('2017-08-08');",
+									"    pm.expect(entity1.active).to.eql(true);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"{\\n  getBookReviewsWithBookNameAndCategory(name: {contains: \\\"Art\\\"}, category: {contains: \\\"Art\\\"}, stars: {greaterEqualThan: 1}, active: {equal: true}, writtenon: {lessThan: \\\"2018-01-01\\\"}) {\\n    id\\n    comments\\n    stars\\n    writtenOn\\n    active\\n    book {\\n      id\\n      name\\n    }\\n    reviewer {\\n      id\\n      interests\\n      region\\n    }\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},

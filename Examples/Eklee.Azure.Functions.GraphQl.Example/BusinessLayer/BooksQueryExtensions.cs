@@ -12,7 +12,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 			queryBuilderFactory.Create<Book>(booksQuery, "getBookNoCache")
 				.WithParameterBuilder()
 				.WithProperty(x => x.Id)
-				.Build()
+				.BuildQuery()
 				.BuildWithSingleResult();
 
 			// Example 2: We are getting a single Book. The argument to pass into the repository is defined by the Model with at least one property with the KeyAttribute.
@@ -22,7 +22,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 				.WithCache(TimeSpan.FromSeconds(10))
 					.WithParameterBuilder()
 					.WithKeys()
-					.Build()
+					.BuildQuery()
 				.BuildWithSingleResult();
 
 			// Example 3: We are getting a list of Books based on an argument. You are defining the key to pass into the repository without having to use context directly.
@@ -32,7 +32,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 				.WithCache(TimeSpan.FromSeconds(10))
 				.WithParameterBuilder()
 					.WithProperty(x => x.Category)
-					.Build()
+					.BuildQuery()
 				.BuildWithListResult();
 
 			// Example 4: We are getting a list of paged Books. Technically, you are able to get all books by using TotalCount, although there's already a default page limit of 10 items per page if you don't specify.
@@ -46,7 +46,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 				.WithPaging()
 				.WithParameterBuilder()
 					.WithProperty(x => x.Category, true)
-					.Build()
+					.BuildQuery()
 				.BuildWithListResult();
 
 			// Example 6: We are getting a list of paged Books with a argument to be passed in. You are defining the key to pass into the repository without having to use context directly.
@@ -57,7 +57,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 				.WithCache(TimeSpan.FromSeconds(10))
 				.WithParameterBuilder()
 					.WithProperty(x => x.Category)
-					.Build()
+					.BuildQuery()
 				.BuildWithListResult();
 		}
 	}

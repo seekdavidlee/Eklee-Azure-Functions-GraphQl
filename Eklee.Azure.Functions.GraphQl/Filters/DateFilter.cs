@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using Eklee.Azure.Functions.GraphQl.Attributes;
 
 namespace Eklee.Azure.Functions.GraphQl.Filters
@@ -7,26 +8,26 @@ namespace Eklee.Azure.Functions.GraphQl.Filters
 	{
 		[ModelField(false)]
 		[Description("Equal.")]
-		public bool Equal { get; set; }
+		public DateTime Equal { get; set; }
 
 		[ModelField(false)]
 		[Description("Not equal.")]
-		public int NotEqual { get; set; }
+		public DateTime NotEqual { get; set; }
 
 		[ModelField(false)]
 		[Description("Greater than.")]
-		public int GreaterThan { get; set; }
+		public DateTime GreaterThan { get; set; }
 
 		[ModelField(false)]
 		[Description("Greater equal than.")]
-		public int GreaterEqualThan { get; set; }
+		public DateTime GreaterEqualThan { get; set; }
 
 		[ModelField(false)]
-		[Description("Smaller than.")]
-		public int SmallerThan { get; set; }
+		[Description("Less than.")]
+		public DateTime LessThan { get; set; }
 
 		[ModelField(false)]
-		[Description("Smaller equal than.")]
-		public int SmallerEqualThan { get; set; }
+		[Description("Less equal than.")]
+		public DateTime LessEqualThan { get; set; }
 	}
 }

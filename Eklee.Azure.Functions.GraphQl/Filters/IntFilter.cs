@@ -22,11 +22,11 @@ namespace Eklee.Azure.Functions.GraphQl.Filters
 		public int GreaterEqualThan { get; set; }
 
 		[ModelField(false)]
-		[Description("Smaller than.")]
-		public int SmallerThan { get; set; }
+		[Description("Less than.")]
+		public int LessThan { get; set; }
 
 		[ModelField(false)]
-		[Description("Smaller equal than.")]
-		public int SmallerEqualThan { get; set; }
+		[Description("Less equal than.")]
+		public int LessEqualThan { get; set; }
 	}
 }

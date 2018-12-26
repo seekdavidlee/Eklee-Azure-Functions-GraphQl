@@ -74,7 +74,7 @@ using System.ComponentModel.DataAnnotations;
     public class Book
     {
         [Key]
-		[Description("Id of the book")]
+        [Description("Id of the book")]
         public string Id { get; set; }
 ```
 

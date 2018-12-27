@@ -83,6 +83,21 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 					.BuildHttp()
 				.DeleteAll(() => new Status { Message = "All publishers have been removed." })
 				.Build();
+
+
+			inputBuilderFactory.Create<BookPrice>(this)
+				.Delete<BookPriceId, Status>(
+					input => new BookPrice { Id = input.Id },
+					input => new Status { Message = $"Successfully removed book review with Id {input.Id}" })
+				.ConfigureDocumentDb<BookPrice>()
+				.AddUrl(documentDbUrl)
+				.AddKey(documentDbKey)
+				.AddDatabase(rc => "local")
+				.AddRequestUnit(400)
+				.AddPartition(input => input.Type)
+				.BuildDocumentDb()
+				.DeleteAll(() => new Status { Message = "All book price relationships have been removed." })
+				.Build();
 		}
 	}
 }

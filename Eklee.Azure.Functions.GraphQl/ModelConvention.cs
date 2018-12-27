@@ -2,8 +2,10 @@
 using GraphQL.Types;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using Eklee.Azure.Functions.GraphQl.Attributes;
 using FastMember;
+using IdGraphType = GraphQL.Types.IdGraphType;
 
 namespace Eklee.Azure.Functions.GraphQl
 {
@@ -20,6 +22,11 @@ namespace Eklee.Azure.Functions.GraphQl
 
 		private Type GetGraphTypeFromTypeWithModelFieldAttribute(Member member)
 		{
+			if (member.Type == typeof(Guid) && member.GetAttribute(typeof(KeyAttribute), false) is KeyAttribute)
+			{
+				return typeof(IdGraphType);
+			}
+
 			if (member.GetAttribute(typeof(ModelFieldAttribute), false) is ModelFieldAttribute modelField)
 			{
 				return member.Type.GetGraphTypeFromType(!modelField.IsRequired);
@@ -39,7 +46,8 @@ namespace Eklee.Azure.Functions.GraphQl
 					m.Type == typeof(long) ||
 					m.Type == typeof(bool) ||
 					m.Type == typeof(double) ||
-				    m.Type == typeof(DateTime) ||
+					m.Type == typeof(DateTime) ||
+				    m.Type == typeof(Guid) ||
 					m.Type == typeof(List<string>))
 				{
 					addFieldAction(GetGraphTypeFromTypeWithModelFieldAttribute(m),

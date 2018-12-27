@@ -35,7 +35,7 @@ namespace Eklee.Azure.Functions.GraphQl
 				OperationName = graphQlDomainRequest.OperationName,
 				Schema = _schema,
 				Query = graphQlDomainRequest.Query,
-				EnableMetrics = enableMetrics,
+				EnableMetrics = enableMetrics
 			});
 
 			if (results.Errors != null && results.Errors.Count > 0)

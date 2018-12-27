@@ -7,6 +7,6 @@ namespace Eklee.Azure.Functions.GraphQl.Filters
 	{
 		[ModelField(false)]
 		[Description("Equal.")]
-		public bool Equal { get; set; }
+		public string Equal { get; set; }
 	}
 }

@@ -22,9 +22,19 @@ namespace Eklee.Azure.Functions.GraphQl
 
 		private Type GetGraphTypeFromTypeWithModelFieldAttribute(Member member)
 		{
-			if (member.Type == typeof(Guid) && member.GetAttribute(typeof(KeyAttribute), false) is KeyAttribute)
+			if (member.Type == typeof(Guid))
 			{
-				return typeof(IdGraphType);
+				if (member.GetAttribute(typeof(KeyAttribute), false) is KeyAttribute)
+					return typeof(IdGraphType);
+
+				if (member.GetAttribute(typeof(ModelFieldAttribute), false) is ModelFieldAttribute guidModelField)
+				{
+					return guidModelField.IsRequired
+						? typeof(NonNullGraphType<StringGraphType>)
+						: typeof(StringGraphType);
+				}
+
+				return typeof(StringGraphType);
 			}
 
 			if (member.GetAttribute(typeof(ModelFieldAttribute), false) is ModelFieldAttribute modelField)
@@ -47,7 +57,7 @@ namespace Eklee.Azure.Functions.GraphQl
 					m.Type == typeof(bool) ||
 					m.Type == typeof(double) ||
 					m.Type == typeof(DateTime) ||
-				    m.Type == typeof(Guid) ||
+					m.Type == typeof(Guid) ||
 					m.Type == typeof(List<string>))
 				{
 					addFieldAction(GetGraphTypeFromTypeWithModelFieldAttribute(m),

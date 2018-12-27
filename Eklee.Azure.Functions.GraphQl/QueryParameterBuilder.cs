@@ -80,7 +80,11 @@ namespace Eklee.Azure.Functions.GraphQl
 
 		public QueryParameterBuilder<TSource> WithProperty(Expression<Func<TSource, object>> expression, bool isOptional = false)
 		{
-			if (expression.Body is MemberExpression memberExpression)
+			// The property access might be getting converted to object to match the func.
+			// If so, get the operand and see if that's a member expression.
+			MemberExpression memberExpression = expression.Body as MemberExpression ?? (expression.Body as UnaryExpression)?.Operand as MemberExpression;
+
+			if (memberExpression != null)
 			{
 				// Find the member.
 				var rawMemberExpression = memberExpression.ToString();

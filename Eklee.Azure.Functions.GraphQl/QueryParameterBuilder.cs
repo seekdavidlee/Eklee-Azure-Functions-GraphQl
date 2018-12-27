@@ -50,7 +50,7 @@ namespace Eklee.Azure.Functions.GraphQl
 		{
 			if (_queryStep.QueryParameters.Count > 0)
 			{
-				_queryStep.QueryParameters.ForEach(qsqp => qsqp.ContextValue = context.Arguments.GetContextValue(qsqp.MemberModel.Name));
+				_queryStep.QueryParameters.ForEach(qsqp => qsqp.ContextValue = context.Arguments.GetContextValue(qsqp.MemberModel));
 				return new List<QueryStep> { _queryStep };
 			}
 
@@ -65,7 +65,7 @@ namespace Eklee.Azure.Functions.GraphQl
 					}
 					else
 					{
-						queryParameter.ContextValue = context.Arguments.GetContextValue(queryParameter.MemberModel.Name);
+						queryParameter.ContextValue = context.Arguments.GetContextValue(queryParameter.MemberModel);
 					}
 				});
 			});

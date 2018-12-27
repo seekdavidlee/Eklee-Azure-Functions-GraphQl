@@ -150,14 +150,23 @@ namespace Eklee.Azure.Functions.GraphQl
 			return description != null ? description.Description : "";
 		}
 
-		public static ContextValue GetContextValue(this Dictionary<string, object> args, string name)
+		public static ContextValue GetContextValue(this Dictionary<string, object> args, ModelMember modelMember)
 		{
+			var name = modelMember.Name;
 			var contextValue = new ContextValue { IsNotSet = !args.ContainsKey(name) };
 
 			if (!contextValue.IsNotSet)
 			{
 				Dictionary<string, object> arg = (Dictionary<string, object>)args[name];
-				contextValue.Value = arg.First().Value;
+
+				if (modelMember.IsGuid)
+				{
+					contextValue.Value = Guid.Parse(arg.First().Value.ToString());
+				}
+				else
+				{
+					contextValue.Value = arg.First().Value;
+				}
 
 				if (contextValue.Value == null)
 				{

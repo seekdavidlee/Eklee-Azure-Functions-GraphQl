@@ -26,7 +26,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 		{
 			if (!_value.HasValue) throw new InvalidOperationException("DateTime comparison is not valid for a null value.");
 
-			return _value.Value.ToString("O");
+			return _value.Value.ToString("yyyy-MM-ddTHH:mm:ssZ");
 		}
 
 		public string Generate()

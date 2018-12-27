@@ -30,7 +30,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			}
 			else
 			{
-				provider = new DocumentClientProvider(url, configurations.GetStringValue(DocumentDbConstants.Key, sourceType), _documentDbComparisons);
+				provider = new DocumentClientProvider(url, configurations.GetStringValue(DocumentDbConstants.Key, sourceType), _documentDbComparisons, _logger);
 				_providers.Add(url, provider);
 			}
 

@@ -9,6 +9,7 @@ using GraphQL;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 using Microsoft.Azure.Documents.Linq;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace Eklee.Azure.Functions.GraphQl.Repository
@@ -23,6 +24,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 	public class DocumentClientProvider
 	{
 		private readonly IEnumerable<IDocumentDbComparison> _documentDbComparisons;
+		private readonly ILogger _logger;
 		private const int DefaultRequestUnits = 400;
 		private readonly DocumentClient _documentClient;
 
@@ -34,9 +36,10 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 		private readonly Dictionary<string, DocumentTypeInfo> _documentTypeInfos =
 			new Dictionary<string, DocumentTypeInfo>();
 
-		public DocumentClientProvider(string url, string key, IEnumerable<IDocumentDbComparison> documentDbComparisons)
+		public DocumentClientProvider(string url, string key, IEnumerable<IDocumentDbComparison> documentDbComparisons, ILogger logger)
 		{
 			_documentDbComparisons = documentDbComparisons;
+			_logger = logger;
 			_documentClient = new DocumentClient(new Uri(url), key);
 		}
 
@@ -218,6 +221,8 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 						 x.ContextValue.Comparison == Comparisons.StringEndsWith ||
 						 x.ContextValue.Comparison == Comparisons.StringStartsWith)
 			};
+
+			_logger.LogInformation($"Generated SQL query in DocumentDb provider: {sql}");
 
 			var query = _documentClient.CreateDocumentQuery<T>(
 				GetDocumentCollectionUri<T>(), sql, options).AsDocumentQuery();

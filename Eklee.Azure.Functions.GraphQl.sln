@@ -15,6 +15,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Eklee.Azure.Functions.GraphQl.Tests", "Eklee.Azure.Functions.GraphQl.Tests\Eklee.Azure.Functions.GraphQl.Tests.csproj", "{B306E300-CB14-490C-BE30-CF38CCCABFCF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentation", "{103848FB-533A-494B-AF42-2A17ED6249E3}"
+	ProjectSection(SolutionItems) = preProject
+		Documentation\Mutations.md = Documentation\Mutations.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,12 +36,17 @@ Global
 		{E1009365-5A55-4BFC-B7B2-7486EA91A502}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E1009365-5A55-4BFC-B7B2-7486EA91A502}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E1009365-5A55-4BFC-B7B2-7486EA91A502}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B306E300-CB14-490C-BE30-CF38CCCABFCF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B306E300-CB14-490C-BE30-CF38CCCABFCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B306E300-CB14-490C-BE30-CF38CCCABFCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B306E300-CB14-490C-BE30-CF38CCCABFCF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{E1009365-5A55-4BFC-B7B2-7486EA91A502} = {B6F2D74E-F1B4-413A-A4BD-04B272D1AD1B}
+		{103848FB-533A-494B-AF42-2A17ED6249E3} = {6D9DAF4F-1421-4A8D-B7C1-E3B0C8179C3E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {99063B4D-FACA-46CA-B1EC-1FB692B74296}

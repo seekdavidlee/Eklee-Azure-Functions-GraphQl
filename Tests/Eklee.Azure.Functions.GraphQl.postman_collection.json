@@ -6,24 +6,25 @@
 	},
 	"item": [
 		{
-			"name": "Queries",
+			"name": "Publisher",
 			"item": [
 				{
-					"name": "ResolveBookQuery",
+					"name": "Add Publisher",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
-								"id": "f4d1b51c-a22b-441a-a84a-4e6f5cd64085",
+								"id": "c97ec909-1dd9-4022-b457-4fa34dc5aae6",
 								"exec": [
-									"pm.test(\"Status code is 200\", function () {",
+									"pm.test(\"Status code is 200.\", function () {",
 									"    pm.response.to.have.status(200);",
 									"});",
 									"",
-									"pm.test(\"Query returns with match\", function () {",
+									"",
+									"pm.test(\"Get publisher with Id 7.\", function () {",
 									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData.data.book.id).to.eql(\"1\");",
-									"    pm.expect(jsonData.data.book.name).to.eql(\"Nancy in the Wonderland\");",
+									"    pm.expect(jsonData.id).to.eql(\"7\");",
+									"    pm.expect(jsonData.name).to.eql(\"FOOBAR Publisher\");",
 									"});"
 								],
 								"type": "text/javascript"
@@ -42,43 +43,191 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"{\\n  book(id: \\\"1\\\") {\\n    id\\n    name\\n  }\\n}\\n\"}"
+							"raw": "{\n\t\"id\": \"7\",\n\t\"name\": \"FOOBAR Publisher\"\n}"
 						},
 						"url": {
-							"raw": "{{endpoint}}/api/books/graph",
+							"raw": "{{endpoint}}/api/publishers",
 							"host": [
 								"{{endpoint}}"
 							],
 							"path": [
 								"api",
-								"books",
-								"graph"
+								"publishers"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "ResolveBooksQuery",
+					"name": "Update Publisher",
 					"event": [
 						{
 							"listen": "test",
 							"script": {
-								"id": "f4d1b51c-a22b-441a-a84a-4e6f5cd64085",
+								"id": "c97ec909-1dd9-4022-b457-4fa34dc5aae6",
+								"exec": [
+									"pm.test(\"Status code is 200.\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"",
+									"pm.test(\"Get publisher with Id 7.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.eql(\"7\");",
+									"    pm.expect(jsonData.name).to.eql(\"FOOBAR Publisher V2\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": \"7\",\n\t\"name\": \"FOOBAR Publisher V2\"\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/publishers/7",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"publishers",
+								"7"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Verify Publisher Update",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c97ec909-1dd9-4022-b457-4fa34dc5aae6",
+								"exec": [
+									"pm.test(\"Status code is 200.\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"",
+									"pm.test(\"Get publisher with Id 7.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.id).to.eql(\"7\");",
+									"    pm.expect(jsonData.name).to.eql(\"FOOBAR Publisher V2\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": \"7\",\n\t\"name\": \"FOOBAR Publisher V2\"\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/publishers/7",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"publishers",
+								"7"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Publisher",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "c97ec909-1dd9-4022-b457-4fa34dc5aae6",
+								"exec": [
+									"pm.test(\"Status code is 200.\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n\t\"id\": \"7\",\n\t\"name\": \"FOOBAR Publisher V2\"\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/publishers/7",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"publishers",
+								"7"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "SeedDatabase",
+			"item": [
+				{
+					"name": "Seed Books",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "90c54615-a264-46b5-8bc5-b77d09317f9b",
 								"exec": [
 									"pm.test(\"Status code is 200\", function () {",
 									"    pm.response.to.have.status(200);",
 									"});",
 									"",
-									"pm.test(\"Query returns with match\", function () {",
+									"pm.test(\"Created data contains 30 items\", function () {",
 									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData.data.books_category[0].id).to.eql(\"2\");",
-									"    pm.expect(jsonData.data.books_category[0].name).to.eql(\"App in the Cloud\");",
-									"    pm.expect(jsonData.data.books_category[0].category).to.eql(\"Technology\");",
-									"    ",
-									"    pm.expect(jsonData.data.books_category[1].id).to.eql(\"4\");",
-									"    pm.expect(jsonData.data.books_category[1].name).to.eql(\"C/C++ for Beginners\");",
-									"    pm.expect(jsonData.data.books_category[1].category).to.eql(\"Technology\");",
+									"    pm.expect(jsonData.data.batchCreateBook.length).to.eql(30);",
 									"});"
 								],
 								"type": "text/javascript"
@@ -97,7 +246,701 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"{\\n  books_category(category: \\\"Technology\\\") {\\n    id\\n    name\\n    category\\n  }\\n}\\n\"}"
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  batchCreateBook(book: [{id: \\\"1\\\", name: \\\"Nancy in the Wonderland\\\", category: \\\"Children\\\"}, {id: \\\"2\\\", name: \\\"App in the Cloud\\\", category: \\\"Technology\\\"}, {id: \\\"3\\\", name: \\\"History of China\\\", category: \\\"History\\\"}, {id: \\\"4\\\", name: \\\"C/C++ for Beginners\\\", category: \\\"Technology\\\"}, {id: \\\"5\\\", name: \\\"How To Draw Anything\\\", category: \\\"Art\\\"}, {id: \\\"6\\\", name: \\\"Anatomy and Drawing\\\", category: \\\"Art\\\"}, {id: \\\"7\\\", name: \\\"Space Drawings\\\", category: \\\"Art\\\"}, {id: \\\"8\\\", name: \\\"Art for Beginners\\\", category: \\\"Art\\\"}, {id: \\\"9\\\", name: \\\"Chinese Art\\\", category: \\\"Art\\\"}, {id: \\\"10\\\", name: \\\"Art in 2018\\\", category: \\\"Art\\\"}, {id: \\\"11\\\", name: \\\"Makers of design\\\", category: \\\"Art\\\"}, {id: \\\"12\\\", name: \\\"Art Forms in Nature\\\", category: \\\"Art\\\"}, {id: \\\"13\\\", name: \\\"The Art of Instruction\\\", category: \\\"Art\\\"}, {id: \\\"14\\\", name: \\\"The Contemporary Art Book\\\", category: \\\"Art\\\"}, {id: \\\"15\\\", name: \\\"Sketchbook Fairy Tale\\\", category: \\\"Art\\\"}, {id: \\\"16\\\", name: \\\"Art History\\\", category: \\\"Art\\\"}, {id: \\\"17\\\", name: \\\"Roman Art\\\", category: \\\"Art\\\"}, {id: \\\"18\\\", name: \\\"The Metropolitan Museum of Art\\\", category: \\\"Art\\\"}, {id: \\\"19\\\", name: \\\"Texas Artworks\\\", category: \\\"Art\\\"}, {id: \\\"20\\\", name: \\\"Simple arts\\\", category: \\\"Art\\\"}, {id: \\\"21\\\", name: \\\"Art for kids\\\", category: \\\"Art\\\"}, {id: \\\"22\\\", name: \\\"Advanced art for kids\\\", category: \\\"Art\\\"}, {id: \\\"23\\\", name: \\\"Art and music\\\", category: \\\"Art\\\"}, {id: \\\"24\\\", name: \\\"Art Apps\\\", category: \\\"Art\\\"}, {id: \\\"25\\\", name: \\\"Art in homes\\\", category: \\\"Art\\\"}, {id: \\\"26\\\", name: \\\"Art ABC\\\", category: \\\"Art\\\"}, {id: \\\"27\\\", name: \\\"Touching Art\\\", category: \\\"Art\\\"}, {id: \\\"28\\\", name: \\\"Woodwork Art\\\", category: \\\"Art\\\"}, {id: \\\"29\\\", name: \\\"Plastics Art work\\\", category: \\\"Art\\\"}, {id: \\\"30\\\", name: \\\"Boring Art\\\", category: \\\"Art\\\"}]) {\\n    id\\n    name\\n    category\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Seed Authors",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "90c54615-a264-46b5-8bc5-b77d09317f9b",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Created data contains 12 items\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.batchCreateAuthor.length).to.eql(12);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  batchCreateAuthor(author: [{id: \\\"1\\\", name: \\\"James Wood\\\"}, {id: \\\"2\\\", name: \\\"Andy Liu\\\"}, {id: \\\"3\\\", name: \\\"Derick North\\\"}, {id: \\\"4\\\", name: \\\"Mary Jane\\\"}, {id: \\\"5\\\", name: \\\"Sir Richard Ice\\\"}, {id: \\\"6\\\", name: \\\"Ken Poh\\\"}, {id: \\\"7\\\", name: \\\"Zac Mer\\\"}, {id: \\\"8\\\", name: \\\"Kathy Zhang\\\"}, {id: \\\"9\\\", name: \\\"Joe Cook\\\"}, {id: \\\"10\\\", name: \\\"Michael Han\\\"}, {id: \\\"11\\\", name: \\\"Fu Wen\\\"}, {id: \\\"12\\\", name: \\\"Li Wei\\\"}]) {\\n    id\\n    name\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Seed BookAuthors",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "90c54615-a264-46b5-8bc5-b77d09317f9b",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Created data contains 7 items\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.batchCreateBookAuthors.length).to.eql(7);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  batchCreateBookAuthors(bookauthors: [{id: \\\"1\\\", bookId: \\\"1\\\", authorIdList: [\\\"1\\\"], royaltyType: \\\"b1\\\"}, {id: \\\"2\\\", bookId: \\\"2\\\", authorIdList: [\\\"2\\\", \\\"3\\\", \\\"4\\\"], royaltyType: \\\"b1\\\"}, {id: \\\"3\\\", bookId: \\\"3\\\", authorIdList: [\\\"3\\\", \\\"5\\\"], royaltyType: \\\"b1\\\"}, {id: \\\"4\\\", bookId: \\\"4\\\", authorIdList: [\\\"2\\\"], royaltyType: \\\"b1\\\"}, {id: \\\"5\\\", bookId: \\\"5\\\", authorIdList: [\\\"7\\\"], royaltyType: \\\"b1\\\"}, {id: \\\"6\\\", bookId: \\\"6\\\", authorIdList: [\\\"8\\\"], royaltyType: \\\"c1\\\"}, {id: \\\"7\\\", bookId: \\\"7\\\", authorIdList: [\\\"9\\\"], royaltyType: \\\"c1\\\"}]) {\\n    id\\n    bookId\\n    authorIdList\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Seed Publishers",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "90c54615-a264-46b5-8bc5-b77d09317f9b",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Created data contains 5 items\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.batchCreatePublisher.length).to.eql(11);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  batchCreatePublisher(publisher: [{id: \\\"1\\\", name: \\\"West House Publishing\\\"}, {id: \\\"2\\\", name: \\\"Northwest Inc\\\"}, {id: \\\"3\\\", name: \\\"Texas Publishers\\\"}, {id: \\\"4\\\", name: \\\"ACME\\\"}, {id: \\\"5\\\", name: \\\"Jane Publishing\\\"}, {id: \\\"6\\\", name: \\\"App Pub\\\"}, {id: \\\"8\\\", name: \\\"King Publishing House\\\"}, {id: \\\"9\\\", name: \\\"Queen Publishing House\\\"}, {id: \\\"10\\\", name: \\\"John Publishing House\\\"}, {id: \\\"11\\\", name: \\\"Mark Publishing House\\\"}, {id: \\\"12\\\", name: \\\"Bao Publisher\\\"}]) {\\n    id\\n    name\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Seed Reviewers",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "90c54615-a264-46b5-8bc5-b77d09317f9b",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Created data contains 10 items\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.batchCreateReviewer.length).to.eql(10);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  batchCreateReviewer(reviewer: [{id: \\\"1\\\", name: \\\"James A\\\", interests: [\\\"Technology\\\", \\\"Arts\\\"], region: \\\"Dallas/Fort Worth\\\"}, {id: \\\"2\\\", name: \\\"Mec James\\\", interests: [\\\"Technology\\\"], region: \\\"Austin\\\"}, {id: \\\"3\\\", name: \\\"Hal Bet\\\", interests: [\\\"Children\\\"], region: \\\"Houston\\\"}, {id: \\\"4\\\", name: \\\"Mary P\\\", interests: [\\\"Technology\\\"], region: \\\"Dallas/Fort Worth\\\"}, {id: \\\"5\\\", name: \\\"Rick James\\\", interests: [\\\"History\\\"], region: \\\"Seattle\\\"}, {id: \\\"6\\\", name: \\\"David Kim\\\", interests: [\\\"Technology\\\", \\\"Arts\\\"], region: \\\"St Paul/Minneapolis\\\"}, {id: \\\"7\\\", name: \\\"Phil Hack\\\", interests: [\\\"Arts\\\"], region: \\\"Baltimore\\\"}, {id: \\\"8\\\", name: \\\"Becky Far\\\", interests: [\\\"Politics\\\", \\\"Arts\\\"], region: \\\"San Fransico\\\"}, {id: \\\"9\\\", name: \\\"Kate Lim\\\", interests: [\\\"Technology\\\"], region: \\\"LA\\\"}, {id: \\\"10\\\", name: \\\"Mary Ann\\\", interests: [\\\"Children\\\"], region: \\\"Washington DC\\\"}]) {\\n    id\\n    name\\n    interests\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Seed BookReviews",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "90c54615-a264-46b5-8bc5-b77d09317f9b",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Created data contains 7 items\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.batchCreateBookReview.length).to.eql(7);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  batchCreateBookReview(bookreview: [{id: \\\"1\\\", bookId: \\\"10\\\", comments: \\\"It's not a good book because the color is too dark.\\\", reviewerId: \\\"10\\\", stars: 1, active: true, writtenOn: \\\"2018-01-19\\\" }, {id: \\\"2\\\", bookId: \\\"11\\\", comments: \\\"It was awesome!\\\", reviewerId: \\\"8\\\", stars: 4, active: true, writtenOn: \\\"2018-11-03\\\"}, {id: \\\"3\\\", bookId: \\\"1\\\", comments: \\\"Sounds OK\\\", reviewerId: \\\"8\\\", stars: 3, active: false, writtenOn: \\\"2011-05-19\\\"}, {id: \\\"4\\\", bookId: \\\"3\\\", comments: \\\"I really enjoyed it!\\\", reviewerId: \\\"6\\\", stars: 4, active: true, writtenOn: \\\"2010-12-31\\\"}, {id: \\\"5\\\", bookId: \\\"4\\\", comments: \\\"Wow, amazing!\\\", reviewerId: \\\"5\\\", stars: 5, active: false, writtenOn: \\\"2018-02-09\\\"}, {id: \\\"6\\\", bookId: \\\"7\\\", comments: \\\"I love it!\\\", reviewerId: \\\"5\\\", stars: 5, active: true, writtenOn: \\\"2018-11-10\\\"}, {id: \\\"7\\\", bookId: \\\"9\\\", comments: \\\"Worst book ever. Don't even need to think about it.\\\", reviewerId: \\\"1\\\", stars: 1, active: true, writtenOn: \\\"2017-08-08\\\"}]) {\\n    id\\n    bookId\\n    reviewerId\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Queries",
+			"item": [
+				{
+					"name": "BookQueryById",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f4d1b51c-a22b-441a-a84a-4e6f5cd64085",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Query returns with match\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.getBook.id).to.eql(\"1\");",
+									"    pm.expect(jsonData.data.getBook.name).to.eql(\"Nancy in the Wonderland\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"{\\n  getBook(id: { equal: \\\"1\\\" } ) {\\n    id\\n    name\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "BooksQueryByCategory",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f4d1b51c-a22b-441a-a84a-4e6f5cd64085",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Query returns with match\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.getBooksByCategory[0].id).to.eql(\"2\");",
+									"    pm.expect(jsonData.data.getBooksByCategory[0].name).to.eql(\"App in the Cloud\");",
+									"    pm.expect(jsonData.data.getBooksByCategory[0].category).to.eql(\"Technology\");",
+									"    ",
+									"    pm.expect(jsonData.data.getBooksByCategory[1].id).to.eql(\"4\");",
+									"    pm.expect(jsonData.data.getBooksByCategory[1].name).to.eql(\"C/C++ for Beginners\");",
+									"    pm.expect(jsonData.data.getBooksByCategory[1].category).to.eql(\"Technology\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"{\\n  getBooksByCategory(category: { equal: \\\"Technology\\\" } ) {\\n    id\\n    name\\n    category\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "BooksQueryById",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f4d1b51c-a22b-441a-a84a-4e6f5cd64085",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Query returns with match\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.getBooksByCategory[0].id).to.eql(\"2\");",
+									"    pm.expect(jsonData.data.getBooksByCategory[0].name).to.eql(\"App in the Cloud\");",
+									"    pm.expect(jsonData.data.getBooksByCategory[0].category).to.eql(\"Technology\");",
+									"    ",
+									"    pm.expect(jsonData.data.getBooksByCategory[1].id).to.eql(\"4\");",
+									"    pm.expect(jsonData.data.getBooksByCategory[1].name).to.eql(\"C/C++ for Beginners\");",
+									"    pm.expect(jsonData.data.getBooksByCategory[1].category).to.eql(\"Technology\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"{\\n  getBooksByCategory(category: { equal: \\\"Technology\\\" }) {\\n    id\\n    name\\n    category\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getPublisherById",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "8cdd0da6-f4bd-427b-ba71-cde39b62de87",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Query returns with match\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.getPublisherById.id).to.eql(\"4\");",
+									"    pm.expect(jsonData.data.getPublisherById.name).to.eql(\"ACME\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"{\\n  getPublisherById(id: { equal: \\\"4\\\" } ) {\\n    id\\n    name\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getBookReviewByBookName",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "8cdd0da6-f4bd-427b-ba71-cde39b62de87",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Query returns with match\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.getBookReviewByBookName.length).to.eql(1);",
+									"    ",
+									"    var entity = jsonData.data.getBookReviewByBookName[0];",
+									"    ",
+									"    pm.expect(entity.id).to.eql(\"3\");",
+									"    pm.expect(entity.comments).to.eql(\"Sounds OK\");",
+									"    pm.expect(entity.book.id).to.eql(\"1\");",
+									"    pm.expect(entity.book.name).to.eql(\"Nancy in the Wonderland\");",
+									"    pm.expect(entity.reviewer.id).to.eql(\"8\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"{\\n  getBookReviewByBookName(name: { equal: \\\"Nancy in the Wonderland\\\" }) {\\n    id\\n    comments\\n    stars\\n    book {\\n      id\\n      name\\n    }\\n    reviewer {\\n      id\\n      interests\\n      region\\n    }\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getBookReviewsWithBookNameAndCategory_1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "8cdd0da6-f4bd-427b-ba71-cde39b62de87",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Query returns with match\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.getBookReviewsWithBookNameAndCategory.length).to.eql(2);",
+									"    ",
+									"    var entity1 = jsonData.data.getBookReviewsWithBookNameAndCategory[0];",
+									"    ",
+									"    pm.expect(entity1.id).to.eql(\"7\");",
+									"    pm.expect(entity1.stars).to.eql(1);",
+									"    pm.expect(entity1.writtenOn).to.eql('2017-08-08');",
+									"    pm.expect(entity1.active).to.eql(true);",
+									"    ",
+									"   var entity2 = jsonData.data.getBookReviewsWithBookNameAndCategory[1];",
+									"    ",
+									"    pm.expect(entity2.id).to.eql(\"1\");",
+									"    pm.expect(entity2.stars).to.eql(1);",
+									"    pm.expect(entity2.writtenOn).to.eql('2018-01-19');",
+									"    pm.expect(entity2.active).to.eql(true);",
+									"",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"{\\n  getBookReviewsWithBookNameAndCategory(name: {contains: \\\"Art\\\"}, category: {contains: \\\"Art\\\"}, stars: {greaterEqualThan: 1}, active: {equal: true}, writtenon: {greaterThan: \\\"2016-01-01\\\"}) {\\n    id\\n    comments\\n    stars\\n    writtenOn\\n    active\\n    book {\\n      id\\n      name\\n    }\\n    reviewer {\\n      id\\n      interests\\n      region\\n    }\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getBookReviewsWithBookNameAndCategory_2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "8cdd0da6-f4bd-427b-ba71-cde39b62de87",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Query returns with match\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.getBookReviewsWithBookNameAndCategory.length).to.eql(1);",
+									"    ",
+									"   var entity2 = jsonData.data.getBookReviewsWithBookNameAndCategory[0];",
+									"    ",
+									"    pm.expect(entity2.id).to.eql(\"1\");",
+									"    pm.expect(entity2.stars).to.eql(1);",
+									"    pm.expect(entity2.writtenOn).to.eql('2018-01-19');",
+									"    pm.expect(entity2.active).to.eql(true);",
+									"",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"{\\n  getBookReviewsWithBookNameAndCategory(name: {contains: \\\"Art\\\"}, category: {contains: \\\"Art\\\"}, stars: {greaterEqualThan: 1}, active: {equal: true}, writtenon: {greaterThan: \\\"2018-01-01\\\"}) {\\n    id\\n    comments\\n    stars\\n    writtenOn\\n    active\\n    book {\\n      id\\n      name\\n    }\\n    reviewer {\\n      id\\n      interests\\n      region\\n    }\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getBookReviewsWithBookNameAndCategory_3",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "8cdd0da6-f4bd-427b-ba71-cde39b62de87",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Query returns with match\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.getBookReviewsWithBookNameAndCategory.length).to.eql(1);",
+									"    ",
+									"    var entity1 = jsonData.data.getBookReviewsWithBookNameAndCategory[0];",
+									"    ",
+									"    pm.expect(entity1.id).to.eql(\"7\");",
+									"    pm.expect(entity1.stars).to.eql(1);",
+									"    pm.expect(entity1.writtenOn).to.eql('2017-08-08');",
+									"    pm.expect(entity1.active).to.eql(true);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"{\\n  getBookReviewsWithBookNameAndCategory(name: {contains: \\\"Art\\\"}, category: {contains: \\\"Art\\\"}, stars: {greaterEqualThan: 1}, active: {equal: true}, writtenon: {lessThan: \\\"2018-01-01\\\"}) {\\n    id\\n    comments\\n    stars\\n    writtenOn\\n    active\\n    book {\\n      id\\n      name\\n    }\\n    reviewer {\\n      id\\n      interests\\n      region\\n    }\\n  }\\n}\\n\"}"
 						},
 						"url": {
 							"raw": "{{endpoint}}/api/books/graph",
@@ -130,9 +973,11 @@
 									"    pm.response.to.have.status(200);",
 									"});",
 									"",
-									"pm.test(\"Created data contains Id\", function () {",
+									"var id = pm.environment.get(\"newId1\").toString(); ",
+									"",
+									"pm.test(\"Created data contains Id \" + id, function () {",
 									"    var jsonData = pm.response.json();",
-									"    var id = pm.environment.get(\"newId1\").toString(); ",
+									"    ",
 									"    pm.expect(jsonData.data.createBook.id).to.eql(id);",
 									"});"
 								],
@@ -191,12 +1036,12 @@
 									"    pm.response.to.have.status(200);",
 									"});",
 									"",
-									"pm.test(\"Query returns with match\", function () {",
-									"    var jsonData = pm.response.json();",
+									"var id = pm.environment.get(\"newId1\"); ",
 									"    ",
-									"    var id = pm.environment.get(\"newId1\"); ",
-									"    pm.expect(jsonData.data.book.id).to.eql(id);",
-									"    pm.expect(jsonData.data.book.name).to.eql(\"abc\");",
+									"pm.test(\"Query returns with match with Id \" + id, function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.getBook.id).to.eql(id);",
+									"    pm.expect(jsonData.data.getBook.name).to.eql(\"abc\");",
 									"});"
 								],
 								"type": "text/javascript"
@@ -215,7 +1060,195 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"{\\n  book(id: \\\"{{newId1}}\\\") {\\n    id\\n    name\\n  }\\n}\\n\"}"
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"{\\n  getBook(id: { equal: \\\"{{newId1}}\\\" }) {\\n    id\\n    name\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CreateBookReview",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "0c3f3e5f-0cae-44b0-82d6-ed1e8503875e",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Book review is created.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    ",
+									"    pm.expect(jsonData.data.createBookReview.id).to.eql(\"101\");",
+									"    pm.expect(jsonData.data.createBookReview.bookId).to.eql(\"1\");",
+									"    pm.expect(jsonData.data.createBookReview.reviewerId).to.eql(\"1\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "5d61d284-ccef-46b5-92d5-8867d081b060",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  createBookReview(bookreview: {id: \\\"101\\\", bookId: \\\"1\\\", reviewerId: \\\"1\\\", comments: \\\"It was good\\\", stars: 5, active: true, writtenOn: \\\"2018-12-01\\\"}) {\\n    id\\n    bookId\\n    reviewerId\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UpdateBookReview",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "0c3f3e5f-0cae-44b0-82d6-ed1e8503875e",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"var id = pm.environment.get(\"newId1\").toString(); ",
+									"",
+									"pm.test(\"Bookreview is updated.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    ",
+									"    pm.expect(jsonData.data.updateBookReview.id).to.eql(\"101\");",
+									"    pm.expect(jsonData.data.updateBookReview.bookId).to.eql(\"1\");",
+									"    pm.expect(jsonData.data.updateBookReview.reviewerId).to.eql(\"1\");",
+									"    pm.expect(jsonData.data.updateBookReview.comments).to.eql(\"It was good ish I think\");",
+									"    pm.expect(jsonData.data.updateBookReview.stars).to.eql(1);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "5d61d284-ccef-46b5-92d5-8867d081b060",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  updateBookReview(bookreview: {id: \\\"101\\\", bookId: \\\"1\\\", reviewerId: \\\"1\\\", comments: \\\"It was good ish I think\\\", stars: 1, active: false, writtenOn: \\\"2017-12-01\\\"}) {\\n    id\\n    bookId\\n    reviewerId\\n    comments\\n    stars\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteBookReview",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "0c3f3e5f-0cae-44b0-82d6-ed1e8503875e",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Book review is deleted.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    ",
+									"    pm.expect(jsonData.data.deleteBookReview.message).not.equal(null);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "5d61d284-ccef-46b5-92d5-8867d081b060",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  deleteBookReview(bookreview: {id: \\\"101\\\"}) {\\n    message\\n  }\\n}\\n\"}"
 						},
 						"url": {
 							"raw": "{{endpoint}}/api/books/graph",
@@ -250,7 +1283,7 @@
 									"",
 									"function getPayLoad() {",
 									"    var jsonData = pm.response.json();",
-									"    var dto = jsonData.data.books_categoryConnection;",
+									"    var dto = jsonData.data.getPagedBooksByCategory;",
 									"    return dto;",
 									"}",
 									"",
@@ -316,7 +1349,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"operationName\":null,\n\t\"variables\":{},\n\t\"query\":\"{\\n  books_categoryConnection(category: \\\"Art\\\") {\\n    totalCount\\n    edges {\\n      cursor\\n      node {\\n        id\\n        name\\n        category\\n      }\\n    }\\n    items {\\n      id\\n      name\\n      category\\n    }\\n    pageInfo {\\n      startCursor\\n      endCursor\\n      hasNextPage\\n      hasPreviousPage\\n    }\\n  }\\n}\\n\"}"
+							"raw": "{\n\t\"operationName\":null,\n\t\"variables\":{},\n\t\"query\":\"{\\n  getPagedBooksByCategory(category: { equal: \\\"Art\\\" }) {\\n    totalCount\\n    edges {\\n      cursor\\n      node {\\n        id\\n        name\\n        category\\n      }\\n    }\\n    items {\\n      id\\n      name\\n      category\\n    }\\n    pageInfo {\\n      startCursor\\n      endCursor\\n      hasNextPage\\n      hasPreviousPage\\n    }\\n  }\\n}\\n\"}"
 						},
 						"url": {
 							"raw": "{{endpoint}}/api/books/graph",
@@ -346,7 +1379,7 @@
 									"",
 									"function getPayLoad() {",
 									"    var jsonData = pm.response.json();",
-									"    var dto = jsonData.data.books_categoryConnection;",
+									"    var dto = jsonData.data.getPagedBooksByCategory;",
 									"    return dto;",
 									"}",
 									"",
@@ -406,7 +1439,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"operationName\":null,\n\t\"variables\":{},\n\t\"query\":\"{\\n  books_categoryConnection(category: \\\"Art\\\", after: \\\"{{nextPageCursor}}\\\" ) {\\n    totalCount\\n    edges {\\n      cursor\\n      node {\\n        id\\n        name\\n        category\\n      }\\n    }\\n    items {\\n      id\\n      name\\n      category\\n    }\\n    pageInfo {\\n      startCursor\\n      endCursor\\n      hasNextPage\\n      hasPreviousPage\\n    }\\n  }\\n}\\n\"}"
+							"raw": "{\n\t\"operationName\":null,\n\t\"variables\":{},\n\t\"query\":\"{\\n  getPagedBooksByCategory(category: { equal: \\\"Art\\\" }, after: \\\"{{nextPageCursor}}\\\" ) {\\n    totalCount\\n    edges {\\n      cursor\\n      node {\\n        id\\n        name\\n        category\\n      }\\n    }\\n    items {\\n      id\\n      name\\n      category\\n    }\\n    pageInfo {\\n      startCursor\\n      endCursor\\n      hasNextPage\\n      hasPreviousPage\\n    }\\n  }\\n}\\n\"}"
 						},
 						"url": {
 							"raw": "{{endpoint}}/api/books/graph",
@@ -436,7 +1469,7 @@
 									"",
 									"function getPayLoad() {",
 									"    var jsonData = pm.response.json();",
-									"    var dto = jsonData.data.books_categoryConnection;",
+									"    var dto = jsonData.data.getPagedBooksByCategory;",
 									"    return dto;",
 									"}",
 									"",
@@ -514,7 +1547,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"operationName\":null,\n\t\"variables\":{},\n\t\"query\":\"{\\n  books_categoryConnection(category: \\\"Art\\\", after:\\\"{{secondPageCursor}}\\\") {\\n    totalCount\\n    edges {\\n      cursor\\n      node {\\n        id\\n        name\\n        category\\n      }\\n    }\\n    items {\\n      id\\n      name\\n      category\\n    }\\n    pageInfo {\\n      startCursor\\n      endCursor\\n      hasNextPage\\n      hasPreviousPage\\n    }\\n  }\\n}\\n\"}"
+							"raw": "{\n\t\"operationName\":null,\n\t\"variables\":{},\n\t\"query\":\"{\\n  getPagedBooksByCategory(category: { equal: \\\"Art\\\" }, after:\\\"{{secondPageCursor}}\\\") {\\n    totalCount\\n    edges {\\n      cursor\\n      node {\\n        id\\n        name\\n        category\\n      }\\n    }\\n    items {\\n      id\\n      name\\n      category\\n    }\\n    pageInfo {\\n      startCursor\\n      endCursor\\n      hasNextPage\\n      hasPreviousPage\\n    }\\n  }\\n}\\n\"}"
 						},
 						"url": {
 							"raw": "{{endpoint}}/api/books/graph",
@@ -544,7 +1577,7 @@
 									"",
 									"function getPayLoad() {",
 									"    var jsonData = pm.response.json();",
-									"    var dto = jsonData.data.books_categoryConnection;",
+									"    var dto = jsonData.data.getPagedBooksByCategory;",
 									"    return dto;",
 									"}",
 									"",
@@ -616,7 +1649,276 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n\t\"operationName\":null,\n\t\"variables\":{},\n\t\"query\":\"{\\n  books_categoryConnection(category: \\\"Art\\\", after:\\\"{{thirdPageCursor}}\\\") {\\n    totalCount\\n    edges {\\n      cursor\\n      node {\\n        id\\n        name\\n        category\\n      }\\n    }\\n    items {\\n      id\\n      name\\n      category\\n    }\\n    pageInfo {\\n      startCursor\\n      endCursor\\n      hasNextPage\\n      hasPreviousPage\\n    }\\n  }\\n}\\n\"}"
+							"raw": "{\n\t\"operationName\":null,\n\t\"variables\":{},\n\t\"query\":\"{\\n  getPagedBooksByCategory(category: { equal: \\\"Art\\\" }, after:\\\"{{thirdPageCursor}}\\\") {\\n    totalCount\\n    edges {\\n      cursor\\n      node {\\n        id\\n        name\\n        category\\n      }\\n    }\\n    items {\\n      id\\n      name\\n      category\\n    }\\n    pageInfo {\\n      startCursor\\n      endCursor\\n      hasNextPage\\n      hasPreviousPage\\n    }\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Cleanup",
+			"item": [
+				{
+					"name": "CleanupReviewers",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "8dca96fc-11b4-4254-9244-74661e5ab199",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  deleteAllReviewer {\\n    message\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CleanupPublishers",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "8dca96fc-11b4-4254-9244-74661e5ab199",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  deleteAllPublisher {\\n    message\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CleanupBookAuthors",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "8dca96fc-11b4-4254-9244-74661e5ab199",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  deleteAllBookAuthors {\\n    message\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CleanupBooks",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "8dca96fc-11b4-4254-9244-74661e5ab199",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  deleteAllBook {\\n    message\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CleanupAuthors",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "8dca96fc-11b4-4254-9244-74661e5ab199",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  deleteAllAuthor {\\n    message\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CleanupBookReviews",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "8dca96fc-11b4-4254-9244-74661e5ab199",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  deleteAllBookReview {\\n    message\\n  }\\n}\\n\"}"
 						},
 						"url": {
 							"raw": "{{endpoint}}/api/books/graph",

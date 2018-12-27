@@ -5,10 +5,10 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 {
     public class BooksSchema : Schema
     {
-        public BooksSchema(IDependencyResolver resolver) : base(resolver)
+        public BooksSchema(IDependencyResolver resolver, BooksQuery booksQuery, BooksMutation booksMutation) : base(resolver)
         {
-            Query = resolver.Resolve<BooksQuery>();
-            Mutation = resolver.Resolve<BooksMutation>();
+            Query = booksQuery;
+            Mutation = booksMutation;
         }
     }
 }

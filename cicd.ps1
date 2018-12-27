@@ -1,8 +1,29 @@
-param()
+param([switch]$testunit, [switch]$testint)
 
 	$ErrorActionPreference = "Stop"
 
 	$buildConfig = "Release"
+
+	dotnet test .\Eklee.Azure.Functions.GraphQl.Tests\Eklee.Azure.Functions.GraphQl.Tests.csproj --filter Category=Unit
+	
+	if ($lastexitcode -ne 0){
+		return;
+	}
+
+	if ($testunit) { 
+		return;
+	}
+	
+	dotnet test .\Eklee.Azure.Functions.GraphQl.Tests\Eklee.Azure.Functions.GraphQl.Tests.csproj --filter Category=Integration
+	
+	if ($lastexitcode -ne 0){
+		return;
+	}
+
+	if ($testint) { 
+		return;
+	}
+
 	$app = "Eklee.Azure.Functions.GraphQl"	
 
 	$currentDir = Get-Location

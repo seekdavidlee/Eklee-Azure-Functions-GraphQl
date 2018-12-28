@@ -4,13 +4,13 @@ The purpose of this library is to help developers with implementing a GraphQl ba
 
 ## Nuget
 
-You can find this library on nuget [https://www.nuget.org/packages/Eklee.Azure.Functions.GraphQl](https://www.nuget.org/packages/Eklee.Azure.Functions.GraphQl).
+You can find this library on nuget: [https://www.nuget.org/packages/Eklee.Azure.Functions.GraphQl](https://www.nuget.org/packages/Eklee.Azure.Functions.GraphQl).
 
-## DI Usage
+## Getting started
 
 In order to leverage this library, there are 3 steps. You would want to setup your DI, apply the ExecutionContextDependencyInjection attribute, and inject the ExecutionContext as a parameter in your function.
 
-### Step 1: Setup DI
+### Step 1: Setup dependency injection (DI)
 
 The first step is to setup your DI via the Autofac Module. Be sure to register your schema using the extension method RegisterGraphQl. You can then register your mutation and query used in the schema.
 
@@ -23,9 +23,9 @@ namespace FunctionApp1
     {
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterGraphQl<BooksSchema>();
-            builder.RegisterType<BooksQuery>();
-            builder.RegisterType<BooksMutation>();
+            builder.RegisterGraphQl<MySchema>();
+            builder.RegisterType<MyQuery>();
+            builder.RegisterType<MyMutation>();
             ...
         }
     }

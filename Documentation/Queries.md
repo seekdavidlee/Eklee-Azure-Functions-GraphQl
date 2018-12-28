@@ -1,6 +1,6 @@
 [Back](../README.md)
 
-# Introduction
+# Query introduction
 
 Before creating your queries, be sure to have setup mutation for your model type. 
 
@@ -34,9 +34,26 @@ namespace Eklee.Examples
 
 ## Simple Query by Id
 
-This example shows how we can quickly setup a query by a Id field. Notice that it uses the extension method WithKeys? As long as you have define the Key attribute on your model property, it will know how to use that property for performing a query based on Id.
+This example shows how we can quickly setup a query by a Id field.
 ```
-	queryBuilderFactory.Create<Book>(booksQuery, "GetBookById")
+	queryBuilderFactory.Create<Book>(myQuery, "GetBookById")
+		.WithParameterBuilder()
+			.WithKeys()
+			.BuildQuery()
+		.BuildWithSingleResult();
+```
+
+There are a few things to note here. We start by providing a model type in which we would like to query for. In this context, it is a Book model.
+
+Next, we pass in the MyQuery instance where the query is being applied. We also need to provide a name for the query.
+
+After that, we are ready to start with defining the query parameters. This is where we start with the WithParameterBuilder extension method which gives us the ability to invoke WithKeys. As long as you have define the Key attribute on your model property, it will know how to use that property for performing a query based on Id.
+
+Lastly, we are ready to build the query with BuildQuery extension method and close off by stating that we are only expect one result from the query using BuildWithSingleResult.
+
+Let's take a look at a different example. This is equivalent to the following except you are the one defining the property in which to query on.
+```
+	queryBuilderFactory.Create<Book>(myQuery, "GetBookById")
 		.WithParameterBuilder()
 			.WithKeys()
 			.BuildQuery()

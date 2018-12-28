@@ -1,6 +1,6 @@
 [Back](../README.md)
 
-# Introduction
+# Mutation introduction
 
 Mutation is the process by which data is ingested/updated/deleted in the system.
 

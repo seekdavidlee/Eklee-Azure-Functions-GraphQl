@@ -1,8 +1,8 @@
-## [Back](../README.md)
+[Back](../README.md)
 
 # Introduction
 
-Mutation is the process by which data is ingested into the system. The system can automatically generate mutation schema based on your model.
+Mutation is the process by which data is ingested/updated/deleted in the system.
 
 The following is an example of declaring a class called MyMutation. You would use this in the context of Schema declaration.
 
@@ -19,7 +19,7 @@ With mutation also comes the concept of where the entity type data is persisted 
 Currently, the following repository types are supported.
 
 - HttpRepository
-- DocumentDbRepository (Azure CosmosDb, SQL Core)
+- DocumentDbRepository (Azure CosmosDb, SQL API)
 - InMemoryRepository
 
 ** More documentation is coming. **

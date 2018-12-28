@@ -1,6 +1,6 @@
 # Introduction
 
-The purpose of this library is to help developers with implementing a GraphQl based Azure Function with dependency injection support.
+The purpose of this library is to help developers with implementing a GraphQl based Azure Function with dependency injection support. If you are not sure what GraphQL is, the best resource would be to review the documentation on [https://graphql.org/](https://graphql.org/).
 
 ## Nuget
 
@@ -97,5 +97,6 @@ To enable support for tracing, please add set EnableMetrics configuration to tru
 
 ## Topics
 - [Mutations](Documentation/Mutations.md)
+- [Queries](Documentation/Queries.md)
 
 ** More documentation/topics are coming. **

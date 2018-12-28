@@ -2,6 +2,10 @@
 
 The purpose of this library is to help developers with implementing a GraphQl based Azure Function with dependency injection support.
 
+## Nuget
+
+You can find this library on nuget [https://www.nuget.org/packages/Eklee.Azure.Functions.GraphQl](https://www.nuget.org/packages/Eklee.Azure.Functions.GraphQl).
+
 ## DI Usage
 
 In order to leverage this library, there are 3 steps. You would want to setup your DI, apply the ExecutionContextDependencyInjection attribute, and inject the ExecutionContext as a parameter in your function.
@@ -52,7 +56,7 @@ Simply leverage the extension method ProcessGraphQlRequest.
 return await executionContext.ProcessGraphQlRequest(req);
 ```
 
-For more information about dependency injection support, visit: https://github.com/seekdavidlee/Eklee-Azure-Functions-Http
+For more information about dependency injection support, visit: [https://github.com/seekdavidlee/Eklee-Azure-Functions-Http](https://github.com/seekdavidlee/Eklee-Azure-Functions-Http)
 
 ## Caching:
 

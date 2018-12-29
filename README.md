@@ -49,7 +49,7 @@ For more information about the library used for dependency injection support, ch
 
 ## Step 2: Setup HTTP function.
 
-The second step is to apply the ExecutionContextDependencyInjection attribute on your HTTP triggered Function and tell it which Module to use. Next, you can inject the ExecutionContext which internally carries the function instance Id. Notice that by convention, we allow both HTTP GET and POST. This is by convention what is [recommended](https://graphql.org/learn/serving-over-http/) by GraphQL. 
+The second step is to apply the ExecutionContextDependencyInjection attribute on your HTTP triggered Function and tell it which Module to use. Next, you can inject the ExecutionContext which internally carries the function instance Id. Notice that by convention, we allow both HTTP GET and POST. This, by convention, is what is [recommended](https://graphql.org/learn/serving-over-http/) by GraphQL. 
 
 ```
 public static class MyGraphFunction

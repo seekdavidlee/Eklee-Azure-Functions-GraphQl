@@ -1,6 +1,6 @@
 # Introduction
 
-The purpose of this library is to help developers with implementing a GraphQL Server running on top of Azure HTTP Function(s) with resolver support for different Azure-specific repositories like Azure Cosmos DB. If you are not sure what GraphQL is, the best resource would be to review the documentation on [https://graphql.org/](https://graphql.org/).
+The purpose of this library is to help developers with implementing their API on a GraphQL Server running on top of Azure HTTP Function. The library will have resolver support for different Azure-specific repositories like Azure Cosmos DB. If you are not sure what GraphQL is, the best resource would be to review the documentation on [https://graphql.org/](https://graphql.org/).
 
 ## Nuget
 
@@ -32,7 +32,7 @@ namespace Eklee.Examples
 }
 ```
 
-### Step 2/3: Setup ExecutionContextDependencyInjection attribute on said function and inject ExecutionContext.
+### Step 2: Setup ExecutionContextDependencyInjection attribute on said function and inject ExecutionContext.
 
 The second step is to apply the ExecutionContextDependencyInjection on your function and tell it which Module type you would like. Next, you can inject the ExecutionContext which internally carries the function instance Id.
 
@@ -48,7 +48,7 @@ public static class MyGraphFunction
     {	
 ```
 
-## Process GraphQl Request Usage:
+### Step 3: Implement ProcessGraphQlRequest:
 
 Simply leverage the extension method ProcessGraphQlRequest. 
 
@@ -60,7 +60,7 @@ For more information about dependency injection support, visit: [https://github.
 
 ## Caching:
 
-In your Module setup, use the extension method EnableGraphQlCache. Note that MemoryDistributedCache is just an example. In a production senario, you may choose something like Azure Redis.
+In your Module setup, use the extension method UseDistributedCache. Note that MemoryDistributedCache is just an example. In a production senario, you may choose something like Azure Redis.
 
 ```
 builder.UseDistributedCache<MemoryDistributedCache>();
@@ -70,7 +70,7 @@ Results are cached based on query parameters and return type. The query paramete
 
 ## Data Annotations:
 
-We used a Model-first with Fluent syntax to define GraphQL schema. The description is a required attribute on the model.
+We used a Model-first with Fluent syntax to define GraphQL schema. Description is a required attribute on the model.
 
 ```
 using System.ComponentModel.DataAnnotations;

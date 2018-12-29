@@ -8,7 +8,7 @@ You can find this library on nuget: [https://www.nuget.org/packages/Eklee.Azure.
 
 ## Getting started
 
-In order to leverage this library, there are 3 steps. You would want to setup your DI, apply the ExecutionContextDependencyInjection attribute, and inject the ExecutionContext as a parameter in your function.
+First off, we would need to expose a HTTP Function to serve your API via GraphQL server. There are 3 steps.
 
 ### Step 1: Setup dependency injection (DI)
 
@@ -32,9 +32,9 @@ namespace Eklee.Examples
 }
 ```
 
-### Step 2: Setup ExecutionContextDependencyInjection attribute on said function and inject ExecutionContext.
+### Step 2: Setup HTTP function.
 
-The second step is to apply the ExecutionContextDependencyInjection on your function and tell it which Module type you would like. Next, you can inject the ExecutionContext which internally carries the function instance Id.
+The second step is to apply the ExecutionContextDependencyInjection attribute on your HTTP triggered Function and tell it which Module to use. Next, you can inject the ExecutionContext which internally carries the function instance Id. Notice that by convention, we allow both HTTP GET and POST. This is by convention what is [recommended](https://graphql.org/learn/serving-over-http/) by GraphQL. The power of GraphQL is that we are able to serve the API via a single HTTP endpoint and consumers need to only know to query for the schema on this endpoint and perform query or mutation operations. Thus, we are giving a generic Route name here called Graph. However, you may want to give it a more domain specific name if you intend to have more than one endpoint.
 
 ```
 public static class MyGraphFunction
@@ -50,7 +50,7 @@ public static class MyGraphFunction
 
 ### Step 3: Implement ProcessGraphQlRequest:
 
-Simply leverage the extension method ProcessGraphQlRequest. 
+Simply leverage the extension method ProcessGraphQlRequest. Internally, this is the GraphQL server.
 
 ```
 return await executionContext.ProcessGraphQlRequest(req);

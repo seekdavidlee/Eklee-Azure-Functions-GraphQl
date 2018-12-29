@@ -63,9 +63,9 @@ public static class MyGraphFunction
     {	
 ```
 
-## Step 3: Implement ProcessGraphQlRequest:
+## Step 3: Implement GraphQL server:
 
-Simply leverage the extension method ProcessGraphQlRequest. Internally, this is the GraphQL server.
+Simply leverage the extension method ProcessGraphQlRequest with the HTTP request which will be processed by the GraphQL server.
 
 ```
 return await executionContext.ProcessGraphQlRequest(req);

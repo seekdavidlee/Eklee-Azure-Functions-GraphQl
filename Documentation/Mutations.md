@@ -33,6 +33,8 @@ namespace Eklee.Examples
             Mutation = myMutation;
 ```
 
+Lastly, please note to register MyMutation in your AutoFac Module as part of your dependency injection setup.
+
 ## Repositories
 
 With mutation also comes the concept of where the entity type data is persisted to. This is why we have created different repositories.

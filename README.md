@@ -1,6 +1,6 @@
 # Introduction
 
-The purpose of this library is to help developers with implementing a GraphQl based Azure Function with dependency injection support. If you are not sure what GraphQL is, the best resource would be to review the documentation on [https://graphql.org/](https://graphql.org/).
+The purpose of this library is to help developers with implementing a GraphQL Server running on top of Azure HTTP Function(s) with resolver support for different Azure-specific repositories like Azure Cosmos DB. If you are not sure what GraphQL is, the best resource would be to review the documentation on [https://graphql.org/](https://graphql.org/).
 
 ## Nuget
 
@@ -17,9 +17,9 @@ The first step is to setup your DI via the Autofac Module. Be sure to register y
 ```
 using Autofac;
 
-namespace FunctionApp1
+namespace Eklee.Examples
 {
-    public class MyModuleConfig : Module
+    public class MyModule : Module
     {
         protected override void Load(ContainerBuilder builder)
         {
@@ -37,12 +37,12 @@ namespace FunctionApp1
 The second step is to apply the ExecutionContextDependencyInjection on your function and tell it which Module type you would like. Next, you can inject the ExecutionContext which internally carries the function instance Id.
 
 ```
-public static class BooksGraphFunction
+public static class MyGraphFunction
 {
     [ExecutionContextDependencyInjection(typeof(MyModule))]
     [FunctionName("graph")]
     public static async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "books/graph")] HttpRequest req,
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "graph")] HttpRequest req,
         ILogger log,
         ExecutionContext executionContext)
     {	

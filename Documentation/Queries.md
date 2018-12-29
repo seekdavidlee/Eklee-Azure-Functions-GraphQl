@@ -32,6 +32,8 @@ namespace Eklee.Examples
             Query = myQuery;
 ```
 
+Lastly, please note to register MyQuery in your AutoFac Module as part of your dependency injection setup.
+
 ## Simple Query by Id
 
 This example shows how we can quickly setup a query by a Id field.

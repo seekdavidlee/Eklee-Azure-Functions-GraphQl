@@ -39,13 +39,13 @@ namespace Eklee.Examples
 
 To setup caching, in your Module setup, use the extension method UseDistributedCache. Note that MemoryDistributedCache is just an example. In a production senario, you may choose something like Azure Redis.
 
-## Misc
-
-For more information about the library used for dependency injection support, check out: [https://github.com/seekdavidlee/Eklee-Azure-Functions-Http](https://github.com/seekdavidlee/Eklee-Azure-Functions-Http)
-
 ```
 builder.UseDistributedCache<MemoryDistributedCache>();
 ```
+
+## Misc
+
+For more information about the library used for dependency injection support, check out: [https://github.com/seekdavidlee/Eklee-Azure-Functions-Http](https://github.com/seekdavidlee/Eklee-Azure-Functions-Http)
 
 ## Step 2: Setup HTTP function.
 

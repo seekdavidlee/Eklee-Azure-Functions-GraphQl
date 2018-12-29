@@ -51,8 +51,6 @@ For more information about the library used for dependency injection support, ch
 
 The second step is to apply the ExecutionContextDependencyInjection attribute on your HTTP triggered Function and tell it which Module to use. Next, you can inject the ExecutionContext which internally carries the function instance Id. Notice that by convention, we allow both HTTP GET and POST. This is by convention what is [recommended](https://graphql.org/learn/serving-over-http/) by GraphQL. 
 
-The power of GraphQL is that we are able to serve the API via a single HTTP endpoint and consumers need to only know to query for the schema on this endpoint and perform query or mutation operations. Thus, we are giving a generic Route name here called Graph. However, you may want to give it a more domain specific name if you intend to have more than one endpoint.
-
 ```
 public static class MyGraphFunction
 {
@@ -64,6 +62,9 @@ public static class MyGraphFunction
         ExecutionContext executionContext)
     {	
 ```
+
+The power of GraphQL is that we are able to serve the API via a single HTTP endpoint and consumers need to only know to query for the schema on this endpoint and perform query or mutation operations. Thus, we are giving a generic Route name here called Graph. However, you may want to give it a more domain specific name if you intend to have more than one endpoint.
+
 
 ## Step 3: Implement GraphQL server:
 

@@ -1,10 +1,10 @@
-[Back](../README.md)
+[Main page](../README.md)
 
 # Query introduction
 
-Before creating your queries, be sure to have setup mutation for your model type. 
+Before creating your queries, be sure to have setup [mutation](Mutations.md) for your model type. 
 
-The first step to creating a query is to define a class for queries and associate it in your schema defination. Notice that you will need to inject the helper query builder class, QueryBuilderFactory.
+The first step is to define a class for queries and associate it in your schema defination. Notice that you will need to inject the helper query builder class, QueryBuilderFactory. We will also need to provide a name. By convention, we can use the word query.
 ```
 using GraphQL.Types;
 using Microsoft.Extensions.Logging;
@@ -15,7 +15,7 @@ namespace Eklee.Examples
 	{
 		public MyQuery(QueryBuilderFactory queryBuilderFactory)
 		{
-		...
+			Name = "query";
 ```
 
 Now, you can apply query class defination in your schema defination.
@@ -59,3 +59,5 @@ Let's take a look at a different example. This is equivalent to the following ex
 			.BuildQuery()
 		.BuildWithSingleResult();
 ```
+
+** More documentation is coming. **

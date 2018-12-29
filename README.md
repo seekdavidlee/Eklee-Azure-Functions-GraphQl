@@ -8,11 +8,14 @@ You can find this library on nuget: [https://www.nuget.org/packages/Eklee.Azure.
 
 ## Getting started
 
-First off, we would need to expose a HTTP Function to serve your API via GraphQL server. There are 3 steps.
+Let's start by exposing a HTTP Function to serve your API via GraphQL server. There are 3 steps.
 
 ### Step 1: Setup dependency injection (DI)
 
-The first step is to setup your DI via the Autofac Module. Be sure to register your schema using the extension method RegisterGraphQl. You can then register your mutation and query used in the schema.
+The first step is to setup your DI via the Autofac Module. Be sure to register your schema using the extension method RegisterGraphQl. You can then register your mutation and query used in the schema. Please refer to the topics below for specific details on setting up your mutations and query classes.
+
+- [Mutations](Documentation/Mutations.md)
+- [Queries](Documentation/Queries.md)
 
 ```
 using Autofac;
@@ -94,9 +97,5 @@ To enable support for tracing, please add set EnableMetrics configuration to tru
     } 
 }
 ```
-
-## Topics
-- [Mutations](Documentation/Mutations.md)
-- [Queries](Documentation/Queries.md)
 
 ** More documentation/topics are coming. **

@@ -1,72 +1,82 @@
 # Introduction
 
-The purpose of this library is to help developers with implementing a GraphQl based Azure Function with dependency injection support.
+The purpose of this library is to help developers with implementing their API on a GraphQL Server running on top of Azure HTTP Function. The library will have resolver support for different Azure-specific repositories like Azure Cosmos DB. If you are not sure what GraphQL is, the best resource would be to review the documentation on [https://graphql.org/](https://graphql.org/).
 
-## DI Usage
+## Nuget
 
-In order to leverage this library, there are 3 steps. You would want to setup your DI, apply the ExecutionContextDependencyInjection attribute, and inject the ExecutionContext as a parameter in your function.
+You can find this library on nuget: [https://www.nuget.org/packages/Eklee.Azure.Functions.GraphQl](https://www.nuget.org/packages/Eklee.Azure.Functions.GraphQl).
 
-### Step 1: Setup DI
+# Getting started
 
-The first step is to setup your DI via the Autofac Module. Be sure to register your schema using the extension method RegisterGraphQl. You can then register your mutation and query used in the schema.
+Let's start by exposing a HTTP Function to serve your API via GraphQL server. There are 3 steps.
+
+## Step 1: Setup dependency injection (DI)
+
+The first step is to setup your DI via the Autofac Module. Be sure to register your schema using the extension method RegisterGraphQl. You can then register your mutation and query used in the schema. Please refer to the topics below for specific details on setting up your mutations and query classes.
+
+- [Mutations](Documentation/Mutations.md)
+- [Queries](Documentation/Queries.md)
 
 ```
 using Autofac;
 
-namespace FunctionApp1
+namespace Eklee.Examples
 {
-    public class MyModuleConfig : Module
+    public class MyModule : Module
     {
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterGraphQl<BooksSchema>();
-            builder.RegisterType<BooksQuery>();
-            builder.RegisterType<BooksMutation>();
+            builder.RegisterGraphQl<MySchema>();
+            builder.RegisterType<MyQuery>();
+            builder.RegisterType<MyMutation>();
             ...
         }
     }
 }
 ```
 
-### Step 2/3: Setup ExecutionContextDependencyInjection attribute on said function and inject ExecutionContext.
-
-The second step is to apply the ExecutionContextDependencyInjection on your function and tell it which Module type you would like. Next, you can inject the ExecutionContext which internally carries the function instance Id.
-
-```
-public static class BooksGraphFunction
-{
-    [ExecutionContextDependencyInjection(typeof(MyModule))]
-    [FunctionName("graph")]
-    public static async Task<IActionResult> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "books/graph")] HttpRequest req,
-        ILogger log,
-        ExecutionContext executionContext)
-    {	
-```
-
-## Process GraphQl Request Usage:
-
-Simply leverage the extension method ProcessGraphQlRequest. 
-
-```
-return await executionContext.ProcessGraphQlRequest(req);
-```
-
-For more information about dependency injection support, visit: https://github.com/seekdavidlee/Eklee-Azure-Functions-Http
-
 ## Caching:
 
-In your Module setup, use the extension method EnableGraphQlCache. Note that MemoryDistributedCache is just an example. In a production senario, you may choose something like Azure Redis.
+To setup caching, in your Module setup, use the extension method UseDistributedCache. Note that MemoryDistributedCache is just an example. In a production senario, you may choose something like Azure Redis.
 
 ```
 builder.UseDistributedCache<MemoryDistributedCache>();
 ```
 
-Results are cached based on query parameters and return type. The query parameters are matched exactly. Thus if the same query is being executed, it will be returned from cache. You can tell if a cache key being used simply by looking at the Azure function console log output when running locally.
+## Misc
 
-## Data Annotations:
+For more information about the library used for dependency injection support, check out: [https://github.com/seekdavidlee/Eklee-Azure-Functions-Http](https://github.com/seekdavidlee/Eklee-Azure-Functions-Http)
 
-We used a Model-first with Fluent syntax to define GraphQL schema. The description is a required attribute on the model.
+## Step 2: Setup HTTP function.
+
+The second step is to apply the ExecutionContextDependencyInjection attribute on your HTTP triggered Function and tell it which Module to use. Next, you can inject the ExecutionContext which internally carries the function instance Id. Notice that by convention, we allow both HTTP GET and POST. This, by convention, is what is [recommended](https://graphql.org/learn/serving-over-http/) by GraphQL. 
+
+```
+public static class MyGraphFunction
+{
+    [ExecutionContextDependencyInjection(typeof(MyModule))]
+    [FunctionName("graph")]
+    public static async Task<IActionResult> Run(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "graph")] HttpRequest req,
+        ILogger log,
+        ExecutionContext executionContext)
+    {	
+```
+
+The power of GraphQL is that we are able to serve the API via a single HTTP endpoint and consumers need to only know to query for the schema on this endpoint and perform query or mutation operations. Thus, we are giving a generic Route name here called Graph. However, you may want to give it a more domain specific name if you intend to have more than one endpoint.
+
+
+## Step 3: Implement GraphQL server:
+
+Simply leverage the extension method ProcessGraphQlRequest with the HTTP request which will be processed by the GraphQL server.
+
+```
+return await executionContext.ProcessGraphQlRequest(req);
+```
+
+## Next Steps: Setup Models and update Mutation and Query classes.
+
+We use a Model-First (with Fluent syntax) to define the GraphQL schema. Description is a required attribute on the model which provides documentation for the model property.
 
 ```
 using System.ComponentModel.DataAnnotations;
@@ -76,9 +86,14 @@ using System.ComponentModel.DataAnnotations;
         [Key]
         [Description("Id of the book")]
         public string Id { get; set; }
+
+        [Description("Name of the book")]
+        public string Name { get; set; }
 ```
 
-## Tracing support:
+Once we have completed these steps, we are ready to start running the Azure HTTP Function.
+
+# Tracing support:
 
 To enable support for tracing, please add set EnableMetrics configuration to true under GraphQl.
 
@@ -91,7 +106,8 @@ To enable support for tracing, please add set EnableMetrics configuration to tru
 }
 ```
 
-## Topics
-- [Mutations](Documentation/Mutations.md)
+# Recommanded tools:
 
-** More documentation/topics are coming. **
+- [GraphQL Playground](https://github.com/prisma/graphql-playground/releases): GraphQL IDE that can consume local or remote schema, execute queries and mutations etc.
+- [GraphQL CLI tool](https://github.com/graphql-cli/graphql-cli): Generates a local GraphQL schema file for use with tools such as GraphQL Playground.
+- [Cosmos DB Emulator](https://docs.microsoft.com/en-us/azure/cosmos-db/local-emulator)

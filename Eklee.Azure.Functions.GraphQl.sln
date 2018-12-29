@@ -20,6 +20,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentation", "{103848FB-533A-494B-AF42-2A17ED6249E3}"
 	ProjectSection(SolutionItems) = preProject
 		Documentation\Mutations.md = Documentation\Mutations.md
+		Documentation\Nuget.md = Documentation\Nuget.md
+		Documentation\Queries.md = Documentation\Queries.md
 	EndProjectSection
 EndProject
 Global

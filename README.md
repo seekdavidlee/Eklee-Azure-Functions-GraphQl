@@ -103,4 +103,8 @@ To enable support for tracing, please add set EnableMetrics configuration to tru
 }
 ```
 
-** More documentation/topics are coming. **
+# Recommanded tools:
+
+- [GraphQL Playground](https://github.com/prisma/graphql-playground/releases): GraphQL IDE that can consume local or remote schema, execute queries and mutations etc.
+- [GraphQL CLI tool](https://github.com/graphql-cli/graphql-cli): Generates a local GraphQL schema file for use with tools such as GraphQL Playground.
+- [Cosmos DB Emulator](https://docs.microsoft.com/en-us/azure/cosmos-db/local-emulator)

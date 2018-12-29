@@ -31,6 +31,7 @@ namespace Eklee.Examples
         public BooksSchema(IDependencyResolver resolver, MyQuery myQuery, MyMutation myMutation) : base(resolver)
         {
             Mutation = myMutation;
+```
 
 ## Repositories
 

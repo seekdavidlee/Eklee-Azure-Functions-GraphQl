@@ -6,6 +6,10 @@ The purpose of this library is to help developers with implementing their API on
 
 You can find this library on nuget: [https://www.nuget.org/packages/Eklee.Azure.Functions.GraphQl](https://www.nuget.org/packages/Eklee.Azure.Functions.GraphQl).
 
+## Example Project(s)
+
+- [Eklee-Exams-Api](https://github.com/seekdavidlee/Eklee-Exams-Api)
+
 # Getting started
 
 Let's start by exposing a HTTP Function to serve your API via GraphQL server. There are 3 steps.

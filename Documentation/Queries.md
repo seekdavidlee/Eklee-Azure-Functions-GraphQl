@@ -38,11 +38,11 @@ Lastly, please note to register MyQuery in your AutoFac Module as part of your d
 
 This example shows how we can quickly setup a query by a field Id by starting off with the Create<T> extension method where T is the model type. In this context, it is a Book model.
 ```
-	queryBuilderFactory.Create<Book>(myQuery, "GetBookById")
-		.WithParameterBuilder()
-			.WithKeys()
-			.BuildQuery()
-		.BuildWithSingleResult();
+queryBuilderFactory.Create<Book>(myQuery, "GetBookById")
+	.WithParameterBuilder()
+		.WithKeys()
+		.BuildQuery()
+	.BuildWithSingleResult();
 ```
 
 There are a few things to note here. We pass in the MyQuery instance as well as a name of the query.
@@ -53,35 +53,35 @@ Lastly, we are ready to build the query with BuildQuery extension method and clo
 
 Let's take a look at a different example. This is equivalent to the following except we are the one defining the property in which to query on. This applies to any property on the model type.
 ```
-	queryBuilderFactory.Create<Book>(myQuery, "GetBookById")
-		.WithParameterBuilder()
-			.WithProperty(x => x.Id)
-			.BuildQuery()
-		.BuildWithSingleResult();
+queryBuilderFactory.Create<Book>(myQuery, "GetBookById")
+	.WithParameterBuilder()
+		.WithProperty(x => x.Id)
+		.BuildQuery()
+	.BuildWithSingleResult();
 ```
 
 ## Query with Cache enabled
 
 In this example, we use a WithCache extension method and provide a TimeSpan to define the cache time. Internally, we are using the entity's query parameter keys and values to determine the uniqueness of the query and cache the results.
 ```
-	queryBuilderFactory.Create<Book>(booksQuery, "getBook")
-		.WithCache(TimeSpan.FromSeconds(10))
-			.WithParameterBuilder()
-			.WithKeys()
-			.BuildQuery()
-		.BuildWithSingleResult();
+queryBuilderFactory.Create<Book>(booksQuery, "getBook")
+	.WithCache(TimeSpan.FromSeconds(10))
+		.WithParameterBuilder()
+		.WithKeys()
+		.BuildQuery()
+	.BuildWithSingleResult();
 ```
 
 ## Query with Paging enabled
 
 In this example, we use a WithPaging extension method. As part of the query on the client side, you will see paging specific paging parameters. Note that by default, the paging limit is 10. We can pass in a different paging limit into WithPaging to change that.
 ```
-	queryBuilderFactory.Create<Book>(booksQuery, "getPagedBooksByCategory")
-		.WithPaging()
-		.WithParameterBuilder()
-			.WithProperty(x => x.Category, true)
-			.BuildQuery()
-		.BuildWithListResult();
+queryBuilderFactory.Create<Book>(booksQuery, "getPagedBooksByCategory")
+	.WithPaging()
+	.WithParameterBuilder()
+		.WithProperty(x => x.Category, true)
+		.BuildQuery()
+	.BuildWithListResult();
 ```
 
 The following is an example of a query we may execute on the client side. In the first example, a default limit of 10 records will be returned.
@@ -172,52 +172,52 @@ We will need to start somewhere for the query. It really depends on the business
 
 With this context in mind, we can begin by using the BeginQuery<T>. This allows us to start a query from Book.
 ```
-	queryBuilderFactory.Create<BookReviewOutput>(booksQuery, "GetBookReviewsWithBookNameAndCategory")
-		.WithCache(TimeSpan.FromSeconds(10))
-		.WithParameterBuilder()
-		.BeginQuery<Book>()  // Gives you the ability to query with both book name and category.
-			.WithProperty(x => x.Name)
-			.WithProperty(x => x.Category)
-			.BuildQueryResult(ctx =>
-			{
-				// Temporary store books in storage.
-				ctx.Items["books"] = ctx.GetQueryResults<Book>();
-			})
-		.ThenWithQuery<BookReview>() // Gives you the ability to query with book review stars, written on, active reviews and book Id matches.
-			.WithPropertyFromSource(x => x.BookId, ctx => ctx.GetItems<Book>("books").Select(y => (object)y.Id).ToList())
-			.WithProperty(x => x.Stars)
-			.WithProperty(x => x.Active)
-			.WithProperty(x => x.WrittenOn)
-			.BuildQueryResult(ctx =>
-			{
-				var bookReviews = ctx.GetQueryResults<BookReview>();
+queryBuilderFactory.Create<BookReviewOutput>(booksQuery, "GetBookReviewsWithBookNameAndCategory")
+	.WithCache(TimeSpan.FromSeconds(10))
+	.WithParameterBuilder()
+	.BeginQuery<Book>()  // Gives you the ability to query with both book name and category.
+		.WithProperty(x => x.Name)
+		.WithProperty(x => x.Category)
+		.BuildQueryResult(ctx =>
+		{
+			// Temporary store books in storage.
+			ctx.Items["books"] = ctx.GetQueryResults<Book>();
+		})
+	.ThenWithQuery<BookReview>() // Gives you the ability to query with book review stars, written on, active reviews and book Id matches.
+		.WithPropertyFromSource(x => x.BookId, ctx => ctx.GetItems<Book>("books").Select(y => (object)y.Id).ToList())
+		.WithProperty(x => x.Stars)
+		.WithProperty(x => x.Active)
+		.WithProperty(x => x.WrittenOn)
+		.BuildQueryResult(ctx =>
+		{
+			var bookReviews = ctx.GetQueryResults<BookReview>();
 
-				ctx.Items["reviewerIdList"] = bookReviews.Select(x => (object)x.ReviewerId).ToList();
+			ctx.Items["reviewerIdList"] = bookReviews.Select(x => (object)x.ReviewerId).ToList();
 
-				var books = ctx.GetItems<Book>("books");
+			var books = ctx.GetItems<Book>("books");
 
-				ctx.SetResults(bookReviews.Select(br => new BookReviewOutput
-				{
-					Id = br.Id,
-					BookId = br.BookId,
-					Comments = br.Comments,
-					ReviewerId = br.ReviewerId,
-					Stars = br.Stars,
-					Book = books.Single(x => x.Id == br.BookId),
-					WrittenOn = br.WrittenOn,
-					Active = br.Active
-				}).ToList());
-			})
-		.ThenWithQuery<Reviewer>()
-			.WithPropertyFromSource(x => x.Id, ctx => (List<object>)ctx.Items["reviewerIdList"])
-			.BuildQueryResult(ctx =>
+			ctx.SetResults(bookReviews.Select(br => new BookReviewOutput
 			{
-				var reviewers = ctx.GetQueryResults<Reviewer>();
-				ctx.GetResults<BookReviewOutput>().ForEach(
-					x => x.Reviewer = reviewers.Single(y => y.Id == x.ReviewerId));
-			})
-		.BuildQuery()
-		.BuildWithListResult();
+				Id = br.Id,
+				BookId = br.BookId,
+				Comments = br.Comments,
+				ReviewerId = br.ReviewerId,
+				Stars = br.Stars,
+				Book = books.Single(x => x.Id == br.BookId),
+				WrittenOn = br.WrittenOn,
+				Active = br.Active
+			}).ToList());
+		})
+	.ThenWithQuery<Reviewer>()
+		.WithPropertyFromSource(x => x.Id, ctx => (List<object>)ctx.Items["reviewerIdList"])
+		.BuildQueryResult(ctx =>
+		{
+			var reviewers = ctx.GetQueryResults<Reviewer>();
+			ctx.GetResults<BookReviewOutput>().ForEach(
+				x => x.Reviewer = reviewers.Single(y => y.Id == x.ReviewerId));
+		})
+	.BuildQuery()
+	.BuildWithListResult();
 ```
 
 The result can be captured with the BuildQueryResult extension method. Here, we have the opportunity to store the book results in a temporary location within the context of the query execution context.

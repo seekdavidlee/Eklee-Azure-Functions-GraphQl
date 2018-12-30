@@ -98,7 +98,7 @@ When we are done, we call the BuildHttp to close the HTTP build configuration. A
 
 Lastly, call the Build extension method to set this up.
 
-## Azure Cosmos DB (SQL API/ Document database)
+## Azure Cosmos DB (SQL API/ Document database) based mutation
 
 The Azure Cosmos DB consist of multiple types of data services. This section relates specifically to the Document database. To begin, we start by calling the ConfigureDocumentDb<T> extension method.  Let's review the example below where we are setting up the Delete configuration first.
 ```

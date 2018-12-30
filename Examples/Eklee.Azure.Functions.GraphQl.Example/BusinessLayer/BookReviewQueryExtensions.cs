@@ -62,7 +62,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 						// Temporary store books in storage.
 						ctx.Items["books"] = ctx.GetQueryResults<Book>();
 					})
-				.ThenWithQuery<BookReview>() // Gives you the ability to query with both book review star and book Id matches.
+				.ThenWithQuery<BookReview>() // Gives you the ability to query with book review stars, written on, active reviews and book Id matches.
 					.WithPropertyFromSource(x => x.BookId, ctx => ctx.GetItems<Book>("books").Select(y => (object)y.Id).ToList())
 					.WithProperty(x => x.Stars)
 					.WithProperty(x => x.Active)

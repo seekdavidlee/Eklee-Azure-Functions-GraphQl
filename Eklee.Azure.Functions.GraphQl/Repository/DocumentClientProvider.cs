@@ -219,7 +219,11 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 				EnableScanInQuery = queryParametersList.Any(
 					x => x.ContextValue.Comparison == Comparisons.StringContains ||
 						 x.ContextValue.Comparison == Comparisons.StringEndsWith ||
-						 x.ContextValue.Comparison == Comparisons.StringStartsWith)
+						 x.ContextValue.Comparison == Comparisons.StringStartsWith ||
+						 x.ContextValue.Comparison == Comparisons.GreaterEqualThan ||
+						 x.ContextValue.Comparison == Comparisons.GreaterThan ||
+						 x.ContextValue.Comparison == Comparisons.LessThan ||
+						 x.ContextValue.Comparison == Comparisons.LessEqualThan)
 			};
 
 			_logger.LogInformation($"Generated SQL query in DocumentDb provider: {sql}");

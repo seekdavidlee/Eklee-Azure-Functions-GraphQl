@@ -25,7 +25,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			// Do nothing.
 		}
 
-		public Task BatchAddAsync<T>(IEnumerable<T> items)
+		public Task BatchAddAsync<T>(IEnumerable<T> items) where T : class
 		{
 			Dictionary<string, object> collection = GetCollection<T>();
 			foreach (var item in items)
@@ -35,28 +35,28 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			return Task.CompletedTask;
 		}
 
-		public Task AddAsync<T>(T item)
+		public Task AddAsync<T>(T item) where T : class
 		{
 			Dictionary<string, object> collection = GetCollection<T>();
 			collection.Add(item.GetKey(), item);
 			return Task.CompletedTask;
 		}
 
-		public Task UpdateAsync<T>(T item)
+		public Task UpdateAsync<T>(T item) where T : class
 		{
 			Dictionary<string, object> collection = GetCollection<T>();
 			collection[item.GetKey()] = item;
 			return Task.CompletedTask;
 		}
 
-		public Task DeleteAsync<T>(T item)
+		public Task DeleteAsync<T>(T item) where T : class
 		{
 			Dictionary<string, object> collection = GetCollection<T>();
 			collection.Remove(item.GetKey());
 			return Task.CompletedTask;
 		}
 
-		public Task<IEnumerable<T>> QueryAsync<T>(string queryName, IEnumerable<QueryParameter> queryParameters)
+		public Task<IEnumerable<T>> QueryAsync<T>(string queryName, IEnumerable<QueryParameter> queryParameters, Dictionary<string, object> stepBagItems) where T : class
 		{
 			Dictionary<string, object> collection = GetCollection<T>();
 			var parameters = queryParameters.ToList();
@@ -135,7 +135,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			return false;
 		}
 
-		public Task DeleteAllAsync<T>()
+		public Task DeleteAllAsync<T>() where T : class
 		{
 			Dictionary<string, object> collection = GetCollection<T>();
 			collection.Clear();

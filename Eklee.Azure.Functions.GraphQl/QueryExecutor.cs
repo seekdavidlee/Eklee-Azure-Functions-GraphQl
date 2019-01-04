@@ -41,7 +41,7 @@ namespace Eklee.Azure.Functions.GraphQl
 
 						try
 						{
-							var results = (await _graphQlRepositoryProvider.QueryAsync(queryName, queryStep.QueryParameters)).ToList();
+							var results = (await _graphQlRepositoryProvider.QueryAsync(queryName, queryStep.QueryParameters, queryStep.Items)).ToList();
 							nextQueryResults.AddRange(results);
 						}
 						catch (Exception e)
@@ -55,7 +55,7 @@ namespace Eklee.Azure.Functions.GraphQl
 				}
 				else
 				{
-					ctx.SetQueryResult((await _graphQlRepositoryProvider.QueryAsync(queryName, queryStep.QueryParameters)).ToList());
+					ctx.SetQueryResult((await _graphQlRepositoryProvider.QueryAsync(queryName, queryStep.QueryParameters, queryStep.Items)).ToList());
 				}
 
 				queryStep.ContextAction?.Invoke(ctx);

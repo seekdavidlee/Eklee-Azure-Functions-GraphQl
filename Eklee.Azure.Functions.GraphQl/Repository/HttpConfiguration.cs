@@ -23,7 +23,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 		public bool IsListResult { get; set; }
 	}
 
-	public class HttpConfiguration<TSource>
+	public class HttpConfiguration<TSource> where TSource : class
 	{
 		private readonly ModelConventionInputBuilder<TSource> _modelConventionInputBuilder;
 		private readonly IGraphQlRepository _graphQlRepository;

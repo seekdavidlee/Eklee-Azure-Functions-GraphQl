@@ -11,6 +11,7 @@ namespace Eklee.Azure.Functions.GraphQl
 		private readonly List<Expression<Func<TProperty, object>>> _expressions =
 			new List<Expression<Func<TProperty, object>>>();
 
+		private readonly Dictionary<string, object> _stepBagItems = new Dictionary<string, object>();
 
 		public QueryStepBuilder(QueryParameterBuilder<TSource> builder)
 		{
@@ -33,9 +34,14 @@ namespace Eklee.Azure.Functions.GraphQl
 
 		public QueryParameterBuilder<TSource> BuildQueryResult(Action<QueryExecutionContext> contextAction)
 		{
-			_builder.Add(_expressions, _mapper, contextAction);
+			_builder.Add(_expressions, _mapper, contextAction, _stepBagItems);
 
 			return _builder;
+		}
+
+		internal void AddStepBagItem(string key, object value)
+		{
+			_stepBagItems.Add(key, value);
 		}
 	}
 }

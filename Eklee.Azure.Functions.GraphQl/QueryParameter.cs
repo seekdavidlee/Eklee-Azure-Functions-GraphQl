@@ -21,5 +21,6 @@ namespace Eklee.Azure.Functions.GraphQl
 		public Func<QueryExecutionContext, List<object>> Mapper { get; set; }
 		public List<QueryParameter> QueryParameters { get; set; }
 		public DateTime? Ended { get; set; }
+		public Dictionary<string, object> Items { get; set; }
 	}
 }

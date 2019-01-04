@@ -98,6 +98,20 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 				.BuildDocumentDb()
 				.DeleteAll(() => new Status { Message = "All book price relationships have been removed." })
 				.Build();
+
+			inputBuilderFactory.Create<BookSearch>(this)
+				.ConfigureSearch<BookSearch>()
+				.AddApiKey(configuration["Search:ApiKey"])
+				.AddServiceName(configuration["Search:ServiceName"])
+				.BuildSearch()
+				.Build();
+
+			inputBuilderFactory.Create<ReviewerSearch>(this)
+				.ConfigureSearch<BookSearch>()
+				.AddApiKey(configuration["Search:ApiKey"])
+				.AddServiceName(configuration["Search:ServiceName"])
+				.BuildSearch()
+				.Build();
 		}
 	}
 }

@@ -69,7 +69,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 
 			item.Name.ShouldBe("Foo 2 v2");
 
-			DocumentDbRepository.DeleteAllAsync<DocumentDbFoo2>().GetAwaiter().GetResult();
+			await DocumentDbRepository.DeleteAllAsync<DocumentDbFoo2>();
 		}
 
 		[Fact]
@@ -101,7 +101,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 
 			item.Name.ShouldBe("Foo 4 v2");
 
-			DocumentDbRepository.DeleteAllAsync<DocumentDbFoo4>().GetAwaiter().GetResult();
+			await DocumentDbRepository.DeleteAllAsync<DocumentDbFoo4>();
 		}
 
 		[Fact]
@@ -128,7 +128,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 
 			exist.ShouldBe(false);
 
-			DocumentDbRepository.DeleteAllAsync<DocumentDbFoo2>().GetAwaiter().GetResult();
+			await DocumentDbRepository.DeleteAllAsync<DocumentDbFoo2>();
 		}
 
 		[Fact]
@@ -155,7 +155,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 
 			exist.ShouldBe(false);
 
-			DocumentDbRepository.DeleteAllAsync<DocumentDbFoo2>().GetAwaiter().GetResult();
+			await DocumentDbRepository.DeleteAllAsync<DocumentDbFoo2>();
 		}
 	}
 }

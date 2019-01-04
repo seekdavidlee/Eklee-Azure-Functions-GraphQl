@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Eklee.Azure.Functions.GraphQl.Example.Models;
+using Eklee.Azure.Functions.GraphQl.Repository.Search;
 
 namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 {
@@ -97,6 +98,15 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 					})
 				.BuildQuery()
 				.BuildWithListResult();
+
+			queryBuilderFactory.Create<BookReviewOutput>(booksQuery, "SearchBookReviews")
+				.WithCache(TimeSpan.FromSeconds(10))
+				.WithParameterBuilder()
+				.BeginSearch(typeof(BookSearch), typeof(ReviewerSearch))
+					.BuildQueryResult(ctx =>
+					{
+						var searches = ctx.GetQueryResults<SearchResultModel>();
+					});
 		}
 	}
 }

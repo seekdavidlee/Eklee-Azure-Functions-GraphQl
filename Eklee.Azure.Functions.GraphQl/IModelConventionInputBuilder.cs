@@ -3,7 +3,7 @@ using Eklee.Azure.Functions.GraphQl.Repository;
 
 namespace Eklee.Azure.Functions.GraphQl
 {
-	public interface IModelConventionInputBuilder<TSource>
+	public interface IModelConventionInputBuilder<TSource> where TSource : class
 	{
 		InMemoryConfiguration<TSource> ConfigureInMemory<TType>();
 		HttpConfiguration<TSource> ConfigureHttp<TType>();

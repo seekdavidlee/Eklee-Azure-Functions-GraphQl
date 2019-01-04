@@ -167,5 +167,7 @@ namespace Eklee.Azure.Functions.GraphQl
 
 			return new ObjectCacheResult<IEnumerable<TSource>>(result, false);
 		}
+
+		public string QueryName => _queryName;
 	}
 }

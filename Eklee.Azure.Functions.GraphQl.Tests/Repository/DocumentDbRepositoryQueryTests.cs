@@ -105,7 +105,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 				}
 			};
 
-			var results = (await DocumentDbRepository.QueryAsync<DocumentDbFoo3>("test", args)).ToList();
+			var results = (await DocumentDbRepository.QueryAsync<DocumentDbFoo3>("test", args, null)).ToList();
 
 			results.Count.ShouldBe(4);
 			results[0].Name.ShouldStartWith("Foo");
@@ -129,7 +129,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 				}
 			};
 
-			var results = (await DocumentDbRepository.QueryAsync<DocumentDbFoo3>("test", args)).ToList();
+			var results = (await DocumentDbRepository.QueryAsync<DocumentDbFoo3>("test", args, null)).ToList();
 
 			results.Count.ShouldBe(3);
 			results[0].Description.ShouldEndWith("ha ha");
@@ -152,7 +152,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 				}
 			};
 
-			var results = (await DocumentDbRepository.QueryAsync<DocumentDbFoo3>("test", args)).ToList();
+			var results = (await DocumentDbRepository.QueryAsync<DocumentDbFoo3>("test", args, null)).ToList();
 
 			results.Count.ShouldBe(4);
 			results[0].Description.ShouldContain("ha");
@@ -187,7 +187,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 				}
 			};
 
-			var results = (await DocumentDbRepository.QueryAsync<DocumentDbFoo3>("test", args)).ToList();
+			var results = (await DocumentDbRepository.QueryAsync<DocumentDbFoo3>("test", args, null)).ToList();
 
 			results.Count.ShouldBe(2);
 
@@ -220,7 +220,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 				}
 			};
 
-			var results = (await DocumentDbRepository.QueryAsync<DocumentDbFoo3>("test", args)).ToList();
+			var results = (await DocumentDbRepository.QueryAsync<DocumentDbFoo3>("test", args, null)).ToList();
 
 			results.Count.ShouldBe(1);
 
@@ -248,7 +248,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 				}
 			};
 
-			var results = (await DocumentDbRepository.QueryAsync<DocumentDbFoo3>("test", args)).ToList();
+			var results = (await DocumentDbRepository.QueryAsync<DocumentDbFoo3>("test", args, null)).ToList();
 
 			results.Count.ShouldBe(1);
 
@@ -276,7 +276,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 				}
 			};
 
-			var results = (await DocumentDbRepository.QueryAsync<DocumentDbFoo3>("test", args)).ToList();
+			var results = (await DocumentDbRepository.QueryAsync<DocumentDbFoo3>("test", args, null)).ToList();
 
 			results.Count.ShouldBe(2);
 
@@ -306,7 +306,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 				}
 			};
 
-			var results = (await DocumentDbRepository.QueryAsync<DocumentDbFoo3>("test", args)).ToList();
+			var results = (await DocumentDbRepository.QueryAsync<DocumentDbFoo3>("test", args, null)).ToList();
 
 			results.Count.ShouldBe(1);
 
@@ -333,7 +333,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 				}
 			};
 
-			var results = (await DocumentDbRepository.QueryAsync<DocumentDbFoo3>("test", args)).ToList();
+			var results = (await DocumentDbRepository.QueryAsync<DocumentDbFoo3>("test", args, null)).ToList();
 
 			results.Count.ShouldBe(1);
 
@@ -360,7 +360,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 				}
 			};
 
-			var results = (await DocumentDbRepository.QueryAsync<DocumentDbFoo3>("test", args)).ToList();
+			var results = (await DocumentDbRepository.QueryAsync<DocumentDbFoo3>("test", args, null)).ToList();
 
 			results.Count.ShouldBe(2);
 
@@ -390,7 +390,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 				}
 			};
 
-			var results = (await DocumentDbRepository.QueryAsync<DocumentDbFoo3>("test", args)).ToList();
+			var results = (await DocumentDbRepository.QueryAsync<DocumentDbFoo3>("test", args, null)).ToList();
 
 			results.Count.ShouldBe(1);
 
@@ -417,7 +417,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 				}
 			};
 
-			var results = (await DocumentDbRepository.QueryAsync<DocumentDbFoo3>("test", args)).ToList();
+			var results = (await DocumentDbRepository.QueryAsync<DocumentDbFoo3>("test", args, null)).ToList();
 
 			results.Count.ShouldBe(1);
 
@@ -444,7 +444,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 				}
 			};
 
-			var results = (await DocumentDbRepository.QueryAsync<DocumentDbFoo3>("test", args)).ToList();
+			var results = (await DocumentDbRepository.QueryAsync<DocumentDbFoo3>("test", args, null)).ToList();
 
 			results.Count.ShouldBe(2);
 
@@ -474,7 +474,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 				}
 			};
 
-			var results = (await DocumentDbRepository.QueryAsync<DocumentDbFoo3>("test", args)).ToList();
+			var results = (await DocumentDbRepository.QueryAsync<DocumentDbFoo3>("test", args, null)).ToList();
 
 			results.Count.ShouldBe(2);
 
@@ -504,7 +504,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 				}
 			};
 
-			var results = (await DocumentDbRepository.QueryAsync<DocumentDbFoo3>("test", args)).ToList();
+			var results = (await DocumentDbRepository.QueryAsync<DocumentDbFoo3>("test", args, null)).ToList();
 
 			results.Count.ShouldBe(3);
 

@@ -22,7 +22,7 @@ namespace Eklee.Azure.Functions.GraphQl
 			_httpRequestContext = httpRequestContext;
 		}
 
-		public ModelConventionInputBuilder<TSource> Create<TSource>(ObjectGraphType objectGraphType)
+		public ModelConventionInputBuilder<TSource> Create<TSource>(ObjectGraphType objectGraphType) where TSource : class
 		{
 			try
 			{

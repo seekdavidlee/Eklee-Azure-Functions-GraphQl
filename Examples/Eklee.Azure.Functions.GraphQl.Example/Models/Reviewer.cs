@@ -20,6 +20,11 @@ namespace Eklee.Azure.Functions.GraphQl.Example.Models
 		public string Region { get; set; }
 	}
 
+	public class ReviewerSearch : Reviewer
+	{
+
+	}
+
 	public class ReviewerId
 	{
 		[Key]

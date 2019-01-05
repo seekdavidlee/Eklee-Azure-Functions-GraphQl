@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Eklee.Azure.Functions.GraphQl.Repository.Search;
 
 namespace Eklee.Azure.Functions.GraphQl.Repository
 {
@@ -31,9 +32,9 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			return _repositories[typeSourceName];
 		}
 
-		public async Task<IEnumerable<object>> QueryAsync(string queryName, IEnumerable<QueryParameter> queryParameters, Dictionary<string, object> stepBagItems)
+		public async Task<IEnumerable<object>> QueryAsync(string queryName, QueryStep queryStep)
 		{
-			var list = queryParameters.ToList();
+			var list = queryStep.QueryParameters.ToList();
 
 			// ReSharper disable once AssignNullToNotNullAttribute
 			var repo = _repositories[list.First().MemberModel.SourceType.FullName];
@@ -41,9 +42,16 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			MethodInfo method = repo.GetType().GetMethod("QueryAsync");
 
 			// ReSharper disable once PossibleNullReferenceException
-			MethodInfo generic = method.MakeGenericMethod(list.First().MemberModel.SourceType);
+			var sourceType = list.First().MemberModel.SourceType;
 
-			var task = (Task)generic.Invoke(repo, new object[] { queryName, list, stepBagItems });
+			// TODO: This technique is not maintainable in the long round. Let's find a better way.
+			if (sourceType == typeof(SearchModel))
+			{
+				sourceType = typeof(SearchResultModel);
+			}
+			MethodInfo generic = method.MakeGenericMethod(sourceType);
+
+			var task = (Task)generic.Invoke(repo, new object[] { queryName, list, queryStep.Items });
 
 			await task.ConfigureAwait(false);
 

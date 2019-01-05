@@ -90,7 +90,8 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 				searchResultModels.AddRange(results);
 			}
 
-			return searchResultModels.Select(x => x as T).ToList();
+			var res = searchResultModels.Select(x => x as T).ToList();
+			return res;
 		}
 
 		public async Task DeleteAllAsync<T>() where T : class

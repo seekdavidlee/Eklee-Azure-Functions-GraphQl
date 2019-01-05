@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Eklee.Azure.Functions.GraphQl.Filters;
+using Eklee.Azure.Functions.GraphQl.Repository.Search;
 using GraphQL.Builders;
 using GraphQL.Types;
 
@@ -14,6 +15,28 @@ namespace Eklee.Azure.Functions.GraphQl
 
 			queryParameterBuilder.ForEach(modelMember =>
 			{
+				if (modelMember.SourceType == typeof(SearchModel) && modelMember.IsString)
+				{
+					if (modelMember.IsOptional)
+					{
+						queryArguments.Add(new QueryArgument<ModelConventionInputType<SearchFilter>>
+						{
+							Name = modelMember.Name,
+							Description = modelMember.Description
+						});
+					}
+					else
+					{
+						queryArguments.Add(new QueryArgument<NonNullGraphType<ModelConventionInputType<SearchFilter>>>
+						{
+							Name = modelMember.Name,
+							Description = modelMember.Description
+						});
+					}
+
+					return;
+				}
+
 				if (modelMember.IsString)
 				{
 					if (modelMember.IsOptional)
@@ -136,6 +159,15 @@ namespace Eklee.Azure.Functions.GraphQl
 		{
 			queryParameterBuilder.ForEach(modelMember =>
 			{
+				if (modelMember.SourceType == typeof(SearchModel) && modelMember.IsString)
+				{
+					connectionBuilder = modelMember.IsOptional ?
+						connectionBuilder.Argument<ModelConventionInputType<SearchFilter>>(modelMember.Name, modelMember.Description) :
+						connectionBuilder.Argument<NonNullGraphType<ModelConventionInputType<SearchFilter>>>(modelMember.Name, modelMember.Description);
+
+					return;
+				}
+
 				if (modelMember.IsString)
 				{
 					connectionBuilder = modelMember.IsOptional ?

@@ -6,7 +6,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 	public interface IGraphQlRepositoryProvider
 	{
 		IGraphQlRepository Use<TType, TRepository>() where TRepository : IGraphQlRepository;
-		Task<IEnumerable<object>> QueryAsync(string queryName, IEnumerable<QueryParameter> queryParameters, Dictionary<string, object> stepBagItems);
+		Task<IEnumerable<object>> QueryAsync(string queryName, QueryStep queryStep);
 		IGraphQlRepository GetRepository<TRepository>();
 	}
 }

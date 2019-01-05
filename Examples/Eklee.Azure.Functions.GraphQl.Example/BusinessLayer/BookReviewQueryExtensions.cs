@@ -99,6 +99,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 				.BuildQuery()
 				.BuildWithListResult();
 
+			// Example of how we are leveraging searches across business domains, reviewers and books.
 			queryBuilderFactory.Create<BookReviewOutput>(booksQuery, "SearchBookReviews")
 				.WithCache(TimeSpan.FromSeconds(10))
 				.WithParameterBuilder()
@@ -106,7 +107,44 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 					.BuildQueryResult(ctx =>
 					{
 						var searches = ctx.GetQueryResults<SearchResultModel>();
-					});
+						var bookSearches = searches.GetTypeList<BookSearch>();
+
+						ctx.Items["bookSearches"] = bookSearches;
+						ctx.Items["bookSearchesIdList"] = bookSearches.Select(x => x.Id).ToList();
+
+						var reviewerSearches = searches.GetTypeList<ReviewerSearch>();
+
+						ctx.Items["reviewerSearchesIdList"] = reviewerSearches.Select(x => x.Id).ToList();
+					})
+				.ThenWithQuery<BookReview>()
+					.WithPropertyFromSource(x => x.BookId, ctx => ctx.ConvertItemsToObjectList("bookSearchesIdList"))
+					.BuildQueryResult(ctx =>
+					{
+						// Temporary store books in storage.
+						ctx.Items["bookReviews"] = ctx.GetQueryResults<BookReview>();
+					})
+				.ThenWithQuery<BookReview>()
+					.WithPropertyFromSource(x => x.ReviewerId, ctx => ctx.ConvertItemsToObjectList("reviewerSearchesIdList"))
+					.BuildQueryResult(ctx =>
+					{
+						// Combine the results of book reviews from book Id list and reviewer Id List.
+						List<BookReview> bookReviews = (List<BookReview>)ctx.Items["bookReviews"];
+
+						bookReviews.AddRange(ctx.GetQueryResults<BookReview>());
+
+						ctx.SetResults(bookReviews.Distinct().Select(br => new BookReviewOutput
+						{
+							Id = br.Id,
+							BookId = br.BookId,
+							Comments = br.Comments,
+							ReviewerId = br.ReviewerId,
+							Stars = br.Stars,
+							WrittenOn = br.WrittenOn,
+							Active = br.Active
+						}).ToList());
+					})
+				.BuildQuery()
+				.BuildWithListResult();
 		}
 	}
 }

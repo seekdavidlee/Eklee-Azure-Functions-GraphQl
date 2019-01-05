@@ -79,6 +79,8 @@ namespace Eklee.Azure.Functions.GraphQl
 
 		public SearchConfiguration<TSource> ConfigureSearch<TType>()
 		{
+			_graphQlRepositoryProvider.Use<SearchModel, SearchRepository>();
+
 			_graphQlRepository = _graphQlRepositoryProvider.Use<TType, SearchRepository>();
 			_typeSource = typeof(TType);
 			return new SearchConfiguration<TSource>(this, _graphQlRepository);

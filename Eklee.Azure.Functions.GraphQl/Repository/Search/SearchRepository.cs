@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
@@ -46,7 +47,12 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 
 		private SearchClientProvider GetProvider<T>() where T : class
 		{
-			return _typedProviders[typeof(T).Name];
+			return GetProvider(typeof(T).Name);
+		}
+
+		private SearchClientProvider GetProvider(string typeName)
+		{
+			return _typedProviders[typeName];
 		}
 
 		public async Task BatchAddAsync<T>(IEnumerable<T> items) where T : class
@@ -72,7 +78,19 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 
 		public async Task<IEnumerable<T>> QueryAsync<T>(string queryName, IEnumerable<QueryParameter> queryParameters, Dictionary<string, object> stepBagItems) where T : class
 		{
-			return await GetProvider<T>().QueryAsync<T>(queryParameters, (Type[])stepBagItems[SearchConstants.QueryTypes]);
+			List<SearchResultModel> searchResultModels = new List<SearchResultModel>();
+			var searchTypes = (Type[])stepBagItems[SearchConstants.QueryTypes];
+			var queryParametersList = queryParameters.ToList();
+
+			foreach (var searchType in searchTypes)
+			{
+				var results = await GetProvider(searchType.Name)
+					.QueryAsync<SearchResultModel>(queryParametersList, searchType);
+
+				searchResultModels.AddRange(results);
+			}
+
+			return searchResultModels.Select(x => x as T).ToList();
 		}
 
 		public async Task DeleteAllAsync<T>() where T : class

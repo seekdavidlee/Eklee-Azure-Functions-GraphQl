@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Threading.Tasks;
-using Eklee.Azure.Functions.GraphQl.Repository.Search;
+using Shouldly;
 using Xunit;
 
 namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.Search
@@ -26,33 +26,49 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.Search
 		public bool Active { get; set; }
 	}
 
-	public class SearchBookModel
-	{
-		public string SearchText { get; set; }
-	}
-
+	[Trait(Constants.Category, Constants.IntegrationTests)]
 	public class SearchRepositoryQueryTests : SearchRepositoryQueryTestsBase
 	{
-		private readonly SearchRepository _searchRepository;
-
 		[Fact]
-		public async Task CanFindBook()
+		public async Task CanSearchAcrossTypesWhereOnlyOneTypeHasResults()
 		{
 			await SeedAsync();
 
-			var queryParameters = new List<QueryParameter>();
+			var results = (await SearchAsync("American",
+				TimeSpan.FromSeconds(30), 3, typeof(SearchBook), typeof(SearchReviewer))).ToList();
 
-			queryParameters.Add(new QueryParameter
-			{
+			results.Count.ShouldBe(3);
 
-			});
+			var books = results.Select(x => x.Value as SearchBook).Where(x => x != null).ToList();
+			books.Count.ShouldBe(3);
 
-			var items = new Dictionary<string, object>
-			{
-				[SearchConstants.QueryTypes] = new[] { typeof(SearchBook), typeof(SearchReviewer) }
-			};
+			var reviewers = results.Select(x => x.Value as SearchReviewer).Where(x => x != null).ToList();
+			reviewers.Count.ShouldBe(0);
 
-			var results = await SearchRepository.QueryAsync<SearchBook>("test1", queryParameters, items);
+			books.SingleOrDefault(x => x.Name == "American Cool Techs").ShouldNotBeNull();
+			books.SingleOrDefault(x => x.Name == "American Car Makers").ShouldNotBeNull();
+			books.SingleOrDefault(x => x.Name == "American History III").ShouldNotBeNull();
+		}
+
+		[Fact]
+		public async Task CanSearchAcrossTypes()
+		{
+			await SeedAsync();
+
+			var results = (await SearchAsync("Art",
+				TimeSpan.FromSeconds(30), 2, typeof(SearchBook), typeof(SearchReviewer))).ToList();
+
+			results.Count.ShouldBe(2);
+
+			var books = results.Select(x => x.Value as SearchBook).Where(x => x != null).ToList();
+			books.Count.ShouldBe(1);
+
+			var reviewers = results.Select(x => x.Value as SearchReviewer).Where(x => x != null).ToList();
+			reviewers.Count.ShouldBe(1);
+
+			books.SingleOrDefault(x => x.Name == "ART 123").ShouldNotBeNull();
+			reviewers.SingleOrDefault(x => x.Name == "Art Tops").ShouldNotBeNull();
+
 		}
 	}
 }

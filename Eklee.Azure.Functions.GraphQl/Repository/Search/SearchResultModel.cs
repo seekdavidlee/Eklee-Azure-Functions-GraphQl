@@ -4,7 +4,7 @@
 	{
 		public object Value { get; set; }
 
-		public int Score { get; set; }
+		public double Score { get; set; }
 
 		public T Get<T>()
 		{

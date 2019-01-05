@@ -88,8 +88,13 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 
 		private SearchIndexClient GetSearchIndexClient<T>()
 		{
-			SearchIndexClient client;
 			var indexName = typeof(T).Name.ToLower();
+			return GetSearchIndexClient(indexName);
+		}
+
+		private SearchIndexClient GetSearchIndexClient(string indexName)
+		{
+			SearchIndexClient client;
 			if (_searchIndexClients.ContainsKey(indexName))
 			{
 				client = _searchIndexClients[indexName];
@@ -135,18 +140,57 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 				new List<IndexAction<T>> { idx }));
 		}
 
-		public async Task<IEnumerable<T>> QueryAsync<T>(IEnumerable<QueryParameter> queryParameters,
-			Type[] querySearchTypes) where T : class
+		public async Task<IEnumerable<T>> QueryAsync<T>(IEnumerable<QueryParameter> queryParameters, Type type) where T : class
 		{
-			var client = GetSearchIndexClient<T>();
+			var searchResultModels = new List<SearchResultModel>();
+
+			var client = GetSearchIndexClient(type.Name.ToLower());
 
 			var searchParameters = new SearchParameters();
 
-			var searchTextParam = queryParameters.Single(x => x.MemberModel.Name == "SearchText");
+			var searchTextParam = queryParameters.Single(x => x.MemberModel.Name == "searchtext");
 
-			var results = await client.Documents.SearchAsync<T>(searchTextParam.ContextValue.Value.ToString(), searchParameters);
+			var results = await client.Documents.SearchAsync((string)searchTextParam.ContextValue.Value, searchParameters);
 
-			return results.Results.Select(x => x.Document).ToList();
+			TypeAccessor accessor = TypeAccessor.Create(type);
+			var members = accessor.GetMembers();
+			results.Results.ToList().ForEach(r =>
+			{
+				var item = accessor.CreateNew();
+
+				r.Document.ToList().ForEach(d =>
+				{
+					var field = members.Single(x => x.Name == d.Key);
+
+					object value = d.Value;
+
+					if (field.Type == typeof(Guid) && value is string strValue)
+					{
+						value = Guid.Parse(strValue);
+					}
+
+					if (field.Type == typeof(decimal) && value is double dobValue)
+					{
+						value = Convert.ToDecimal(dobValue);
+					}
+
+					if (field.Type == typeof(DateTime) && value is DateTimeOffset dtmValue)
+					{
+						value = dtmValue.DateTime;
+					}
+
+					accessor[item, d.Key] = value;
+				});
+
+				var searchResultModel = new SearchResultModel
+				{
+					Score = r.Score,
+					Value = item
+				};
+				searchResultModels.Add(searchResultModel);
+			});
+
+			return searchResultModels.Select(x => x as T).ToList();
 		}
 
 		public async Task DeleteAllAsync<T>() where T : class

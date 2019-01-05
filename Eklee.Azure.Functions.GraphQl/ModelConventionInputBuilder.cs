@@ -79,9 +79,9 @@ namespace Eklee.Azure.Functions.GraphQl
 
 		public SearchConfiguration<TSource> ConfigureSearch<TType>()
 		{
-			_graphQlRepository = _graphQlRepositoryProvider.Use<TType, DocumentDbRepository>();
+			_graphQlRepository = _graphQlRepositoryProvider.Use<TType, SearchRepository>();
 			_typeSource = typeof(TType);
-			return new SearchConfiguration<TSource>(this, _graphQlRepository, _typeSource);
+			return new SearchConfiguration<TSource>(this, _graphQlRepository);
 		}
 
 		public ModelConventionInputBuilder<TSource> Delete<TDeleteInput, TDeleteOutput>(

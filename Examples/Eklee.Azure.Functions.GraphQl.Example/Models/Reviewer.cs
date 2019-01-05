@@ -14,15 +14,23 @@ namespace Eklee.Azure.Functions.GraphQl.Example.Models
 		public string Name { get; set; }
 
 		[Description("Different areas of interests of the reviewer.")]
-		public List<string> Interests { get; set; }
+		public virtual List<string> Interests { get; set; }
 
 		[Description("Region of where reviewer lives.")]
 		public string Region { get; set; }
 	}
 
-	public class ReviewerSearch : Reviewer
+	public class ReviewerSearch 
 	{
+		[Key]
+		[Description("Id of the Reviewer.")]
+		public string Id { get; set; }
 
+		[Description("Name of the reviewer.")]
+		public string Name { get; set; }
+
+		[Description("Region of where reviewer lives.")]
+		public string Region { get; set; }
 	}
 
 	public class ReviewerId

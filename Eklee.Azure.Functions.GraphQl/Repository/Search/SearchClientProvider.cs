@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -83,7 +84,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 				};
 
 				return field;
-			}).ToList();
+			}).Where(field => field != null).ToList();
 		}
 
 		private SearchIndexClient GetSearchIndexClient<T>()

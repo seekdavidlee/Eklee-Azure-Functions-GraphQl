@@ -100,6 +100,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 				.Build();
 
 			inputBuilderFactory.Create<BookSearch>(this)
+				.DeleteAll(() => new Status { Message = "All book searches have been deleted." })
 				.ConfigureSearch<BookSearch>()
 				.AddApiKey(configuration["Search:ApiKey"])
 				.AddServiceName(configuration["Search:ServiceName"])
@@ -107,7 +108,8 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 				.Build();
 
 			inputBuilderFactory.Create<ReviewerSearch>(this)
-				.ConfigureSearch<BookSearch>()
+				.DeleteAll(() => new Status { Message = "All reviewer searches have been deleted." })
+				.ConfigureSearch<ReviewerSearch>()
 				.AddApiKey(configuration["Search:ApiKey"])
 				.AddServiceName(configuration["Search:ServiceName"])
 				.BuildSearch()

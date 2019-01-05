@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 {
@@ -7,17 +6,14 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 	{
 		private readonly IModelConventionInputBuilder<TSource> _modelConventionInputBuilder;
 		private readonly IGraphQlRepository _graphQlRepository;
-		private readonly Type _typeSource;
 		private readonly Dictionary<string, object> _configurations = new Dictionary<string, object>();
 
 		public SearchConfiguration(
 			IModelConventionInputBuilder<TSource> modelConventionInputBuilder,
-			IGraphQlRepository graphQlRepository,
-			Type typeSource)
+			IGraphQlRepository graphQlRepository)
 		{
 			_modelConventionInputBuilder = modelConventionInputBuilder;
 			_graphQlRepository = graphQlRepository;
-			_typeSource = typeSource;
 		}
 
 		public SearchConfiguration<TSource> AddServiceName(string serviceName)
@@ -34,7 +30,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 
 		public IModelConventionInputBuilder<TSource> BuildSearch()
 		{
-			_graphQlRepository.Configure(_typeSource, _configurations);
+			_graphQlRepository.Configure(typeof(TSource), _configurations);
 			
 			return _modelConventionInputBuilder;
 		}

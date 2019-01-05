@@ -117,14 +117,14 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 						ctx.Items["reviewerSearchesIdList"] = reviewerSearches.Select(x => x.Id).ToList();
 					})
 				.ThenWithQuery<BookReview>()
-					.WithPropertyFromSource(x => x.BookId, ctx => ctx.ConvertItemsToObjectList("bookSearchesIdList"))
+					.WithPropertyFromSource(x => x.BookId, ctx => ctx.ConvertItemsToObjectList<string>("bookSearchesIdList"))
 					.BuildQueryResult(ctx =>
 					{
 						// Temporary store books in storage.
 						ctx.Items["bookReviews"] = ctx.GetQueryResults<BookReview>();
 					})
 				.ThenWithQuery<BookReview>()
-					.WithPropertyFromSource(x => x.ReviewerId, ctx => ctx.ConvertItemsToObjectList("reviewerSearchesIdList"))
+					.WithPropertyFromSource(x => x.ReviewerId, ctx => ctx.ConvertItemsToObjectList<string>("reviewerSearchesIdList"))
 					.BuildQueryResult(ctx =>
 					{
 						// Combine the results of book reviews from book Id list and reviewer Id List.

@@ -25,17 +25,11 @@ namespace Eklee.Azure.Functions.GraphQl
 			return (List<TItem>)Items[key];
 		}
 
-		public List<object> ConvertItemsToObjectList(string key)
+		public List<object> ConvertItemsToObjectList<T>(string key)
 		{
-			var obj = Items[key];
-
-			if (obj.GetType().IsGenericType && obj.GetType().GetGenericTypeDefinition() == typeof(List<>))
+			if (Items[key] is List<T> objList)
 			{
-				dynamic objList = obj;
-				if (objList.Count > 0)
-				{
-					return (List<object>)obj;
-				}
+				return objList.Select(x => (object)x).ToList();
 			}
 
 			return new List<object>();

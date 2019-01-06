@@ -154,6 +154,9 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.Search
 		{
 			await SearchRepository.BatchAddAsync(SearchBooks);
 			await SearchRepository.BatchAddAsync(SearchReviewers);
+
+			// May need to give some time for indexing to catch up.
+			Thread.Sleep(1000);
 		}
 
 		protected async Task<IEnumerable<SearchResultModel>> SearchAsync(

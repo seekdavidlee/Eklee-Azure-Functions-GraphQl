@@ -1053,6 +1053,81 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "searchBookReviews",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "8cdd0da6-f4bd-427b-ba71-cde39b62de87",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"function findById(list, id){",
+									"  for(var i = 0; i < list.length; i++){",
+									"      var item = list[i];",
+									"      ",
+									"      if (item.id === id) return item;",
+									"  }  ",
+									"  ",
+									"  return null;",
+									"}",
+									"",
+									"pm.test(\"Query returns with match\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.searchBookReviews.length).to.eql(4);",
+									"    ",
+									"    var entity1 = findById(jsonData.data.searchBookReviews,\"7\");",
+									"    ",
+									"    pm.expect(entity1.id).to.eql(\"7\");",
+									"    ",
+									"    var entity2 = findById(jsonData.data.searchBookReviews,\"1\");",
+									"    ",
+									"    pm.expect(entity2.id).to.eql(\"1\");",
+									"    ",
+									"    var entity3 = findById(jsonData.data.searchBookReviews,\"2\");",
+									"    ",
+									"    pm.expect(entity3.id).to.eql(\"2\");",
+									"",
+									"    var entity4 = findById(jsonData.data.searchBookReviews,\"6\");",
+									"    ",
+									"    pm.expect(entity4.id).to.eql(\"6\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"{\\n  searchBookReviews(searchtext: {equal: \\\"art\\\"}) {\\n    id\\n    writtenOn\\n    reviewerId\\n    comments\\n    stars\\n    bookId\\n    stars\\n    active\\n    reviewer {\\n      id\\n      name\\n      region\\n      interests\\n    }\\n    book {\\n      id\\n      name\\n      category\\n    }\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},

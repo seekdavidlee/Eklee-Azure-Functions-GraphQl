@@ -132,7 +132,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 
 						bookReviews.AddRange(ctx.GetQueryResults<BookReview>());
 
-						ctx.SetResults(bookReviews.Distinct().Select(br => new BookReviewOutput
+						var finalResults = bookReviews.Distinct().Select(br => new BookReviewOutput
 						{
 							Id = br.Id,
 							BookId = br.BookId,
@@ -141,7 +141,28 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 							Stars = br.Stars,
 							WrittenOn = br.WrittenOn,
 							Active = br.Active
-						}).ToList());
+						}).ToList();
+
+						ctx.Items["bookIdList"] = finalResults.Select(x => x.BookId).Distinct().ToList();
+						ctx.Items["reviewerIdList"] = finalResults.Select(x => x.ReviewerId).Distinct().ToList();
+
+						ctx.SetResults(finalResults);
+					})
+				.ThenWithQuery<Book>()
+					.WithPropertyFromSource(x => x.Id, ctx => ctx.ConvertItemsToObjectList<string>("bookIdList"))
+					.BuildQueryResult(ctx =>
+					{
+						var books = ctx.GetQueryResults<Book>();
+						ctx.GetResults<BookReviewOutput>().ForEach(x =>
+							x.Book = books.Single(b => b.Id == x.BookId));
+					})
+				.ThenWithQuery<Reviewer>()
+					.WithPropertyFromSource(x => x.Id, ctx => ctx.ConvertItemsToObjectList<string>("reviewerIdList"))
+					.BuildQueryResult(ctx =>
+					{
+						var reviewers = ctx.GetQueryResults<Reviewer>();
+						ctx.GetResults<BookReviewOutput>().ForEach(x =>
+							x.Reviewer = reviewers.Single(b => b.Id == x.ReviewerId));
 					})
 				.BuildQuery()
 				.BuildWithListResult();

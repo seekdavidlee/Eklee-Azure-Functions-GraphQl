@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -8,6 +7,7 @@ using FastMember;
 using Microsoft.Azure.Search;
 using Microsoft.Azure.Search.Models;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using DataType = Microsoft.Azure.Search.Models.DataType;
 
 namespace Eklee.Azure.Functions.GraphQl.Repository.Search
@@ -40,6 +40,11 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 
 			return source.GetMembers().Select(x =>
 			{
+				if (x.GetAttribute(typeof(JsonIgnoreAttribute), false) != null)
+				{
+					return null;
+				}
+
 				DataType type = null;
 				var isSearchable = false;
 

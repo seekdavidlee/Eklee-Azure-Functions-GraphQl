@@ -229,3 +229,11 @@ Again, the BuildQueryResult extension method allows us to review the results and
 We continue to use the ThenWithQuery<T> extension method to provide a query path to Reviewer where we have a list of Reviewer Ids. BuildQueryResult allow us to associate the results. We use the GetResults to pull the BookReviewOutput instance.
 
 Finally, we close the query by using the BuildQuery and BuildWithListResult extension methods.
+
+## Search
+
+Once search type has been configured in mutations, we can simple use BeginSearch to search across one or more search types. This will give flexibility in query against multiple domain areas and using the association technique as described above to get matches orchestrated.
+
+```
+.BeginSearch(typeof(BookSearch), typeof(ReviewerSearch))
+```

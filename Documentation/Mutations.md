@@ -100,7 +100,7 @@ Lastly, call the Build extension method to set this up.
 
 ## Azure Cosmos DB (SQL API/ Document database) based mutation
 
-The Azure Cosmos DB consist of multiple types of data services. This section relates specifically to the Document database. To begin, we start by calling the ConfigureDocumentDb<T> extension method.  Let's review the example below where we are setting up the Delete configuration first.
+The Azure Cosmos DB consist of multiple types of data services like Document database, Graph database etc. This section relates specifically to the Document database. To begin, we start by calling the ConfigureDocumentDb<T> extension method.  Let's review the example below where we are setting up the Delete configuration first.
 ```
 inputBuilderFactory.Create<BookReview>(this)
 	.Delete<BookReviewId, Status>(
@@ -122,3 +122,17 @@ Azure Cosmos DB requires a URL, key, and a database name to begin with. Internal
 Next, we need to provide a partition key based on the Type. 
 
 Finally, we can call the BuildDocumentDb extension method to close the document db build configuration.
+
+## Azure Search based mutation
+
+In order to leverage Azure Search, we will need to create an instance of Azure Search and provide the Service name and key. The following is an example. Note that the Model can be created (inhertied) from an existing type. In the example below, ConfigureSearch is used to configure Azure Search with the Service name and key.
+
+```
+inputBuilderFactory.Create<BookSearch>(this)
+	.DeleteAll(() => new Status { Message = "All book searches have been deleted." })
+	.ConfigureSearch<BookSearch>()
+	.AddApiKey(configuration["Search:ApiKey"])
+	.AddServiceName(configuration["Search:ServiceName"])
+	.BuildSearch()
+	.Build();
+```

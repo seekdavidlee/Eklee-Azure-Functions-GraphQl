@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using Eklee.Azure.Functions.GraphQl.Repository;
+using Eklee.Azure.Functions.GraphQl.Repository.Search;
 using Eklee.Azure.Functions.Http;
 using GraphQL.Types;
 using Microsoft.Extensions.Logging;
 
 namespace Eklee.Azure.Functions.GraphQl
 {
-	public class ModelConventionInputBuilder<TSource> : IModelConventionInputBuilder<TSource>
+	public class ModelConventionInputBuilder<TSource> : IModelConventionInputBuilder<TSource> where TSource : class
 	{
 		private readonly ObjectGraphType _objectGraphType;
 		private readonly IGraphQlRepositoryProvider _graphQlRepositoryProvider;
@@ -74,6 +75,15 @@ namespace Eklee.Azure.Functions.GraphQl
 			_graphQlRepository = _graphQlRepositoryProvider.Use<TType, DocumentDbRepository>();
 			_typeSource = typeof(TType);
 			return new DocumentDbConfiguration<TSource>(this, _graphQlRepository, _typeSource, _httpRequestContext);
+		}
+
+		public SearchConfiguration<TSource> ConfigureSearch<TType>()
+		{
+			_graphQlRepositoryProvider.Use<SearchModel, SearchRepository>();
+
+			_graphQlRepository = _graphQlRepositoryProvider.Use<TType, SearchRepository>();
+			_typeSource = typeof(TType);
+			return new SearchConfiguration<TSource>(this, _graphQlRepository);
 		}
 
 		public ModelConventionInputBuilder<TSource> Delete<TDeleteInput, TDeleteOutput>(

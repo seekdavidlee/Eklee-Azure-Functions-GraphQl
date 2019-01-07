@@ -1,6 +1,6 @@
 ﻿namespace Eklee.Azure.Functions.GraphQl.Repository
 {
-	public class InMemoryConfiguration<TSource>
+	public class InMemoryConfiguration<TSource> where TSource : class
 	{
 		private readonly ModelConventionInputBuilder<TSource> _modelConventionInputBuilder;
 

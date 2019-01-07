@@ -43,7 +43,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 			return configurations;
 		}
 
-		protected async Task<IEnumerable<T>> GetByIdAsync<T>(string id)
+		protected async Task<IEnumerable<T>> GetByIdAsync<T>(string id) where T : class
 		{
 			var type = typeof(T);
 			var accessor = TypeAccessor.Create(type);
@@ -56,7 +56,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 					ContextValue = new ContextValue { Value = id, Comparison = Comparisons.Equal},
 					MemberModel = new ModelMember(type, accessor, member, false)
 				}
-			});
+			}, null);
 		}
 	}
 }

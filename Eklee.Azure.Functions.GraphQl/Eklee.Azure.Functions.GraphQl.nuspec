@@ -2,20 +2,21 @@
 <package >
   <metadata>
     <id>Eklee.Azure.Functions.GraphQl</id>
-    <version>0.4.6</version>
+    <version>0.5.1</version>
     <title>Eklee.Azure.Functions.GraphQl</title>
     <authors>Eng-Keong David Lee</authors>
     <owners>Eng-Keong David Lee</owners>
     <projectUrl>https://github.com/seekdavidlee/Eklee-Azure-Functions-GraphQl</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>The purpose of this library is to help developers with implementing a GraphQl based Azure Function with dependency injection support.</description>
-    <releaseNotes>Minor update to upgrade all nuget dependencies to the latest stable versions.</releaseNotes>	  
-    <tags>GraphQL, Azure, Functions, Caching, .NET, Graph, Paging, Pagination, CosmosDB, DocumentDB</tags>
+    <description>The purpose of this library is to help developers with implementing a Serverless based GraphQL API based on Azure Functions.</description>
+    <releaseNotes>Implemented Azure Search.</releaseNotes>	  
+    <tags>GraphQL, Azure, Functions, Caching, .NET, Graph, Paging, Pagination, CosmosDB, DocumentDB, Search</tags>
     <dependencies>
       <dependency id="Eklee.Azure.Functions.Http" version="0.7.0" />
       <dependency id="GraphQL" version="2.4.0" />
       <dependency id="FastMember" version="1.4.1" />
 	    <dependency id="Microsoft.Azure.DocumentDB.Core" version="2.2.1" />
+	    <dependency id="Microsoft.Azure.Search" version="5.0.3" />
     </dependencies>
   </metadata>
 </package>

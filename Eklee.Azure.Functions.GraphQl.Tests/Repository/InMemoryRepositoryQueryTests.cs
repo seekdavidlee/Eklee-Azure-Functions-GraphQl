@@ -92,7 +92,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 				}
 			};
 
-			var results = (await _inMemoryRepository.QueryAsync<InMemoryBar1>("test", args)).ToList();
+			var results = (await _inMemoryRepository.QueryAsync<InMemoryBar1>("test", args, null)).ToList();
 
 			results.Count.ShouldBe(5);
 

@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Autofac;
 using Eklee.Azure.Functions.GraphQl.Repository;
+using Eklee.Azure.Functions.GraphQl.Repository.Search;
 using Eklee.Azure.Functions.Http;
 using FastMember;
 using GraphQL;
@@ -52,6 +53,7 @@ namespace Eklee.Azure.Functions.GraphQl
 			builder.RegisterType<InMemoryRepository>().As<IGraphQlRepository>().SingleInstance();
 			builder.RegisterType<HttpRepository>().As<IGraphQlRepository>().SingleInstance();
 			builder.RegisterType<DocumentDbRepository>().As<IGraphQlRepository>().SingleInstance();
+			builder.RegisterType<SearchRepository>().As<IGraphQlRepository>().SingleInstance();
 
 			builder.RegisterType<GraphQlRepositoryProvider>().As<IGraphQlRepositoryProvider>().SingleInstance();
 		}

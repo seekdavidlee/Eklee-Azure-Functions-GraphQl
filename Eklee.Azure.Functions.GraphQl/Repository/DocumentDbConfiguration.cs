@@ -5,45 +5,7 @@ using Eklee.Azure.Functions.Http;
 
 namespace Eklee.Azure.Functions.GraphQl.Repository
 {
-	public static class DocumentDbConstants
-	{
-		public const string Url = "Url";
-		public const string Key = "Key";
-		public const string Database = "Database";
-		public const string RequestUnit = "RequestUnit";
-		public const string PartitionMemberExpression = "PartitionMemberExpression";
-	}
-
-	public static class DocumentDbConfigurationExtensions
-	{
-		public static void Add<TSource>(this Dictionary<string, object> configurations, string name, object value)
-		{
-			configurations[$"{typeof(TSource).Name}{name}"] = value;
-		}
-
-		public static T GetValue<T>(this Dictionary<string, object> configurations, string key, Type sourceType)
-		{
-			return (T)configurations[GetKey(key, sourceType)];
-		}
-
-		public static bool ContainsKey<TSource>(this Dictionary<string, object> configurations, string key)
-		{
-			return configurations.ContainsKey(GetKey(key, typeof(TSource)));
-		}
-
-
-		public static string GetStringValue(this Dictionary<string, object> configurations, string key, Type sourceType)
-		{
-			return (string)configurations[GetKey(key, sourceType)];
-		}
-
-		public static string GetKey(string key, Type sourceType)
-		{
-			return $"{sourceType.Name}{key}";
-		}
-	}
-
-	public class DocumentDbConfiguration<TSource>
+	public class DocumentDbConfiguration<TSource> where TSource : class
 	{
 		private readonly IModelConventionInputBuilder<TSource> _modelConventionInputBuilder;
 		private readonly IGraphQlRepository _graphQlRepository;

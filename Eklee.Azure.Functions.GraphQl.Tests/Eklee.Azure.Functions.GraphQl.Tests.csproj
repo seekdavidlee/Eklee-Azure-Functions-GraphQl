@@ -21,4 +21,10 @@
     <ProjectReference Include="..\Eklee.Azure.Functions.GraphQl\Eklee.Azure.Functions.GraphQl.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="local.settings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

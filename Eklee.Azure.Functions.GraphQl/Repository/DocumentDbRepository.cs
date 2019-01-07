@@ -47,7 +47,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			_typedProviders[sourceType.Name] = provider;
 		}
 
-		public async Task BatchAddAsync<T>(IEnumerable<T> items)
+		public async Task BatchAddAsync<T>(IEnumerable<T> items) where T : class
 		{
 			var provider = GetProvider<T>();
 
@@ -57,17 +57,17 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			}
 		}
 
-		public async Task AddAsync<T>(T item)
+		public async Task AddAsync<T>(T item) where T : class
 		{
 			await GetProvider<T>().CreateAsync(item);
 		}
 
-		public async Task UpdateAsync<T>(T item)
+		public async Task UpdateAsync<T>(T item) where T : class
 		{
 			await GetProvider<T>().UpdateAsync(item);
 		}
 
-		public async Task DeleteAsync<T>(T item)
+		public async Task DeleteAsync<T>(T item) where T : class
 		{
 			await GetProvider<T>().DeleteAsync(item);
 		}
@@ -77,12 +77,12 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			return _typedProviders[typeof(T).Name];
 		}
 
-		public async Task<IEnumerable<T>> QueryAsync<T>(string queryName, IEnumerable<QueryParameter> queryParameters)
+		public async Task<IEnumerable<T>> QueryAsync<T>(string queryName, IEnumerable<QueryParameter> queryParameters, Dictionary<string, object> stepBagItems) where T : class
 		{
 			return await GetProvider<T>().QueryAsync<T>(queryParameters);
 		}
 
-		public async Task DeleteAllAsync<T>()
+		public async Task DeleteAllAsync<T>() where T : class
 		{
 			await GetProvider<T>().DeleteAllAsync<T>();
 		}

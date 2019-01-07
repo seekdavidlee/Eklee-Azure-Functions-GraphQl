@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
+using Eklee.Azure.Functions.GraphQl.Repository.Search;
 using GraphQL.Types;
 
 namespace Eklee.Azure.Functions.GraphQl
@@ -106,6 +107,16 @@ namespace Eklee.Azure.Functions.GraphQl
 			return new QueryStepBuilder<TSource, TProperty>(this);
 		}
 
+		public QueryStepBuilder<TSource, SearchModel> BeginSearch(params Type[] searchTypes)
+		{
+			var step = new QueryStepBuilder<TSource, SearchModel>(this);
+			step.WithProperty(x => x.SearchText);
+			step.AddStepBagItem(SearchConstants.QueryTypes, searchTypes);
+			step.AddStepBagItem(SearchConstants.QueryName, _queryBuilder.QueryName);
+			return step;
+		}
+
+
 		public QueryParameterBuilder<TSource> BeginWithProperty<TProperty>(Expression<Func<TProperty, object>> expression,
 			Action<QueryExecutionContext> contextAction)
 		{
@@ -130,18 +141,20 @@ namespace Eklee.Azure.Functions.GraphQl
 			Func<QueryExecutionContext, List<object>> mapper,
 			Action<QueryExecutionContext> contextAction)
 		{
-			Add(new List<Expression<Func<TProperty, object>>> { expression }, mapper, contextAction);
+			Add(new List<Expression<Func<TProperty, object>>> { expression }, mapper, contextAction, null);
 		}
 
 		internal void Add<TProperty>(
 			List<Expression<Func<TProperty, object>>> expressions,
 			Func<QueryExecutionContext, List<object>> mapper,
-			Action<QueryExecutionContext> contextAction)
+			Action<QueryExecutionContext> contextAction,
+			Dictionary<string, object> stepBagItems)
 		{
 			var step = new QueryStep
 			{
 				ContextAction = contextAction,
-				Mapper = mapper
+				Mapper = mapper,
+				Items = stepBagItems
 			};
 
 			bool first = mapper != null;

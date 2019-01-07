@@ -59,9 +59,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 
 			if (!_databases.ContainsKey(databaseId))
 			{
-				await _documentClient.CreateDatabaseIfNotExistsAsync(
-						new Database { Id = databaseId },
-						new RequestOptions { OfferThroughput = requestUnit });
+				await _documentClient.CreateDatabaseIfNotExistsWithRetryAsync(databaseId, requestUnit);
 			}
 
 			_databases[sourceType.Name.ToLower()] = databaseId;

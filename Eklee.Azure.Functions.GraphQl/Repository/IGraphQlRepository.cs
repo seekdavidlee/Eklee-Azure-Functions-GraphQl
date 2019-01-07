@@ -7,11 +7,11 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 	public interface IGraphQlRepository
 	{
 		void Configure(Type sourceType, Dictionary<string, object> configurations);
-		Task BatchAddAsync<T>(IEnumerable<T> items);
-		Task AddAsync<T>(T item);
-		Task UpdateAsync<T>(T item);
-		Task DeleteAsync<T>(T item);
-		Task<IEnumerable<T>> QueryAsync<T>(string queryName, IEnumerable<QueryParameter> queryParameters);
-		Task DeleteAllAsync<T>();
+		Task BatchAddAsync<T>(IEnumerable<T> items) where T : class;
+		Task AddAsync<T>(T item) where T : class;
+		Task UpdateAsync<T>(T item) where T : class;
+		Task DeleteAsync<T>(T item) where T : class;
+		Task<IEnumerable<T>> QueryAsync<T>(string queryName, IEnumerable<QueryParameter> queryParameters, Dictionary<string, object> stepBagItems) where T : class;
+		Task DeleteAllAsync<T>() where T : class;
 	}
 }

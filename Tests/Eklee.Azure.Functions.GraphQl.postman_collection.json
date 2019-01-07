@@ -506,6 +506,104 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "Seed BookSearches",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "90c54615-a264-46b5-8bc5-b77d09317f9b",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Created data contains 30 items\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.batchCreateBookSearch.length).to.eql(30);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  batchCreateBookSearch(booksearch: [{id: \\\"1\\\", name: \\\"Nancy in the Wonderland\\\", category: \\\"Children\\\"}, {id: \\\"2\\\", name: \\\"App in the Cloud\\\", category: \\\"Technology\\\"}, {id: \\\"3\\\", name: \\\"History of China\\\", category: \\\"History\\\"}, {id: \\\"4\\\", name: \\\"C/C++ for Beginners\\\", category: \\\"Technology\\\"}, {id: \\\"5\\\", name: \\\"How To Draw Anything\\\", category: \\\"Art\\\"}, {id: \\\"6\\\", name: \\\"Anatomy and Drawing\\\", category: \\\"Art\\\"}, {id: \\\"7\\\", name: \\\"Space Drawings\\\", category: \\\"Art\\\"}, {id: \\\"8\\\", name: \\\"Art for Beginners\\\", category: \\\"Art\\\"}, {id: \\\"9\\\", name: \\\"Chinese Art\\\", category: \\\"Art\\\"}, {id: \\\"10\\\", name: \\\"Art in 2018\\\", category: \\\"Art\\\"}, {id: \\\"11\\\", name: \\\"Makers of design\\\", category: \\\"Art\\\"}, {id: \\\"12\\\", name: \\\"Art Forms in Nature\\\", category: \\\"Art\\\"}, {id: \\\"13\\\", name: \\\"The Art of Instruction\\\", category: \\\"Art\\\"}, {id: \\\"14\\\", name: \\\"The Contemporary Art Book\\\", category: \\\"Art\\\"}, {id: \\\"15\\\", name: \\\"Sketchbook Fairy Tale\\\", category: \\\"Art\\\"}, {id: \\\"16\\\", name: \\\"Art History\\\", category: \\\"Art\\\"}, {id: \\\"17\\\", name: \\\"Roman Art\\\", category: \\\"Art\\\"}, {id: \\\"18\\\", name: \\\"The Metropolitan Museum of Art\\\", category: \\\"Art\\\"}, {id: \\\"19\\\", name: \\\"Texas Artworks\\\", category: \\\"Art\\\"}, {id: \\\"20\\\", name: \\\"Simple arts\\\", category: \\\"Art\\\"}, {id: \\\"21\\\", name: \\\"Art for kids\\\", category: \\\"Art\\\"}, {id: \\\"22\\\", name: \\\"Advanced art for kids\\\", category: \\\"Art\\\"}, {id: \\\"23\\\", name: \\\"Art and music\\\", category: \\\"Art\\\"}, {id: \\\"24\\\", name: \\\"Art Apps\\\", category: \\\"Art\\\"}, {id: \\\"25\\\", name: \\\"Art in homes\\\", category: \\\"Art\\\"}, {id: \\\"26\\\", name: \\\"Art ABC\\\", category: \\\"Art\\\"}, {id: \\\"27\\\", name: \\\"Touching Art\\\", category: \\\"Art\\\"}, {id: \\\"28\\\", name: \\\"Woodwork Art\\\", category: \\\"Art\\\"}, {id: \\\"29\\\", name: \\\"Plastics Art work\\\", category: \\\"Art\\\"}, {id: \\\"30\\\", name: \\\"Boring Art\\\", category: \\\"Art\\\"}]) {\\n    id\\n    name\\n    category\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Seed ReviewerSearches",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "90c54615-a264-46b5-8bc5-b77d09317f9b",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Created data contains 10 items\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.batchCreateReviewerSearch.length).to.eql(10);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  batchCreateReviewerSearch(reviewersearch: [{id: \\\"1\\\", name: \\\"James A\\\", region: \\\"Dallas/Fort Worth\\\"}, {id: \\\"2\\\", name: \\\"Mec James\\\", region: \\\"Austin\\\"}, {id: \\\"3\\\", name: \\\"Hal Bet\\\", region: \\\"Houston\\\"}, {id: \\\"4\\\", name: \\\"Mary P\\\", region: \\\"Dallas/Fort Worth\\\"}, {id: \\\"5\\\", name: \\\"Rick James\\\", region: \\\"Seattle\\\"}, {id: \\\"6\\\", name: \\\"David Kim\\\", region: \\\"St Paul/Minneapolis\\\"}, {id: \\\"7\\\", name: \\\"Phil Hack\\\", region: \\\"Baltimore\\\"}, {id: \\\"8\\\", name: \\\"Becky Far\\\", region: \\\"San Fransico\\\"}, {id: \\\"9\\\", name: \\\"Kate Lim\\\", region: \\\"LA\\\"}, {id: \\\"10\\\", name: \\\"Mary Ann\\\", region: \\\"Washington DC\\\"}]) {\\n    id\\n    name\\n    region\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -941,6 +1039,81 @@
 						"body": {
 							"mode": "raw",
 							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"{\\n  getBookReviewsWithBookNameAndCategory(name: {contains: \\\"Art\\\"}, category: {contains: \\\"Art\\\"}, stars: {greaterEqualThan: 1}, active: {equal: true}, writtenon: {lessThan: \\\"2018-01-01\\\"}) {\\n    id\\n    comments\\n    stars\\n    writtenOn\\n    active\\n    book {\\n      id\\n      name\\n    }\\n    reviewer {\\n      id\\n      interests\\n      region\\n    }\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "searchBookReviews",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "8cdd0da6-f4bd-427b-ba71-cde39b62de87",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"function findById(list, id){",
+									"  for(var i = 0; i < list.length; i++){",
+									"      var item = list[i];",
+									"      ",
+									"      if (item.id === id) return item;",
+									"  }  ",
+									"  ",
+									"  return null;",
+									"}",
+									"",
+									"pm.test(\"Query returns with match\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.searchBookReviews.length).to.eql(4);",
+									"    ",
+									"    var entity1 = findById(jsonData.data.searchBookReviews,\"7\");",
+									"    ",
+									"    pm.expect(entity1.id).to.eql(\"7\");",
+									"    ",
+									"    var entity2 = findById(jsonData.data.searchBookReviews,\"1\");",
+									"    ",
+									"    pm.expect(entity2.id).to.eql(\"1\");",
+									"    ",
+									"    var entity3 = findById(jsonData.data.searchBookReviews,\"2\");",
+									"    ",
+									"    pm.expect(entity3.id).to.eql(\"2\");",
+									"",
+									"    var entity4 = findById(jsonData.data.searchBookReviews,\"6\");",
+									"    ",
+									"    pm.expect(entity4.id).to.eql(\"6\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"{\\n  searchBookReviews(searchtext: {equal: \\\"art\\\"}) {\\n    id\\n    writtenOn\\n    reviewerId\\n    comments\\n    stars\\n    bookId\\n    stars\\n    active\\n    reviewer {\\n      id\\n      name\\n      region\\n      interests\\n    }\\n    book {\\n      id\\n      name\\n      category\\n    }\\n  }\\n}\\n\"}"
 						},
 						"url": {
 							"raw": "{{endpoint}}/api/books/graph",
@@ -1919,6 +2092,94 @@
 						"body": {
 							"mode": "raw",
 							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  deleteAllBookReview {\\n    message\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CleanupBookSearches",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "8dca96fc-11b4-4254-9244-74661e5ab199",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  deleteAllBookSearch {\\n    message\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/books/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"books",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CleanupReviewerSearches",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "8dca96fc-11b4-4254-9244-74661e5ab199",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  deleteAllReviewerSearch {\\n    message\\n  }\\n}\\n\"}"
 						},
 						"url": {
 							"raw": "{{endpoint}}/api/books/graph",

@@ -109,7 +109,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 
 			inputBuilderFactory.Create<ReviewerSearch>(this)
 				.DeleteAll(() => new Status { Message = "All reviewer searches have been deleted." })
-				.ConfigureSearch<ReviewerSearch>()
+				.ConfigureSearchWith<ReviewerSearch, Reviewer>()
 				.AddApiKey(configuration["Search:ApiKey"])
 				.AddServiceName(configuration["Search:ServiceName"])
 				.BuildSearch()

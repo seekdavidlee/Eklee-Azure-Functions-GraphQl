@@ -1,5 +1,6 @@
 ﻿using System;
 using Eklee.Azure.Functions.GraphQl.Repository;
+using Eklee.Azure.Functions.GraphQl.Repository.DocumentDb;
 
 namespace Eklee.Azure.Functions.GraphQl
 {

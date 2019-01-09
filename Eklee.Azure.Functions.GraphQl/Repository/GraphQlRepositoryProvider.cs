@@ -63,7 +63,12 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 
 		public IGraphQlRepository GetRepository<T>()
 		{
-			return _repositories[typeof(T).FullName ?? throw new InvalidOperationException()];
+			return GetRepository(typeof(T));
+		}
+
+		public IGraphQlRepository GetRepository(Type type)
+		{
+			return _repositories[type.FullName ?? throw new InvalidOperationException()];
 		}
 	}
 }

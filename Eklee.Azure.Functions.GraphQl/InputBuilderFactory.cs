@@ -1,5 +1,6 @@
 ﻿using System;
 using Eklee.Azure.Functions.GraphQl.Repository;
+using Eklee.Azure.Functions.GraphQl.Repository.Search;
 using Eklee.Azure.Functions.Http;
 using GraphQL.Types;
 using Microsoft.Extensions.Logging;
@@ -11,15 +12,18 @@ namespace Eklee.Azure.Functions.GraphQl
 		private readonly IGraphQlRepositoryProvider _graphQlRepositoryProvider;
 		private readonly ILogger _logger;
 		private readonly IHttpRequestContext _httpRequestContext;
+		private readonly ISearchMappedModels _searchMappedModels;
 
 		public InputBuilderFactory(
 			IGraphQlRepositoryProvider graphQlRepositoryProvider,
 			ILogger logger,
-			IHttpRequestContext httpRequestContext)
+			IHttpRequestContext httpRequestContext,
+			ISearchMappedModels searchMappedModels)
 		{
 			_graphQlRepositoryProvider = graphQlRepositoryProvider;
 			_logger = logger;
 			_httpRequestContext = httpRequestContext;
+			_searchMappedModels = searchMappedModels;
 		}
 
 		public ModelConventionInputBuilder<TSource> Create<TSource>(ObjectGraphType objectGraphType) where TSource : class
@@ -32,7 +36,8 @@ namespace Eklee.Azure.Functions.GraphQl
 					objectGraphType,
 					_graphQlRepositoryProvider,
 					_logger,
-					_httpRequestContext);
+					_httpRequestContext,
+					_searchMappedModels);
 			}
 			catch (Exception e)
 			{

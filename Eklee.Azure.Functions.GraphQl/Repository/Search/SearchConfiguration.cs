@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Eklee.Azure.Functions.GraphQl.Repository.DocumentDb;
 
 namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 {

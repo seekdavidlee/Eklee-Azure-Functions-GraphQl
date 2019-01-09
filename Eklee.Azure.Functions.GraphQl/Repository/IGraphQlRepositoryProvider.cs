@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Eklee.Azure.Functions.GraphQl.Repository
@@ -8,5 +9,6 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 		IGraphQlRepository Use<TType, TRepository>() where TRepository : IGraphQlRepository;
 		Task<IEnumerable<object>> QueryAsync(string queryName, QueryStep queryStep);
 		IGraphQlRepository GetRepository<TRepository>();
+		IGraphQlRepository GetRepository(Type type);
 	}
 }

@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using Autofac;
 using Eklee.Azure.Functions.GraphQl.Repository;
 using Eklee.Azure.Functions.GraphQl.Repository.DocumentDb;
+using Eklee.Azure.Functions.GraphQl.Repository.Http;
+using Eklee.Azure.Functions.GraphQl.Repository.InMemory;
 using Eklee.Azure.Functions.GraphQl.Repository.Search;
 using Eklee.Azure.Functions.Http;
 using FastMember;

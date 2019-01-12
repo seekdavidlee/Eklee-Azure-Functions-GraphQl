@@ -1,4 +1,4 @@
-﻿namespace Eklee.Azure.Functions.GraphQl.Repository
+﻿namespace Eklee.Azure.Functions.GraphQl.Repository.InMemory
 {
 	public class InMemoryConfiguration<TSource> where TSource : class
 	{

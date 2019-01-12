@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Net.Http;
 
-namespace Eklee.Azure.Functions.GraphQl.Repository
+namespace Eklee.Azure.Functions.GraphQl.Repository.Http
 {
 	public class HttpResource
 	{

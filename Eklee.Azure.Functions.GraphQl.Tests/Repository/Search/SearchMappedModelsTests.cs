@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Eklee.Azure.Functions.GraphQl.Repository.Search;
 using Shouldly;
@@ -28,6 +29,20 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.Search
 	public class MyOtherFoo : MyTestFooSearch
 	{
 
+	}
+
+	public class Model1WithMore
+	{
+		public string Id { get; set; }
+		public string Name { get; set; }
+		public int Counter { get; set; }
+		public List<string> Categories { get; set; }
+	}
+
+	public class Model1SearchWithLess
+	{
+		public string Id { get; set; }
+		public string Name { get; set; }
 	}
 
 	[Trait(Constants.Category, Constants.UnitTests)]
@@ -67,6 +82,16 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.Search
 			o.Created.Year.ShouldBe(2014);
 			o.Created.Month.ShouldBe(1);
 			o.Created.Day.ShouldBe(13);
+		}
+
+		[Fact]
+		public void ShouldMappedAllSearchModelPropertiesFromModelWithMoreFields()
+		{
+			_searchMappedModels.Map<Model1SearchWithLess, Model1WithMore>();
+
+			var o = (Model1SearchWithLess)_searchMappedModels.CreateInstanceFromMap(new Model1WithMore { Id = "foo 45", Name = "foo 3331", Counter = 33, Categories = new List<string> { "1", "2" } });
+			o.Id.ShouldBe("foo 45");
+			o.Name.ShouldBe("foo 3331");
 		}
 	}
 }

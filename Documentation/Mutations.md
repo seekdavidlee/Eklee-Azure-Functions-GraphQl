@@ -136,3 +136,19 @@ inputBuilderFactory.Create<BookSearch>(this)
 	.BuildSearch()
 	.Build();
 ```
+
+### Sync Azure Search with Model
+
+It is possible to perform a mutation with a Model and the corresponding Search Model will also be either created, updated or deleted. See the following example.
+
+```
+inputBuilderFactory.Create<ReviewerSearch>(this)
+	.DeleteAll(() => new Status { Message = "All reviewer searches have been deleted." })
+	.ConfigureSearchWith<ReviewerSearch, Reviewer>()
+	.AddApiKey(configuration["Search:ApiKey"])
+	.AddServiceName(configuration["Search:ServiceName"])
+	.BuildSearch()
+	.Build();
+```
+
+The ConfigureSearchWith<TSearchModel,TModel> will allow you to associate a Search Model with an existing Model type.

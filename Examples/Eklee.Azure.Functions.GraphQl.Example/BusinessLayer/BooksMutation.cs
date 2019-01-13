@@ -1,7 +1,6 @@
 ﻿using System.Net.Http;
 using Eklee.Azure.Functions.GraphQl.Example.HttpMocks;
 using Eklee.Azure.Functions.GraphQl.Example.Models;
-using Eklee.Azure.Functions.GraphQl.Repository;
 using Eklee.Azure.Functions.GraphQl.Repository.Http;
 using GraphQL.Types;
 using Microsoft.Extensions.Configuration;

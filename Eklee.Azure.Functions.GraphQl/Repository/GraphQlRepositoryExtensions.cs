@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -11,6 +12,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 		{
 			MethodInfo method = graphQlRepository.GetType().GetMethod("DeleteAllAsync");
 
+			// ReSharper disable once PossibleNullReferenceException
 			MethodInfo generic = method.MakeGenericMethod(type);
 
 			var task = (Task)generic.Invoke(graphQlRepository, null);
@@ -18,13 +20,19 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			await task.ConfigureAwait(false);
 		}
 
-		public static async Task BatchAddAsync(this IGraphQlRepository graphQlRepository, Type type, IEnumerable<object> items)
+		public static async Task BatchAddAsync(this IGraphQlRepository graphQlRepository, Type type, List<object> items)
 		{
+			var listType = typeof(List<>).MakeGenericType(type);
+			var list = Activator.CreateInstance(listType);
+			var c = (IList)list;
+			items.ForEach(item => c.Add(item));
+
 			MethodInfo method = graphQlRepository.GetType().GetMethod("BatchAddAsync");
 
+			// ReSharper disable once PossibleNullReferenceException
 			MethodInfo generic = method.MakeGenericMethod(type);
 
-			var task = (Task)generic.Invoke(graphQlRepository, new object[] { items });
+			var task = (Task)generic.Invoke(graphQlRepository, new[] { list });
 
 			await task.ConfigureAwait(false);
 		}
@@ -49,6 +57,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 		{
 			MethodInfo method = graphQlRepository.GetType().GetMethod(action);
 
+			// ReSharper disable once PossibleNullReferenceException
 			MethodInfo generic = method.MakeGenericMethod(type);
 
 			var task = (Task)generic.Invoke(graphQlRepository, new[] { mappedInstance });

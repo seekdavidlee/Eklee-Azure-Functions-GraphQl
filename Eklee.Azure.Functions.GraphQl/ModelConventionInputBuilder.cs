@@ -184,7 +184,7 @@ namespace Eklee.Azure.Functions.GraphQl
 						Type mappedSearchType;
 						if (_searchMappedModels.TryGetMappedSearchType<TSource>(out mappedSearchType))
 						{
-							var mappedInstances = items.Select(item => _searchMappedModels.CreateInstanceFromMap(item));
+							var mappedInstances = items.Select(item => Convert.ChangeType(_searchMappedModels.CreateInstanceFromMap(item), mappedSearchType)).ToList();
 
 							await _graphQlRepositoryProvider.GetRepository(mappedSearchType)
 								.BatchAddAsync(mappedSearchType, mappedInstances);

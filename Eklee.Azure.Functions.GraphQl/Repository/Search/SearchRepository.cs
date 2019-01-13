@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Eklee.Azure.Functions.GraphQl.Repository.DocumentDb;
 using Microsoft.Extensions.Logging;
 
 namespace Eklee.Azure.Functions.GraphQl.Repository.Search

@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
-namespace Eklee.Azure.Functions.GraphQl.Repository
+namespace Eklee.Azure.Functions.GraphQl.Repository.Http
 {
 	public class HttpRepository : IGraphQlRepository
 	{

@@ -1,7 +1,7 @@
 ﻿using System.Net.Http;
 using Eklee.Azure.Functions.GraphQl.Example.HttpMocks;
 using Eklee.Azure.Functions.GraphQl.Example.Models;
-using Eklee.Azure.Functions.GraphQl.Repository;
+using Eklee.Azure.Functions.GraphQl.Repository.Http;
 using GraphQL.Types;
 using Microsoft.Extensions.Configuration;
 
@@ -109,7 +109,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 
 			inputBuilderFactory.Create<ReviewerSearch>(this)
 				.DeleteAll(() => new Status { Message = "All reviewer searches have been deleted." })
-				.ConfigureSearch<ReviewerSearch>()
+				.ConfigureSearchWith<ReviewerSearch, Reviewer>()
 				.AddApiKey(configuration["Search:ApiKey"])
 				.AddServiceName(configuration["Search:ServiceName"])
 				.BuildSearch()

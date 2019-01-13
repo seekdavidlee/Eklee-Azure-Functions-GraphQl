@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Eklee.Azure.Functions.GraphQl.Repository
+namespace Eklee.Azure.Functions.GraphQl.Repository.InMemory
 {
 	public class InMemoryRepository : IGraphQlRepository
 	{

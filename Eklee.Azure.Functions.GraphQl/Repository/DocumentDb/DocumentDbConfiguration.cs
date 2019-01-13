@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using Eklee.Azure.Functions.Http;
 
-namespace Eklee.Azure.Functions.GraphQl.Repository
+namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 {
 	public class DocumentDbConfiguration<TSource> where TSource : class
 	{
@@ -49,8 +49,6 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 		{
 			if (expression.Body is MemberExpression memberExpression)
 			{
-
-
 				_configurations.Add<TSource>(DocumentDbConstants.PartitionMemberExpression, memberExpression);
 			}
 

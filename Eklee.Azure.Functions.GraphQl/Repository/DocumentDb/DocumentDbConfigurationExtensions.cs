@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Eklee.Azure.Functions.GraphQl.Repository
+namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 {
 	public static class DocumentDbConfigurationExtensions
 	{

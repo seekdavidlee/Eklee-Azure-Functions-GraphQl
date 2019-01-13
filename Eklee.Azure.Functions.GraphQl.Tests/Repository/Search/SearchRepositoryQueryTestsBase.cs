@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Eklee.Azure.Functions.GraphQl.Repository;
+using Eklee.Azure.Functions.GraphQl.Repository.DocumentDb;
 using Eklee.Azure.Functions.GraphQl.Repository.Search;
 using FastMember;
 using Microsoft.Extensions.Configuration;

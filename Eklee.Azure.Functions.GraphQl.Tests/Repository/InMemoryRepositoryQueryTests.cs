@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using Eklee.Azure.Functions.GraphQl.Repository;
+using Eklee.Azure.Functions.GraphQl.Repository.InMemory;
 using FastMember;
 using Shouldly;
 using Xunit;

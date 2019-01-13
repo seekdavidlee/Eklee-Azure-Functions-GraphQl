@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
 
-namespace Eklee.Azure.Functions.GraphQl
+namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 {
 	public static class DocumentDbExtensions
 	{

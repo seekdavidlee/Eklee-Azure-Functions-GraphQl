@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Eklee.Azure.Functions.GraphQl.Repository;
+using Eklee.Azure.Functions.GraphQl.Repository.DocumentDb;
+using Eklee.Azure.Functions.GraphQl.Repository.Http;
+using Eklee.Azure.Functions.GraphQl.Repository.InMemory;
 using Eklee.Azure.Functions.GraphQl.Repository.Search;
 using Eklee.Azure.Functions.Http;
 using GraphQL.Types;
@@ -16,17 +20,20 @@ namespace Eklee.Azure.Functions.GraphQl
 		private readonly IHttpRequestContext _httpRequestContext;
 		private readonly string _sourceName;
 		private Action _deleteSetupAction;
+		private readonly ISearchMappedModels _searchMappedModels;
 
 		internal ModelConventionInputBuilder(
 			ObjectGraphType objectGraphType,
 			IGraphQlRepositoryProvider graphQlRepositoryProviderProvider,
 			ILogger logger,
-			IHttpRequestContext httpRequestContext)
+			IHttpRequestContext httpRequestContext,
+			ISearchMappedModels searchMappedModels)
 		{
 			_objectGraphType = objectGraphType;
 			_graphQlRepositoryProvider = graphQlRepositoryProviderProvider;
 			_logger = logger;
 			_httpRequestContext = httpRequestContext;
+			_searchMappedModels = searchMappedModels;
 			_sourceName = typeof(TSource).Name.ToLower();
 
 			// Default setup for delete.
@@ -77,13 +84,19 @@ namespace Eklee.Azure.Functions.GraphQl
 			return new DocumentDbConfiguration<TSource>(this, _graphQlRepository, _typeSource, _httpRequestContext);
 		}
 
-		public SearchConfiguration<TSource> ConfigureSearch<TType>()
+		public SearchConfiguration<TSource> ConfigureSearch<TSearchModel>()
 		{
 			_graphQlRepositoryProvider.Use<SearchModel, SearchRepository>();
 
-			_graphQlRepository = _graphQlRepositoryProvider.Use<TType, SearchRepository>();
-			_typeSource = typeof(TType);
+			_graphQlRepository = _graphQlRepositoryProvider.Use<TSearchModel, SearchRepository>();
+			_typeSource = typeof(TSearchModel);
 			return new SearchConfiguration<TSource>(this, _graphQlRepository);
+		}
+
+		public SearchConfiguration<TSource> ConfigureSearchWith<TSearchModel, TModel>()
+		{
+			_searchMappedModels.Map<TSearchModel, TModel>();
+			return ConfigureSearch<TSearchModel>();
 		}
 
 		public ModelConventionInputBuilder<TSource> Delete<TDeleteInput, TDeleteOutput>(
@@ -103,6 +116,14 @@ namespace Eklee.Azure.Functions.GraphQl
 						try
 						{
 							await _graphQlRepositoryProvider.GetRepository<TSource>().DeleteAsync(item);
+
+							Type mappedSearchType;
+							if (_searchMappedModels.TryGetMappedSearchType<TSource>(out mappedSearchType))
+							{
+								var mappedInstance = _searchMappedModels.CreateInstanceFromMap(item);
+								await _graphQlRepositoryProvider.GetRepository(mappedSearchType)
+									.DeleteAsync(mappedSearchType, mappedInstance);
+							}
 						}
 						catch (Exception e)
 						{
@@ -129,6 +150,12 @@ namespace Eklee.Azure.Functions.GraphQl
 						try
 						{
 							await _graphQlRepositoryProvider.GetRepository<TSource>().DeleteAllAsync<TSource>();
+
+							Type mappedSearchType;
+							if (_searchMappedModels.TryGetMappedSearchType<TSource>(out mappedSearchType))
+							{
+								await _graphQlRepositoryProvider.GetRepository(mappedSearchType).DeleteAllAsync(mappedSearchType);
+							}
 						}
 						catch (Exception e)
 						{
@@ -149,10 +176,20 @@ namespace Eklee.Azure.Functions.GraphQl
 				),
 				resolve: async context =>
 				{
-					var items = context.GetArgument<IEnumerable<TSource>>(_sourceName);
+					var items = context.GetArgument<IEnumerable<TSource>>(_sourceName).ToList();
 					try
 					{
 						await _graphQlRepositoryProvider.GetRepository<TSource>().BatchAddAsync(items);
+
+						Type mappedSearchType;
+						if (_searchMappedModels.TryGetMappedSearchType<TSource>(out mappedSearchType))
+						{
+							var mappedInstances = items.Select(item => Convert.ChangeType(_searchMappedModels.CreateInstanceFromMap(item), mappedSearchType)).ToList();
+
+							await _graphQlRepositoryProvider.GetRepository(mappedSearchType)
+								.BatchAddAsync(mappedSearchType, mappedInstances);
+						}
+
 						return items;
 					}
 					catch (Exception e)
@@ -172,6 +209,14 @@ namespace Eklee.Azure.Functions.GraphQl
 					try
 					{
 						await _graphQlRepositoryProvider.GetRepository<TSource>().AddAsync(item);
+
+						Type mappedSearchType;
+						if (_searchMappedModels.TryGetMappedSearchType<TSource>(out mappedSearchType))
+						{
+							var mappedInstance = _searchMappedModels.CreateInstanceFromMap(item);
+							await _graphQlRepositoryProvider.GetRepository(mappedSearchType)
+								.AddAsync(mappedSearchType, mappedInstance);
+						}
 					}
 					catch (Exception e)
 					{
@@ -190,6 +235,14 @@ namespace Eklee.Azure.Functions.GraphQl
 					try
 					{
 						await _graphQlRepositoryProvider.GetRepository<TSource>().UpdateAsync(item);
+
+						Type mappedSearchType;
+						if (_searchMappedModels.TryGetMappedSearchType<TSource>(out mappedSearchType))
+						{
+							var mappedInstance = _searchMappedModels.CreateInstanceFromMap(item);
+							await _graphQlRepositoryProvider.GetRepository(mappedSearchType)
+								.UpdateAsync(mappedSearchType, mappedInstance);
+						}
 					}
 					catch (Exception e)
 					{

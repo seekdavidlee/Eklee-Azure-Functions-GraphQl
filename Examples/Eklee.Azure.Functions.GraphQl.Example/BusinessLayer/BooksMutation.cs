@@ -112,6 +112,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 				.ConfigureSearchWith<ReviewerSearch, Reviewer>()
 				.AddApiKey(configuration["Search:ApiKey"])
 				.AddServiceName(configuration["Search:ServiceName"])
+				.AddPrefix("stg")
 				.BuildSearch()
 				.Build();
 		}

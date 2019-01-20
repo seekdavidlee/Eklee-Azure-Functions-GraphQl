@@ -2,14 +2,14 @@
 <package >
   <metadata>
     <id>Eklee.Azure.Functions.GraphQl</id>
-    <version>0.5.4</version>
+    <version>0.5.5</version>
     <title>Eklee.Azure.Functions.GraphQl</title>
     <authors>Eng-Keong David Lee</authors>
     <owners>Eng-Keong David Lee</owners>
     <projectUrl>https://github.com/seekdavidlee/Eklee-Azure-Functions-GraphQl</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>The purpose of this library is to help developers with implementing a Serverless GraphQL API using Azure Functions, Azure Cosmos DB, Azure Search etc.</description>
-    <releaseNotes>Minor enhancement to Azure Search to automatically sync with an existing Model.</releaseNotes>	  
+    <releaseNotes>Minor update to have the ability to configure prefix to search index name.</releaseNotes>	  
     <tags>GraphQL, Azure, Functions, Caching, .NET, Graph, Paging, Pagination, CosmosDB, DocumentDB, Search</tags>
     <dependencies>
       <dependency id="Eklee.Azure.Functions.Http" version="0.7.0" />

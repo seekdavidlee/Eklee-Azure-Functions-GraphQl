@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using Eklee.Azure.Functions.GraphQl.Repository.DocumentDb;
 using FastMember;
 using Microsoft.Azure.Search;
 using Microsoft.Azure.Search.Models;
@@ -19,6 +20,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 		private readonly string _serviceName;
 		private readonly SearchCredentials _searchCredentials;
 		private readonly Dictionary<string, SearchIndexClient> _searchIndexClients = new Dictionary<string, SearchIndexClient>();
+		private readonly Dictionary<string, string> _prefixes = new Dictionary<string, string>();
 		public SearchClientProvider(ILogger logger, string serviceName, string key)
 		{
 			_logger = logger;
@@ -30,8 +32,13 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 		public void ConfigureSearchService(Dictionary<string, object> configurations, Type sourceType)
 		{
 			var fields = GetTypeFields(sourceType);
-
-			_searchServiceClient.Indexes.CreateOrUpdate(new Index(sourceType.Name.ToLower(), fields));
+			var prefix = configurations.GetStringValue(SearchConstants.Prefix, sourceType) ?? "";
+			string indexName = sourceType.Name.ToLower();
+			if (!string.IsNullOrEmpty(prefix))
+			{
+				_prefixes[indexName] = prefix;
+			}
+			_searchServiceClient.Indexes.CreateOrUpdate(new Index(prefix + indexName, fields));
 		}
 
 		private List<Field> GetTypeFields(Type sourceType)
@@ -107,7 +114,8 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 			}
 			else
 			{
-				client = new SearchIndexClient(_serviceName, indexName, _searchCredentials);
+				var prefix = _prefixes.ContainsKey(indexName) ? _prefixes[indexName] : "";
+				client = new SearchIndexClient(_serviceName, prefix + indexName, _searchCredentials);
 				_searchIndexClients.Add(indexName, client);
 			}
 
@@ -201,7 +209,9 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 
 		public async Task DeleteAllAsync<T>() where T : class
 		{
-			var indexName = typeof(T).Name.ToLower();
+			string indexName = typeof(T).Name.ToLower();
+			var prefix = _prefixes.ContainsKey(indexName) ? _prefixes[indexName] : "";
+			indexName = prefix + indexName;
 
 			_logger.LogInformation($"Removing search index: {indexName}");
 

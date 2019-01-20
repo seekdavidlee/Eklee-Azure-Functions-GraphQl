@@ -6,5 +6,6 @@
 		public const string ApiKey = "ApiKey";
 		public const string QueryTypes = "QueryTypes";
 		public const string QueryName = "QueryName";
+		public const string Prefix = "Prefix";
 	}
 }

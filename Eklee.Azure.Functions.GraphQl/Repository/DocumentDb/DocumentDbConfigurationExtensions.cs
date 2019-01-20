@@ -23,7 +23,8 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 
 		public static string GetStringValue(this Dictionary<string, object> configurations, string key, Type sourceType)
 		{
-			return (string)configurations[GetKey(key, sourceType)];
+			string configKey = GetKey(key, sourceType);
+			return configurations.ContainsKey(configKey) ? (string)configurations[configKey] : null;
 		}
 
 		public static string GetKey(string key, Type sourceType)

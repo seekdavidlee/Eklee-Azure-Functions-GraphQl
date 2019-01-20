@@ -29,6 +29,12 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 			return this;
 		}
 
+		public SearchConfiguration<TSource> AddPrefix(string prefix)
+		{
+			_configurations.Add<TSource>(SearchConstants.Prefix, prefix);
+			return this;
+		}
+
 		public IModelConventionInputBuilder<TSource> BuildSearch()
 		{
 			_graphQlRepository.Configure(typeof(TSource), _configurations);

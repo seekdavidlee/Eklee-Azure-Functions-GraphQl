@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Eklee.Azure.Functions.GraphQl.Repository;
 using Eklee.Azure.Functions.GraphQl.Repository.DocumentDb;
-using Eklee.Azure.Functions.Http;
 using NSubstitute;
 using Shouldly;
 using Xunit;
@@ -72,8 +71,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests
 		{
 			var builder = Substitute.For<IModelConventionInputBuilder<DocumentDbFoo1>>();
 			var repo = Substitute.For<IGraphQlRepository>();
-			var ctx = Substitute.For<IHttpRequestContext>();
-			var config = new DocumentDbConfiguration<DocumentDbFoo1>(builder, repo, typeof(DocumentDbFoo1), ctx);
+
+			var config = new DocumentDbConfiguration<DocumentDbFoo1>(builder, repo, typeof(DocumentDbFoo1));
 
 			Should.Throw<InvalidOperationException>(() => config.BuildDocumentDb());
 		}
@@ -83,8 +82,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests
 		{
 			var builder = Substitute.For<IModelConventionInputBuilder<DocumentDbFoo1>>();
 			var repo = Substitute.For<IGraphQlRepository>();
-			var ctx = Substitute.For<IHttpRequestContext>();
-			var config = new DocumentDbConfiguration<DocumentDbFoo1>(builder, repo, typeof(DocumentDbFoo1), ctx);
+			var config = new DocumentDbConfiguration<DocumentDbFoo1>(builder, repo, typeof(DocumentDbFoo1));
 
 			config.AddPartition(x => x.Name).BuildDocumentDb();
 
@@ -98,8 +96,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests
 		{
 			var builder = Substitute.For<IModelConventionInputBuilder<DocumentDbFoo2>>();
 			var repo = Substitute.For<IGraphQlRepository>();
-			var ctx = Substitute.For<IHttpRequestContext>();
-			var config = new DocumentDbConfiguration<DocumentDbFoo2>(builder, repo, typeof(DocumentDbFoo2), ctx);
+			var config = new DocumentDbConfiguration<DocumentDbFoo2>(builder, repo, typeof(DocumentDbFoo2));
 
 			config.AddPartition(x => x.MyIntCategory).BuildDocumentDb();
 

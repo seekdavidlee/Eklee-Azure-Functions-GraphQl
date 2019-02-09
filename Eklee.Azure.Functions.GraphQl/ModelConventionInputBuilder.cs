@@ -6,7 +6,6 @@ using Eklee.Azure.Functions.GraphQl.Repository.DocumentDb;
 using Eklee.Azure.Functions.GraphQl.Repository.Http;
 using Eklee.Azure.Functions.GraphQl.Repository.InMemory;
 using Eklee.Azure.Functions.GraphQl.Repository.Search;
-using Eklee.Azure.Functions.Http;
 using GraphQL.Types;
 using Microsoft.Extensions.Logging;
 
@@ -17,7 +16,6 @@ namespace Eklee.Azure.Functions.GraphQl
 		private readonly ObjectGraphType _objectGraphType;
 		private readonly IGraphQlRepositoryProvider _graphQlRepositoryProvider;
 		private readonly ILogger _logger;
-		private readonly IHttpRequestContext _httpRequestContext;
 		private readonly string _sourceName;
 		private Action _deleteSetupAction;
 		private readonly ISearchMappedModels _searchMappedModels;
@@ -26,13 +24,11 @@ namespace Eklee.Azure.Functions.GraphQl
 			ObjectGraphType objectGraphType,
 			IGraphQlRepositoryProvider graphQlRepositoryProviderProvider,
 			ILogger logger,
-			IHttpRequestContext httpRequestContext,
 			ISearchMappedModels searchMappedModels)
 		{
 			_objectGraphType = objectGraphType;
 			_graphQlRepositoryProvider = graphQlRepositoryProviderProvider;
 			_logger = logger;
-			_httpRequestContext = httpRequestContext;
 			_searchMappedModels = searchMappedModels;
 			_sourceName = typeof(TSource).Name.ToLower();
 
@@ -81,7 +77,7 @@ namespace Eklee.Azure.Functions.GraphQl
 		{
 			_graphQlRepository = _graphQlRepositoryProvider.Use<TType, DocumentDbRepository>();
 			_typeSource = typeof(TType);
-			return new DocumentDbConfiguration<TSource>(this, _graphQlRepository, _typeSource, _httpRequestContext);
+			return new DocumentDbConfiguration<TSource>(this, _graphQlRepository, _typeSource);
 		}
 
 		public SearchConfiguration<TSource> ConfigureSearch<TSearchModel>()

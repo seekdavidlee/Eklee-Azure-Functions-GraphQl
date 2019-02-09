@@ -1,0 +1,33 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"stackName": {
+			"defaultValue": "",
+			"type": "String"
+		}
+	},
+	"variables": {
+		"location": "[resourceGroup().location]",
+		"planName": "[variables('stackName')]",
+		"stackName": "[replace(parameters('stackName'),'-','')]"
+	},
+	"resources": [
+		{
+			"type": "Microsoft.Search/searchServices",
+			"sku": {
+				"name": "free"
+			},
+			"name": "[variables('stackName')]",
+			"apiVersion": "2015-08-19",
+			"location": "[variables('location')]",
+			"scale": null,
+			"properties": {
+				"replicaCount": 1,
+				"partitionCount": 1,
+				"hostingMode": "Default"
+			},
+			"dependsOn": []
+		}
+	]
+}

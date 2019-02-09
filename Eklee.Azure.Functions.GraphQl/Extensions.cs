@@ -64,6 +64,10 @@ namespace Eklee.Azure.Functions.GraphQl
 
 		public static async Task<IActionResult> ProcessGraphQlRequest(this ExecutionContext executionContext, HttpRequest httpRequest)
 		{
+			var validateionResult = executionContext.ValidateJwt();
+
+			if (validateionResult != null) return validateionResult;
+
 			var graphQlDomain = executionContext.Resolve<IGraphQlDomain>();
 			var logger = executionContext.Resolve<ILogger>();
 

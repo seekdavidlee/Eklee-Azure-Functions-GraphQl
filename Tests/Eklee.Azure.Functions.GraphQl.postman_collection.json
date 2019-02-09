@@ -6,6 +6,87 @@
 	},
 	"item": [
 		{
+			"name": "Login",
+			"item": [
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "ecafb857-fc97-4b64-80a1-6ffa2c75d986",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Contans access token\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.environment.set(\"access_token\", jsonData.access_token);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "client_secret",
+									"value": "{{clientSecret}}",
+									"type": "text"
+								},
+								{
+									"key": "client_id",
+									"value": "{{clientId}}",
+									"type": "text"
+								},
+								{
+									"key": "grant_type",
+									"value": "password",
+									"type": "text"
+								},
+								{
+									"key": "username",
+									"value": "{{tenant1user1}}",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "{{tenant1user1password}}",
+									"type": "text"
+								},
+								{
+									"key": "resource",
+									"value": "{{resourceId}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://login.microsoftonline.com/{{tenant1Id}}/oauth2/token",
+							"protocol": "https",
+							"host": [
+								"login",
+								"microsoftonline",
+								"com"
+							],
+							"path": [
+								"{{tenant1Id}}",
+								"oauth2",
+								"token"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "Publisher",
 			"item": [
 				{
@@ -242,6 +323,11 @@
 								"name": "Content-Type",
 								"type": "text",
 								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}",
+								"type": "text"
 							}
 						],
 						"body": {
@@ -541,55 +627,6 @@
 						"body": {
 							"mode": "raw",
 							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  batchCreateBookSearch(booksearch: [{id: \\\"1\\\", name: \\\"Nancy in the Wonderland\\\", category: \\\"Children\\\"}, {id: \\\"2\\\", name: \\\"App in the Cloud\\\", category: \\\"Technology\\\"}, {id: \\\"3\\\", name: \\\"History of China\\\", category: \\\"History\\\"}, {id: \\\"4\\\", name: \\\"C/C++ for Beginners\\\", category: \\\"Technology\\\"}, {id: \\\"5\\\", name: \\\"How To Draw Anything\\\", category: \\\"Art\\\"}, {id: \\\"6\\\", name: \\\"Anatomy and Drawing\\\", category: \\\"Art\\\"}, {id: \\\"7\\\", name: \\\"Space Drawings\\\", category: \\\"Art\\\"}, {id: \\\"8\\\", name: \\\"Art for Beginners\\\", category: \\\"Art\\\"}, {id: \\\"9\\\", name: \\\"Chinese Art\\\", category: \\\"Art\\\"}, {id: \\\"10\\\", name: \\\"Art in 2018\\\", category: \\\"Art\\\"}, {id: \\\"11\\\", name: \\\"Makers of design\\\", category: \\\"Art\\\"}, {id: \\\"12\\\", name: \\\"Art Forms in Nature\\\", category: \\\"Art\\\"}, {id: \\\"13\\\", name: \\\"The Art of Instruction\\\", category: \\\"Art\\\"}, {id: \\\"14\\\", name: \\\"The Contemporary Art Book\\\", category: \\\"Art\\\"}, {id: \\\"15\\\", name: \\\"Sketchbook Fairy Tale\\\", category: \\\"Art\\\"}, {id: \\\"16\\\", name: \\\"Art History\\\", category: \\\"Art\\\"}, {id: \\\"17\\\", name: \\\"Roman Art\\\", category: \\\"Art\\\"}, {id: \\\"18\\\", name: \\\"The Metropolitan Museum of Art\\\", category: \\\"Art\\\"}, {id: \\\"19\\\", name: \\\"Texas Artworks\\\", category: \\\"Art\\\"}, {id: \\\"20\\\", name: \\\"Simple arts\\\", category: \\\"Art\\\"}, {id: \\\"21\\\", name: \\\"Art for kids\\\", category: \\\"Art\\\"}, {id: \\\"22\\\", name: \\\"Advanced art for kids\\\", category: \\\"Art\\\"}, {id: \\\"23\\\", name: \\\"Art and music\\\", category: \\\"Art\\\"}, {id: \\\"24\\\", name: \\\"Art Apps\\\", category: \\\"Art\\\"}, {id: \\\"25\\\", name: \\\"Art in homes\\\", category: \\\"Art\\\"}, {id: \\\"26\\\", name: \\\"Art ABC\\\", category: \\\"Art\\\"}, {id: \\\"27\\\", name: \\\"Touching Art\\\", category: \\\"Art\\\"}, {id: \\\"28\\\", name: \\\"Woodwork Art\\\", category: \\\"Art\\\"}, {id: \\\"29\\\", name: \\\"Plastics Art work\\\", category: \\\"Art\\\"}, {id: \\\"30\\\", name: \\\"Boring Art\\\", category: \\\"Art\\\"}]) {\\n    id\\n    name\\n    category\\n  }\\n}\\n\"}"
-						},
-						"url": {
-							"raw": "{{endpoint}}/api/books/graph",
-							"host": [
-								"{{endpoint}}"
-							],
-							"path": [
-								"api",
-								"books",
-								"graph"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Seed ReviewerSearches",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"id": "90c54615-a264-46b5-8bc5-b77d09317f9b",
-								"exec": [
-									"pm.test(\"Status code is 200\", function () {",
-									"    pm.response.to.have.status(200);",
-									"});",
-									"",
-									"pm.test(\"Created data contains 10 items\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData.data.batchCreateReviewerSearch.length).to.eql(10);",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"name": "Content-Type",
-								"type": "text",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  batchCreateReviewerSearch(reviewersearch: [{id: \\\"1\\\", name: \\\"James A\\\", region: \\\"Dallas/Fort Worth\\\"}, {id: \\\"2\\\", name: \\\"Mec James\\\", region: \\\"Austin\\\"}, {id: \\\"3\\\", name: \\\"Hal Bet\\\", region: \\\"Houston\\\"}, {id: \\\"4\\\", name: \\\"Mary P\\\", region: \\\"Dallas/Fort Worth\\\"}, {id: \\\"5\\\", name: \\\"Rick James\\\", region: \\\"Seattle\\\"}, {id: \\\"6\\\", name: \\\"David Kim\\\", region: \\\"St Paul/Minneapolis\\\"}, {id: \\\"7\\\", name: \\\"Phil Hack\\\", region: \\\"Baltimore\\\"}, {id: \\\"8\\\", name: \\\"Becky Far\\\", region: \\\"San Fransico\\\"}, {id: \\\"9\\\", name: \\\"Kate Lim\\\", region: \\\"LA\\\"}, {id: \\\"10\\\", name: \\\"Mary Ann\\\", region: \\\"Washington DC\\\"}]) {\\n    id\\n    name\\n    region\\n  }\\n}\\n\"}"
 						},
 						"url": {
 							"raw": "{{endpoint}}/api/books/graph",
@@ -1999,6 +2036,11 @@
 								"name": "Content-Type",
 								"type": "text",
 								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6Ii1zeE1KTUxDSURXTVRQdlp5SjZ0eC1DRHh3MCIsImtpZCI6Ii1zeE1KTUxDSURXTVRQdlp5SjZ0eC1DRHh3MCJ9.eyJhdWQiOiJiZjJmMjJkYi0xZGEyLTQ2ZmEtYjg5NS02MWNjMzQyMTVlM2QiLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC80MWFmODdjYy01N2M5LTRmNjktYTZhOC1kYzIwN2Y1ZTM1NjQvIiwiaWF0IjoxNTQ5MjkxMjk4LCJuYmYiOjE1NDkyOTEyOTgsImV4cCI6MTU0OTI5NTE5OCwiYWNyIjoiMSIsImFpbyI6IkFTUUEyLzhLQUFBQUVGdThFMmdEelNDVUV6NkN6dXVadVBtVnl5MjZPV1dUcTM1QVpjSGhPcmM9IiwiYW1yIjpbInB3ZCJdLCJhcHBpZCI6ImJmMmYyMmRiLTFkYTItNDZmYS1iODk1LTYxY2MzNDIxNWUzZCIsImFwcGlkYWNyIjoiMSIsImlwYWRkciI6IjcyLjE4MC4xMDkuMTAiLCJuYW1lIjoiVXNlciAxIiwib2lkIjoiN2Q4MzgyNDktNTgyNi00ZjQ5LWFkNGEtNDkzNTQ5ZTk4ZjVlIiwicm9sZXMiOlsiRWtsZWUuVXNlci5SZWFkIl0sInNjcCI6IlVzZXIuUmVhZCIsInN1YiI6IkFTbmE2R0hWcFBkWWt4aTZjbi1TeWJ4ekZGbF9WaFFSRG5VQkg0a0ZkdnMiLCJ0aWQiOiI0MWFmODdjYy01N2M5LTRmNjktYTZhOC1kYzIwN2Y1ZTM1NjQiLCJ1bmlxdWVfbmFtZSI6InVzZXIxQGVrbGVldGVuYW50MS5vbm1pY3Jvc29mdC5jb20iLCJ1cG4iOiJ1c2VyMUBla2xlZXRlbmFudDEub25taWNyb3NvZnQuY29tIiwidXRpIjoiaVBYV2JwWDc0azZjNjdPV0pLdVFBQSIsInZlciI6IjEuMCJ9.lXq8s0ZKj8kJpanQxN5KVs9sXCBSz-0VUnu62VrVWxAidYDeFE2BGPF_0rkjZpug43ZIBNvjmTEgowXLYeYM9ZFKVyXoW_Y4uo6ebQU0WBBTgoDNQJKyQOm-KnfPyD-3OyaPjcxuZ-Ux8u9CzoSAjBckQxUjRcOhEKthXTLoxbN2OklvlO4sjZbQUQ-pO9DA_9UHD9_O2gXta6EuphpVMwR5TzWWbx7S7CB1jCpGY4EGHPoKnckUy2Iib0eTAKcl4c6kGUPdyjXUgED2OsXke0z-luJCJSbZdYmhzE0om6GeP697vWtUKI8AX8U5qrmIPeiOYPKT9sz4SulI_ziOYA",
+								"type": "text"
 							}
 						],
 						"body": {

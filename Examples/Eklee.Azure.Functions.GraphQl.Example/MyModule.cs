@@ -10,7 +10,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example
 		protected override void Load(ContainerBuilder builder)
 		{
 			builder.UseDistributedCache<MemoryDistributedCache>();
-
+			builder.UseJwtAuthorization<JwtConfigParameters>();
 			builder.RegisterGraphQl<BooksSchema>();
 			builder.RegisterType<BooksQuery>();
 			builder.RegisterType<BooksMutation>();

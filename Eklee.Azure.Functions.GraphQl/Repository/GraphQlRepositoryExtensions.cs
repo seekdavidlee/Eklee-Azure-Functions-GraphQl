@@ -15,7 +15,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			// ReSharper disable once PossibleNullReferenceException
 			MethodInfo generic = method.MakeGenericMethod(type);
 
-			var task = (Task)generic.Invoke(graphQlRepository, new[] { graphRequestContext });
+			var task = (Task)generic.Invoke(graphQlRepository, new object[] { graphRequestContext });
 
 			await task.ConfigureAwait(false);
 		}

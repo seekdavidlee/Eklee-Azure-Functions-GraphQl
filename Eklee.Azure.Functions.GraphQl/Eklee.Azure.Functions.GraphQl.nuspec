@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Eklee.Azure.Functions.GraphQl</id>
-    <version>0.6.2</version>
+    <version>0.6.3</version>
     <title>Eklee.Azure.Functions.GraphQl</title>
     <authors>Eng-Keong David Lee</authors>
     <owners>Eng-Keong David Lee</owners>

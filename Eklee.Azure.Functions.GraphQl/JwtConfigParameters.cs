@@ -8,7 +8,17 @@ namespace Eklee.Azure.Functions.GraphQl
 		public JwtConfigParameters(IConfiguration configuration)
 		{
 			Audience = configuration["Security:Audience"];
-			Issuers = configuration["Security:Issuers"].Split(' ');
+
+			var issuers = configuration["Security:Issuers"];
+
+			if (!string.IsNullOrEmpty(issuers))
+			{
+				Issuers = issuers.Split(' ');
+			}
+			else
+			{
+				Issuers = new string[] { };
+			}
 		}
 
 		public string Audience { get; }

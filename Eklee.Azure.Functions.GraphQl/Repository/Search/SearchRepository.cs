@@ -10,9 +10,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 	public class SearchRepository : IGraphQlRepository
 	{
 		private readonly ILogger _logger;
-		private readonly Dictionary<string, SearchClientProvider> _providers = new Dictionary<string, SearchClientProvider>();
-		private readonly Dictionary<string, SearchClientProvider> _typedProviders = new Dictionary<string, SearchClientProvider>();
-		private readonly Dictionary<string, Dictionary<string, Type[]>> _searchTypes = new Dictionary<string, Dictionary<string, Type[]>>();
+		private readonly List<SearchClientProvider> _providers = new List<SearchClientProvider>();
 
 		public SearchRepository(ILogger logger)
 		{
@@ -23,61 +21,45 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 		{
 			var serviceName = configurations.GetStringValue(SearchConstants.ServiceName, sourceType);
 
-			SearchClientProvider searchClientProvider;
+			SearchClientProvider searchClientProvider = _providers.SingleOrDefault(p => p.ContainsServiceName(serviceName));
 
-			if (_providers.ContainsKey(serviceName))
-			{
-				searchClientProvider = _providers[serviceName];
-			}
-			else
+			if (searchClientProvider == null)
 			{
 				searchClientProvider = new SearchClientProvider(_logger, serviceName, configurations.GetStringValue(SearchConstants.ApiKey, sourceType));
-				_providers.Add(serviceName, searchClientProvider);
+				_providers.Add(searchClientProvider);
 			}
 
 			searchClientProvider.ConfigureSearchService(configurations, sourceType);
-
-			_typedProviders[sourceType.Name] = searchClientProvider;
-
-			// ReSharper disable once AssignNullToNotNullAttribute
-			if (!_searchTypes.ContainsKey(sourceType.FullName))
-			{
-				_searchTypes.Add(sourceType.FullName, new Dictionary<string, Type[]>());
-			}
 		}
 
-		private SearchClientProvider GetProvider<T>() where T : class
+		private SearchClientProvider GetProvider<T>(IGraphRequestContext graphRequestContext) where T : class
 		{
-			return GetProvider(typeof(T).Name);
-		}
-
-		private SearchClientProvider GetProvider(string typeName)
-		{
-			return _typedProviders[typeName];
+			return _providers.Single(x => x.CanHandle<T>(graphRequestContext));
 		}
 
 		public async Task BatchAddAsync<T>(IEnumerable<T> items, IGraphRequestContext graphRequestContext) where T : class
 		{
-			var provider = GetProvider<T>();
+			var provider = GetProvider<T>(graphRequestContext);
 			await provider.BatchCreateAsync(items, graphRequestContext);
 		}
 
 		public async Task AddAsync<T>(T item, IGraphRequestContext graphRequestContext) where T : class
 		{
-			await GetProvider<T>().CreateAsync(item, graphRequestContext);
+			await GetProvider<T>(graphRequestContext).CreateAsync(item, graphRequestContext);
 		}
 
 		public async Task UpdateAsync<T>(T item, IGraphRequestContext graphRequestContext) where T : class
 		{
-			await GetProvider<T>().UpdateAsync(item, graphRequestContext);
+			await GetProvider<T>(graphRequestContext).UpdateAsync(item, graphRequestContext);
 		}
 
 		public async Task DeleteAsync<T>(T item, IGraphRequestContext graphRequestContext) where T : class
 		{
-			await GetProvider<T>().DeleteAsync(item, graphRequestContext);
+			await GetProvider<T>(graphRequestContext).DeleteAsync(item, graphRequestContext);
 		}
 
-		public async Task<IEnumerable<T>> QueryAsync<T>(string queryName, IEnumerable<QueryParameter> queryParameters, Dictionary<string, object> stepBagItems, IGraphRequestContext graphRequestContext) where T : class
+		public async Task<IEnumerable<T>> QueryAsync<T>(string queryName, IEnumerable<QueryParameter> queryParameters,
+			Dictionary<string, object> stepBagItems, IGraphRequestContext graphRequestContext) where T : class
 		{
 			List<SearchResultModel> searchResultModels = new List<SearchResultModel>();
 			var searchTypes = (Type[])stepBagItems[SearchConstants.QueryTypes];
@@ -85,9 +67,8 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 
 			foreach (var searchType in searchTypes)
 			{
-				var results = await GetProvider(searchType.Name)
-					.QueryAsync<SearchResultModel>(queryParametersList, searchType, graphRequestContext);
-
+				var provider = _providers.Single(x => x.CanHandle(searchType.Name, graphRequestContext));
+				var results = await provider.QueryAsync<SearchResultModel>(queryParametersList, searchType, graphRequestContext);
 				searchResultModels.AddRange(results);
 			}
 
@@ -97,7 +78,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 
 		public async Task DeleteAllAsync<T>(IGraphRequestContext graphRequestContext) where T : class
 		{
-			await GetProvider<T>().DeleteAllAsync<T>(graphRequestContext);
+			await GetProvider<T>(graphRequestContext).DeleteAllAsync<T>(graphRequestContext);
 		}
 	}
 }

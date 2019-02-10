@@ -32,6 +32,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 			tenants.ForEach(tenant =>
 			{
 				var issuer = tenant["Issuer"];
+
 				string tenantDocumentDbKey = tenant["DocumentDb:Key"];
 				string tenantDocumentDbUrl = tenant["DocumentDb:Url"];
 				int tenantRequestUnits = Convert.ToInt32(tenant["DocumentDb:RequestUnits"]);
@@ -49,6 +50,28 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 					.AddPartition(reviewer => reviewer.Region)
 					.BuildDocumentDb()
 					.DeleteAll(() => new Status { Message = "All reviewers have been removed." })    // Used more for local development to reset local database than having any operational value.
+					.Build();
+
+				string tenantSearchApiKey = tenant["Search:ApiKey"];
+				string tenantServiceName = tenant["Search:ServiceName"];
+
+				inputBuilderFactory.Create<BookSearch>(this)
+					.DeleteAll(() => new Status { Message = "All book searches have been deleted." })
+					.ConfigureSearch<BookSearch>()
+					.AddGraphRequestContextSelector(ctx => ctx.ContainsIssuer(issuer))
+					.AddApiKey(tenantSearchApiKey)
+					.AddServiceName(tenantServiceName)
+					.BuildSearch()
+					.Build();
+
+				inputBuilderFactory.Create<ReviewerSearch>(this)
+					.DeleteAll(() => new Status { Message = "All reviewer searches have been deleted." })
+					.ConfigureSearchWith<ReviewerSearch, Reviewer>()
+					.AddGraphRequestContextSelector(ctx => ctx.ContainsIssuer(issuer))
+					.AddApiKey(tenantSearchApiKey)
+					.AddServiceName(tenantServiceName)
+					.AddPrefix("stg")
+					.BuildSearch()
 					.Build();
 			});
 
@@ -111,22 +134,9 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 				.DeleteAll(() => new Status { Message = "All book price relationships have been removed." })
 				.Build();
 
-			inputBuilderFactory.Create<BookSearch>(this)
-				.DeleteAll(() => new Status { Message = "All book searches have been deleted." })
-				.ConfigureSearch<BookSearch>()
-				.AddApiKey(configuration["Search:ApiKey"])
-				.AddServiceName(configuration["Search:ServiceName"])
-				.BuildSearch()
-				.Build();
 
-			inputBuilderFactory.Create<ReviewerSearch>(this)
-				.DeleteAll(() => new Status { Message = "All reviewer searches have been deleted." })
-				.ConfigureSearchWith<ReviewerSearch, Reviewer>()
-				.AddApiKey(configuration["Search:ApiKey"])
-				.AddServiceName(configuration["Search:ServiceName"])
-				.AddPrefix("stg")
-				.BuildSearch()
-				.Build();
+
+
 		}
 	}
 }

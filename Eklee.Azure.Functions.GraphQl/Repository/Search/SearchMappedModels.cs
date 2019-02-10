@@ -24,11 +24,15 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 
 		public void Map<TSearchModel, TModel>()
 		{
-			_mappedTypes.Add(typeof(TModel).Name, new SearchMappedModel
+			var typeName = typeof(TModel).Name;
+			if (!_mappedTypes.ContainsKey(typeName))
 			{
-				ModelType = typeof(TModel),
-				SearchModelType = typeof(TSearchModel)
-			});
+				_mappedTypes.Add(typeName, new SearchMappedModel
+				{
+					ModelType = typeof(TModel),
+					SearchModelType = typeof(TSearchModel)
+				});
+			}
 		}
 
 		public bool TryGetMappedSearchType<TModel>(out Type mappedSearchType)

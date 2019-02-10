@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
@@ -9,8 +10,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 	{
 		private readonly ILogger _logger;
 		private readonly IEnumerable<IDocumentDbComparison> _documentDbComparisons;
-		private readonly Dictionary<string, DocumentClientProvider> _providers = new Dictionary<string, DocumentClientProvider>();
-		private readonly Dictionary<string, DocumentClientProvider> _typedProviders = new Dictionary<string, DocumentClientProvider>();
+		private readonly List<DocumentClientProvider> _providers = new List<DocumentClientProvider>();
 
 		public DocumentDbRepository(ILogger logger, IEnumerable<IDocumentDbComparison> documentDbComparisons)
 		{
@@ -22,16 +22,12 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 		{
 			var url = configurations.GetStringValue(DocumentDbConstants.Url, sourceType);
 
-			DocumentClientProvider provider;
+			DocumentClientProvider provider = _providers.SingleOrDefault(p => p.ContainsUrl(url));
 
-			if (_providers.ContainsKey(url))
-			{
-				provider = _providers[url];
-			}
-			else
+			if (provider == null)
 			{
 				provider = new DocumentClientProvider(url, configurations.GetStringValue(DocumentDbConstants.Key, sourceType), _documentDbComparisons, _logger);
-				_providers.Add(url, provider);
+				_providers.Add(provider);
 			}
 
 			try
@@ -43,48 +39,46 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 				_logger.LogError(e, $"An error has occured while creating a DocumentDb repository instance for {sourceType.FullName}.");
 				throw;
 			}
-
-			_typedProviders[sourceType.Name] = provider;
 		}
 
-		public async Task BatchAddAsync<T>(IEnumerable<T> items) where T : class
+		public async Task BatchAddAsync<T>(IEnumerable<T> items, IGraphRequestContext graphRequestContext) where T : class
 		{
-			var provider = GetProvider<T>();
+			var provider = GetProvider<T>(graphRequestContext);
 
 			foreach (var item in items)
 			{
-				await provider.CreateAsync(item);
+				await provider.CreateAsync(item, graphRequestContext);
 			}
 		}
 
-		public async Task AddAsync<T>(T item) where T : class
+		public async Task AddAsync<T>(T item, IGraphRequestContext graphRequestContext) where T : class
 		{
-			await GetProvider<T>().CreateAsync(item);
+			await GetProvider<T>(graphRequestContext).CreateAsync(item, graphRequestContext);
 		}
 
-		public async Task UpdateAsync<T>(T item) where T : class
+		public async Task UpdateAsync<T>(T item, IGraphRequestContext graphRequestContext) where T : class
 		{
-			await GetProvider<T>().UpdateAsync(item);
+			await GetProvider<T>(graphRequestContext).UpdateAsync(item, graphRequestContext);
 		}
 
-		public async Task DeleteAsync<T>(T item) where T : class
+		public async Task DeleteAsync<T>(T item, IGraphRequestContext graphRequestContext) where T : class
 		{
-			await GetProvider<T>().DeleteAsync(item);
+			await GetProvider<T>(graphRequestContext).DeleteAsync(item, graphRequestContext);
 		}
 
-		private DocumentClientProvider GetProvider<T>()
+		private DocumentClientProvider GetProvider<T>(IGraphRequestContext graphRequestContext)
 		{
-			return _typedProviders[typeof(T).Name];
+			return _providers.Single(x => x.CanHandle<T>(graphRequestContext));
 		}
 
-		public async Task<IEnumerable<T>> QueryAsync<T>(string queryName, IEnumerable<QueryParameter> queryParameters, Dictionary<string, object> stepBagItems) where T : class
+		public async Task<IEnumerable<T>> QueryAsync<T>(string queryName, IEnumerable<QueryParameter> queryParameters, Dictionary<string, object> stepBagItems, IGraphRequestContext graphRequestContext) where T : class
 		{
-			return await GetProvider<T>().QueryAsync<T>(queryParameters);
+			return await GetProvider<T>(graphRequestContext).QueryAsync<T>(queryParameters, graphRequestContext);
 		}
 
-		public async Task DeleteAllAsync<T>() where T : class
+		public async Task DeleteAllAsync<T>(IGraphRequestContext graphRequestContext) where T : class
 		{
-			await GetProvider<T>().DeleteAllAsync<T>();
+			await GetProvider<T>(graphRequestContext).DeleteAllAsync<T>(graphRequestContext);
 		}
 	}
 }

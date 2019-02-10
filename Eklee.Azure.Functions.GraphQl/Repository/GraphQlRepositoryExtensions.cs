@@ -8,19 +8,19 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 {
 	public static class GraphQlRepositoryExtensions
 	{
-		public static async Task DeleteAllAsync(this IGraphQlRepository graphQlRepository, Type type)
+		public static async Task DeleteAllAsync(this IGraphQlRepository graphQlRepository, Type type, IGraphRequestContext graphRequestContext)
 		{
 			MethodInfo method = graphQlRepository.GetType().GetMethod("DeleteAllAsync");
 
 			// ReSharper disable once PossibleNullReferenceException
 			MethodInfo generic = method.MakeGenericMethod(type);
 
-			var task = (Task)generic.Invoke(graphQlRepository, null);
+			var task = (Task)generic.Invoke(graphQlRepository, new object[] { graphRequestContext });
 
 			await task.ConfigureAwait(false);
 		}
 
-		public static async Task BatchAddAsync(this IGraphQlRepository graphQlRepository, Type type, List<object> items)
+		public static async Task BatchAddAsync(this IGraphQlRepository graphQlRepository, Type type, List<object> items, IGraphRequestContext graphRequestContext)
 		{
 			var listType = typeof(List<>).MakeGenericType(type);
 			var list = Activator.CreateInstance(listType);
@@ -32,35 +32,35 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			// ReSharper disable once PossibleNullReferenceException
 			MethodInfo generic = method.MakeGenericMethod(type);
 
-			var task = (Task)generic.Invoke(graphQlRepository, new[] { list });
+			var task = (Task)generic.Invoke(graphQlRepository, new[] { list, graphRequestContext });
 
 			await task.ConfigureAwait(false);
 		}
 
 		public static async Task DeleteAsync(this IGraphQlRepository graphQlRepository, Type type,
-			object mappedInstance)
+			object mappedInstance, IGraphRequestContext graphRequestContext)
 		{
-			await RunAsync(graphQlRepository, type, mappedInstance, "DeleteAsync");
+			await RunAsync(graphQlRepository, type, mappedInstance, "DeleteAsync", graphRequestContext);
 		}
 
-		public static async Task AddAsync(this IGraphQlRepository graphQlRepository, Type type, object mappedInstance)
+		public static async Task AddAsync(this IGraphQlRepository graphQlRepository, Type type, object mappedInstance, IGraphRequestContext graphRequestContext)
 		{
-			await RunAsync(graphQlRepository, type, mappedInstance, "AddAsync");
+			await RunAsync(graphQlRepository, type, mappedInstance, "AddAsync", graphRequestContext);
 		}
 
-		public static async Task UpdateAsync(this IGraphQlRepository graphQlRepository, Type type, object mappedInstance)
+		public static async Task UpdateAsync(this IGraphQlRepository graphQlRepository, Type type, object mappedInstance, IGraphRequestContext graphRequestContext)
 		{
-			await RunAsync(graphQlRepository, type, mappedInstance, "UpdateAsync");
+			await RunAsync(graphQlRepository, type, mappedInstance, "UpdateAsync", graphRequestContext);
 		}
 
-		private static async Task RunAsync(IGraphQlRepository graphQlRepository, Type type, object mappedInstance, string action)
+		private static async Task RunAsync(IGraphQlRepository graphQlRepository, Type type, object mappedInstance, string action, IGraphRequestContext graphRequestContext)
 		{
 			MethodInfo method = graphQlRepository.GetType().GetMethod(action);
 
 			// ReSharper disable once PossibleNullReferenceException
 			MethodInfo generic = method.MakeGenericMethod(type);
 
-			var task = (Task)generic.Invoke(graphQlRepository, new[] { mappedInstance });
+			var task = (Task)generic.Invoke(graphQlRepository, new[] { mappedInstance, graphRequestContext });
 
 			await task.ConfigureAwait(false);
 		}

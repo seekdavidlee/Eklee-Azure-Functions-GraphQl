@@ -1,4 +1,7 @@
-﻿using System.Net.Http;
+﻿using System;
+using System.Linq;
+using System.Net.Http;
+using System.Security.Claims;
 using Eklee.Azure.Functions.GraphQl.Example.HttpMocks;
 using Eklee.Azure.Functions.GraphQl.Example.Models;
 using Eklee.Azure.Functions.GraphQl.Repository.Http;
@@ -9,6 +12,11 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 {
 	public class BooksMutation : ObjectGraphType
 	{
+		private bool DefaultAssertion(ClaimsPrincipal claimsPrincipal, AssertAction assertAction)
+		{
+			return claimsPrincipal.IsInRole("Eklee.User.Read");
+		}
+
 		public BooksMutation(InputBuilderFactory inputBuilderFactory, IConfiguration configuration)
 		{
 			Name = "mutations";
@@ -26,19 +34,55 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 			string documentDbKey = configuration["DocumentDb:Key"];
 			string documentDbUrl = configuration["DocumentDb:Url"];
 
-			inputBuilderFactory.Create<Reviewer>(this)
-				.Delete<ReviewerId, Status>(
-					reviewerInput => new Reviewer { Id = reviewerInput.Id },
-					bookReview => new Status { Message = $"Successfully removed reviewer with Id {bookReview.Id}" })
-				.ConfigureDocumentDb<Reviewer>()
-					.AddUrl(documentDbUrl)
-					.AddKey(documentDbKey)
-					.AddDatabase(rc => "local")
-					.AddRequestUnit(400)
+			var tenants = configuration.GetSection("Tenants").GetChildren().ToList();
+			tenants.ForEach(tenant =>
+			{
+				var issuer = tenant["Issuer"];
+
+				string tenantDocumentDbKey = tenant["DocumentDb:Key"];
+				string tenantDocumentDbUrl = tenant["DocumentDb:Url"];
+				int tenantRequestUnits = Convert.ToInt32(tenant["DocumentDb:RequestUnits"]);
+
+				inputBuilderFactory.Create<Reviewer>(this)
+					.AssertWithClaimsPrincipal(DefaultAssertion)
+					.Delete<ReviewerId, Status>(
+						reviewerInput => new Reviewer { Id = reviewerInput.Id },
+						bookReview => new Status { Message = $"Successfully removed reviewer with Id {bookReview.Id}" })
+					.ConfigureDocumentDb<Reviewer>()
+					.AddGraphRequestContextSelector(ctx => ctx.ContainsIssuer(issuer))
+					.AddUrl(tenantDocumentDbUrl)
+					.AddKey(tenantDocumentDbKey)
+					.AddDatabase(issuer.GetTenantIdFromIssuer())
+					.AddRequestUnit(tenantRequestUnits)
 					.AddPartition(reviewer => reviewer.Region)
 					.BuildDocumentDb()
-				.DeleteAll(() => new Status { Message = "All reviewers have been removed." })    // Used more for local development to reset local database than having any operational value.
-				.Build();
+					.DeleteAll(() => new Status { Message = "All reviewers have been removed." })    // Used more for local development to reset local database than having any operational value.
+					.Build();
+
+				string tenantSearchApiKey = tenant["Search:ApiKey"];
+				string tenantServiceName = tenant["Search:ServiceName"];
+
+				inputBuilderFactory.Create<BookSearch>(this)
+					.AssertWithClaimsPrincipal(DefaultAssertion)
+					.DeleteAll(() => new Status { Message = "All book searches have been deleted." })
+					.ConfigureSearch<BookSearch>()
+					.AddGraphRequestContextSelector(ctx => ctx.ContainsIssuer(issuer))
+					.AddApiKey(tenantSearchApiKey)
+					.AddServiceName(tenantServiceName)
+					.BuildSearch()
+					.Build();
+
+				inputBuilderFactory.Create<ReviewerSearch>(this)
+					.AssertWithClaimsPrincipal(DefaultAssertion)
+					.DeleteAll(() => new Status { Message = "All reviewer searches have been deleted." })
+					.ConfigureSearchWith<ReviewerSearch, Reviewer>()
+					.AddGraphRequestContextSelector(ctx => ctx.ContainsIssuer(issuer))
+					.AddApiKey(tenantSearchApiKey)
+					.AddServiceName(tenantServiceName)
+					.AddPrefix("stg")
+					.BuildSearch()
+					.Build();
+			});
 
 			inputBuilderFactory.Create<Author>(this)
 				.ConfigureInMemory<Author>().BuildInMemory()
@@ -59,7 +103,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 				.ConfigureDocumentDb<BookReview>()
 					.AddUrl(documentDbUrl)
 					.AddKey(documentDbKey)
-					.AddDatabase(rc => "local")
+					.AddDatabase("local")
 					.AddRequestUnit(400)
 					.AddPartition(bookReview => bookReview.ReviewerId)
 					.BuildDocumentDb()
@@ -92,28 +136,11 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 				.ConfigureDocumentDb<BookPrice>()
 				.AddUrl(documentDbUrl)
 				.AddKey(documentDbKey)
-				.AddDatabase(rc => "local")
+				.AddDatabase("local")
 				.AddRequestUnit(400)
 				.AddPartition(input => input.Type)
 				.BuildDocumentDb()
 				.DeleteAll(() => new Status { Message = "All book price relationships have been removed." })
-				.Build();
-
-			inputBuilderFactory.Create<BookSearch>(this)
-				.DeleteAll(() => new Status { Message = "All book searches have been deleted." })
-				.ConfigureSearch<BookSearch>()
-				.AddApiKey(configuration["Search:ApiKey"])
-				.AddServiceName(configuration["Search:ServiceName"])
-				.BuildSearch()
-				.Build();
-
-			inputBuilderFactory.Create<ReviewerSearch>(this)
-				.DeleteAll(() => new Status { Message = "All reviewer searches have been deleted." })
-				.ConfigureSearchWith<ReviewerSearch, Reviewer>()
-				.AddApiKey(configuration["Search:ApiKey"])
-				.AddServiceName(configuration["Search:ServiceName"])
-				.AddPrefix("stg")
-				.BuildSearch()
 				.Build();
 		}
 	}

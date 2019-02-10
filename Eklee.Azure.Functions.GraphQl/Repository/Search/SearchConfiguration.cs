@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Eklee.Azure.Functions.GraphQl.Repository.DocumentDb;
 
 namespace Eklee.Azure.Functions.GraphQl.Repository.Search
@@ -15,6 +16,12 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 		{
 			_modelConventionInputBuilder = modelConventionInputBuilder;
 			_graphQlRepository = graphQlRepository;
+		}
+
+		public SearchConfiguration<TSource> AddGraphRequestContextSelector(Func<IGraphRequestContext, bool> selector)
+		{
+			_configurations.Add<TSource>(SearchConstants.RequestContextSelector, selector);
+			return this;
 		}
 
 		public SearchConfiguration<TSource> AddServiceName(string serviceName)

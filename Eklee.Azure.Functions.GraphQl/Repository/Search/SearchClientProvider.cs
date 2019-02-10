@@ -13,32 +13,47 @@ using DataType = Microsoft.Azure.Search.Models.DataType;
 
 namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 {
+	public class SearchClientProviderInfo
+	{
+		public string Id { get; set; }
+		public Func<IGraphRequestContext, bool> RequestContextSelector { get; set; }
+		public SearchIndexClient SearchIndexClient { get; set; }
+	}
+
 	public class SearchClientProvider
 	{
 		private readonly SearchServiceClient _searchServiceClient;
 		private readonly ILogger _logger;
-		private readonly string _serviceName;
-		private readonly SearchCredentials _searchCredentials;
-		private readonly Dictionary<string, SearchIndexClient> _searchIndexClients = new Dictionary<string, SearchIndexClient>();
-		private readonly Dictionary<string, string> _prefixes = new Dictionary<string, string>();
+		private readonly List<SearchClientProviderInfo> _searchClientProviderInfos = new List<SearchClientProviderInfo>();
+
 		public SearchClientProvider(ILogger logger, string serviceName, string key)
 		{
 			_logger = logger;
-			_serviceName = serviceName;
-			_searchCredentials = new SearchCredentials(key);
-			_searchServiceClient = new SearchServiceClient(_serviceName, _searchCredentials);
+			var searchCredentials = new SearchCredentials(key);
+			_searchServiceClient = new SearchServiceClient(serviceName, searchCredentials);
+		}
+
+		public bool ContainsServiceName(string serviceName)
+		{
+			return _searchServiceClient.SearchServiceName == serviceName;
 		}
 
 		public void ConfigureSearchService(Dictionary<string, object> configurations, Type sourceType)
 		{
 			var fields = GetTypeFields(sourceType);
 			var prefix = configurations.GetStringValue(SearchConstants.Prefix, sourceType) ?? "";
-			string indexName = sourceType.Name.ToLower();
-			if (!string.IsNullOrEmpty(prefix))
+			string id = sourceType.Name.ToLower();
+			string indexName = prefix + id;
+
+			_searchServiceClient.Indexes.CreateOrUpdate(new Index(indexName, fields));
+
+			_searchClientProviderInfos.Add(new SearchClientProviderInfo
 			{
-				_prefixes[indexName] = prefix;
-			}
-			_searchServiceClient.Indexes.CreateOrUpdate(new Index(prefix + indexName, fields));
+				Id = id,
+				RequestContextSelector = configurations.ContainsKey(DocumentDbConfigurationExtensions.GetKey(SearchConstants.RequestContextSelector, sourceType)) ?
+					configurations.GetValue<Func<IGraphRequestContext, bool>>(SearchConstants.RequestContextSelector, sourceType) : null,
+				SearchIndexClient = new SearchIndexClient(_searchServiceClient.SearchServiceName, indexName, _searchServiceClient.SearchCredentials)
+			});
 		}
 
 		private List<Field> GetTypeFields(Type sourceType)
@@ -99,66 +114,81 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 			}).Where(field => field != null).ToList();
 		}
 
-		private SearchIndexClient GetSearchIndexClient<T>()
+		public bool CanHandle<T>(IGraphRequestContext graphRequestContext)
 		{
-			var indexName = typeof(T).Name.ToLower();
-			return GetSearchIndexClient(indexName);
+			return GetInfo<T>(graphRequestContext) != null;
 		}
 
-		private SearchIndexClient GetSearchIndexClient(string indexName)
+		public bool CanHandle(string typeName, IGraphRequestContext graphRequestContext)
 		{
-			SearchIndexClient client;
-			if (_searchIndexClients.ContainsKey(indexName))
-			{
-				client = _searchIndexClients[indexName];
-			}
-			else
-			{
-				var prefix = _prefixes.ContainsKey(indexName) ? _prefixes[indexName] : "";
-				client = new SearchIndexClient(_serviceName, prefix + indexName, _searchCredentials);
-				_searchIndexClients.Add(indexName, client);
-			}
-
-			return client;
+			return InternalGetInfo(typeName.ToLower(), graphRequestContext) != null;
 		}
 
-		public async Task BatchCreateAsync<T>(IEnumerable<T> items) where T : class
+		private SearchIndexClient Get<T>(IGraphRequestContext graphRequestContext)
 		{
-			var client = GetSearchIndexClient<T>();
+			var info = GetInfo<T>(graphRequestContext);
+
+			if (info == null) throw new ApplicationException("Unable to determine the correct RequestContextSelector to process request.");
+
+			return info.SearchIndexClient;
+		}
+
+		private SearchClientProviderInfo GetInfo<T>(IGraphRequestContext graphRequestContext)
+		{
+			var indexName = typeof(T).Name;
+			return InternalGetInfo(indexName, graphRequestContext);
+		}
+
+		private SearchClientProviderInfo InternalGetInfo(string indexName, IGraphRequestContext graphRequestContext)
+		{
+			indexName = indexName.ToLower();
+			var infos = _searchClientProviderInfos.Where(x => x.Id == indexName).ToList();
+
+			if (infos.Count == 1 && infos.Single().RequestContextSelector == null) return infos.Single();
+
+			infos = infos.Where(x => x.RequestContextSelector != null && x.RequestContextSelector(graphRequestContext)).ToList();
+			if (infos.Count == 1) return infos.Single();
+
+			return null;
+		}
+
+		public async Task BatchCreateAsync<T>(IEnumerable<T> items, IGraphRequestContext graphRequestContext) where T : class
+		{
+			var client = Get<T>(graphRequestContext);
 			var list = items.Select(IndexAction.Upload).ToList();
 			await client.Documents.IndexAsync(new IndexBatch<T>(list));
 		}
 
-		public async Task CreateAsync<T>(T item) where T : class
+		public async Task CreateAsync<T>(T item, IGraphRequestContext graphRequestContext) where T : class
 		{
-			var client = GetSearchIndexClient<T>();
+			var client = Get<T>(graphRequestContext);
 			var idx = IndexAction.Upload(item);
 			await client.Documents.IndexAsync(new IndexBatch<T>(
 				new List<IndexAction<T>> { idx }));
 		}
 
-		public async Task UpdateAsync<T>(T item) where T : class
+		public async Task UpdateAsync<T>(T item, IGraphRequestContext graphRequestContext) where T : class
 		{
-			var client = GetSearchIndexClient<T>();
+			var client = Get<T>(graphRequestContext);
 			var idx = IndexAction.Merge(item);
 			await client.Documents.IndexAsync(new IndexBatch<T>(
 				new List<IndexAction<T>> { idx }));
 
 		}
 
-		public async Task DeleteAsync<T>(T item) where T : class
+		public async Task DeleteAsync<T>(T item, IGraphRequestContext graphRequestContext) where T : class
 		{
-			var client = GetSearchIndexClient<T>();
+			var client = Get<T>(graphRequestContext);
 			var idx = IndexAction.Delete(item);
 			await client.Documents.IndexAsync(new IndexBatch<T>(
 				new List<IndexAction<T>> { idx }));
 		}
 
-		public async Task<IEnumerable<T>> QueryAsync<T>(IEnumerable<QueryParameter> queryParameters, Type type) where T : class
+		public async Task<IEnumerable<T>> QueryAsync<T>(IEnumerable<QueryParameter> queryParameters, Type type, IGraphRequestContext graphRequestContext) where T : class
 		{
 			var searchResultModels = new List<SearchResultModel>();
 
-			var client = GetSearchIndexClient(type.Name.ToLower());
+			var client = InternalGetInfo(type.Name, graphRequestContext).SearchIndexClient;
 
 			var searchParameters = new SearchParameters();
 
@@ -207,19 +237,17 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 			return searchResultModels.Select(x => x as T).ToList();
 		}
 
-		public async Task DeleteAllAsync<T>() where T : class
+		public async Task DeleteAllAsync<T>(IGraphRequestContext graphRequestContext) where T : class
 		{
-			string indexName = typeof(T).Name.ToLower();
-			var prefix = _prefixes.ContainsKey(indexName) ? _prefixes[indexName] : "";
-			indexName = prefix + indexName;
+			var client = Get<T>(graphRequestContext);
 
-			_logger.LogInformation($"Removing search index: {indexName}");
+			_logger.LogInformation($"Removing search index: {client.IndexName}");
 
-			await _searchServiceClient.Indexes.DeleteAsync(indexName);
+			await _searchServiceClient.Indexes.DeleteAsync(client.IndexName);
 
 			var fields = GetTypeFields(typeof(T));
 
-			await _searchServiceClient.Indexes.CreateAsync(new Index(indexName, fields));
+			await _searchServiceClient.Indexes.CreateAsync(new Index(client.IndexName, fields));
 		}
 	}
 }

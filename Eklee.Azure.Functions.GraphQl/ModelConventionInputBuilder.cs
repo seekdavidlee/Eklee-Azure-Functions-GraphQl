@@ -1,23 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security;
+using System.Security.Claims;
 using Eklee.Azure.Functions.GraphQl.Repository;
 using Eklee.Azure.Functions.GraphQl.Repository.DocumentDb;
 using Eklee.Azure.Functions.GraphQl.Repository.Http;
 using Eklee.Azure.Functions.GraphQl.Repository.InMemory;
 using Eklee.Azure.Functions.GraphQl.Repository.Search;
-using Eklee.Azure.Functions.Http;
+using GraphQL;
 using GraphQL.Types;
 using Microsoft.Extensions.Logging;
 
 namespace Eklee.Azure.Functions.GraphQl
 {
+	public enum AssertAction
+	{
+		BatchCreate,
+		Create,
+		Update,
+		Delete,
+		DeleteAll
+	}
+
 	public class ModelConventionInputBuilder<TSource> : IModelConventionInputBuilder<TSource> where TSource : class
 	{
 		private readonly ObjectGraphType _objectGraphType;
 		private readonly IGraphQlRepositoryProvider _graphQlRepositoryProvider;
 		private readonly ILogger _logger;
-		private readonly IHttpRequestContext _httpRequestContext;
 		private readonly string _sourceName;
 		private Action _deleteSetupAction;
 		private readonly ISearchMappedModels _searchMappedModels;
@@ -26,29 +36,32 @@ namespace Eklee.Azure.Functions.GraphQl
 			ObjectGraphType objectGraphType,
 			IGraphQlRepositoryProvider graphQlRepositoryProviderProvider,
 			ILogger logger,
-			IHttpRequestContext httpRequestContext,
 			ISearchMappedModels searchMappedModels)
 		{
 			_objectGraphType = objectGraphType;
 			_graphQlRepositoryProvider = graphQlRepositoryProviderProvider;
 			_logger = logger;
-			_httpRequestContext = httpRequestContext;
 			_searchMappedModels = searchMappedModels;
 			_sourceName = typeof(TSource).Name.ToLower();
 
 			// Default setup for delete.
 			_deleteSetupAction = () =>
 			{
-				_objectGraphType.FieldAsync<ModelConventionType<TSource>>($"delete{typeof(TSource).Name}", arguments: new QueryArguments(
+				var fieldName = $"delete{typeof(TSource).Name}";
+
+				if (_objectGraphType.HasField(fieldName)) return;
+
+				_objectGraphType.FieldAsync<ModelConventionType<TSource>>(fieldName, arguments: new QueryArguments(
 						new QueryArgument<NonNullGraphType<ModelConventionInputType<TSource>>> { Name = _sourceName }
 					),
 					resolve: async context =>
 					{
+						AssertWithClaimsPrincipal(AssertAction.Delete, context);
 						var item = context.GetArgument<TSource>(_sourceName);
 
 						try
 						{
-							await _graphQlRepositoryProvider.GetRepository<TSource>().DeleteAsync(item);
+							await _graphQlRepositoryProvider.GetRepository<TSource>().DeleteAsync(item, context.UserContext as IGraphRequestContext);
 						}
 						catch (Exception e)
 						{
@@ -58,6 +71,27 @@ namespace Eklee.Azure.Functions.GraphQl
 						return item;
 					});
 			};
+		}
+
+		private Func<ClaimsPrincipal, AssertAction, bool> _claimsPrincipalAssertion;
+		public ModelConventionInputBuilder<TSource> AssertWithClaimsPrincipal(Func<ClaimsPrincipal, AssertAction, bool> claimsPrincipalAssertion)
+		{
+			_claimsPrincipalAssertion = claimsPrincipalAssertion;
+			return this;
+		}
+
+		private void AssertWithClaimsPrincipal(AssertAction assertAction, ResolveFieldContext<object> context)
+		{
+			if (_claimsPrincipalAssertion != null)
+			{
+				var graphRequestContext = context.UserContext as IGraphRequestContext;
+				if (graphRequestContext == null ||
+					!_claimsPrincipalAssertion(graphRequestContext.HttpRequest.Security.ClaimsPrincipal, assertAction))
+				{
+					var message = $"{assertAction} execution has been denied due to insufficient permissions.";
+					throw new ExecutionError(message, new SecurityException(message));
+				}
+			}
 		}
 
 		private IGraphQlRepository _graphQlRepository;
@@ -81,7 +115,7 @@ namespace Eklee.Azure.Functions.GraphQl
 		{
 			_graphQlRepository = _graphQlRepositoryProvider.Use<TType, DocumentDbRepository>();
 			_typeSource = typeof(TType);
-			return new DocumentDbConfiguration<TSource>(this, _graphQlRepository, _typeSource, _httpRequestContext);
+			return new DocumentDbConfiguration<TSource>(this, _graphQlRepository, _typeSource);
 		}
 
 		public SearchConfiguration<TSource> ConfigureSearch<TSearchModel>()
@@ -105,24 +139,29 @@ namespace Eklee.Azure.Functions.GraphQl
 		{
 			_deleteSetupAction = () =>
 			{
-				_objectGraphType.FieldAsync<ModelConventionType<TDeleteOutput>>($"delete{typeof(TSource).Name}", arguments: new QueryArguments(
+				var fieldName = $"delete{typeof(TSource).Name}";
+
+				if (_objectGraphType.HasField(fieldName)) return;
+
+				_objectGraphType.FieldAsync<ModelConventionType<TDeleteOutput>>(fieldName, arguments: new QueryArguments(
 						new QueryArgument<NonNullGraphType<ModelConventionInputType<TDeleteInput>>> { Name = _sourceName }
 					),
 					resolve: async context =>
 					{
+						AssertWithClaimsPrincipal(AssertAction.Delete, context);
 						var arg = context.GetArgument<TDeleteInput>(_sourceName);
 						var item = mapDelete(arg);
 
 						try
 						{
-							await _graphQlRepositoryProvider.GetRepository<TSource>().DeleteAsync(item);
+							await _graphQlRepositoryProvider.GetRepository<TSource>().DeleteAsync(item, context.UserContext as IGraphRequestContext);
 
 							Type mappedSearchType;
 							if (_searchMappedModels.TryGetMappedSearchType<TSource>(out mappedSearchType))
 							{
 								var mappedInstance = _searchMappedModels.CreateInstanceFromMap(item);
 								await _graphQlRepositoryProvider.GetRepository(mappedSearchType)
-									.DeleteAsync(mappedSearchType, mappedInstance);
+									.DeleteAsync(mappedSearchType, mappedInstance, context.UserContext as IGraphRequestContext);
 							}
 						}
 						catch (Exception e)
@@ -144,17 +183,22 @@ namespace Eklee.Azure.Functions.GraphQl
 		{
 			_deleteAllAction = () =>
 			{
-				_objectGraphType.FieldAsync<ModelConventionType<TDeleteOutput>>($"deleteAll{typeof(TSource).Name}",
+				var fieldName = $"deleteAll{typeof(TSource).Name}";
+
+				if (_objectGraphType.HasField(fieldName)) return;
+
+				_objectGraphType.FieldAsync<ModelConventionType<TDeleteOutput>>(fieldName,
 					resolve: async context =>
 					{
+						AssertWithClaimsPrincipal(AssertAction.DeleteAll, context);
 						try
 						{
-							await _graphQlRepositoryProvider.GetRepository<TSource>().DeleteAllAsync<TSource>();
+							await _graphQlRepositoryProvider.GetRepository<TSource>().DeleteAllAsync<TSource>(context.UserContext as IGraphRequestContext);
 
 							Type mappedSearchType;
 							if (_searchMappedModels.TryGetMappedSearchType<TSource>(out mappedSearchType))
 							{
-								await _graphQlRepositoryProvider.GetRepository(mappedSearchType).DeleteAllAsync(mappedSearchType);
+								await _graphQlRepositoryProvider.GetRepository(mappedSearchType).DeleteAllAsync(mappedSearchType, context.UserContext as IGraphRequestContext);
 							}
 						}
 						catch (Exception e)
@@ -169,17 +213,21 @@ namespace Eklee.Azure.Functions.GraphQl
 			return this;
 		}
 
-		public void Build()
+		private void AddBatchCreateField()
 		{
-			_objectGraphType.FieldAsync<ListGraphType<ModelConventionType<TSource>>>($"batchCreate{typeof(TSource).Name}", arguments: new QueryArguments(
+			var fieldName = $"batchCreate{typeof(TSource).Name}";
+			if (_objectGraphType.HasField(fieldName)) return;
+
+			_objectGraphType.FieldAsync<ListGraphType<ModelConventionType<TSource>>>(fieldName, arguments: new QueryArguments(
 					new QueryArgument<ListGraphType<ModelConventionInputType<TSource>>> { Name = _sourceName }
 				),
 				resolve: async context =>
 				{
+					AssertWithClaimsPrincipal(AssertAction.BatchCreate, context);
 					var items = context.GetArgument<IEnumerable<TSource>>(_sourceName).ToList();
 					try
 					{
-						await _graphQlRepositoryProvider.GetRepository<TSource>().BatchAddAsync(items);
+						await _graphQlRepositoryProvider.GetRepository<TSource>().BatchAddAsync(items, context.UserContext as IGraphRequestContext);
 
 						Type mappedSearchType;
 						if (_searchMappedModels.TryGetMappedSearchType<TSource>(out mappedSearchType))
@@ -187,7 +235,7 @@ namespace Eklee.Azure.Functions.GraphQl
 							var mappedInstances = items.Select(item => Convert.ChangeType(_searchMappedModels.CreateInstanceFromMap(item), mappedSearchType)).ToList();
 
 							await _graphQlRepositoryProvider.GetRepository(mappedSearchType)
-								.BatchAddAsync(mappedSearchType, mappedInstances);
+								.BatchAddAsync(mappedSearchType, mappedInstances, context.UserContext as IGraphRequestContext);
 						}
 
 						return items;
@@ -198,24 +246,32 @@ namespace Eklee.Azure.Functions.GraphQl
 						throw;
 					}
 				});
+		}
 
-			_objectGraphType.FieldAsync<ModelConventionType<TSource>>($"create{typeof(TSource).Name}", arguments: new QueryArguments(
+		private void AddCreateField()
+		{
+			var fieldName = $"create{typeof(TSource).Name}";
+
+			if (_objectGraphType.HasField(fieldName)) return;
+
+			_objectGraphType.FieldAsync<ModelConventionType<TSource>>(fieldName, arguments: new QueryArguments(
 					new QueryArgument<NonNullGraphType<ModelConventionInputType<TSource>>> { Name = _sourceName }
 				),
 				resolve: async context =>
 				{
+					AssertWithClaimsPrincipal(AssertAction.Create, context);
 					var item = context.GetArgument<TSource>(_sourceName);
 
 					try
 					{
-						await _graphQlRepositoryProvider.GetRepository<TSource>().AddAsync(item);
+						await _graphQlRepositoryProvider.GetRepository<TSource>().AddAsync(item, context.UserContext as IGraphRequestContext);
 
 						Type mappedSearchType;
 						if (_searchMappedModels.TryGetMappedSearchType<TSource>(out mappedSearchType))
 						{
 							var mappedInstance = _searchMappedModels.CreateInstanceFromMap(item);
 							await _graphQlRepositoryProvider.GetRepository(mappedSearchType)
-								.AddAsync(mappedSearchType, mappedInstance);
+						.AddAsync(mappedSearchType, mappedInstance, context.UserContext as IGraphRequestContext);
 						}
 					}
 					catch (Exception e)
@@ -225,23 +281,31 @@ namespace Eklee.Azure.Functions.GraphQl
 					}
 					return item;
 				});
+		}
 
-			_objectGraphType.FieldAsync<ModelConventionType<TSource>>($"update{typeof(TSource).Name}", arguments: new QueryArguments(
+		private void AddUpdateField()
+		{
+			var fieldName = $"update{typeof(TSource).Name}";
+
+			if (_objectGraphType.HasField(fieldName)) return;
+
+			_objectGraphType.FieldAsync<ModelConventionType<TSource>>(fieldName, arguments: new QueryArguments(
 					new QueryArgument<NonNullGraphType<ModelConventionInputType<TSource>>> { Name = _sourceName }
 				),
 				resolve: async context =>
 				{
+					AssertWithClaimsPrincipal(AssertAction.Update, context);
 					var item = context.GetArgument<TSource>(_sourceName);
 					try
 					{
-						await _graphQlRepositoryProvider.GetRepository<TSource>().UpdateAsync(item);
+						await _graphQlRepositoryProvider.GetRepository<TSource>().UpdateAsync(item, context.UserContext as IGraphRequestContext);
 
 						Type mappedSearchType;
 						if (_searchMappedModels.TryGetMappedSearchType<TSource>(out mappedSearchType))
 						{
 							var mappedInstance = _searchMappedModels.CreateInstanceFromMap(item);
 							await _graphQlRepositoryProvider.GetRepository(mappedSearchType)
-								.UpdateAsync(mappedSearchType, mappedInstance);
+								.UpdateAsync(mappedSearchType, mappedInstance, context.UserContext as IGraphRequestContext);
 						}
 					}
 					catch (Exception e)
@@ -251,6 +315,15 @@ namespace Eklee.Azure.Functions.GraphQl
 					}
 					return item;
 				});
+		}
+
+		public void Build()
+		{
+			AddBatchCreateField();
+
+			AddCreateField();
+
+			AddUpdateField();
 
 			_deleteSetupAction();
 

@@ -25,20 +25,20 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 				Id = id,
 				Name = "Foo 1",
 				MyStringCategory = "cat 1"
-			});
+			}, null);
 
 			await DocumentDbRepository.UpdateAsync(new DocumentDbFoo1
 			{
 				Id = id,
 				Name = "Foo 1 v2",
 				MyStringCategory = "cat 1"
-			});
+			}, null);
 
 			var item = (await GetByIdAsync<DocumentDbFoo1>(id)).Single();
 
 			item.Name.ShouldBe("Foo 1 v2");
 
-			DocumentDbRepository.DeleteAllAsync<DocumentDbFoo1>().GetAwaiter().GetResult();
+			DocumentDbRepository.DeleteAllAsync<DocumentDbFoo1>(null).GetAwaiter().GetResult();
 		}
 
 		[Fact]
@@ -56,20 +56,20 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 				Id = id,
 				Name = "Foo 2",
 				MyIntCategory = 2
-			});
+			}, null);
 
 			await DocumentDbRepository.UpdateAsync(new DocumentDbFoo2
 			{
 				Id = id,
 				Name = "Foo 2 v2",
 				MyIntCategory = 2
-			});
+			}, null);
 
 			var item = (await GetByIdAsync<DocumentDbFoo2>(id)).Single();
 
 			item.Name.ShouldBe("Foo 2 v2");
 
-			await DocumentDbRepository.DeleteAllAsync<DocumentDbFoo2>();
+			await DocumentDbRepository.DeleteAllAsync<DocumentDbFoo2>(null);
 		}
 
 		[Fact]
@@ -88,20 +88,20 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 				Id = id,
 				Name = "Foo 4",
 				MyGuidCategory = guid
-			});
+			}, null);
 
 			await DocumentDbRepository.UpdateAsync(new DocumentDbFoo4
 			{
 				Id = id,
 				Name = "Foo 4 v2",
 				MyGuidCategory = guid
-			});
+			}, null);
 
 			var item = (await GetByIdAsync<DocumentDbFoo4>(id)).Single();
 
 			item.Name.ShouldBe("Foo 4 v2");
 
-			await DocumentDbRepository.DeleteAllAsync<DocumentDbFoo4>();
+			await DocumentDbRepository.DeleteAllAsync<DocumentDbFoo4>(null);
 		}
 
 		[Fact]
@@ -120,15 +120,15 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 				Id = id,
 				Name = "Foo 2A",
 				MyIntCategory = partition
-			});
+			}, null);
 
-			await DocumentDbRepository.DeleteAsync(new DocumentDbFoo2 { Id = id, MyIntCategory = partition });
+			await DocumentDbRepository.DeleteAsync(new DocumentDbFoo2 { Id = id, MyIntCategory = partition }, null);
 
 			var exist = (await GetByIdAsync<DocumentDbFoo2>(id)).Any();
 
 			exist.ShouldBe(false);
 
-			await DocumentDbRepository.DeleteAllAsync<DocumentDbFoo2>();
+			await DocumentDbRepository.DeleteAllAsync<DocumentDbFoo2>(null);
 		}
 
 		[Fact]
@@ -147,15 +147,15 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 				Id = id,
 				Name = "Foo 2A",
 				MyIntCategory = partition
-			});
+			}, null);
 
-			await DocumentDbRepository.DeleteAsync(new DocumentDbFoo2 { Id = id });
+			await DocumentDbRepository.DeleteAsync(new DocumentDbFoo2 { Id = id }, null);
 
 			var exist = (await GetByIdAsync<DocumentDbFoo2>(id)).Any();
 
 			exist.ShouldBe(false);
 
-			await DocumentDbRepository.DeleteAllAsync<DocumentDbFoo2>();
+			await DocumentDbRepository.DeleteAllAsync<DocumentDbFoo2>(null);
 		}
 	}
 }

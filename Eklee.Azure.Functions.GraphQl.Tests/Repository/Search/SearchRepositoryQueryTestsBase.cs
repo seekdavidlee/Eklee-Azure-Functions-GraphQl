@@ -152,8 +152,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.Search
 
 		protected async Task SeedAsync()
 		{
-			await SearchRepository.BatchAddAsync(SearchBooks);
-			await SearchRepository.BatchAddAsync(SearchReviewers);
+			await SearchRepository.BatchAddAsync(SearchBooks, null);
+			await SearchRepository.BatchAddAsync(SearchReviewers, null);
 
 			// May need to give some time for indexing to catch up.
 			Thread.Sleep(1000);
@@ -184,7 +184,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.Search
 						ContextValue = new ContextValue { Value = searchText, Comparison = Comparisons.Equal},
 						MemberModel = new ModelMember(type,accessor,member,false)
 					}
-				}, items)).ToList();
+				}, items, null)).ToList();
 
 				if (results.Count >= expectedCount) break;
 
@@ -201,8 +201,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.Search
 
 		public void Dispose()
 		{
-			SearchRepository.DeleteAllAsync<SearchBook>().GetAwaiter().GetResult();
-			SearchRepository.DeleteAllAsync<SearchReviewer>().GetAwaiter().GetResult();
+			SearchRepository.DeleteAllAsync<SearchBook>(null).GetAwaiter().GetResult();
+			SearchRepository.DeleteAllAsync<SearchReviewer>(null).GetAwaiter().GetResult();
 		}
 	}
 }

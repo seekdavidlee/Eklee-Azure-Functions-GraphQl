@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 using Autofac;
@@ -32,7 +33,7 @@ namespace Eklee.Azure.Functions.GraphQl
 	{
 		public static void RegisterGraphQl<TSchema>(this ContainerBuilder builder) where TSchema : ISchema
 		{
-			builder.RegisterType<GraphQlDomain>().As<IGraphQlDomain>().SingleInstance();
+			builder.RegisterType<GraphQlDomain>().As<IGraphQlDomain>().InstancePerLifetimeScope();
 			builder.RegisterType<DocumentExecuter>().As<IDocumentExecuter>().SingleInstance();
 			builder.RegisterType<DocumentWriter>().As<IDocumentWriter>().SingleInstance();
 			builder.RegisterType<TSchema>().As<ISchema>().SingleInstance();
@@ -60,10 +61,15 @@ namespace Eklee.Azure.Functions.GraphQl
 			builder.RegisterType<SearchMappedModels>().As<ISearchMappedModels>().SingleInstance();
 
 			builder.RegisterType<GraphQlRepositoryProvider>().As<IGraphQlRepositoryProvider>().SingleInstance();
+			builder.RegisterType<GraphRequestContext>().As<IGraphRequestContext>().InstancePerLifetimeScope();
 		}
 
 		public static async Task<IActionResult> ProcessGraphQlRequest(this ExecutionContext executionContext, HttpRequest httpRequest)
 		{
+			var validateionResult = executionContext.ValidateJwt();
+
+			if (validateionResult != null) return validateionResult;
+
 			var graphQlDomain = executionContext.Resolve<IGraphQlDomain>();
 			var logger = executionContext.Resolve<ILogger>();
 
@@ -73,7 +79,13 @@ namespace Eklee.Azure.Functions.GraphQl
 
 				logger.LogInformation($"Request-Body: {requestBody}");
 
-				return new OkObjectResult(await graphQlDomain.ExecuteAsync(JsonConvert.DeserializeObject<GraphQlDomainRequest>(requestBody)));
+				var results = await graphQlDomain.ExecuteAsync(JsonConvert.DeserializeObject<GraphQlDomainRequest>(requestBody));
+
+				if (results.Errors != null && results.Errors.Any(x =>
+						x.InnerException != null && x.InnerException.GetType() == typeof(SecurityException)))
+					return new UnauthorizedResult();
+
+				return new OkObjectResult(results);
 			}
 
 			// TODO: Log request Content-Type is unsupported.

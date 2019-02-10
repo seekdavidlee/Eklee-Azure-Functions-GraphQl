@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using Eklee.Azure.Functions.Http;
 
 namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 {
@@ -10,20 +9,17 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 		private readonly IModelConventionInputBuilder<TSource> _modelConventionInputBuilder;
 		private readonly IGraphQlRepository _graphQlRepository;
 		private readonly Type _typeSource;
-		private readonly IHttpRequestContext _httpRequestContext;
 		private readonly Dictionary<string, object> _configurations = new Dictionary<string, object>();
 
 		public DocumentDbConfiguration(
 			IModelConventionInputBuilder<TSource> modelConventionInputBuilder,
 			IGraphQlRepository graphQlRepository,
-			Type typeSource,
-			IHttpRequestContext httpRequestContext
+			Type typeSource
 			)
 		{
 			_modelConventionInputBuilder = modelConventionInputBuilder;
 			_graphQlRepository = graphQlRepository;
 			_typeSource = typeSource;
-			_httpRequestContext = httpRequestContext;
 		}
 
 		public DocumentDbConfiguration<TSource> AddUrl(string url)
@@ -32,6 +28,11 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 			return this;
 		}
 
+		public DocumentDbConfiguration<TSource> AddGraphRequestContextSelector(Func<IGraphRequestContext, bool> selector)
+		{
+			_configurations.Add<TSource>(DocumentDbConstants.RequestContextSelector, selector);
+			return this;
+		}
 
 		public DocumentDbConfiguration<TSource> AddKey(string key)
 		{
@@ -39,9 +40,9 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 			return this;
 		}
 
-		public DocumentDbConfiguration<TSource> AddDatabase(Func<IHttpRequestContext, string> getDatabase)
+		public DocumentDbConfiguration<TSource> AddDatabase(string database)
 		{
-			_configurations.Add<TSource>(DocumentDbConstants.Database, getDatabase(_httpRequestContext));
+			_configurations.Add<TSource>(DocumentDbConstants.Database, database);
 			return this;
 		}
 

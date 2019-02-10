@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Net.Http;
+using System.Security.Claims;
 using Eklee.Azure.Functions.GraphQl.Example.HttpMocks;
 using Eklee.Azure.Functions.GraphQl.Example.Models;
 using Eklee.Azure.Functions.GraphQl.Repository.Http;
@@ -11,6 +12,11 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 {
 	public class BooksMutation : ObjectGraphType
 	{
+		private bool DefaultAssertion(ClaimsPrincipal claimsPrincipal, AssertAction assertAction)
+		{
+			return claimsPrincipal.IsInRole("Eklee.User.Read");
+		}
+
 		public BooksMutation(InputBuilderFactory inputBuilderFactory, IConfiguration configuration)
 		{
 			Name = "mutations";
@@ -38,6 +44,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 				int tenantRequestUnits = Convert.ToInt32(tenant["DocumentDb:RequestUnits"]);
 
 				inputBuilderFactory.Create<Reviewer>(this)
+					.AssertWithClaimsPrincipal(DefaultAssertion)
 					.Delete<ReviewerId, Status>(
 						reviewerInput => new Reviewer { Id = reviewerInput.Id },
 						bookReview => new Status { Message = $"Successfully removed reviewer with Id {bookReview.Id}" })
@@ -56,6 +63,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 				string tenantServiceName = tenant["Search:ServiceName"];
 
 				inputBuilderFactory.Create<BookSearch>(this)
+					.AssertWithClaimsPrincipal(DefaultAssertion)
 					.DeleteAll(() => new Status { Message = "All book searches have been deleted." })
 					.ConfigureSearch<BookSearch>()
 					.AddGraphRequestContextSelector(ctx => ctx.ContainsIssuer(issuer))
@@ -65,6 +73,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 					.Build();
 
 				inputBuilderFactory.Create<ReviewerSearch>(this)
+					.AssertWithClaimsPrincipal(DefaultAssertion)
 					.DeleteAll(() => new Status { Message = "All reviewer searches have been deleted." })
 					.ConfigureSearchWith<ReviewerSearch, Reviewer>()
 					.AddGraphRequestContextSelector(ctx => ctx.ContainsIssuer(issuer))
@@ -133,10 +142,6 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 				.BuildDocumentDb()
 				.DeleteAll(() => new Status { Message = "All book price relationships have been removed." })
 				.Build();
-
-
-
-
 		}
 	}
 }

@@ -1,16 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security;
+using System.Security.Claims;
 using Eklee.Azure.Functions.GraphQl.Repository;
 using Eklee.Azure.Functions.GraphQl.Repository.DocumentDb;
 using Eklee.Azure.Functions.GraphQl.Repository.Http;
 using Eklee.Azure.Functions.GraphQl.Repository.InMemory;
 using Eklee.Azure.Functions.GraphQl.Repository.Search;
+using GraphQL;
 using GraphQL.Types;
 using Microsoft.Extensions.Logging;
 
 namespace Eklee.Azure.Functions.GraphQl
 {
+	public enum AssertAction
+	{
+		BatchCreate,
+		Create,
+		Update,
+		Delete,
+		DeleteAll
+	}
+
 	public class ModelConventionInputBuilder<TSource> : IModelConventionInputBuilder<TSource> where TSource : class
 	{
 		private readonly ObjectGraphType _objectGraphType;
@@ -44,6 +56,7 @@ namespace Eklee.Azure.Functions.GraphQl
 					),
 					resolve: async context =>
 					{
+						AssertWithClaimsPrincipal(AssertAction.Delete, context);
 						var item = context.GetArgument<TSource>(_sourceName);
 
 						try
@@ -58,6 +71,27 @@ namespace Eklee.Azure.Functions.GraphQl
 						return item;
 					});
 			};
+		}
+
+		private Func<ClaimsPrincipal, AssertAction, bool> _claimsPrincipalAssertion;
+		public ModelConventionInputBuilder<TSource> AssertWithClaimsPrincipal(Func<ClaimsPrincipal, AssertAction, bool> claimsPrincipalAssertion)
+		{
+			_claimsPrincipalAssertion = claimsPrincipalAssertion;
+			return this;
+		}
+
+		private void AssertWithClaimsPrincipal(AssertAction assertAction, ResolveFieldContext<object> context)
+		{
+			if (_claimsPrincipalAssertion != null)
+			{
+				var graphRequestContext = context.UserContext as IGraphRequestContext;
+				if (graphRequestContext == null ||
+					!_claimsPrincipalAssertion(graphRequestContext.HttpRequest.Security.ClaimsPrincipal, assertAction))
+				{
+					var message = $"{assertAction} execution has been denied due to insufficient permissions.";
+					throw new ExecutionError(message, new SecurityException(message));
+				}
+			}
 		}
 
 		private IGraphQlRepository _graphQlRepository;
@@ -114,6 +148,7 @@ namespace Eklee.Azure.Functions.GraphQl
 					),
 					resolve: async context =>
 					{
+						AssertWithClaimsPrincipal(AssertAction.Delete, context);
 						var arg = context.GetArgument<TDeleteInput>(_sourceName);
 						var item = mapDelete(arg);
 
@@ -155,6 +190,7 @@ namespace Eklee.Azure.Functions.GraphQl
 				_objectGraphType.FieldAsync<ModelConventionType<TDeleteOutput>>(fieldName,
 					resolve: async context =>
 					{
+						AssertWithClaimsPrincipal(AssertAction.DeleteAll, context);
 						try
 						{
 							await _graphQlRepositoryProvider.GetRepository<TSource>().DeleteAllAsync<TSource>(context.UserContext as IGraphRequestContext);
@@ -187,6 +223,7 @@ namespace Eklee.Azure.Functions.GraphQl
 				),
 				resolve: async context =>
 				{
+					AssertWithClaimsPrincipal(AssertAction.BatchCreate, context);
 					var items = context.GetArgument<IEnumerable<TSource>>(_sourceName).ToList();
 					try
 					{
@@ -222,6 +259,7 @@ namespace Eklee.Azure.Functions.GraphQl
 				),
 				resolve: async context =>
 				{
+					AssertWithClaimsPrincipal(AssertAction.Create, context);
 					var item = context.GetArgument<TSource>(_sourceName);
 
 					try
@@ -256,6 +294,7 @@ namespace Eklee.Azure.Functions.GraphQl
 				),
 				resolve: async context =>
 				{
+					AssertWithClaimsPrincipal(AssertAction.Update, context);
 					var item = context.GetArgument<TSource>(_sourceName);
 					try
 					{

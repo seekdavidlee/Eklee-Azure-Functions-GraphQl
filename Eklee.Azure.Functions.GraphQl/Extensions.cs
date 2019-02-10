@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 using Autofac;
@@ -78,7 +79,13 @@ namespace Eklee.Azure.Functions.GraphQl
 
 				logger.LogInformation($"Request-Body: {requestBody}");
 
-				return new OkObjectResult(await graphQlDomain.ExecuteAsync(JsonConvert.DeserializeObject<GraphQlDomainRequest>(requestBody)));
+				var results = await graphQlDomain.ExecuteAsync(JsonConvert.DeserializeObject<GraphQlDomainRequest>(requestBody));
+
+				if (results.Errors != null && results.Errors.Any(x =>
+						x.InnerException != null && x.InnerException.GetType() == typeof(SecurityException)))
+					return new UnauthorizedResult();
+
+				return new OkObjectResult(results);
 			}
 
 			// TODO: Log request Content-Type is unsupported.

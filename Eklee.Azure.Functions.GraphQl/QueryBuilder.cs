@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Eklee.Azure.Functions.GraphQl.Repository;
 using Eklee.Azure.Functions.Http;
+using GraphQL;
 using GraphQL.Builders;
 using GraphQL.Types;
 using Microsoft.Extensions.Caching.Distributed;
@@ -69,6 +72,13 @@ namespace Eklee.Azure.Functions.GraphQl
 			Build();
 		}
 
+		private Func<ClaimsPrincipal, bool> _claimsPrincipalAssertion;
+		public QueryBuilder<TSource> AssertWithClaimsPrincipal(Func<ClaimsPrincipal, bool> claimsPrincipalAssertion)
+		{
+			_claimsPrincipalAssertion = claimsPrincipalAssertion;
+			return this;
+		}
+
 		private async Task<object> QueryResolver(ResolveFieldContext<object> context)
 		{
 			IEnumerable<TSource> list;
@@ -105,6 +115,16 @@ namespace Eklee.Azure.Functions.GraphQl
 
 		private async Task<IEnumerable<TSource>> QueryAsync(ResolveFieldContext<object> context)
 		{
+			var graphRequestContext = context.UserContext as IGraphRequestContext;
+
+			if (_claimsPrincipalAssertion != null)
+			{
+				if (graphRequestContext == null || !_claimsPrincipalAssertion(graphRequestContext.HttpRequest.Security.ClaimsPrincipal))
+				{
+					throw new ExecutionError("Query execution has been denied due to insufficient permissions.", new SecurityException("Query execution has been denied due to insufficient permissions."));					
+				}
+			}
+
 			var steps = _queryParameterBuilder.GetQuerySteps(context).ToList();
 
 			if (_cacheInSeconds > 0)
@@ -113,7 +133,7 @@ namespace Eklee.Azure.Functions.GraphQl
 				_logger.LogInformation($"CacheKey: {key}");
 
 				return (await TryGetOrSetIfNotExistAsync(
-					() => _queryExecutor.ExecuteAsync(context.FieldName, steps, context.UserContext as IGraphRequestContext).Result.ToList(), key,
+					() => _queryExecutor.ExecuteAsync(context.FieldName, steps, graphRequestContext).Result.ToList(), key,
 					new DistributedCacheEntryOptions
 					{
 						// ReSharper disable once PossibleInvalidOperationException
@@ -121,7 +141,7 @@ namespace Eklee.Azure.Functions.GraphQl
 					})).Value;
 			}
 
-			return await _queryExecutor.ExecuteAsync(context.FieldName, steps, context.UserContext as IGraphRequestContext);
+			return await _queryExecutor.ExecuteAsync(context.FieldName, steps, graphRequestContext);
 		}
 
 		private void Build()

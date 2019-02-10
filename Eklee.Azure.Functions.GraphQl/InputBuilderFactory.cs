@@ -1,7 +1,6 @@
 ﻿using System;
 using Eklee.Azure.Functions.GraphQl.Repository;
 using Eklee.Azure.Functions.GraphQl.Repository.Search;
-using Eklee.Azure.Functions.Http;
 using GraphQL.Types;
 using Microsoft.Extensions.Logging;
 

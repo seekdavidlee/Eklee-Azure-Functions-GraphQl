@@ -50,6 +50,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 						ctx.GetResults<BookAuthorsOutput>().ForEach(ba => ba.Authors = authors.Where(x => ba.AuthorIdList.Contains(x.Id)).ToList());
 					})
 					.BuildQuery()
+				.AssertWithClaimsPrincipal(cp=> cp.IsInRole("Eklee.User.Read"))
 				.BuildWithListResult();
 
 			queryBuilderFactory.Create<BookAuthorsOutput>(booksQuery, "getBookAuthorsById")

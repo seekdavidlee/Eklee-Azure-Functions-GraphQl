@@ -263,3 +263,4 @@ paket-files/
 __pycache__/
 *.pyc
 /Examples/Eklee.Azure.Functions.GraphQl.Example/package-lock.json
+/Tests/Eklee.Azure.Functions.GraphQl.Local.postman_environment.json

@@ -19,7 +19,7 @@ namespace Eklee.Azure.Functions.GraphQl
 		private readonly IHttpRequestContext _requestContext;
 		private readonly IGraphRequestContext _graphRequestContext;
 
-		public GraphQlDomain(ISchema schema, IDocumentExecuter documentExecuter, IConfiguration configuration, ILogger logger, 
+		public GraphQlDomain(ISchema schema, IDocumentExecuter documentExecuter, IConfiguration configuration, ILogger logger,
 			IHttpRequestContext requestContext,
 			IGraphRequestContext graphRequestContext)
 		{
@@ -34,6 +34,7 @@ namespace Eklee.Azure.Functions.GraphQl
 		public async Task<ExecutionResult> ExecuteAsync(GraphQlDomainRequest graphQlDomainRequest)
 		{
 			bool.TryParse(_configuration["GraphQl:EnableMetrics"], out var enableMetrics);
+			bool.TryParse(_configuration["GraphQl:ExposeExceptions"], out var exposeExceptions);
 
 			var start = DateTime.UtcNow;
 
@@ -45,7 +46,8 @@ namespace Eklee.Azure.Functions.GraphQl
 				Schema = _schema,
 				Query = graphQlDomainRequest.Query,
 				EnableMetrics = enableMetrics,
-				UserContext = _graphRequestContext
+				UserContext = _graphRequestContext,
+				ExposeExceptions = exposeExceptions
 			});
 
 			if (results.Errors != null && results.Errors.Count > 0)

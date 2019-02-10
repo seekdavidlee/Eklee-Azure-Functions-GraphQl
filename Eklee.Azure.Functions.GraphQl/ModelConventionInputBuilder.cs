@@ -161,7 +161,7 @@ namespace Eklee.Azure.Functions.GraphQl
 							{
 								var mappedInstance = _searchMappedModels.CreateInstanceFromMap(item);
 								await _graphQlRepositoryProvider.GetRepository(mappedSearchType)
-									.DeleteAsync(mappedSearchType, mappedInstance);
+									.DeleteAsync(mappedSearchType, mappedInstance, context.UserContext as IGraphRequestContext);
 							}
 						}
 						catch (Exception e)
@@ -271,7 +271,7 @@ namespace Eklee.Azure.Functions.GraphQl
 						{
 							var mappedInstance = _searchMappedModels.CreateInstanceFromMap(item);
 							await _graphQlRepositoryProvider.GetRepository(mappedSearchType)
-						.AddAsync(mappedSearchType, mappedInstance);
+						.AddAsync(mappedSearchType, mappedInstance, context.UserContext as IGraphRequestContext);
 						}
 					}
 					catch (Exception e)
@@ -305,7 +305,7 @@ namespace Eklee.Azure.Functions.GraphQl
 						{
 							var mappedInstance = _searchMappedModels.CreateInstanceFromMap(item);
 							await _graphQlRepositoryProvider.GetRepository(mappedSearchType)
-								.UpdateAsync(mappedSearchType, mappedInstance);
+								.UpdateAsync(mappedSearchType, mappedInstance, context.UserContext as IGraphRequestContext);
 						}
 					}
 					catch (Exception e)

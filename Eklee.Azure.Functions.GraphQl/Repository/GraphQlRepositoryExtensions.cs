@@ -38,29 +38,29 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 		}
 
 		public static async Task DeleteAsync(this IGraphQlRepository graphQlRepository, Type type,
-			object mappedInstance)
+			object mappedInstance, IGraphRequestContext graphRequestContext)
 		{
-			await RunAsync(graphQlRepository, type, mappedInstance, "DeleteAsync");
+			await RunAsync(graphQlRepository, type, mappedInstance, "DeleteAsync", graphRequestContext);
 		}
 
-		public static async Task AddAsync(this IGraphQlRepository graphQlRepository, Type type, object mappedInstance)
+		public static async Task AddAsync(this IGraphQlRepository graphQlRepository, Type type, object mappedInstance, IGraphRequestContext graphRequestContext)
 		{
-			await RunAsync(graphQlRepository, type, mappedInstance, "AddAsync");
+			await RunAsync(graphQlRepository, type, mappedInstance, "AddAsync", graphRequestContext);
 		}
 
-		public static async Task UpdateAsync(this IGraphQlRepository graphQlRepository, Type type, object mappedInstance)
+		public static async Task UpdateAsync(this IGraphQlRepository graphQlRepository, Type type, object mappedInstance, IGraphRequestContext graphRequestContext)
 		{
-			await RunAsync(graphQlRepository, type, mappedInstance, "UpdateAsync");
+			await RunAsync(graphQlRepository, type, mappedInstance, "UpdateAsync", graphRequestContext);
 		}
 
-		private static async Task RunAsync(IGraphQlRepository graphQlRepository, Type type, object mappedInstance, string action)
+		private static async Task RunAsync(IGraphQlRepository graphQlRepository, Type type, object mappedInstance, string action, IGraphRequestContext graphRequestContext)
 		{
 			MethodInfo method = graphQlRepository.GetType().GetMethod(action);
 
 			// ReSharper disable once PossibleNullReferenceException
 			MethodInfo generic = method.MakeGenericMethod(type);
 
-			var task = (Task)generic.Invoke(graphQlRepository, new[] { mappedInstance });
+			var task = (Task)generic.Invoke(graphQlRepository, new[] { mappedInstance, graphRequestContext });
 
 			await task.ConfigureAwait(false);
 		}

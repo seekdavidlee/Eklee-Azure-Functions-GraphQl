@@ -59,22 +59,22 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 		public async Task BatchAddAsync<T>(IEnumerable<T> items, IGraphRequestContext graphRequestContext) where T : class
 		{
 			var provider = GetProvider<T>();
-			await provider.BatchCreateAsync(items);
+			await provider.BatchCreateAsync(items, graphRequestContext);
 		}
 
 		public async Task AddAsync<T>(T item, IGraphRequestContext graphRequestContext) where T : class
 		{
-			await GetProvider<T>().CreateAsync(item);
+			await GetProvider<T>().CreateAsync(item, graphRequestContext);
 		}
 
 		public async Task UpdateAsync<T>(T item, IGraphRequestContext graphRequestContext) where T : class
 		{
-			await GetProvider<T>().UpdateAsync(item);
+			await GetProvider<T>().UpdateAsync(item, graphRequestContext);
 		}
 
 		public async Task DeleteAsync<T>(T item, IGraphRequestContext graphRequestContext) where T : class
 		{
-			await GetProvider<T>().DeleteAsync(item);
+			await GetProvider<T>().DeleteAsync(item, graphRequestContext);
 		}
 
 		public async Task<IEnumerable<T>> QueryAsync<T>(string queryName, IEnumerable<QueryParameter> queryParameters, Dictionary<string, object> stepBagItems, IGraphRequestContext graphRequestContext) where T : class
@@ -86,7 +86,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 			foreach (var searchType in searchTypes)
 			{
 				var results = await GetProvider(searchType.Name)
-					.QueryAsync<SearchResultModel>(queryParametersList, searchType);
+					.QueryAsync<SearchResultModel>(queryParametersList, searchType, graphRequestContext);
 
 				searchResultModels.AddRange(results);
 			}
@@ -97,7 +97,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 
 		public async Task DeleteAllAsync<T>(IGraphRequestContext graphRequestContext) where T : class
 		{
-			await GetProvider<T>().DeleteAllAsync<T>();
+			await GetProvider<T>().DeleteAllAsync<T>(graphRequestContext);
 		}
 	}
 }

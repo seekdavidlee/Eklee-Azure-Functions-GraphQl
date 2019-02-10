@@ -122,14 +122,14 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 			return client;
 		}
 
-		public async Task BatchCreateAsync<T>(IEnumerable<T> items) where T : class
+		public async Task BatchCreateAsync<T>(IEnumerable<T> items, IGraphRequestContext graphRequestContext) where T : class
 		{
 			var client = GetSearchIndexClient<T>();
 			var list = items.Select(IndexAction.Upload).ToList();
 			await client.Documents.IndexAsync(new IndexBatch<T>(list));
 		}
 
-		public async Task CreateAsync<T>(T item) where T : class
+		public async Task CreateAsync<T>(T item, IGraphRequestContext graphRequestContext) where T : class
 		{
 			var client = GetSearchIndexClient<T>();
 			var idx = IndexAction.Upload(item);
@@ -137,7 +137,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 				new List<IndexAction<T>> { idx }));
 		}
 
-		public async Task UpdateAsync<T>(T item) where T : class
+		public async Task UpdateAsync<T>(T item, IGraphRequestContext graphRequestContext) where T : class
 		{
 			var client = GetSearchIndexClient<T>();
 			var idx = IndexAction.Merge(item);
@@ -146,7 +146,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 
 		}
 
-		public async Task DeleteAsync<T>(T item) where T : class
+		public async Task DeleteAsync<T>(T item, IGraphRequestContext graphRequestContext) where T : class
 		{
 			var client = GetSearchIndexClient<T>();
 			var idx = IndexAction.Delete(item);
@@ -154,7 +154,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 				new List<IndexAction<T>> { idx }));
 		}
 
-		public async Task<IEnumerable<T>> QueryAsync<T>(IEnumerable<QueryParameter> queryParameters, Type type) where T : class
+		public async Task<IEnumerable<T>> QueryAsync<T>(IEnumerable<QueryParameter> queryParameters, Type type, IGraphRequestContext graphRequestContext) where T : class
 		{
 			var searchResultModels = new List<SearchResultModel>();
 
@@ -207,7 +207,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 			return searchResultModels.Select(x => x as T).ToList();
 		}
 
-		public async Task DeleteAllAsync<T>() where T : class
+		public async Task DeleteAllAsync<T>(IGraphRequestContext graphRequestContext) where T : class
 		{
 			string indexName = typeof(T).Name.ToLower();
 			var prefix = _prefixes.ContainsKey(indexName) ? _prefixes[indexName] : "";

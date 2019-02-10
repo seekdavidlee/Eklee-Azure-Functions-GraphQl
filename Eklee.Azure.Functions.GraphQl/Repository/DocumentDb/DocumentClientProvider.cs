@@ -26,6 +26,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 
 	public class DocumentClientProvider
 	{
+		private readonly string _url;
 		private readonly IEnumerable<IDocumentDbComparison> _documentDbComparisons;
 		private readonly ILogger _logger;
 		private const int DefaultRequestUnits = 400;
@@ -34,9 +35,15 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 
 		public DocumentClientProvider(string url, string key, IEnumerable<IDocumentDbComparison> documentDbComparisons, ILogger logger)
 		{
+			_url = url;
 			_documentDbComparisons = documentDbComparisons;
 			_logger = logger;
 			_documentClient = new DocumentClient(new Uri(url), key);
+		}
+
+		public bool ContainsUrl(string url)
+		{
+			return _url == url;
 		}
 
 		public async Task ConfigureDatabaseAndCollection(
@@ -131,19 +138,33 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 				GetDocumentUri(item, graphRequestContext), GetTransformed(item), await GetRequestOptions(item, graphRequestContext));
 		}
 
+		public bool CanHandle<T>(IGraphRequestContext graphRequestContext)
+		{
+			return InternalGet<T>(graphRequestContext) != null;
+		}
+
 		private DocumentTypeInfo Get<T>(IGraphRequestContext graphRequestContext)
+		{
+			var documentTypeInfo = InternalGet<T>(graphRequestContext);
+
+			if (documentTypeInfo == null)
+				throw new ApplicationException("Unable to determine the correct RequestContextSelector to process request.");
+
+			return documentTypeInfo;
+		}
+
+		private DocumentTypeInfo InternalGet<T>(IGraphRequestContext graphRequestContext)
 		{
 			var documentTypeInfos = _documentTypeInfos.Where(x => x.Id == typeof(T).Name).ToList();
 			if (documentTypeInfos.Count == 1 && documentTypeInfos.Single().RequestContextSelector == null)
 				return documentTypeInfos.Single();
-
 
 			documentTypeInfos = documentTypeInfos.Where(x =>
 				x.RequestContextSelector != null && x.RequestContextSelector(graphRequestContext)).ToList();
 
 			if (documentTypeInfos.Count == 1) return documentTypeInfos.Single();
 
-			throw new ApplicationException("Unable to determine the correct RequestContextSelector to process request.");
+			return null;
 		}
 
 		private async Task<RequestOptions> GetRequestOptions<T>(T item, IGraphRequestContext graphRequestContext)

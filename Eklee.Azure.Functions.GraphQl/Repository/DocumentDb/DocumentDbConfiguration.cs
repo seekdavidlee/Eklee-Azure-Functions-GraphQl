@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using Eklee.Azure.Functions.Http;
 
 namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 {
@@ -34,7 +33,6 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 			_configurations.Add<TSource>(DocumentDbConstants.RequestContextSelector, selector);
 			return this;
 		}
-
 
 		public DocumentDbConfiguration<TSource> AddKey(string key)
 		{

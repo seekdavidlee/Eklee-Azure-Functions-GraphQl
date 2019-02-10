@@ -7,5 +7,6 @@
 		public const string Database = "Database";
 		public const string RequestUnit = "RequestUnit";
 		public const string PartitionMemberExpression = "PartitionMemberExpression";
+		public const string RequestContextSelector = "RequestContextSelector";
 	}
 }

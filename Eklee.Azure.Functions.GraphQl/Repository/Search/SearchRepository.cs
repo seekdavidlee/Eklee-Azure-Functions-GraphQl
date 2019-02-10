@@ -56,28 +56,28 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 			return _typedProviders[typeName];
 		}
 
-		public async Task BatchAddAsync<T>(IEnumerable<T> items) where T : class
+		public async Task BatchAddAsync<T>(IEnumerable<T> items, IGraphRequestContext graphRequestContext) where T : class
 		{
 			var provider = GetProvider<T>();
 			await provider.BatchCreateAsync(items);
 		}
 
-		public async Task AddAsync<T>(T item) where T : class
+		public async Task AddAsync<T>(T item, IGraphRequestContext graphRequestContext) where T : class
 		{
 			await GetProvider<T>().CreateAsync(item);
 		}
 
-		public async Task UpdateAsync<T>(T item) where T : class
+		public async Task UpdateAsync<T>(T item, IGraphRequestContext graphRequestContext) where T : class
 		{
 			await GetProvider<T>().UpdateAsync(item);
 		}
 
-		public async Task DeleteAsync<T>(T item) where T : class
+		public async Task DeleteAsync<T>(T item, IGraphRequestContext graphRequestContext) where T : class
 		{
 			await GetProvider<T>().DeleteAsync(item);
 		}
 
-		public async Task<IEnumerable<T>> QueryAsync<T>(string queryName, IEnumerable<QueryParameter> queryParameters, Dictionary<string, object> stepBagItems) where T : class
+		public async Task<IEnumerable<T>> QueryAsync<T>(string queryName, IEnumerable<QueryParameter> queryParameters, Dictionary<string, object> stepBagItems, IGraphRequestContext graphRequestContext) where T : class
 		{
 			List<SearchResultModel> searchResultModels = new List<SearchResultModel>();
 			var searchTypes = (Type[])stepBagItems[SearchConstants.QueryTypes];
@@ -95,7 +95,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 			return res;
 		}
 
-		public async Task DeleteAllAsync<T>() where T : class
+		public async Task DeleteAllAsync<T>(IGraphRequestContext graphRequestContext) where T : class
 		{
 			await GetProvider<T>().DeleteAllAsync<T>();
 		}

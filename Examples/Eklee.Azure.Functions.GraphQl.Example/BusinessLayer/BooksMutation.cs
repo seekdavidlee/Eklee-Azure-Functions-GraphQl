@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System.Linq;
+using System.Net.Http;
 using Eklee.Azure.Functions.GraphQl.Example.HttpMocks;
 using Eklee.Azure.Functions.GraphQl.Example.Models;
 using Eklee.Azure.Functions.GraphQl.Repository.Http;
@@ -26,19 +27,24 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 			string documentDbKey = configuration["DocumentDb:Key"];
 			string documentDbUrl = configuration["DocumentDb:Url"];
 
-			inputBuilderFactory.Create<Reviewer>(this)
-				.Delete<ReviewerId, Status>(
-					reviewerInput => new Reviewer { Id = reviewerInput.Id },
-					bookReview => new Status { Message = $"Successfully removed reviewer with Id {bookReview.Id}" })
-				.ConfigureDocumentDb<Reviewer>()
+			var issuers = configuration["Security:Issuers"].Split(' ').ToList();
+			issuers.ForEach(issuer =>
+			{
+				inputBuilderFactory.Create<Reviewer>(this)
+					.Delete<ReviewerId, Status>(
+						reviewerInput => new Reviewer { Id = reviewerInput.Id },
+						bookReview => new Status { Message = $"Successfully removed reviewer with Id {bookReview.Id}" })
+					.ConfigureDocumentDb<Reviewer>()
+					.AddGraphRequestContextSelector(ctx => ctx.ContainsIssuer(issuer))
 					.AddUrl(documentDbUrl)
 					.AddKey(documentDbKey)
-					.AddDatabase("local")
+					.AddDatabase(issuer.GetTenantIdFromIssuer())
 					.AddRequestUnit(400)
 					.AddPartition(reviewer => reviewer.Region)
 					.BuildDocumentDb()
-				.DeleteAll(() => new Status { Message = "All reviewers have been removed." })    // Used more for local development to reset local database than having any operational value.
-				.Build();
+					.DeleteAll(() => new Status { Message = "All reviewers have been removed." })    // Used more for local development to reset local database than having any operational value.
+					.Build();
+			});
 
 			inputBuilderFactory.Create<Author>(this)
 				.ConfigureInMemory<Author>().BuildInMemory()

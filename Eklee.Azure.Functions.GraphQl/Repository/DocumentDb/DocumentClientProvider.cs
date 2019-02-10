@@ -19,6 +19,9 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 		public PartitionKeyDefinition Partition { get; set; }
 		public int RequestUnit { get; set; }
 		public string Id { get; set; }
+		public MemberExpression Expression { get; set; }
+		public Func<IGraphRequestContext, bool> RequestContextSelector { get; set; }
+		public string DatabaseId { get; set; }
 	}
 
 	public class DocumentClientProvider
@@ -27,14 +30,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 		private readonly ILogger _logger;
 		private const int DefaultRequestUnits = 400;
 		private readonly DocumentClient _documentClient;
-
-		private readonly Dictionary<string, string> _databases = new Dictionary<string, string>();
-
-		private readonly Dictionary<string, MemberExpression> _memberExpressions =
-			new Dictionary<string, MemberExpression>();
-
-		private readonly Dictionary<string, DocumentTypeInfo> _documentTypeInfos =
-			new Dictionary<string, DocumentTypeInfo>();
+		private readonly List<DocumentTypeInfo> _documentTypeInfos = new List<DocumentTypeInfo>();
 
 		public DocumentClientProvider(string url, string key, IEnumerable<IDocumentDbComparison> documentDbComparisons, ILogger logger)
 		{
@@ -57,46 +53,45 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 					DocumentDbConstants.RequestUnit, sourceType), out requestUnit);
 			}
 
-			if (!_databases.ContainsKey(databaseId))
+			if (_documentTypeInfos.Count(x => x.DatabaseId == databaseId) == 0)
 			{
 				await _documentClient.CreateDatabaseIfNotExistsWithRetryAsync(databaseId, requestUnit);
 			}
-
-			_databases[sourceType.Name.ToLower()] = databaseId;
-
 
 			var memberExpression = configurations.GetValue<MemberExpression>(
 				DocumentDbConstants.PartitionMemberExpression, sourceType);
 
 			var documentTypeInfo = new DocumentTypeInfo
 			{
-				Id = sourceType.Name.ToLower(),
+				Id = sourceType.Name,
+				DatabaseId = databaseId,
 				Partition = new PartitionKeyDefinition
 				{
 					Paths = new Collection<string> { $"/{memberExpression.Member.Name}" }
 				},
-				RequestUnit = requestUnit
+				RequestUnit = requestUnit,
+				Expression = memberExpression,
+				RequestContextSelector = configurations.ContainsKey(DocumentDbConfigurationExtensions.GetKey(DocumentDbConstants.RequestContextSelector, sourceType)) ?
+					configurations.GetValue<Func<IGraphRequestContext, bool>>(DocumentDbConstants.RequestContextSelector, sourceType) : null
 			};
 
 			await _documentClient.CreateDocumentCollectionIfNotExistsAsync(
 				UriFactory.CreateDatabaseUri(databaseId), new DocumentCollection
 				{
-					Id = documentTypeInfo.Id,
+					Id = documentTypeInfo.Id.ToLower(),
 					PartitionKey = documentTypeInfo.Partition
 				}, new RequestOptions
 				{
 					OfferThroughput = documentTypeInfo.RequestUnit
 				});
 
-			_documentTypeInfos.Add(sourceType.Name, documentTypeInfo);
-
-			_memberExpressions.Add(sourceType.Name, memberExpression);
+			_documentTypeInfos.Add(documentTypeInfo);
 		}
 
-		public async Task CreateAsync<T>(T item)
+		public async Task CreateAsync<T>(T item, IGraphRequestContext graphRequestContext)
 		{
 			await _documentClient.CreateDocumentAsync(
-				GetDocumentCollectionUri<T>(), GetTransformed(item), null, true);
+				GetDocumentCollectionUri<T>(graphRequestContext), GetTransformed(item), null, true);
 		}
 
 		private dynamic GetTransformed<T>(T item)
@@ -109,18 +104,18 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 			return expando;
 		}
 
-		private Uri GetDocumentCollectionUri<T>()
+		private Uri GetDocumentCollectionUri<T>(IGraphRequestContext graphRequestContext)
 		{
 			var collectionName = GetCollectionName<T>();
-			var databaseId = _databases[collectionName];
+			var databaseId = Get<T>(graphRequestContext).DatabaseId;
 
 			return UriFactory.CreateDocumentCollectionUri(databaseId, collectionName);
 		}
 
-		private Uri GetDocumentUri<T>(T item)
+		private Uri GetDocumentUri<T>(T item, IGraphRequestContext graphRequestContext)
 		{
 			var collectionName = GetCollectionName<T>();
-			var databaseId = _databases[collectionName];
+			var databaseId = Get<T>(graphRequestContext).DatabaseId;
 
 			return UriFactory.CreateDocumentUri(databaseId, collectionName, item.GetKey());
 		}
@@ -130,17 +125,33 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 			return typeof(T).Name.ToLower();
 		}
 
-		public async Task UpdateAsync<T>(T item)
+		public async Task UpdateAsync<T>(T item, IGraphRequestContext graphRequestContext)
 		{
 			await _documentClient.ReplaceDocumentAsync(
-				GetDocumentUri(item), GetTransformed(item), await GetRequestOptions(item));
+				GetDocumentUri(item, graphRequestContext), GetTransformed(item), await GetRequestOptions(item, graphRequestContext));
 		}
 
-		private async Task<RequestOptions> GetRequestOptions<T>(T item)
+		private DocumentTypeInfo Get<T>(IGraphRequestContext graphRequestContext)
 		{
-			if (_memberExpressions.ContainsKey(typeof(T).Name))
+			var documentTypeInfos = _documentTypeInfos.Where(x => x.Id == typeof(T).Name).ToList();
+			if (documentTypeInfos.Count == 1 && documentTypeInfos.Single().RequestContextSelector == null)
+				return documentTypeInfos.Single();
+
+
+			documentTypeInfos = documentTypeInfos.Where(x =>
+				x.RequestContextSelector != null && x.RequestContextSelector(graphRequestContext)).ToList();
+
+			if (documentTypeInfos.Count == 1) return documentTypeInfos.Single();
+
+			throw new ApplicationException("Unable to determine the correct RequestContextSelector to process request.");
+		}
+
+		private async Task<RequestOptions> GetRequestOptions<T>(T item, IGraphRequestContext graphRequestContext)
+		{
+			var documentTypeInfo = Get<T>(graphRequestContext);
+			if (documentTypeInfo != null)
 			{
-				var memberExpression = _memberExpressions[typeof(T).Name];
+				var memberExpression = documentTypeInfo.Expression;
 				var value = item.GetPropertyValue(memberExpression.Member.Name);
 
 				if (value == null ||
@@ -150,7 +161,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 				{
 					// Let's query for the partition.
 
-					var query = _documentClient.CreateDocumentQuery<T>(GetDocumentCollectionUri<T>(),
+					var query = _documentClient.CreateDocumentQuery<T>(GetDocumentCollectionUri<T>(graphRequestContext),
 						$"SELECT * FROM x WHERE x.id='{item.GetKey()}'",
 							new FeedOptions { EnableCrossPartitionQuery = true })
 						.AsDocumentQuery();
@@ -191,13 +202,13 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 			return null;
 		}
 
-		public async Task DeleteAsync<T>(T item)
+		public async Task DeleteAsync<T>(T item, IGraphRequestContext graphRequestContext)
 		{
 			await _documentClient.DeleteDocumentAsync(
-				GetDocumentUri(item), await GetRequestOptions(item));
+				GetDocumentUri(item, graphRequestContext), await GetRequestOptions(item, graphRequestContext));
 		}
 
-		public async Task<IEnumerable<T>> QueryAsync<T>(IEnumerable<QueryParameter> queryParameters)
+		public async Task<IEnumerable<T>> QueryAsync<T>(IEnumerable<QueryParameter> queryParameters, IGraphRequestContext graphRequestContext)
 		{
 			var sql = "SELECT * FROM x WHERE ";
 			const string and = " AND ";
@@ -227,7 +238,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 			_logger.LogInformation($"Generated SQL query in DocumentDb provider: {sql}");
 
 			var query = _documentClient.CreateDocumentQuery<T>(
-				GetDocumentCollectionUri<T>(), sql, options).AsDocumentQuery();
+				GetDocumentCollectionUri<T>(graphRequestContext), sql, options).AsDocumentQuery();
 
 			var results = await query.ExecuteNextAsync<T>();
 			return results.ToList();
@@ -246,12 +257,11 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 			return statement;
 		}
 
-		public async Task DeleteAllAsync<T>()
+		public async Task DeleteAllAsync<T>(IGraphRequestContext graphRequestContext)
 		{
-			var documentTypeInfo = _documentTypeInfos[typeof(T).Name];
+			var documentTypeInfo = Get<T>(graphRequestContext);
 
-			var uri = UriFactory.CreateDocumentCollectionUri(
-				_databases[typeof(T).Name.ToLower()], documentTypeInfo.Id);
+			var uri = UriFactory.CreateDocumentCollectionUri(documentTypeInfo.DatabaseId, documentTypeInfo.Id.ToLower());
 
 			var options = new FeedOptions
 			{
@@ -268,7 +278,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 
 				foreach (var item in response)
 				{
-					await DeleteAsync(item);
+					await DeleteAsync(item, graphRequestContext);
 				}
 
 				if (string.IsNullOrEmpty(response.ResponseContinuation)) break;

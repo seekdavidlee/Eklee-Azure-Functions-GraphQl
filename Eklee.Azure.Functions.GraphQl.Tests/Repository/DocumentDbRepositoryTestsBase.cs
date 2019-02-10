@@ -56,7 +56,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 					ContextValue = new ContextValue { Value = id, Comparison = Comparisons.Equal},
 					MemberModel = new ModelMember(type, accessor, member, false)
 				}
-			}, null);
+			}, null, null);
 		}
 	}
 }

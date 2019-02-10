@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using Eklee.Azure.Functions.Http;
 
 namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 {
@@ -25,6 +26,12 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 		public DocumentDbConfiguration<TSource> AddUrl(string url)
 		{
 			_configurations.Add<TSource>(DocumentDbConstants.Url, url);
+			return this;
+		}
+
+		public DocumentDbConfiguration<TSource> AddGraphRequestContextSelector(Func<IGraphRequestContext, bool> selector)
+		{
+			_configurations.Add<TSource>(DocumentDbConstants.RequestContextSelector, selector);
 			return this;
 		}
 

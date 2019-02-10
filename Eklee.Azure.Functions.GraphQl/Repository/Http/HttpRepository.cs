@@ -63,15 +63,15 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Http
 			return httpClient;
 		}
 
-		public async Task BatchAddAsync<T>(IEnumerable<T> items) where T : class
+		public async Task BatchAddAsync<T>(IEnumerable<T> items, IGraphRequestContext graphRequestContext) where T : class
 		{
 			foreach (var item in items.ToList())
 			{
-				await AddAsync(item);
+				await AddAsync(item, graphRequestContext);
 			}
 		}
 
-		public async Task AddAsync<T>(T item) where T : class
+		public async Task AddAsync<T>(T item, IGraphRequestContext graphRequestContext) where T : class
 		{
 			// ReSharper disable once AssignNullToNotNullAttribute
 			var resource = _addTransforms[typeof(T).FullName](item);
@@ -126,14 +126,14 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Http
 			return responseContent;
 		}
 
-		public async Task UpdateAsync<T>(T item) where T : class
+		public async Task UpdateAsync<T>(T item, IGraphRequestContext graphRequestContext) where T : class
 		{
 			// ReSharper disable once AssignNullToNotNullAttribute
 			var resource = _updateTransforms[typeof(T).FullName](item);
 			await InternalSendAsync(item, resource);
 		}
 
-		public async Task DeleteAsync<T>(T item) where T : class
+		public async Task DeleteAsync<T>(T item, IGraphRequestContext graphRequestContext) where T : class
 		{
 			// ReSharper disable once AssignNullToNotNullAttribute
 			var resource = _deleteTransforms[typeof(T).FullName](item);
@@ -143,7 +143,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Http
 			await InternalSendAsync(item, resource);
 		}
 
-		public async Task<IEnumerable<T>> QueryAsync<T>(string queryName, IEnumerable<QueryParameter> queryParameters, Dictionary<string, object> stepBagItems) where T : class
+		public async Task<IEnumerable<T>> QueryAsync<T>(string queryName, IEnumerable<QueryParameter> queryParameters, Dictionary<string, object> stepBagItems, IGraphRequestContext graphRequestContext) where T : class
 		{
 			var parameters = queryParameters.ToList();
 
@@ -177,7 +177,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Http
 				: new List<T> { JsonConvert.DeserializeObject<T>(result) };
 		}
 
-		public async Task DeleteAllAsync<T>() where T : class
+		public async Task DeleteAllAsync<T>(IGraphRequestContext graphRequestContext) where T : class
 		{
 			// ReSharper disable once AssignNullToNotNullAttribute
 			var resource = _deleteAllTransforms[typeof(T).FullName]();

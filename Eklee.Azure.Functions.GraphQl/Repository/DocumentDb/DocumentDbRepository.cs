@@ -47,29 +47,29 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 			_typedProviders[sourceType.Name] = provider;
 		}
 
-		public async Task BatchAddAsync<T>(IEnumerable<T> items) where T : class
+		public async Task BatchAddAsync<T>(IEnumerable<T> items, IGraphRequestContext graphRequestContext) where T : class
 		{
 			var provider = GetProvider<T>();
 
 			foreach (var item in items)
 			{
-				await provider.CreateAsync(item);
+				await provider.CreateAsync(item, graphRequestContext);
 			}
 		}
 
-		public async Task AddAsync<T>(T item) where T : class
+		public async Task AddAsync<T>(T item, IGraphRequestContext graphRequestContext) where T : class
 		{
-			await GetProvider<T>().CreateAsync(item);
+			await GetProvider<T>().CreateAsync(item, graphRequestContext);
 		}
 
-		public async Task UpdateAsync<T>(T item) where T : class
+		public async Task UpdateAsync<T>(T item, IGraphRequestContext graphRequestContext) where T : class
 		{
-			await GetProvider<T>().UpdateAsync(item);
+			await GetProvider<T>().UpdateAsync(item, graphRequestContext);
 		}
 
-		public async Task DeleteAsync<T>(T item) where T : class
+		public async Task DeleteAsync<T>(T item, IGraphRequestContext graphRequestContext) where T : class
 		{
-			await GetProvider<T>().DeleteAsync(item);
+			await GetProvider<T>().DeleteAsync(item, graphRequestContext);
 		}
 
 		private DocumentClientProvider GetProvider<T>()
@@ -77,14 +77,14 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 			return _typedProviders[typeof(T).Name];
 		}
 
-		public async Task<IEnumerable<T>> QueryAsync<T>(string queryName, IEnumerable<QueryParameter> queryParameters, Dictionary<string, object> stepBagItems) where T : class
+		public async Task<IEnumerable<T>> QueryAsync<T>(string queryName, IEnumerable<QueryParameter> queryParameters, Dictionary<string, object> stepBagItems, IGraphRequestContext graphRequestContext) where T : class
 		{
-			return await GetProvider<T>().QueryAsync<T>(queryParameters);
+			return await GetProvider<T>().QueryAsync<T>(queryParameters, graphRequestContext);
 		}
 
-		public async Task DeleteAllAsync<T>() where T : class
+		public async Task DeleteAllAsync<T>(IGraphRequestContext graphRequestContext) where T : class
 		{
-			await GetProvider<T>().DeleteAllAsync<T>();
+			await GetProvider<T>().DeleteAllAsync<T>(graphRequestContext);
 		}
 	}
 }

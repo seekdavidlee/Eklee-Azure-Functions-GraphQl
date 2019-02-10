@@ -74,7 +74,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 
 			foreach (var inMemoryBar1 in list)
 			{
-				await _inMemoryRepository.AddAsync(inMemoryBar1);
+				await _inMemoryRepository.AddAsync(inMemoryBar1, null);
 			}
 		}
 
@@ -93,7 +93,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 				}
 			};
 
-			var results = (await _inMemoryRepository.QueryAsync<InMemoryBar1>("test", args, null)).ToList();
+			var results = (await _inMemoryRepository.QueryAsync<InMemoryBar1>("test", args, null, null)).ToList();
 
 			results.Count.ShouldBe(5);
 

@@ -27,11 +27,11 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 			};
 
 			var mock = Substitute.For<IGraphQlRepository>();
-			await mock.BatchAddAsync(typeof(BatchAddItem), list);
+			await mock.BatchAddAsync(typeof(BatchAddItem), list, null);
 
 			Received.InOrder(async () =>
 			{
-				await mock.BatchAddAsync(Arg.Is<List<BatchAddItem>>(x => x.Count == 3));
+				await mock.BatchAddAsync(Arg.Is<List<BatchAddItem>>(x => x.Count == 3), null);
 			});
 		}
 	}

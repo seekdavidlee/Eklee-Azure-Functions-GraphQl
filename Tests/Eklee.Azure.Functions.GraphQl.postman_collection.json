@@ -524,6 +524,11 @@
 								"name": "Content-Type",
 								"type": "text",
 								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "bearer {{access_token}}",
+								"type": "text"
 							}
 						],
 						"body": {
@@ -1904,6 +1909,11 @@
 								"name": "Content-Type",
 								"type": "text",
 								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "bearer {{access_token}}",
+								"type": "text"
 							}
 						],
 						"body": {

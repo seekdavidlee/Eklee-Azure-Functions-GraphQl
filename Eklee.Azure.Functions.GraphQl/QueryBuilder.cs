@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Eklee.Azure.Functions.GraphQl.Repository;
+using Eklee.Azure.Functions.Http;
 using GraphQL.Builders;
 using GraphQL.Types;
 using Microsoft.Extensions.Caching.Distributed;
@@ -112,7 +113,7 @@ namespace Eklee.Azure.Functions.GraphQl
 				_logger.LogInformation($"CacheKey: {key}");
 
 				return (await TryGetOrSetIfNotExistAsync(
-					() => _queryExecutor.ExecuteAsync(context.FieldName, steps).Result.ToList(), key,
+					() => _queryExecutor.ExecuteAsync(context.FieldName, steps, context.UserContext as IGraphRequestContext).Result.ToList(), key,
 					new DistributedCacheEntryOptions
 					{
 						// ReSharper disable once PossibleInvalidOperationException
@@ -120,7 +121,7 @@ namespace Eklee.Azure.Functions.GraphQl
 					})).Value;
 			}
 
-			return await _queryExecutor.ExecuteAsync(context.FieldName, steps);
+			return await _queryExecutor.ExecuteAsync(context.FieldName, steps, context.UserContext as IGraphRequestContext);
 		}
 
 		private void Build()

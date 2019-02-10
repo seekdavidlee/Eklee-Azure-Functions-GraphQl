@@ -32,7 +32,7 @@ namespace Eklee.Azure.Functions.GraphQl
 	{
 		public static void RegisterGraphQl<TSchema>(this ContainerBuilder builder) where TSchema : ISchema
 		{
-			builder.RegisterType<GraphQlDomain>().As<IGraphQlDomain>().SingleInstance();
+			builder.RegisterType<GraphQlDomain>().As<IGraphQlDomain>().InstancePerLifetimeScope();
 			builder.RegisterType<DocumentExecuter>().As<IDocumentExecuter>().SingleInstance();
 			builder.RegisterType<DocumentWriter>().As<IDocumentWriter>().SingleInstance();
 			builder.RegisterType<TSchema>().As<ISchema>().SingleInstance();
@@ -60,6 +60,7 @@ namespace Eklee.Azure.Functions.GraphQl
 			builder.RegisterType<SearchMappedModels>().As<ISearchMappedModels>().SingleInstance();
 
 			builder.RegisterType<GraphQlRepositoryProvider>().As<IGraphQlRepositoryProvider>().SingleInstance();
+			builder.RegisterType<GraphRequestContext>().As<IGraphRequestContext>().InstancePerLifetimeScope();
 		}
 
 		public static async Task<IActionResult> ProcessGraphQlRequest(this ExecutionContext executionContext, HttpRequest httpRequest)

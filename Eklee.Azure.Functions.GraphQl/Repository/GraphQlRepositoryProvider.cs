@@ -32,7 +32,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			return _repositories[typeSourceName];
 		}
 
-		public async Task<IEnumerable<object>> QueryAsync(string queryName, QueryStep queryStep)
+		public async Task<IEnumerable<object>> QueryAsync(string queryName, QueryStep queryStep, IGraphRequestContext graphRequestContext)
 		{
 			var list = queryStep.QueryParameters.ToList();
 
@@ -51,7 +51,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			}
 			MethodInfo generic = method.MakeGenericMethod(sourceType);
 
-			var task = (Task)generic.Invoke(repo, new object[] { queryName, list, queryStep.Items });
+			var task = (Task)generic.Invoke(repo, new object[] { queryName, list, queryStep.Items, graphRequestContext });
 
 			await task.ConfigureAwait(false);
 

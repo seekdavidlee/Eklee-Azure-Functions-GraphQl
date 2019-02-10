@@ -121,7 +121,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 
 		public bool CanHandle(string typeName, IGraphRequestContext graphRequestContext)
 		{
-			return InternalGetInfo(typeName, graphRequestContext) != null;
+			return InternalGetInfo(typeName.ToLower(), graphRequestContext) != null;
 		}
 
 		private SearchIndexClient Get<T>(IGraphRequestContext graphRequestContext)
@@ -135,12 +135,13 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 
 		private SearchClientProviderInfo GetInfo<T>(IGraphRequestContext graphRequestContext)
 		{
-			var indexName = typeof(T).Name.ToLower();
+			var indexName = typeof(T).Name;
 			return InternalGetInfo(indexName, graphRequestContext);
 		}
 
 		private SearchClientProviderInfo InternalGetInfo(string indexName, IGraphRequestContext graphRequestContext)
 		{
+			indexName = indexName.ToLower();
 			var infos = _searchClientProviderInfos.Where(x => x.Id == indexName).ToList();
 
 			if (infos.Count == 1 && infos.Single().RequestContextSelector == null) return infos.Single();
@@ -187,7 +188,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 		{
 			var searchResultModels = new List<SearchResultModel>();
 
-			var client = Get<T>(graphRequestContext);
+			var client = InternalGetInfo(type.Name, graphRequestContext).SearchIndexClient;
 
 			var searchParameters = new SearchParameters();
 

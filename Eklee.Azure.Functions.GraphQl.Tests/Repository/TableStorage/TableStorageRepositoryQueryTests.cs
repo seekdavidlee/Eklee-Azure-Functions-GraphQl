@@ -8,7 +8,7 @@ using Xunit;
 namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 {
 	[Trait(Constants.Category, Constants.IntegrationTests)]
-	public class TableRepositoryQueryTests : TableRepositoryQueryTestsBase
+	public class TableStorageRepositoryQueryTests : TableStorageRepositoryTestsBase
 	{
 		[Fact]
 		public async Task CanHandleEntityTypeWithStringBasedPartition()

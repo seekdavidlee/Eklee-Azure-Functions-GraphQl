@@ -10,11 +10,11 @@ using FastMember;
 
 namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 {
-	public abstract class TableRepositoryQueryTestsBase
+	public abstract class TableStorageRepositoryTestsBase
 	{
 		protected readonly TableStorageRepository TableStorageRepository;
 
-		protected TableRepositoryQueryTestsBase()
+		protected TableStorageRepositoryTestsBase()
 		{
 			TableStorageRepository = new TableStorageRepository(Substitute.For<ILogger>(), new List<ITableStorageComparison>
 			{

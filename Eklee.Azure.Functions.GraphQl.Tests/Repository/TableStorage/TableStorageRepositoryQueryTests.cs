@@ -91,7 +91,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 		}
 
 		[Fact]
-		public async Task CanQueryWithMultipleEquals()
+		public async Task CanQueryWithMultipleStringEquals()
 		{
 			await Seed();
 
@@ -123,6 +123,159 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 
 			results.Count.ShouldBe(1);
 			results[0].Id.ShouldBe("5");
+		}
+
+		[Fact]
+		public async Task CanQueryWithSingleStringEquals()
+		{
+			await Seed();
+
+			QueryParameter[] args = {
+				new QueryParameter
+				{
+					ContextValue = new ContextValue { Value = "Bar 5",
+						Comparison = Comparisons.Equal },
+					MemberModel = new ModelMember(_type, _accessor,
+						_members.Single(x=>x.Name == "Name"), false)
+				}
+			};
+
+			var results = (await TableStorageRepository.QueryAsync<DocumentDbFoo3>("test", args, null, null)).ToList();
+
+			results.Count.ShouldBe(1);
+			results[0].Id.ShouldBe("5");
+		}
+
+		[Fact]
+		public async Task CanQueryWithSingleIntEquals()
+		{
+			await Seed();
+
+			QueryParameter[] args = {
+				new QueryParameter
+				{
+					ContextValue = new ContextValue { Value = 6,
+						Comparison = Comparisons.Equal },
+					MemberModel = new ModelMember(_type, _accessor,
+						_members.Single(x=>x.Name == "Level"), false)
+				}
+			};
+
+			var results = (await TableStorageRepository.QueryAsync<DocumentDbFoo3>("test", args, null, null)).ToList();
+
+			results.Count.ShouldBe(1);
+			results[0].Id.ShouldBe("5");
+		}
+
+		[Fact]
+		public async Task CanQueryWithSingleIntGreaterThan()
+		{
+			await Seed();
+
+			QueryParameter[] args = {
+				new QueryParameter
+				{
+					ContextValue = new ContextValue { Value = 6,
+						Comparison = Comparisons.GreaterThan },
+					MemberModel = new ModelMember(_type, _accessor,
+						_members.Single(x=>x.Name == "Level"), false)
+				}
+			};
+
+			var results = (await TableStorageRepository.QueryAsync<DocumentDbFoo3>("test", args, null, null)).ToList();
+
+			results.Count.ShouldBe(0);
+		}
+
+		[Fact]
+		public async Task CanQueryWithSingleIntGreaterEqualThan()
+		{
+			await Seed();
+
+			QueryParameter[] args = {
+				new QueryParameter
+				{
+					ContextValue = new ContextValue { Value = 6,
+						Comparison = Comparisons.GreaterEqualThan },
+					MemberModel = new ModelMember(_type, _accessor,
+						_members.Single(x=>x.Name == "Level"), false)
+				}
+			};
+
+			var results = (await TableStorageRepository.QueryAsync<DocumentDbFoo3>("test", args, null, null)).ToList();
+
+			results.Count.ShouldBe(1);
+			results[0].Id.ShouldBe("5");
+		}
+
+		[Fact]
+		public async Task CanQueryWithSingleIntLessEqualThan()
+		{
+			await Seed();
+
+			QueryParameter[] args = {
+				new QueryParameter
+				{
+					ContextValue = new ContextValue { Value = 2,
+						Comparison = Comparisons.LessEqualThan },
+					MemberModel = new ModelMember(_type, _accessor,
+						_members.Single(x=>x.Name == "Level"), false)
+				}
+			};
+
+			var results = (await TableStorageRepository.QueryAsync<DocumentDbFoo3>("test", args, null, null)).ToList();
+
+			results.Count.ShouldBe(2);
+			results.Any(x => x.Id == "4").ShouldBe(true);
+			results.Any(x => x.Id == "2").ShouldBe(true);
+		}
+
+		[Fact]
+		public async Task CanQueryWithSingleIntLessThan()
+		{
+			await Seed();
+
+			QueryParameter[] args = {
+				new QueryParameter
+				{
+					ContextValue = new ContextValue { Value = 2,
+						Comparison = Comparisons.LessThan },
+					MemberModel = new ModelMember(_type, _accessor,
+						_members.Single(x=>x.Name == "Level"), false)
+				}
+			};
+
+			var results = (await TableStorageRepository.QueryAsync<DocumentDbFoo3>("test", args, null, null)).ToList();
+
+			results.Count.ShouldBe(0);
+		}
+
+		[Fact]
+		public async Task CanQueryWithSingleIntLessEqualThanWithStringEqual()
+		{
+			await Seed();
+
+			QueryParameter[] args = {
+				new QueryParameter
+				{
+					ContextValue = new ContextValue { Value = 2,
+						Comparison = Comparisons.LessEqualThan },
+					MemberModel = new ModelMember(_type, _accessor,
+						_members.Single(x=>x.Name == "Level"), false)
+				},
+				new QueryParameter
+				{
+					ContextValue = new ContextValue { Value = "Foo 4",
+						Comparison = Comparisons.Equal },
+					MemberModel = new ModelMember(_type, _accessor,
+						_members.Single(x=>x.Name == "Name"), false)
+				}
+			};
+
+			var results = (await TableStorageRepository.QueryAsync<DocumentDbFoo3>("test", args, null, null)).ToList();
+
+			results.Count.ShouldBe(1);
+			results[0].Id.ShouldBe("4");
 		}
 
 		public void Dispose()

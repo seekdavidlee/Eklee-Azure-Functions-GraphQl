@@ -273,6 +273,12 @@ namespace Eklee.Azure.Functions.GraphQl
 			return keys;
 		}
 
+		public static string GetMemberStringValue<T>(this T item, string memberName)
+		{
+			var f = TypeAccessor.Create(typeof(T));
+			return f[item, memberName] as string;
+		}
+
 		public static void AddFields<TSourceType>(this ModelConventionType<TSourceType> modelConventionType)
 		{
 			var modelConvention = new ModelConvention<TSourceType>();

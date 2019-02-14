@@ -8,6 +8,7 @@ using Eklee.Azure.Functions.GraphQl.Repository.DocumentDb;
 using Eklee.Azure.Functions.GraphQl.Repository.Http;
 using Eklee.Azure.Functions.GraphQl.Repository.InMemory;
 using Eklee.Azure.Functions.GraphQl.Repository.Search;
+using Eklee.Azure.Functions.GraphQl.Repository.TableStorage;
 using GraphQL;
 using GraphQL.Types;
 using Microsoft.Extensions.Logging;
@@ -102,6 +103,13 @@ namespace Eklee.Azure.Functions.GraphQl
 			_graphQlRepository = _graphQlRepositoryProvider.Use<TType, InMemoryRepository>();
 			_typeSource = typeof(TType);
 			return new InMemoryConfiguration<TSource>(this);
+		}
+
+		public TableStorageConfiguration<TSource> ConfigureTableStorage<TType>()
+		{
+			_graphQlRepository = _graphQlRepositoryProvider.Use<TType, TableStorageRepository>();
+			_typeSource = typeof(TType);
+			return new TableStorageConfiguration<TSource>(this, _graphQlRepository, _typeSource);
 		}
 
 		public HttpConfiguration<TSource> ConfigureHttp<TType>()

@@ -1,19 +1,20 @@
-﻿using Microsoft.WindowsAzure.Storage.Table;
+﻿using System;
+using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Eklee.Azure.Functions.GraphQl.Repository.TableStorage
 {
-	public class TableStorageComparisonBool : ITableStorageComparison
+	public class TableStorageComparisonGuid : ITableStorageComparison
 	{
 		private QueryParameter _queryParameter;
 
-		private bool? _value;
+		private Guid? _value;
 
 		public bool CanHandle(QueryParameter queryParameter)
 		{
 			_queryParameter = queryParameter;
 			_value = null;
 
-			if (queryParameter.ContextValue.Value is bool value)
+			if (queryParameter.ContextValue.Value is Guid value)
 			{
 				_value = value;
 				return true;
@@ -26,7 +27,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.TableStorage
 		{
 			if (_queryParameter.ContextValue.Comparison == Comparisons.Equal)
 				// ReSharper disable once PossibleInvalidOperationException
-				return TableQuery.GenerateFilterConditionForBool(_queryParameter.MemberModel.Member.Name, QueryComparisons.Equal, _value.Value);
+				return TableQuery.GenerateFilterCondition(_queryParameter.MemberModel.Member.Name, QueryComparisons.Equal, _value.Value.ToString());
 
 			return null;
 		}

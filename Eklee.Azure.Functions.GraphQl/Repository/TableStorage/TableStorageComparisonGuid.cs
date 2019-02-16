@@ -27,7 +27,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.TableStorage
 		{
 			if (_queryParameter.ContextValue.Comparison == Comparisons.Equal)
 				// ReSharper disable once PossibleInvalidOperationException
-				return TableQuery.GenerateFilterCondition(_queryParameter.MemberModel.Member.Name, QueryComparisons.Equal, _value.Value.ToString());
+				return TableQuery.GenerateFilterConditionForGuid(_queryParameter.MemberModel.Member.Name, QueryComparisons.Equal, _value.Value);
 
 			return null;
 		}

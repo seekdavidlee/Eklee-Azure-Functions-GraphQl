@@ -9,6 +9,7 @@ using FastMember;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
+using Xunit.Abstractions;
 
 namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.Search
 {
@@ -23,9 +24,11 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.Search
 		{
 			var searchConfig = LocalConfiguration.Get().GetSection("Search");
 			var logger = Substitute.For<ILogger>();
+
 			SearchRepository = new SearchRepository(logger);
 
 			SeedSearchBooks(searchConfig);
+
 			SeedBookReviewers(searchConfig);
 		}
 
@@ -153,6 +156,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.Search
 		protected async Task SeedAsync()
 		{
 			await SearchRepository.BatchAddAsync(SearchBooks, null);
+
 			await SearchRepository.BatchAddAsync(SearchReviewers, null);
 
 			// May need to give some time for indexing to catch up.

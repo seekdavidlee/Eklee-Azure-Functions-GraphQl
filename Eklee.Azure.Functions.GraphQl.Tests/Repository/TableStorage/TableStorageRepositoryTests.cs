@@ -7,6 +7,7 @@ using Xunit;
 
 namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 {
+	[Collection(Constants.TableStorageTests)]
 	[Trait(Constants.Category, Constants.IntegrationTests)]
 	public class TableStorageRepositoryTests : TableStorageRepositoryTestsBase
 	{

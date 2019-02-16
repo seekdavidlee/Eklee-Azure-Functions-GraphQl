@@ -7,6 +7,7 @@ using Xunit;
 
 namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 {
+	[Collection(Constants.DocumentDbTests)]
 	[Trait(Constants.Category, Constants.IntegrationTests)]
 	public class DocumentDbRepositoryTests : DocumentDbRepositoryTestsBase
 	{

@@ -20,7 +20,9 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 			{
 				new TableStorageComparisonBool(),
 				new TableStorageComparisonInt(),
-				new TableStorageComparisonString()
+				new TableStorageComparisonString(),
+				new TableStorageComparisonDate(),
+				new TableStorageComparisonGuid()
 			});
 		}
 		protected Dictionary<string, object> GetBaseConfigurations<TSource>(MemberExpression memberExpression)

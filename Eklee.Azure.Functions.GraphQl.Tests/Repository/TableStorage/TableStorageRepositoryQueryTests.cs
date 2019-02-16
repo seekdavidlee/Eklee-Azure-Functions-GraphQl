@@ -9,6 +9,7 @@ using Xunit;
 
 namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 {
+	[Collection(Constants.TableStorageTests)]
 	[Trait(Constants.Category, Constants.IntegrationTests)]
 	public class TableStorageRepositoryQueryTests : TableStorageRepositoryTestsBase, IDisposable
 	{
@@ -276,6 +277,92 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 
 			results.Count.ShouldBe(1);
 			results[0].Id.ShouldBe("4");
+		}
+
+		[Fact]
+		public async Task CanQueryWithSingleDateEquals()
+		{
+			await Seed();
+
+			QueryParameter[] args = {
+				new QueryParameter
+				{
+					ContextValue = new ContextValue { Value = new DateTime(2017, 1, 1).ToUtc(),
+						Comparison = Comparisons.Equal },
+					MemberModel = new ModelMember(_type, _accessor,
+						_members.Single(x=>x.Name == "Effective"), false)
+				}
+			};
+
+			var results = (await TableStorageRepository.QueryAsync<DocumentDbFoo3>("test", args, null, null)).ToList();
+
+			results.Count.ShouldBe(1);
+			results[0].Id.ShouldBe("1");
+		}
+
+		[Fact]
+		public async Task CanQueryWithSingleDateGreaterThan()
+		{
+			await Seed();
+
+			QueryParameter[] args = {
+				new QueryParameter
+				{
+					ContextValue = new ContextValue { Value = new DateTime(2017,1,1).ToUtc(),
+						Comparison = Comparisons.GreaterThan },
+					MemberModel = new ModelMember(_type, _accessor,
+						_members.Single(x=>x.Name == "Effective"), false)
+				}
+			};
+
+			var results = (await TableStorageRepository.QueryAsync<DocumentDbFoo3>("test", args, null, null)).ToList();
+
+			results.Count.ShouldBe(1);
+			results[0].Id.ShouldBe("2");
+		}
+
+		[Fact]
+		public async Task CanQueryWithSingleDateGreaterEqualThan()
+		{
+			await Seed();
+
+			QueryParameter[] args = {
+				new QueryParameter
+				{
+					ContextValue = new ContextValue { Value = new DateTime(2017,1,1).ToUtc(),
+						Comparison = Comparisons.GreaterEqualThan },
+					MemberModel = new ModelMember(_type, _accessor,
+						_members.Single(x=>x.Name == "Effective"), false)
+				}
+			};
+
+			var results = (await TableStorageRepository.QueryAsync<DocumentDbFoo3>("test", args, null, null)).ToList();
+
+			results.Count.ShouldBe(2);
+			results.Any(x => x.Id == "1").ShouldBe(true);
+			results.Any(x => x.Id == "2").ShouldBe(true);
+		}
+
+		[Fact]
+		public async Task CanQueryWithSingleGuidEquals()
+		{
+			await Seed();
+
+			QueryParameter[] args = {
+				new QueryParameter
+				{
+					ContextValue = new ContextValue { Value = Guid.Parse("9B522321-B689-43EC-A3DC-DC17EE2A42DD"),
+						Comparison = Comparisons.Equal },
+					MemberModel = new ModelMember(_type, _accessor,
+						_members.Single(x=>x.Name == "TypeId"), false)
+				}
+			};
+
+			var results = (await TableStorageRepository.QueryAsync<DocumentDbFoo3>("test", args, null, null)).ToList();
+
+			results.Count.ShouldBe(2);
+			results.Any(x => x.Id == "2").ShouldBe(true);
+			results.Any(x => x.Id == "5").ShouldBe(true);
 		}
 
 		public void Dispose()

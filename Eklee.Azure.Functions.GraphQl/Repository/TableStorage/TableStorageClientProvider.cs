@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 using System.Threading.Tasks;
 using Eklee.Azure.Functions.GraphQl.Repository.DocumentDb;
 using Microsoft.Extensions.Logging;
@@ -64,17 +63,32 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.TableStorage
 		{
 			var info = Get<T>(graphRequestContext);
 
-			TableBatchOperation batchOperation = new TableBatchOperation();
+			Dictionary<string, TableBatchOperation> batchOperations = new Dictionary<string, TableBatchOperation>();
 
-			items.ToList().ForEach(item => batchOperation.Insert(Convert(item, info.PartitionKeyMemberName)));
+			items.ToList().ForEach(item =>
+			{
+				var partitionKey = item.GetMemberStringValue(info.PartitionKeyMemberName);
+				if (!batchOperations.ContainsKey(partitionKey))
+				{
+					batchOperations.Add(partitionKey, new TableBatchOperation());
+				}
+				batchOperations[partitionKey].Insert(Convert(item, partitionKey));
+			});
 
-			await info.Table.ExecuteBatchAsync(batchOperation);
+			_logger.LogInformation($"Generated {batchOperations.Count} batch operations for {info.Id}.");
+
+			foreach (var batchOperationKey in batchOperations.Keys)
+			{
+				_logger.LogInformation($"Processing batch operations for partition: {batchOperationKey}.");
+
+				await info.Table.ExecuteBatchAsync(batchOperations[batchOperationKey]);
+			}
 		}
 
-		private DynamicTableEntity Convert<T>(T item, string partitionKeyMemberName)
+		private DynamicTableEntity Convert<T>(T item, string partitionKey)
 		{
 			DynamicTableEntity dynamicTableEntity =
-				new DynamicTableEntity(item.GetMemberStringValue(partitionKeyMemberName), item.GetKey())
+				new DynamicTableEntity(partitionKey, item.GetKey())
 				{
 					Properties = EntityPropertyConverter.Flatten(item, new OperationContext())
 				};

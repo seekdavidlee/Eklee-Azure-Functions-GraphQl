@@ -7,6 +7,7 @@ using GraphQL.Instrumentation;
 using GraphQL.Types;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace Eklee.Azure.Functions.GraphQl
 {
@@ -40,15 +41,22 @@ namespace Eklee.Azure.Functions.GraphQl
 
 			_graphRequestContext.HttpRequest = _requestContext;
 
-			var results = await _documentExecuter.ExecuteAsync(new ExecutionOptions
+			var options = new ExecutionOptions
 			{
 				OperationName = graphQlDomainRequest.OperationName,
 				Schema = _schema,
 				Query = graphQlDomainRequest.Query,
 				EnableMetrics = enableMetrics,
 				UserContext = _graphRequestContext,
-				ExposeExceptions = exposeExceptions
-			});
+				ExposeExceptions = exposeExceptions,
+			};
+
+			if (graphQlDomainRequest.Variables != null)
+			{
+				options.Inputs = JsonConvert.SerializeObject(graphQlDomainRequest.Variables).ToInputs();
+			}
+
+			var results = await _documentExecuter.ExecuteAsync(options);
 
 			if (results.Errors != null && results.Errors.Count > 0)
 			{

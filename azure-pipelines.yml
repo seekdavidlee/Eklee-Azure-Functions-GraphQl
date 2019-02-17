@@ -13,12 +13,11 @@ steps:
     scriptArguments: '-ResourceGroupName $(Global.ResourceGroupName) -Name $(Global.Name) -SourceRootDir $(Build.Repository.LocalPath)'
 
 - task: DotNetCoreCLI@2
-  displayName: 'Run unit tests'
+  displayName: 'Run unit and integration tests'
   inputs:
     command: 'test'
     configuration: '$(BuildConfiguration)'
     projects: 'Eklee.Azure.Functions.GraphQl.Tests\Eklee.Azure.Functions.GraphQl.Tests.csproj'
-    arguments: '--filter Category=Unit'
 
 - task: AzurePowerShell@3
   displayName: 'Reset Search'

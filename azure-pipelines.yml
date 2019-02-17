@@ -9,6 +9,7 @@ steps:
     azureSubscription: $(Global.ServiceConnectionName)
     scriptType: 'FilePath'
     scriptPath: 'ConfigureTestLocalSettings.ps1'
+    azurePowerShellVersion: 'latestVersion'
     scriptArguments: '-ResourceGroupName $(Global.ResourceGroupName) -Name $(Global.Name) -SourceRootDir $(Build.Repository.LocalPath)'
 
 - task: DotNetCoreCLI@2

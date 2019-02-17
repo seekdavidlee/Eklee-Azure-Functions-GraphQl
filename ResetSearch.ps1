@@ -1,9 +1,6 @@
 param(
 	[Parameter(Mandatory=$True)][string]$ResourceGroupName, 
-	[Parameter(Mandatory=$True)][string]$ServiceName,	
-	[Parameter(Mandatory=$True)][string]$SubscriptionId)
-
-.\Login.ps1 -SubscriptionId $SubscriptionId
+	[Parameter(Mandatory=$True)][string]$ServiceName)
 
 $resource = Get-AzureRmResource `
     -ResourceType "Microsoft.Search/searchServices" `
@@ -25,6 +22,8 @@ $url = "https://$ServiceName.search.windows.net/indexes?api-version=2017-11-11"
 $response = Invoke-WebRequest -Method GET -Uri $url -ContentType "application/json" -Headers $headers | ConvertFrom-Json
 
 $names = $response.value | select -Property name
+
+Write-Host "Removing searches..."
 
 $names | foreach {
 	$name = $_.name

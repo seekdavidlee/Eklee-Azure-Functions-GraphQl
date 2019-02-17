@@ -1,7 +1,6 @@
 param(
 	[Parameter(Mandatory=$True)][string]$ResourceGroupName, 
-	[Parameter(Mandatory=$True)][string]$AccountName,	
-	[Parameter(Mandatory=$True)][string]$SubscriptionId)
+	[Parameter(Mandatory=$True)][string]$AccountName)
 
 Add-Type -AssemblyName System.Web
  
@@ -34,8 +33,6 @@ $signature = [System.Convert]::ToBase64String($hashPayLoad);
 [System.Web.HttpUtility]::UrlEncode("type=$keyType&ver=$tokenVersion&sig=$signature")
 }
 
-.\Login.ps1 -SubscriptionId $SubscriptionId
-
 $resource = Get-AzureRmResource `
     -ResourceType "Microsoft.DocumentDb/databaseAccounts" `
     -ResourceGroupName $ResourceGroupName `
@@ -60,6 +57,8 @@ $url = "https://$AccountName.documents.azure.com/$ResourceLink"
 
 $response = Invoke-WebRequest -Method $Verb -Uri $url -ContentType $contentType -Headers $headers | ConvertFrom-Json
 $ids = $response.Databases | select -Property id
+
+Write-Host "Removing document databases..."
 
 $ids | foreach {
 	$id = $_.id

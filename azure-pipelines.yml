@@ -6,7 +6,7 @@ variables:
 
 steps:
 
-- task: AzureCLI@1
+- task: AzurePowerShell@4
   inputs:
     azureSubscription: $(Global.ServiceConnectionName)
     scriptLocation: 'inlineScript'

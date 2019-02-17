@@ -1,4 +1,7 @@
-param([switch]$testunit, [switch]$testint)
+param([switch]$testunit, [switch]$testint, 
+	[Parameter(Mandatory=$False)][string]$ResourceGroupName, 
+	[Parameter(Mandatory=$False)][string]$Name,	
+	[Parameter(Mandatory=$False)][string]$SubscriptionId)
 
 	$ErrorActionPreference = "Stop"
 
@@ -13,8 +16,8 @@ param([switch]$testunit, [switch]$testint)
 	if ($testunit) { 
 		return;
 	}
-	.\Login.ps1
-	.\ConfigureTestLocalSettings.ps1
+	.\Login.ps1 -SubscriptionId $SubscriptionId
+	.\ConfigureTestLocalSettings.ps1 -SourceRootDir (Get-Location).Path -ResourceGroupName $ResourceGroupName -Name $Name
 	dotnet test .\Eklee.Azure.Functions.GraphQl.Tests\Eklee.Azure.Functions.GraphQl.Tests.csproj --filter Category=Integration
 	
 	if ($lastexitcode -ne 0){
@@ -86,5 +89,5 @@ param([switch]$testunit, [switch]$testint)
 		Remove-Item $currentDir\*.nupkg
 		nuget.exe pack $app\$app.csproj -Properties Configuration=$buildConfig -IncludeReferencedProjects
 	}
-	.\Reset.ps1
+	.\Reset.ps1 -ResourceGroupName $ResourceGroupName -Name $Name -SubscriptionId $SubscriptionId
 	

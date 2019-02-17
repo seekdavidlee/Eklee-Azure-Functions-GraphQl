@@ -27,9 +27,10 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 		}
 		protected Dictionary<string, object> GetBaseConfigurations<TSource>(MemberExpression memberExpression)
 		{
+			var config = LocalConfiguration.Get().GetSection("TableStorage");
 			var configurations = new Dictionary<string, object>();
 
-			configurations.Add<TSource>(TableStorageConstants.ConnectionString, "UseDevelopmentStorage=true");
+			configurations.Add<TSource>(TableStorageConstants.ConnectionString, config["ConnectionString"]);
 			configurations.Add<TSource>(TableStorageConstants.PartitionMemberExpression, memberExpression);
 
 

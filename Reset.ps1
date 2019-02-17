@@ -6,3 +6,4 @@ param(
 .\Login.ps1 -SubscriptionId $SubscriptionId
 .\ResetSearch.ps1 -ResourceGroupName $ResourceGroupName -ServiceName $Name
 .\ResetDocumentDb.ps1 -ResourceGroupName $ResourceGroupName -AccountName $Name
+.\ResetTableStorage -ResourceGroupName $ResourceGroupName -AccountName $Name

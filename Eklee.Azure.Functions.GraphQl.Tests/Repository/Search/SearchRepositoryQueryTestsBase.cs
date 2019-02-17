@@ -9,7 +9,6 @@ using FastMember;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
-using Xunit.Abstractions;
 
 namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.Search
 {

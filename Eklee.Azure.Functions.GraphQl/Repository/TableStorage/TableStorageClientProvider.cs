@@ -146,8 +146,31 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.TableStorage
 		{
 			var info = Get<T>(graphRequestContext);
 
-			await info.Table.DeleteAsync();
-			await info.Table.CreateAsync();
+			while (true)
+			{
+				var entities = await info.Table.ExecuteQuerySegmentedAsync(new TableQuery(), null);
+
+				if (entities.Results.Count == 0) break;
+
+				Dictionary<string, TableBatchOperation> batchOperations = new Dictionary<string, TableBatchOperation>();
+
+				entities.Results.ToList().ForEach(item =>
+				{
+					var partitionKey = item.PartitionKey;
+					if (!batchOperations.ContainsKey(partitionKey))
+					{
+						batchOperations.Add(partitionKey, new TableBatchOperation());
+					}
+					batchOperations[partitionKey].Delete(item);
+				});
+
+				foreach (var batchOperationKey in batchOperations.Keys)
+				{
+					_logger.LogInformation($"Processing batch delete operations for partition: {batchOperationKey}.");
+
+					await info.Table.ExecuteBatchAsync(batchOperations[batchOperationKey]);
+				}
+			}
 		}
 
 		public async Task<IEnumerable<T>> QueryAsync<T>(IEnumerable<QueryParameter> queryParameters,

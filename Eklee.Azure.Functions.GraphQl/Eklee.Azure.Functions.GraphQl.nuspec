@@ -2,7 +2,7 @@
 <package >
 	<metadata>
 		<id>Eklee.Azure.Functions.GraphQl</id>
-		<version>0.7.0</version>
+		<version>0.7.1</version>
 		<title>Eklee.Azure.Functions.GraphQl</title>
 		<authors>Eng-Keong David Lee</authors>
 		<owners>Eng-Keong David Lee</owners>
@@ -17,6 +17,7 @@
 			<dependency id="FastMember" version="1.4.1" />
 			<dependency id="Microsoft.Azure.DocumentDB.Core" version="2.2.1" />
 			<dependency id="Microsoft.Azure.Search" version="5.0.3" />
+			<dependency id="WindowsAzure.Storage" version="9.3.3" />
 		</dependencies>
 	</metadata>
 </package>

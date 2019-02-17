@@ -13,7 +13,8 @@ param([switch]$testunit, [switch]$testint)
 	if ($testunit) { 
 		return;
 	}
-	
+	.\Login.ps1
+	.\ConfigureTestLocalSettings.ps1
 	dotnet test .\Eklee.Azure.Functions.GraphQl.Tests\Eklee.Azure.Functions.GraphQl.Tests.csproj --filter Category=Integration
 	
 	if ($lastexitcode -ne 0){
@@ -85,4 +86,5 @@ param([switch]$testunit, [switch]$testint)
 		Remove-Item $currentDir\*.nupkg
 		nuget.exe pack $app\$app.csproj -Properties Configuration=$buildConfig -IncludeReferencedProjects
 	}
+	.\Reset.ps1
 	

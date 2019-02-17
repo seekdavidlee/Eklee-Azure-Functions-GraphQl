@@ -17,6 +17,27 @@ $primaryMasterKey = (Invoke-AzureRmResourceAction `
 	-ApiVersion 2015-04-08 `
 	-Force).primaryMasterKey
 
-$settings = @{ Search = @{ ServiceName=""; ApiKey="" }; DocumentDb = @{ Key="$primaryMasterKey";Url="$documentDbUrl";RequestUnits="400" }; TableStorage=@{ConnectionString=""} } | ConvertTo-Json -Depth 10
-Write-Host $settings
+$resource = Get-AzureRmResource `
+    -ResourceType "Microsoft.Search/searchServices" `
+    -ResourceGroupName $ResourceGroupName `
+    -ResourceName $Name `
+    -ApiVersion 2015-08-19
+
+# Get the primary admin API key for search
+$primaryKey = (Invoke-AzureRmResourceAction `
+    -Action listAdminKeys `
+    -ResourceId $resource.ResourceId `
+    -ApiVersion 2015-08-19 `
+	-Force).PrimaryKey
+
+$storageAccount = Get-AzureRmStorageAccount `
+    -ResourceGroupName $ResourceGroupName `
+	-Name $Name
+
+$ctx = $storageAccount.Context
+
+$accountKey = (Get-AzureRmStorageAccountKey -ResourceGroupName $ResourceGroupName -Name $Name).Value[0] 
+$connectionString = "DefaultEndpointsProtocol=https;AccountName=$Name;AccountKey=$accountKey;EndpointSuffix=core.windows.net"
+
+$settings = @{ Search = @{ ServiceName="$Name"; ApiKey="$primaryKey" }; DocumentDb = @{ Key="$primaryMasterKey";Url="$documentDbUrl";RequestUnits="400" }; TableStorage=@{ConnectionString="$connectionString"} } | ConvertTo-Json -Depth 10
 $settings | Out-File $SourceRootDir\Eklee.Azure.Functions.GraphQl.Tests\local.settings.json -Encoding ASCII

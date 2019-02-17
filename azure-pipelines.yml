@@ -3,14 +3,6 @@ pool:
 
 steps:
 
-- task: AzurePowerShell@4
-  displayName: 'Prepare local settings'
-  inputs:
-    azureSubscription: $(Global.ServiceConnectionName)
-    scriptType: 'FilePath'
-    scriptPath: 'ConfigureTestLocalSettings.ps1'
-    scriptArguments: '-ResourceGroupName $(Global.ResourceGroupName) -Name $(Global.Name) -SourceRootDir $(Build.Repository.LocalPath)'
-
 - task: DotNetCoreCLI@2
   displayName: 'Run unit tests'
   inputs:

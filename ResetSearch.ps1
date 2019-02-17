@@ -11,8 +11,6 @@ $resource = Get-AzureRmResource `
     -ResourceName $ServiceName `
     -ApiVersion 2015-08-19
 
-$resource
-
 # Get the primary admin API key
 $primaryKey = (Invoke-AzureRmResourceAction `
     -Action listAdminKeys `
@@ -24,7 +22,7 @@ $headers = @{ "api-key" = $primaryKey}
 
 $url = "https://$ServiceName.search.windows.net/indexes?api-version=2017-11-11"
 
-$response = Invoke-WebRequest  -Method GET -Uri $url -ContentType "application/json" -Headers $headers | ConvertFrom-Json
+$response = Invoke-WebRequest -Method GET -Uri $url -ContentType "application/json" -Headers $headers | ConvertFrom-Json
 
 $names = $response.value | select -Property name
 

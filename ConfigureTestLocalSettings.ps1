@@ -17,6 +17,6 @@ $primaryMasterKey = (Invoke-AzureRmResourceAction `
 	-ApiVersion 2015-04-08 `
 	-Force).primaryMasterKey
 
-$settings = @{ Search = @{ ServiceName=""; ApiKey="" }; DocumentDb = @{ Key="$primaryMasterKey";Url="$documentDbUrl";RequestUnits="400" }; TableStorage=@{ConnectionString=""} }
+$settings = @{ Search = @{ ServiceName=""; ApiKey="" }; DocumentDb = @{ Key="$primaryMasterKey";Url="$documentDbUrl";RequestUnits="400" }; TableStorage=@{ConnectionString=""} } | ConvertTo-Json -Depth 10
 Write-Host $settings
-$settings | Out-File $SourceRootDir\Eklee.Azure.Functions.GraphQl.Tests\local.settings.json
+$settings | Out-File $SourceRootDir\Eklee.Azure.Functions.GraphQl.Tests\local.settings.json -Encoding ASCII

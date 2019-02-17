@@ -344,6 +344,28 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 		}
 
 		[Fact]
+		public async Task CanQueryWithSingleDateLessEqualThan()
+		{
+			await Seed();
+
+			QueryParameter[] args = {
+				new QueryParameter
+				{
+					ContextValue = new ContextValue { Value = new DateTime(2016,1,1).ToUtc(),
+						Comparison = Comparisons.LessThan },
+					MemberModel = new ModelMember(_type, _accessor,
+						_members.Single(x=>x.Name == "Effective"), false)
+				}
+			};
+
+			var results = (await TableStorageRepository.QueryAsync<DocumentDbFoo3>("test", args, null, null)).ToList();
+
+			results.Count.ShouldBe(2);
+			results.Any(x => x.Id == "4").ShouldBe(true);
+			results.Any(x => x.Id == "5").ShouldBe(true);
+		}
+
+		[Fact]
 		public async Task CanQueryWithSingleGuidEquals()
 		{
 			await Seed();

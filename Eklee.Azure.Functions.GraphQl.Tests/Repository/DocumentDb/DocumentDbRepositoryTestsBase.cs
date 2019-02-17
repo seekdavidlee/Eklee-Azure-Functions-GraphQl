@@ -8,7 +8,7 @@ using FastMember;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 
-namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
+namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 {
 	public abstract class DocumentDbRepositoryTestsBase
 	{

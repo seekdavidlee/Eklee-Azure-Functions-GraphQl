@@ -19,3 +19,21 @@ steps:
     configuration: '$(BuildConfiguration)'
     projects: 'Eklee.Azure.Functions.GraphQl.Tests\Eklee.Azure.Functions.GraphQl.Tests.csproj'
     arguments: '--filter Category=Unit'
+
+- task: AzurePowerShell@3
+  displayName: 'Reset Search'
+  inputs:
+    azureSubscription: $(Global.ServiceConnectionName)
+    scriptType: 'FilePath'
+    scriptPath: 'ResetSearch.ps1'
+    azurePowerShellVersion: 'latestVersion'
+    scriptArguments: '-ResourceGroupName $(Global.ResourceGroupName) -ServiceName $(Global.Name)'
+
+- task: AzurePowerShell@3
+  displayName: 'Reset DoucmentDb'
+  inputs:
+    azureSubscription: $(Global.ServiceConnectionName)
+    scriptType: 'FilePath'
+    scriptPath: 'ResetDocumentDb.ps1'
+    azurePowerShellVersion: 'latestVersion'
+    scriptArguments: '-ResourceGroupName $(Global.ResourceGroupName) -AccountName $(Global.Name)'

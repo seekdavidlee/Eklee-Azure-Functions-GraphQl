@@ -12,6 +12,7 @@ using Eklee.Azure.Functions.GraphQl.Repository.DocumentDb;
 using Eklee.Azure.Functions.GraphQl.Repository.Http;
 using Eklee.Azure.Functions.GraphQl.Repository.InMemory;
 using Eklee.Azure.Functions.GraphQl.Repository.Search;
+using Eklee.Azure.Functions.GraphQl.Repository.TableStorage;
 using Eklee.Azure.Functions.Http;
 using FastMember;
 using GraphQL;
@@ -44,6 +45,12 @@ namespace Eklee.Azure.Functions.GraphQl
 			builder.RegisterType<DocumentDbComparisonBool>().As<IDocumentDbComparison>().SingleInstance();
 			builder.RegisterType<DocumentDbComparisonGuid>().As<IDocumentDbComparison>().SingleInstance();
 
+			builder.RegisterType<TableStorageComparisonInt>().As<ITableStorageComparison>().SingleInstance();
+			builder.RegisterType<TableStorageComparisonString>().As<ITableStorageComparison>().SingleInstance();
+			builder.RegisterType<TableStorageComparisonDate>().As<ITableStorageComparison>().SingleInstance();
+			builder.RegisterType<TableStorageComparisonBool>().As<ITableStorageComparison>().SingleInstance();
+			builder.RegisterType<TableStorageComparisonGuid>().As<ITableStorageComparison>().SingleInstance();
+
 			builder.RegisterType<GraphDependencyResolver>().As<IDependencyResolver>();
 
 			builder.RegisterType<QueryBuilderFactory>();
@@ -59,6 +66,7 @@ namespace Eklee.Azure.Functions.GraphQl
 			builder.RegisterType<DocumentDbRepository>().As<IGraphQlRepository>().SingleInstance();
 			builder.RegisterType<SearchRepository>().As<IGraphQlRepository>().SingleInstance();
 			builder.RegisterType<SearchMappedModels>().As<ISearchMappedModels>().SingleInstance();
+			builder.RegisterType<TableStorageRepository>().As<IGraphQlRepository>().SingleInstance();
 
 			builder.RegisterType<GraphQlRepositoryProvider>().As<IGraphQlRepositoryProvider>().SingleInstance();
 			builder.RegisterType<GraphRequestContext>().As<IGraphRequestContext>().InstancePerLifetimeScope();
@@ -271,6 +279,12 @@ namespace Eklee.Azure.Functions.GraphQl
 			if (string.IsNullOrEmpty(keys)) throw new InvalidOperationException("Missing Key Attribute");
 
 			return keys;
+		}
+
+		public static string GetMemberStringValue<T>(this T item, string memberName)
+		{
+			var f = TypeAccessor.Create(typeof(T));
+			return f[item, memberName] as string;
 		}
 
 		public static void AddFields<TSourceType>(this ModelConventionType<TSourceType> modelConventionType)

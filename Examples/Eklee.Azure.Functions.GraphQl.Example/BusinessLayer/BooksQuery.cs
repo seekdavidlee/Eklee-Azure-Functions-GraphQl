@@ -1,4 +1,5 @@
-﻿using GraphQL.Types;
+﻿using Eklee.Azure.Functions.GraphQl.Example.Models;
+using GraphQL.Types;
 using Microsoft.Extensions.Logging;
 
 namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
@@ -18,6 +19,12 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 			this.AddPublisherQueries(queryBuilderFactory);
 
 			this.AddBookReviewQueries(queryBuilderFactory);
+
+			queryBuilderFactory.Create<Author>(this, "getAuthorByHomeCity")
+				.WithParameterBuilder()
+				.WithProperty(x => x.HomeCity)
+				.BuildQuery()
+				.BuildWithListResult();
 		}
 	}
 }

@@ -5,8 +5,9 @@ using System.Threading.Tasks;
 using Shouldly;
 using Xunit;
 
-namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
+namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 {
+	[Collection(Constants.DocumentDbTests)]
 	[Trait(Constants.Category, Constants.IntegrationTests)]
 	public class DocumentDbRepositoryTests : DocumentDbRepositoryTestsBase
 	{

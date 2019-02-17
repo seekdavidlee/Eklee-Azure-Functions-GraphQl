@@ -7,8 +7,9 @@ using FastMember;
 using Shouldly;
 using Xunit;
 
-namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
+namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 {
+	[Collection(Constants.DocumentDbTests)]
 	[Trait(Constants.Category, Constants.IntegrationTests)]
 	public class DocumentDbRepositoryQueryTests : DocumentDbRepositoryTestsBase, IDisposable
 	{
@@ -38,7 +39,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 					Description = "Ha ha ha",
 					Level = 4,
 					Effective = new DateTime(2017, 1, 1).ToUtc(),
-					TypeId = Guid.Parse("AF359AD6-9B8E-43F7-B898-35CEB400051A")
+					TypeId = Guid.Parse("AF359AD6-9B8E-43F7-B898-35CEB400051A"),
+					IsActive = true
 				},
 				new DocumentDbFoo3
 				{
@@ -80,7 +82,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 					Level = 6,
 					Effective = new DateTime(2014, 1, 1).ToUtc(),
 					Expires = new DateTime(2015, 12, 31).ToUtc(),
-					TypeId = Guid.Parse("9B522321-B689-43EC-A3DC-DC17EE2A42DD")
+					TypeId = Guid.Parse("9B522321-B689-43EC-A3DC-DC17EE2A42DD"),
+					IsActive = true
 				}
 			};
 
@@ -199,7 +202,6 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 			item4.Category.ShouldBe("cat 1");
 			item4.Level.ShouldBe(2);
 		}
-
 
 		[Fact]
 		public async Task CanQueryByGuid()
@@ -369,6 +371,61 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 
 			var item2 = results.Single(x => x.Id == "5");
 			item2.Name.ShouldBe("Bar 5");
+		}
+
+		[Fact]
+		public async Task CanQueryByBoolWithEqualFalse()
+		{
+			await Seed();
+
+
+			QueryParameter[] args = {
+				new QueryParameter
+				{
+					ContextValue = new ContextValue
+					{
+						Value = false,
+						Comparison = Comparisons.Equal
+					},
+					MemberModel = new ModelMember(_type, _accessor,
+						_members.Single(x=> x.Name == "IsActive"), false)
+				}
+			};
+
+			var results = (await DocumentDbRepository.QueryAsync<DocumentDbFoo3>("test", args, null, null)).ToList();
+
+			results.Count.ShouldBe(3);
+
+			results.Any(x => x.Id == "2").ShouldBe(true);
+			results.Any(x => x.Id == "3").ShouldBe(true);
+			results.Any(x => x.Id == "4").ShouldBe(true);
+		}
+
+		[Fact]
+		public async Task CanQueryByBoolWithEqualTrue()
+		{
+			await Seed();
+
+
+			QueryParameter[] args = {
+				new QueryParameter
+				{
+					ContextValue = new ContextValue
+					{
+						Value = true,
+						Comparison = Comparisons.Equal
+					},
+					MemberModel = new ModelMember(_type, _accessor,
+						_members.Single(x=> x.Name == "IsActive"), false)
+				}
+			};
+
+			var results = (await DocumentDbRepository.QueryAsync<DocumentDbFoo3>("test", args, null, null)).ToList();
+
+			results.Count.ShouldBe(2);
+
+			results.Any(x => x.Id == "1").ShouldBe(true);
+			results.Any(x => x.Id == "5").ShouldBe(true);
 		}
 
 		[Fact]

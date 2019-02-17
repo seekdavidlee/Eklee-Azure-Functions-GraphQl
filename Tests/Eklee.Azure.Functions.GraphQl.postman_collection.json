@@ -406,7 +406,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  batchCreateAuthor(author: [{id: \\\"1\\\", name: \\\"James Wood\\\"}, {id: \\\"2\\\", name: \\\"Andy Liu\\\"}, {id: \\\"3\\\", name: \\\"Derick North\\\"}, {id: \\\"4\\\", name: \\\"Mary Jane\\\"}, {id: \\\"5\\\", name: \\\"Sir Richard Ice\\\"}, {id: \\\"6\\\", name: \\\"Ken Poh\\\"}, {id: \\\"7\\\", name: \\\"Zac Mer\\\"}, {id: \\\"8\\\", name: \\\"Kathy Zhang\\\"}, {id: \\\"9\\\", name: \\\"Joe Cook\\\"}, {id: \\\"10\\\", name: \\\"Michael Han\\\"}, {id: \\\"11\\\", name: \\\"Fu Wen\\\"}, {id: \\\"12\\\", name: \\\"Li Wei\\\"}]) {\\n    id\\n    name\\n  }\\n}\\n\"}"
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"mutation {\\n  batchCreateAuthor(author: [{id: \\\"1\\\", name: \\\"James Wood\\\", homeCity: \\\"Dallas\\\"}, {id: \\\"2\\\", name: \\\"Andy Liu\\\", homeCity: \\\"Dallas\\\"}, {id: \\\"3\\\", name: \\\"Derick North\\\", homeCity: \\\"Dallas\\\"}, {id: \\\"4\\\", name: \\\"Mary Jane\\\", homeCity: \\\"Dallas\\\"}, {id: \\\"5\\\", name: \\\"Sir Richard Ice\\\", homeCity: \\\"Dallas\\\"}, {id: \\\"6\\\", name: \\\"Ken Poh\\\", homeCity: \\\"Plano\\\"}, {id: \\\"7\\\", name: \\\"Zac Mer\\\", homeCity: \\\"Plano\\\"}, {id: \\\"8\\\", name: \\\"Kathy Zhang\\\", homeCity: \\\"Plano\\\"}, {id: \\\"9\\\", name: \\\"Joe Cook\\\", homeCity: \\\"Richardson\\\"}, {id: \\\"10\\\", name: \\\"Michael Han\\\", homeCity: \\\"Richardson\\\"}, {id: \\\"11\\\", name: \\\"Fu Wen\\\", homeCity: \\\"Fort Worth\\\"}, {id: \\\"12\\\", name: \\\"Li Wei\\\", homeCity: \\\"Austin\\\"}]) {\\n    id\\n    name\\n  }\\n}\\n\"}"
 						},
 						"url": {
 							"raw": "{{endpoint}}/api/books/graph",
@@ -709,6 +709,11 @@
 									"    pm.response.to.have.status(200);",
 									"});",
 									"",
+									"pm.test(\"No errors are returned\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.eql(undefined);",
+									"});",
+									"",
 									"pm.test(\"Query returns with match\", function () {",
 									"    var jsonData = pm.response.json();",
 									"    pm.expect(jsonData.data.getBook.id).to.eql(\"1\");",
@@ -824,6 +829,11 @@
 									"    pm.response.to.have.status(200);",
 									"});",
 									"",
+									"pm.test(\"No errors are returned\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.eql(undefined);",
+									"});",
+									"",
 									""
 								],
 								"type": "text/javascript"
@@ -847,7 +857,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"{\\n  getBookAuthorsByCategory(category: { equal: \\\"Technology\\\" } ) {\\n    id\\n    name\\n    category\\n  }\\n}\\n\"}"
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"{\\n  getBookAuthorsByCategory(category: {equal: \\\"Technolog\\\"}) {\\n    items {\\n      id\\n      book {\\n        name\\n        category\\n      }\\n    }\\n  }\\n}\\n\"}"
 						},
 						"url": {
 							"raw": "{{endpoint}}/api/books/graph",
@@ -935,6 +945,11 @@
 									"    pm.response.to.have.status(200);",
 									"});",
 									"",
+									"pm.test(\"No errors are returned\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.eql(undefined);",
+									"});",
+									"",
 									"pm.test(\"Query returns with match\", function () {",
 									"    var jsonData = pm.response.json();",
 									"    pm.expect(jsonData.data.getPublisherById.id).to.eql(\"4\");",
@@ -988,6 +1003,11 @@
 								"exec": [
 									"pm.test(\"Status code is 200\", function () {",
 									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"No errors are returned\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.eql(undefined);",
 									"});",
 									"",
 									"pm.test(\"Query returns with match\", function () {",

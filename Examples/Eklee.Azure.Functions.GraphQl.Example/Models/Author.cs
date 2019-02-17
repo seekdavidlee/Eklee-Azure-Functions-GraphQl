@@ -11,5 +11,8 @@ namespace Eklee.Azure.Functions.GraphQl.Example.Models
 
 		[Description("Name of the author.")]
 		public string Name { get; set; }
+
+		[Description("Home city of the author.")]
+		public string HomeCity { get; set; }
 	}
 }

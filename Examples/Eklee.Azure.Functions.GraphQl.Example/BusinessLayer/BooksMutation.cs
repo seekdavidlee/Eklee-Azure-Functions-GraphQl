@@ -82,12 +82,21 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 					.AddPrefix("stg")
 					.BuildSearch()
 					.Build();
+
+				string tenantTableStorageConnectionString = tenant["TableStorage:ConnectionString"];
+
+				inputBuilderFactory.Create<Author>(this)
+					.AssertWithClaimsPrincipal(DefaultAssertion)
+					.ConfigureTableStorage<Author>()
+					.AddConnectionString(tenantTableStorageConnectionString)
+					.AddGraphRequestContextSelector(ctx => ctx.ContainsIssuer(issuer))
+					.AddPartition(x => x.HomeCity)
+					.BuildTableStorage()
+					.DeleteAll(() => new Status { Message = "All authors have been removed." })
+					.Build();
 			});
 
-			inputBuilderFactory.Create<Author>(this)
-				.ConfigureInMemory<Author>().BuildInMemory()
-				.DeleteAll(() => new Status { Message = "All authors have been removed." })
-				.Build();
+
 
 			inputBuilderFactory.Create<BookAuthors>(this)
 				.ConfigureInMemory<BookAuthors>().BuildInMemory()

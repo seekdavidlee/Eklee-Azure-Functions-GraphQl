@@ -51,6 +51,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests
 		public string Category { get; set; }
 
 		public Guid TypeId { get; set; }
+		
+		public bool IsActive { get; set; }
 	}
 
 	public class DocumentDbFoo4

@@ -8,7 +8,7 @@ using FastMember;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 
-namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
+namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 {
 	public abstract class DocumentDbRepositoryTestsBase
 	{
@@ -31,12 +31,14 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 
 		protected Dictionary<string, object> GetBaseConfigurations<TSource>(MemberExpression memberExpression)
 		{
+			var config = LocalConfiguration.Get().GetSection("DocumentDb");
+
 			var configurations = new Dictionary<string, object>();
 
 			configurations.Add<TSource>(DocumentDbConstants.Database, DatabaseId);
-			configurations.Add<TSource>(DocumentDbConstants.Url, "https://localhost:8081");
-			configurations.Add<TSource>(DocumentDbConstants.Key, "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==");
-			configurations.Add<TSource>(DocumentDbConstants.RequestUnit, "400");
+			configurations.Add<TSource>(DocumentDbConstants.Url, config["Url"]);
+			configurations.Add<TSource>(DocumentDbConstants.Key, config["Key"]);
+			configurations.Add<TSource>(DocumentDbConstants.RequestUnit, config["RequestUnits"]);
 
 			configurations.Add<TSource>(DocumentDbConstants.PartitionMemberExpression, memberExpression);
 

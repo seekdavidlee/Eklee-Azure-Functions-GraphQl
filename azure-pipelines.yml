@@ -1,10 +1,16 @@
 pool:
   vmImage: 'vs2017-win2016'
-  
-variables:
-  buildConfiguration: 'Release'
 
 steps:
+
+- task: AzurePowerShell@3
+  displayName: 'Prepare local settings'
+  inputs:
+    azureSubscription: $(Global.ServiceConnectionName)
+    scriptType: 'FilePath'
+    scriptPath: 'ConfigureTestLocalSettings.ps1'
+    azurePowerShellVersion: 'latestVersion'
+    scriptArguments: '-ResourceGroupName $(Global.ResourceGroupName) -Name $(Global.Name) -SourceRootDir $(Build.Repository.LocalPath)'
 
 - task: DotNetCoreCLI@2
   displayName: 'Run unit tests'
@@ -13,3 +19,21 @@ steps:
     configuration: '$(BuildConfiguration)'
     projects: 'Eklee.Azure.Functions.GraphQl.Tests\Eklee.Azure.Functions.GraphQl.Tests.csproj'
     arguments: '--filter Category=Unit'
+
+- task: AzurePowerShell@3
+  displayName: 'Reset Search'
+  inputs:
+    azureSubscription: $(Global.ServiceConnectionName)
+    scriptType: 'FilePath'
+    scriptPath: 'ResetSearch.ps1'
+    azurePowerShellVersion: 'latestVersion'
+    scriptArguments: '-ResourceGroupName $(Global.ResourceGroupName) -ServiceName $(Global.Name)'
+
+- task: AzurePowerShell@3
+  displayName: 'Reset DoucmentDb'
+  inputs:
+    azureSubscription: $(Global.ServiceConnectionName)
+    scriptType: 'FilePath'
+    scriptPath: 'ResetDocumentDb.ps1'
+    azurePowerShellVersion: 'latestVersion'
+    scriptArguments: '-ResourceGroupName $(Global.ResourceGroupName) -AccountName $(Global.Name)'

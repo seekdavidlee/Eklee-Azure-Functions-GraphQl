@@ -857,7 +857,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"{\\n  getBookAuthorsByCategory(category: { equal: \\\"Technology\\\" } ) items { {\\n    id\\n    name\\n    category\\n  } } \\n}\\n\"}"
+							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"{\\n  getBookAuthorsByCategory(category: {equal: \\\"Technolog\\\"}) {\\n    items {\\n      id\\n      book {\\n        name\\n        category\\n      }\\n    }\\n  }\\n}\\n\"}"
 						},
 						"url": {
 							"raw": "{{endpoint}}/api/books/graph",

@@ -198,6 +198,8 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.TableStorage
 				}
 			});
 
+			_logger.LogInformation($"Generated filter string in TableStorage provider: {previousFilter}");
+
 			return new TableQuery { FilterString = previousFilter };
 		}
 

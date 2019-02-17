@@ -7,7 +7,7 @@ $documentDbUrl = "https://$Name.documents.azure.com/"
 
 $resource = Get-AzureRmResource `
 	-ResourceType "Microsoft.DocumentDb/databaseAccounts" `
-	-ResourceGroupName $ResourceGroupName`
+	-ResourceGroupName $ResourceGroupName `
 	-ResourceName $Name `
 	-ApiVersion 2015-04-08
 

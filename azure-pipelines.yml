@@ -9,8 +9,8 @@ steps:
 - task: AzurePowerShell@4
   inputs:
     azureSubscription: $(Global.ServiceConnectionName)
-    scriptLocation: 'inlineScript'
-    inlineScript: |
+    scriptType: 'inlineScript'
+    inline: |
       $name=$env:Global_Name
       $documentDbUrl = "https://$name.documents.azure.com/
       $resource = Get-AzureRmResource `

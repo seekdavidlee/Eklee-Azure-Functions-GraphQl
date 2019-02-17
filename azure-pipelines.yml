@@ -9,23 +9,9 @@ steps:
 - task: AzurePowerShell@4
   inputs:
     azureSubscription: $(Global.ServiceConnectionName)
-    scriptType: 'inlineScript'
-    inline: |
-      $name=$env:Global_Name
-      $documentDbUrl = "https://$name.documents.azure.com/
-      $resource = Get-AzureRmResource `
-      -ResourceType "Microsoft.DocumentDb/databaseAccounts" `
-      -ResourceGroupName $env:Global_ResourceGroupName `
-      -ResourceName $name `
-      -ApiVersion 2015-04-08
-      $primaryMasterKey = (Invoke-AzureRmResourceAction `
-      -Action listKeys `
-      -ResourceId $resource.ResourceId `
-      -ApiVersion 2015-04-08 `
-      -Force).primaryMasterKey
-      $settings = @{ Search = @{ ServiceName=""; ApiKey="" }; DocumentDb = @{ Key="$primaryMasterKey";Url="$documentDbUrl";RequestUnits="400" }; TableStorage=@{ConnectionString=""} }
-      Write-Host $settings
-      $settings | Out-File $env:Build_Repository_LocalPath\Eklee.Azure.Functions.GraphQl.Tests\local.settings.json
+    scriptType: 'FilePath'
+    scriptPath: 'ConfigureTestLocalSettings.ps1'
+    scriptArguments: '-ResourceGroupName $(Global.ResourceGroupName) -Name $(Global.Name) -SourceRootDir $(Build.Repository.LocalPath)'
 
 - task: DotNetCoreCLI@2
   displayName: 'Run unit tests'

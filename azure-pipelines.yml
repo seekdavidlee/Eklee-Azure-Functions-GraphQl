@@ -1,12 +1,10 @@
 pool:
   vmImage: 'vs2017-win2016'
-  
-variables:
-  buildConfiguration: 'Release'
 
 steps:
 
 - task: AzurePowerShell@4
+  displayName: 'Prepare local settings'
   inputs:
     azureSubscription: $(Global.ServiceConnectionName)
     scriptType: 'FilePath'

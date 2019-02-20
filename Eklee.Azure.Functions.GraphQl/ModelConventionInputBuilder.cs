@@ -164,8 +164,7 @@ namespace Eklee.Azure.Functions.GraphQl
 						{
 							await _graphQlRepositoryProvider.GetRepository<TSource>().DeleteAsync(item, context.UserContext as IGraphRequestContext);
 
-							Type mappedSearchType;
-							if (_searchMappedModels.TryGetMappedSearchType<TSource>(out mappedSearchType))
+							if (_searchMappedModels.TryGetMappedSearchType<TSource>(out var mappedSearchType))
 							{
 								var mappedInstance = _searchMappedModels.CreateInstanceFromMap(item);
 								await _graphQlRepositoryProvider.GetRepository(mappedSearchType)
@@ -203,8 +202,7 @@ namespace Eklee.Azure.Functions.GraphQl
 						{
 							await _graphQlRepositoryProvider.GetRepository<TSource>().DeleteAllAsync<TSource>(context.UserContext as IGraphRequestContext);
 
-							Type mappedSearchType;
-							if (_searchMappedModels.TryGetMappedSearchType<TSource>(out mappedSearchType))
+							if (_searchMappedModels.TryGetMappedSearchType<TSource>(out var mappedSearchType))
 							{
 								await _graphQlRepositoryProvider.GetRepository(mappedSearchType).DeleteAllAsync(mappedSearchType, context.UserContext as IGraphRequestContext);
 							}
@@ -237,8 +235,7 @@ namespace Eklee.Azure.Functions.GraphQl
 					{
 						await _graphQlRepositoryProvider.GetRepository<TSource>().BatchAddAsync(items, context.UserContext as IGraphRequestContext);
 
-						Type mappedSearchType;
-						if (_searchMappedModels.TryGetMappedSearchType<TSource>(out mappedSearchType))
+						if (_searchMappedModels.TryGetMappedSearchType<TSource>(out var mappedSearchType))
 						{
 							var mappedInstances = items.Select(item => Convert.ChangeType(_searchMappedModels.CreateInstanceFromMap(item), mappedSearchType)).ToList();
 
@@ -274,8 +271,7 @@ namespace Eklee.Azure.Functions.GraphQl
 					{
 						await _graphQlRepositoryProvider.GetRepository<TSource>().AddAsync(item, context.UserContext as IGraphRequestContext);
 
-						Type mappedSearchType;
-						if (_searchMappedModels.TryGetMappedSearchType<TSource>(out mappedSearchType))
+						if (_searchMappedModels.TryGetMappedSearchType<TSource>(out var mappedSearchType))
 						{
 							var mappedInstance = _searchMappedModels.CreateInstanceFromMap(item);
 							await _graphQlRepositoryProvider.GetRepository(mappedSearchType)
@@ -308,8 +304,7 @@ namespace Eklee.Azure.Functions.GraphQl
 					{
 						await _graphQlRepositoryProvider.GetRepository<TSource>().UpdateAsync(item, context.UserContext as IGraphRequestContext);
 
-						Type mappedSearchType;
-						if (_searchMappedModels.TryGetMappedSearchType<TSource>(out mappedSearchType))
+						if (_searchMappedModels.TryGetMappedSearchType<TSource>(out var mappedSearchType))
 						{
 							var mappedInstance = _searchMappedModels.CreateInstanceFromMap(item);
 							await _graphQlRepositoryProvider.GetRepository(mappedSearchType)

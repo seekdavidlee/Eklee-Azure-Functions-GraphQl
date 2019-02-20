@@ -47,7 +47,9 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.Search
 				Name = "I Love this Book 1",
 				Category = "Tech",
 				ListPrice = 54.99M,
-				Published = new DateTime(2011, 1, 4)
+				Published = new DateTime(2011, 1, 4),
+				SomeIntId = 1234,
+				SomeLongId = 21474836481
 			});
 
 			SearchBooks.Add(new SearchBook
@@ -57,7 +59,9 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.Search
 				Name = "American Cool Techs",
 				Category = "Tech",
 				ListPrice = 91.16M,
-				Published = new DateTime(2000, 8, 1)
+				Published = new DateTime(2000, 8, 1),
+				SomeIntId = 3234,
+				SomeLongId = 21474836482
 			});
 
 			SearchBooks.Add(new SearchBook
@@ -67,7 +71,9 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.Search
 				Name = "Ro Bot Book",
 				Category = "Tech",
 				ListPrice = 54.99M,
-				Published = new DateTime(2011, 1, 4)
+				Published = new DateTime(2011, 1, 4),
+				SomeIntId = 5534,
+				SomeLongId = 21474836483
 			});
 
 			SearchBooks.Add(new SearchBook
@@ -77,7 +83,9 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.Search
 				Name = "Hello World",
 				Category = "Fiction",
 				ListPrice = 54.99M,
-				Published = new DateTime(2011, 1, 4)
+				Published = new DateTime(2011, 1, 4),
+				SomeIntId = 1994,
+				SomeLongId = 21474836484
 			});
 
 			SearchBooks.Add(new SearchBook
@@ -87,7 +95,9 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.Search
 				Name = "Cats and Dogs",
 				Category = "Fiction",
 				ListPrice = 14.19M,
-				Published = new DateTime(2011, 1, 4)
+				Published = new DateTime(2011, 1, 4),
+				SomeIntId = 353464,
+				SomeLongId = 21474836485
 			});
 			SearchBooks.Add(new SearchBook
 			{
@@ -96,7 +106,9 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.Search
 				Name = "Better stocks",
 				Category = "Business",
 				ListPrice = 2.99M,
-				Published = new DateTime(2011, 1, 4)
+				Published = new DateTime(2011, 1, 4),
+				SomeIntId = 378556,
+				SomeLongId = 21474836486
 			});
 			SearchBooks.Add(new SearchBook
 			{
@@ -105,7 +117,9 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.Search
 				Name = "American Car Makers",
 				Category = "Cars",
 				ListPrice = 122.19M,
-				Published = new DateTime(2009, 12, 9)
+				Published = new DateTime(2009, 12, 9),
+				SomeIntId = 19034,
+				SomeLongId = 21474836487
 			});
 			SearchBooks.Add(new SearchBook
 			{
@@ -114,7 +128,9 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.Search
 				Name = "American History III",
 				Category = "History",
 				ListPrice = 56,
-				Published = new DateTime(2001, 5, 14)
+				Published = new DateTime(2001, 5, 14),
+				SomeIntId = 543577,
+				SomeLongId = 21474836489
 			});
 
 			SearchBooks.Add(new SearchBook
@@ -124,7 +140,9 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.Search
 				Name = "ART 123",
 				Category = "Art",
 				ListPrice = 90.10M,
-				Published = new DateTime(1988, 10, 14)
+				Published = new DateTime(1988, 10, 14),
+				SomeIntId = 908,
+				SomeLongId = 21474836490
 			});
 		}
 

@@ -16,6 +16,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.Search
 		public decimal ListPrice { get; set; }
 		public DateTime Published { get; set; }
 		public bool Active { get; set; }
+		public int SomeIntId { get; set; }
+		public long SomeLongId { get; set; }
 	}
 
 	public class SearchReviewer
@@ -69,6 +71,20 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.Search
 			books.SingleOrDefault(x => x.Name == "ART 123").ShouldNotBeNull();
 			reviewers.SingleOrDefault(x => x.Name == "Art Tops").ShouldNotBeNull();
 
+		}
+
+		[Fact]
+		public async Task CanGetTypeWithIntAndInt64Properties()
+		{
+			await SeedAsync();
+
+			var results = (await SearchAsync("World",
+				TimeSpan.FromSeconds(30), 2, typeof(SearchBook), typeof(SearchReviewer))).ToList();
+
+			results.Count.ShouldBe(1);
+			var sb = (SearchBook)results[0].Value;
+			sb.SomeIntId.ShouldBe(1994);
+			sb.SomeLongId.ShouldBe(21474836484);
 		}
 	}
 }

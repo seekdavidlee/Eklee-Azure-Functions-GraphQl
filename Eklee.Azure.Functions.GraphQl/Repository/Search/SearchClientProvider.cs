@@ -223,6 +223,16 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 						value = dtmValue.DateTime;
 					}
 
+					if (field.Type == typeof(int))
+					{
+						value = Convert.ToInt32(value);
+					}
+
+					if (field.Type == typeof(long))
+					{
+						value = Convert.ToInt64(value);
+					}
+
 					accessor[item, d.Key] = value;
 				});
 

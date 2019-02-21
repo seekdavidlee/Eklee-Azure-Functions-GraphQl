@@ -55,25 +55,17 @@ param([switch]$testunit, [switch]$testint,
 
 	Write-Host "C= $currentDir"
 
-	$testJob = Start-Job -ScriptBlock {
-		param([string]$currentDir)
-		Write-Host $currentDir
-		cd $currentDir
-		pushd Examples\Eklee.Azure.Functions.GraphQl.Example\bin\Release\netstandard2.0
-		node_modules\.bin\newman run ..\..\..\..\..\tests\Eklee.Azure.Functions.GraphQl.postman_collection.json -e ..\..\..\..\..\tests\Eklee.Azure.Functions.GraphQl.Local.postman_environment.json
-	} -ArgumentList $currentDir
-     
-	Wait-Job -Name $testJob.Name
+	pushd Examples\Eklee.Azure.Functions.GraphQl.Example\bin\Release\netstandard2.0
+	node_modules\.bin\newman run ..\..\..\..\..\tests\Eklee.Azure.Functions.GraphQl.postman_collection.json -e ..\..\..\..\..\tests\Eklee.Azure.Functions.GraphQl.Local.postman_environment.json --reporters cli,json --reporter-json-export "$currentDir\report.json"
+	popd
 
-	$testResult = Receive-Job -Name $testJob.Name
-	$testResult
+	$report = (Get-Content "$currentDir\report.json" | Out-String | ConvertFrom-Json)	
 
 	Write-Host "Stopping Jobs"
 
 	Stop-Job $hostJob
-	Stop-Job $testJob
 
-	if ($testResult -like "*AssertionError*") {
+	if ($report.run.failures.length > 0) {
 		Write-Host "Failed!" -ForegroundColor red
 	} else {
 		Write-Host "All good!" -ForegroundColor green

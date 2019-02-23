@@ -60,7 +60,21 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 			modelAccessor.GetMembers().ToList().ForEach(m =>
 			{
 				if (availableMemberNames.Contains(m.Name))
-					searchModelAccessor[o, m.Name] = modelAccessor[map, m.Name];
+				{
+					var searchMember = searchModelAccessor.GetMembers().Single(x => x.Name == m.Name);
+					var modelMember = modelAccessor.GetMembers().Single(x => x.Name == m.Name);
+
+					if (searchMember.Type == modelMember.Type)
+						searchModelAccessor[o, m.Name] = modelAccessor[map, m.Name];
+					else
+					{
+						var mappedValue = modelAccessor[map, m.Name];
+						if (searchMember.Type == typeof(string) && mappedValue != null)
+						{
+							searchModelAccessor[o, m.Name] = mappedValue.ToString();
+						}
+					}
+				}
 			});
 
 			return o;

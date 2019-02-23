@@ -2,14 +2,15 @@
 <package >
 	<metadata>
 		<id>Eklee.Azure.Functions.GraphQl</id>
-		<version>0.7.2</version>
+		<version>0.8.0</version>
 		<title>Eklee.Azure.Functions.GraphQl</title>
 		<authors>Eng-Keong David Lee</authors>
 		<owners>Eng-Keong David Lee</owners>
+		<license type="file">LICENSE.txt</license>
 		<projectUrl>https://github.com/seekdavidlee/Eklee-Azure-Functions-GraphQl</projectUrl>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<description>The purpose of this library is to help developers with implementing a Serverless GraphQL API using Azure Functions, Azure Cosmos DB, Azure Search, Azure Table Storage etc.</description>
-		<releaseNotes>Minor fix for int and int64 types in search.</releaseNotes>
+		<releaseNotes>We are able to now represent a Model with int, double as string in corresponding Search Model.</releaseNotes>
 		<tags>GraphQL, Azure, Functions, Caching, .NET, Graph, Paging, Pagination, CosmosDB, DocumentDB, Search, Table</tags>
 		<dependencies>
 			<dependency id="Eklee.Azure.Functions.Http" version="0.8.1" />
@@ -20,4 +21,7 @@
 			<dependency id="WindowsAzure.Storage" version="9.3.3" />
 		</dependencies>
 	</metadata>
+	<files>
+		<file src="..\LICENSE.txt" target="" />
+	</files>
 </package>

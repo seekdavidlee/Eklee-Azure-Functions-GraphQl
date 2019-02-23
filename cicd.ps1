@@ -79,7 +79,9 @@ param([switch]$testunit, [switch]$testint,
 		Remove-Item -Path bin\Release\netstandard2.0\bin -Recurse
 		popd
 		Remove-Item $currentDir\*.nupkg
+		Copy-Item $currentDir\LICENSE $currentDir\LICENSE.txt
 		nuget.exe pack $app\$app.csproj -Properties Configuration=$buildConfig -IncludeReferencedProjects
+		Remove-Item $currentDir\LICENSE.txt
 	}
 	.\Reset.ps1 -ResourceGroupName $ResourceGroupName -Name $Name -SubscriptionId $SubscriptionId
 	

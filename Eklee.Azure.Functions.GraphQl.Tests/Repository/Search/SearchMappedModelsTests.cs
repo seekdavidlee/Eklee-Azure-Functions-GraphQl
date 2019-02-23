@@ -45,6 +45,22 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.Search
 		public string Name { get; set; }
 	}
 
+	public class Model2WithNoneStringFields
+	{
+		public string Id { get; set; }
+		public string Name { get; set; }
+		public int Counter { get; set; }
+		public double Price { get; set; }
+	}
+
+	public class Model2SearchWithOnlyStringFields
+	{
+		public string Id { get; set; }
+		public string Name { get; set; }
+		public string Counter { get; set; }
+		public string Price { get; set; }
+	}
+
 	[Trait(Constants.Category, Constants.UnitTests)]
 	public class SearchMappedModelsTests
 	{
@@ -92,6 +108,18 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.Search
 			var o = (Model1SearchWithLess)_searchMappedModels.CreateInstanceFromMap(new Model1WithMore { Id = "foo 45", Name = "foo 3331", Counter = 33, Categories = new List<string> { "1", "2" } });
 			o.Id.ShouldBe("foo 45");
 			o.Name.ShouldBe("foo 3331");
+		}
+
+		[Fact]
+		public void ShouldMappedAllSearchModelNoneStringProperties()
+		{
+			_searchMappedModels.Map<Model2SearchWithOnlyStringFields, Model2WithNoneStringFields>();
+
+			var o = (Model2SearchWithOnlyStringFields)_searchMappedModels.CreateInstanceFromMap(new Model2WithNoneStringFields { Id = "foo5511", Name = "foo 41", Counter = 32423, Price = 3245.99 });
+			o.Id.ShouldBe("foo5511");
+			o.Name.ShouldBe("foo 41");
+			o.Counter.ShouldBe("32423");
+			o.Price.ShouldBe("3245.99");
 		}
 	}
 }

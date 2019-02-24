@@ -82,6 +82,42 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 					Effective = new DateTime(2014, 1, 1).ToUtc(),
 					Expires = new DateTime(2015, 12, 31).ToUtc(),
 					TypeId = Guid.Parse("9B522321-B689-43EC-A3DC-DC17EE2A42DD")
+				},
+				new DocumentDbFoo3
+				{
+					Id = "6",
+					Name = "Nest 6",
+					Category = "ele 6",
+					Description = "JUST ALP",
+					Level = 8,
+					Effective = new DateTime(2019, 1, 1).ToUtc(),
+					Expires = new DateTime(2020, 12, 31).ToUtc(),
+					TypeId = Guid.Parse("DC742320-F3A4-4DE1-9239-6A9EC68BD430"),
+					IsActive = true
+				},
+				new DocumentDbFoo3
+				{
+					Id = "7",
+					Name = "Desk 7",
+					Category = "Mal 7",
+					Description = "KO PO LA",
+					Level = 9,
+					Effective = new DateTime(2019, 4, 1).ToUtc(),
+					Expires = new DateTime(2020, 11, 5).ToUtc(),
+					TypeId = Guid.Parse("D4FB1574-05CF-4422-9477-13D722A5448E"),
+					IsActive = true
+				},
+				new DocumentDbFoo3
+				{
+					Id = "8",
+					Name = "Desk 8",
+					Category = "Pal 8",
+					Description = "IN AS JA",
+					Level = 9,
+					Effective = new DateTime(2019, 4, 15).ToUtc(),
+					Expires = new DateTime(2021, 11, 9).ToUtc(),
+					TypeId = Guid.Parse("DE6EFD89-2D62-4E63-98D2-AEA9E622B223"),
+					IsActive = true
 				}
 			};
 
@@ -169,14 +205,14 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 		}
 
 		[Fact]
-		public async Task CanQueryWithSingleIntGreaterThan()
+		public async Task CanQueryWithSingleIntGreaterThanUsingMax()
 		{
 			await Seed();
 
 			QueryParameter[] args = {
 				new QueryParameter
 				{
-					ContextValue = new ContextValue { Values =new List<object>{  6},
+					ContextValue = new ContextValue { Values =new List<object>{  9},
 						Comparison = Comparisons.GreaterThan },
 					MemberModel = new ModelMember(_type, _accessor,
 						_members.Single(x=>x.Name == "Level"), false)
@@ -189,6 +225,28 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 		}
 
 		[Fact]
+		public async Task CanQueryWithSingleIntGreaterThan()
+		{
+			await Seed();
+
+			QueryParameter[] args = {
+				new QueryParameter
+				{
+					ContextValue = new ContextValue { Values =new List<object>{ 8 },
+						Comparison = Comparisons.GreaterThan },
+					MemberModel = new ModelMember(_type, _accessor,
+						_members.Single(x=>x.Name == "Level"), false)
+				}
+			};
+
+			var results = (await TableStorageRepository.QueryAsync<DocumentDbFoo3>("test", args, null, null)).ToList();
+
+			results.Count.ShouldBe(2);
+			results.Any(x => x.Id == "7").ShouldBeTrue();
+			results.Any(x => x.Id == "8").ShouldBeTrue();
+		}
+
+		[Fact]
 		public async Task CanQueryWithSingleIntGreaterEqualThan()
 		{
 			await Seed();
@@ -196,7 +254,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 			QueryParameter[] args = {
 				new QueryParameter
 				{
-					ContextValue = new ContextValue { Values = new List<object>{ 6 },
+					ContextValue = new ContextValue { Values = new List<object>{ 8 },
 						Comparison = Comparisons.GreaterEqualThan },
 					MemberModel = new ModelMember(_type, _accessor,
 						_members.Single(x=>x.Name == "Level"), false)
@@ -205,8 +263,10 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 
 			var results = (await TableStorageRepository.QueryAsync<DocumentDbFoo3>("test", args, null, null)).ToList();
 
-			results.Count.ShouldBe(1);
-			results[0].Id.ShouldBe("5");
+			results.Count.ShouldBe(3);
+			results.Any(x => x.Id == "6").ShouldBeTrue();
+			results.Any(x => x.Id == "7").ShouldBeTrue();
+			results.Any(x => x.Id == "8").ShouldBeTrue();
 		}
 
 		[Fact]
@@ -308,7 +368,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 			QueryParameter[] args = {
 				new QueryParameter
 				{
-					ContextValue = new ContextValue { Values =new List<object>{  new DateTime(2017,1,1).ToUtc()},
+					ContextValue = new ContextValue { Values =new List<object>{  new DateTime(2019,1,1).ToUtc()},
 						Comparison = Comparisons.GreaterThan },
 					MemberModel = new ModelMember(_type, _accessor,
 						_members.Single(x=>x.Name == "Effective"), false)
@@ -317,8 +377,9 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 
 			var results = (await TableStorageRepository.QueryAsync<DocumentDbFoo3>("test", args, null, null)).ToList();
 
-			results.Count.ShouldBe(1);
-			results[0].Id.ShouldBe("2");
+			results.Count.ShouldBe(2);
+			results.Any(x => x.Id == "7").ShouldBeTrue();
+			results.Any(x => x.Id == "8").ShouldBeTrue();
 		}
 
 		[Fact]
@@ -329,7 +390,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 			QueryParameter[] args = {
 				new QueryParameter
 				{
-					ContextValue = new ContextValue { Values =new List<object>{  new DateTime(2017,1,1).ToUtc()},
+					ContextValue = new ContextValue { Values =new List<object>{  new DateTime(2019,1,1).ToUtc()},
 						Comparison = Comparisons.GreaterEqualThan },
 					MemberModel = new ModelMember(_type, _accessor,
 						_members.Single(x=>x.Name == "Effective"), false)
@@ -338,9 +399,10 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 
 			var results = (await TableStorageRepository.QueryAsync<DocumentDbFoo3>("test", args, null, null)).ToList();
 
-			results.Count.ShouldBe(2);
-			results.Any(x => x.Id == "1").ShouldBe(true);
-			results.Any(x => x.Id == "2").ShouldBe(true);
+			results.Count.ShouldBe(3);
+			results.Any(x => x.Id == "6").ShouldBeTrue();
+			results.Any(x => x.Id == "7").ShouldBeTrue();
+			results.Any(x => x.Id == "8").ShouldBeTrue();
 		}
 
 		[Fact]
@@ -385,6 +447,80 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 			results.Count.ShouldBe(2);
 			results.Any(x => x.Id == "2").ShouldBe(true);
 			results.Any(x => x.Id == "5").ShouldBe(true);
+		}
+
+		[Fact]
+		public async Task CanQueryWithMultipleValueGuidsEquals()
+		{
+			await Seed();
+
+			QueryParameter[] args = {
+				new QueryParameter
+				{
+					ContextValue = new ContextValue { Values =new List<object>
+						{
+							Guid.Parse("DE6EFD89-2D62-4E63-98D2-AEA9E622B223"),
+							Guid.Parse("DC742320-F3A4-4DE1-9239-6A9EC68BD430"),
+							Guid.Parse("CC562BC9-C2E5-46D8-B701-E5D57F5800B8")
+						},
+						Comparison = Comparisons.Equal },
+					MemberModel = new ModelMember(_type, _accessor,
+						_members.Single(x=>x.Name == "TypeId"), false)
+				}
+			};
+
+			var results = (await TableStorageRepository.QueryAsync<DocumentDbFoo3>("test", args, null, null)).ToList();
+
+			results.Count.ShouldBe(3);
+			results.Any(x => x.Id == "8").ShouldBeTrue();
+			results.Any(x => x.Id == "6").ShouldBeTrue();
+			results.Any(x => x.Id == "3").ShouldBeTrue();
+		}
+
+		[Fact]
+		public async Task CanQueryWithMultipleValueIntsEquals()
+		{
+			await Seed();
+
+			QueryParameter[] args = {
+				new QueryParameter
+				{
+					ContextValue = new ContextValue { Values =new List<object>{ 8, 9 },
+						Comparison = Comparisons.Equal },
+					MemberModel = new ModelMember(_type, _accessor,
+						_members.Single(x=>x.Name == "Level"), false)
+				}
+			};
+
+			var results = (await TableStorageRepository.QueryAsync<DocumentDbFoo3>("test", args, null, null)).ToList();
+
+			results.Count.ShouldBe(3);
+			results.Any(x => x.Id == "6").ShouldBeTrue();
+			results.Any(x => x.Id == "7").ShouldBeTrue();
+			results.Any(x => x.Id == "8").ShouldBeTrue();
+		}
+
+		[Fact]
+		public async Task CanQueryWithMultipleValueStringsEquals()
+		{
+			await Seed();
+
+			QueryParameter[] args = {
+				new QueryParameter
+				{
+					ContextValue = new ContextValue { Values =new List<object>{ "6","7","8" },
+						Comparison = Comparisons.Equal },
+					MemberModel = new ModelMember(_type, _accessor,
+						_members.Single(x=>x.Name == "Id"), false)
+				}
+			};
+
+			var results = (await TableStorageRepository.QueryAsync<DocumentDbFoo3>("test", args, null, null)).ToList();
+
+			results.Count.ShouldBe(3);
+			results.Any(x => x.Id == "6").ShouldBeTrue();
+			results.Any(x => x.Id == "7").ShouldBeTrue();
+			results.Any(x => x.Id == "8").ShouldBeTrue();
 		}
 
 		public void Dispose()

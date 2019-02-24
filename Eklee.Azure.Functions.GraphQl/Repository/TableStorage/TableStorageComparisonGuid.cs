@@ -3,33 +3,20 @@ using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Eklee.Azure.Functions.GraphQl.Repository.TableStorage
 {
-	public class TableStorageComparisonGuid : ITableStorageComparison
+	public class TableStorageComparisonGuid : TableStorageComparisonBase<Guid>
 	{
-		private QueryParameter _queryParameter;
-
-		private Guid? _value;
-
-		public bool CanHandle(QueryParameter queryParameter)
+		protected override string GenerateFilterConditionFor(Comparisons comparison, Guid value)
 		{
-			_queryParameter = queryParameter;
-			_value = null;
-
-			if (queryParameter.ContextValue.Value is Guid value)
-			{
-				_value = value;
-				return true;
-			}
-
-			return false;
-		}
-
-		public string Generate()
-		{
-			if (_queryParameter.ContextValue.Comparison == Comparisons.Equal)
+			if (QueryParameter.ContextValue.Comparison == Comparisons.Equal)
 				// ReSharper disable once PossibleInvalidOperationException
-				return TableQuery.GenerateFilterConditionForGuid(_queryParameter.MemberModel.Member.Name, QueryComparisons.Equal, _value.Value);
+				return TableQuery.GenerateFilterConditionForGuid(QueryParameter.MemberModel.Member.Name, QueryComparisons.Equal, value);
 
 			return null;
+		}
+
+		protected override bool AssertCanHandleContextValue(object o)
+		{
+			return o is Guid;
 		}
 	}
 }

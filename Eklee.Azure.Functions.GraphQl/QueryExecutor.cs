@@ -33,11 +33,11 @@ namespace Eklee.Azure.Functions.GraphQl
 
 					var queryValues = queryStep.Mapper(ctx);
 
-					var first = queryStep.QueryParameters.First();
-
-					foreach (var queryValue in queryValues)
+					if (queryValues.Count > 0)
 					{
-						first.ContextValue = new ContextValue { Value = queryValue, Comparison = Comparisons.Equal };
+						var first = queryStep.QueryParameters.First();
+
+						first.ContextValue = new ContextValue { Values = queryValues, Comparison = Comparisons.Equal };
 
 						try
 						{
@@ -49,6 +49,10 @@ namespace Eklee.Azure.Functions.GraphQl
 							_logger.LogError(e, "An error has occured while executing query on repository.");
 							throw;
 						}
+					}
+					else
+					{
+						_logger.LogWarning($"No values detected for queryStep @ {queryName}");
 					}
 
 					ctx.SetQueryResult(nextQueryResults);

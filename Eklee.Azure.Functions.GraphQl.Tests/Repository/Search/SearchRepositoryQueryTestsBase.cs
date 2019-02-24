@@ -202,7 +202,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.Search
 				{
 					new QueryParameter
 					{
-						ContextValue = new ContextValue { Value = searchText, Comparison = Comparisons.Equal},
+						ContextValue = new ContextValue { Values =new List<object>{ searchText}, Comparison = Comparisons.Equal},
 						MemberModel = new ModelMember(type,accessor,member,false)
 					}
 				}, items, null)).ToList();

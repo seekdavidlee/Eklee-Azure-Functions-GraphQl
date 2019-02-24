@@ -84,6 +84,42 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 					Expires = new DateTime(2015, 12, 31).ToUtc(),
 					TypeId = Guid.Parse("9B522321-B689-43EC-A3DC-DC17EE2A42DD"),
 					IsActive = true
+				},
+				new DocumentDbFoo3
+				{
+					Id = "6",
+					Name = "Nest 6",
+					Category = "ele 6",
+					Description = "JUST ALP",
+					Level = 8,
+					Effective = new DateTime(2019, 1, 1).ToUtc(),
+					Expires = new DateTime(2020, 12, 31).ToUtc(),
+					TypeId = Guid.Parse("DC742320-F3A4-4DE1-9239-6A9EC68BD430"),
+					IsActive = true
+				},
+				new DocumentDbFoo3
+				{
+					Id = "7",
+					Name = "Desk 7",
+					Category = "Mal 7",
+					Description = "KO PO LA",
+					Level = 9,
+					Effective = new DateTime(2019, 4, 1).ToUtc(),
+					Expires = new DateTime(2020, 11, 5).ToUtc(),
+					TypeId = Guid.Parse("D4FB1574-05CF-4422-9477-13D722A5448E"),
+					IsActive = true
+				},
+				new DocumentDbFoo3
+				{
+					Id = "8",
+					Name = "Desk 8",
+					Category = "Pal 8",
+					Description = "IN AS JA",
+					Level = 9,
+					Effective = new DateTime(2019, 4, 15).ToUtc(),
+					Expires = new DateTime(2021, 11, 9).ToUtc(),
+					TypeId = Guid.Parse("DE6EFD89-2D62-4E63-98D2-AEA9E622B223"),
+					IsActive = true
 				}
 			};
 
@@ -101,7 +137,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 			QueryParameter[] args = {
 				new QueryParameter
 				{
-					ContextValue = new ContextValue { Value = "Foo",
+					ContextValue = new ContextValue { Values = new List<object>{ "Foo"},
 						Comparison = Comparisons.StringStartsWith },
 					MemberModel = new ModelMember(_type, _accessor,
 						_members.Single(x=>x.Name == "Name"), false)
@@ -125,7 +161,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 			QueryParameter[] args = {
 				new QueryParameter
 				{
-					ContextValue = new ContextValue { Value = "ha ha",
+					ContextValue = new ContextValue { Values = new List<object>{  "ha ha"},
 						Comparison = Comparisons.StringEndsWith},
 					MemberModel = new ModelMember(_type, _accessor,
 						_members.Single(x=>x.Name == "Description"), false)
@@ -148,7 +184,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 			QueryParameter[] args = {
 				new QueryParameter
 				{
-					ContextValue = new ContextValue { Value = "ha",
+					ContextValue = new ContextValue { Values =new List<object>{ "ha"},
 						Comparison = Comparisons.StringContains },
 					MemberModel = new ModelMember(_type, _accessor,
 						_members.Single(x=>x.Name == "Description"), false)
@@ -174,7 +210,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 				{
 					ContextValue = new ContextValue
 					{
-						Value = "cat 1",
+						Values =new List<object>{ "cat 1"},
 						Comparison = Comparisons.Equal
 					},
 					MemberModel = new ModelMember(_type, _accessor,
@@ -183,7 +219,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 				new QueryParameter
 				{
 					ContextValue = new ContextValue {
-						Value = 2,
+						Values = new List<object>{ 2},
 						Comparison = Comparisons.Equal },
 					MemberModel = new ModelMember(_type, _accessor,
 						_members.Single(x=>x.Name == "Level"), false)
@@ -214,7 +250,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 				{
 					ContextValue = new ContextValue
 					{
-						Value = typeId,
+						Values =new List<object>{typeId},
 						Comparison = Comparisons.Equal
 					},
 					MemberModel = new ModelMember(_type, _accessor,
@@ -242,7 +278,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 				{
 					ContextValue = new ContextValue
 					{
-						Value = date,
+						Values =new List<object>{date},
 						Comparison = Comparisons.Equal
 					},
 					MemberModel = new ModelMember(_type, _accessor,
@@ -264,13 +300,13 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 		{
 			await Seed();
 
-			var date = DateTime.Parse("2017-01-01");
+			var date = DateTime.Parse("2019-04-01");
 			QueryParameter[] args = {
 				new QueryParameter
 				{
 					ContextValue = new ContextValue
 					{
-						Value = date,
+						Values =new List<object>{ date},
 						Comparison = Comparisons.GreaterEqualThan
 					},
 					MemberModel = new ModelMember(_type, _accessor,
@@ -282,11 +318,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 
 			results.Count.ShouldBe(2);
 
-			var item1 = results.Single(x => x.Id == "1");
-			item1.Category.ShouldBe("cat 1");
-
-			var item2 = results.Single(x => x.Id == "2");
-			item2.Category.ShouldBe("cat 1");
+			results.Any(x => x.Id == "7").ShouldBeTrue();
+			results.Any(x => x.Id == "8").ShouldBeTrue();
 		}
 
 		[Fact]
@@ -294,13 +327,13 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 		{
 			await Seed();
 
-			var date = DateTime.Parse("2017-01-01");
+			var date = DateTime.Parse("2019-04-01");
 			QueryParameter[] args = {
 				new QueryParameter
 				{
 					ContextValue = new ContextValue
 					{
-						Value = date,
+						Values =new List<object>{ date},
 						Comparison = Comparisons.GreaterThan
 					},
 					MemberModel = new ModelMember(_type, _accessor,
@@ -311,9 +344,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 			var results = (await DocumentDbRepository.QueryAsync<DocumentDbFoo3>("test", args, null, null)).ToList();
 
 			results.Count.ShouldBe(1);
-
-			var item2 = results.Single(x => x.Id == "2");
-			item2.Category.ShouldBe("cat 1");
+			results.Any(x => x.Id == "8").ShouldBeTrue();
 		}
 
 		[Fact]
@@ -327,7 +358,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 				{
 					ContextValue = new ContextValue
 					{
-						Value = date,
+						Values =new List<object>{ date},
 						Comparison = Comparisons.LessThan
 					},
 					MemberModel = new ModelMember(_type, _accessor,
@@ -354,7 +385,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 				{
 					ContextValue = new ContextValue
 					{
-						Value = date,
+						Values =new List<object>{ date},
 						Comparison = Comparisons.LessEqualThan
 					},
 					MemberModel = new ModelMember(_type, _accessor,
@@ -384,7 +415,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 				{
 					ContextValue = new ContextValue
 					{
-						Value = false,
+						Values =new List<object>{ false},
 						Comparison = Comparisons.Equal
 					},
 					MemberModel = new ModelMember(_type, _accessor,
@@ -412,7 +443,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 				{
 					ContextValue = new ContextValue
 					{
-						Value = true,
+						Values =new List<object>{ true},
 						Comparison = Comparisons.Equal
 					},
 					MemberModel = new ModelMember(_type, _accessor,
@@ -422,10 +453,13 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 
 			var results = (await DocumentDbRepository.QueryAsync<DocumentDbFoo3>("test", args, null, null)).ToList();
 
-			results.Count.ShouldBe(2);
+			results.Count.ShouldBe(5);
 
-			results.Any(x => x.Id == "1").ShouldBe(true);
-			results.Any(x => x.Id == "5").ShouldBe(true);
+			results.Any(x => x.Id == "1").ShouldBeTrue();
+			results.Any(x => x.Id == "5").ShouldBeTrue();
+			results.Any(x => x.Id == "6").ShouldBeTrue();
+			results.Any(x => x.Id == "7").ShouldBeTrue();
+			results.Any(x => x.Id == "8").ShouldBeTrue();
 		}
 
 		[Fact]
@@ -439,7 +473,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 				{
 					ContextValue = new ContextValue
 					{
-						Value = level,
+						Values =new List<object>{ level},
 						Comparison = Comparisons.Equal
 					},
 					MemberModel = new ModelMember(_type, _accessor,
@@ -460,41 +494,14 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 		{
 			await Seed();
 
-			var level = 4;
+			var level = 8;
 			QueryParameter[] args = {
 				new QueryParameter
 				{
 					ContextValue = new ContextValue
 					{
-						Value = level,
+						Values =new List<object>{ level},
 						Comparison = Comparisons.GreaterThan
-					},
-					MemberModel = new ModelMember(_type, _accessor,
-						_members.Single(x=> x.Name == "Level"), false)
-				}
-			};
-
-			var results = (await DocumentDbRepository.QueryAsync<DocumentDbFoo3>("test", args, null, null)).ToList();
-
-			results.Count.ShouldBe(1);
-
-			var item2 = results.Single(x => x.Id == "5");
-			item2.Level.ShouldBe(6);
-		}
-
-		[Fact]
-		public async Task CanQueryByIntWithGreaterEqualThan()
-		{
-			await Seed();
-
-			var level = 4;
-			QueryParameter[] args = {
-				new QueryParameter
-				{
-					ContextValue = new ContextValue
-					{
-						Value = level,
-						Comparison = Comparisons.GreaterEqualThan
 					},
 					MemberModel = new ModelMember(_type, _accessor,
 						_members.Single(x=> x.Name == "Level"), false)
@@ -505,11 +512,36 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 
 			results.Count.ShouldBe(2);
 
-			var item1 = results.Single(x => x.Id == "1");
-			item1.Level.ShouldBe(4);
+			results.Any(x => x.Id == "7").ShouldBeTrue();
+			results.Any(x => x.Id == "8").ShouldBeTrue();
+		}
 
-			var item2 = results.Single(x => x.Id == "5");
-			item2.Level.ShouldBe(6);
+		[Fact]
+		public async Task CanQueryByIntWithGreaterEqualThan()
+		{
+			await Seed();
+
+			var level = 8;
+			QueryParameter[] args = {
+				new QueryParameter
+				{
+					ContextValue = new ContextValue
+					{
+						Values =new List<object>{ level},
+						Comparison = Comparisons.GreaterEqualThan
+					},
+					MemberModel = new ModelMember(_type, _accessor,
+						_members.Single(x=> x.Name == "Level"), false)
+				}
+			};
+
+			var results = (await DocumentDbRepository.QueryAsync<DocumentDbFoo3>("test", args, null, null)).ToList();
+
+			results.Count.ShouldBe(3);
+
+			results.Any(x => x.Id == "6").ShouldBeTrue();
+			results.Any(x => x.Id == "7").ShouldBeTrue();
+			results.Any(x => x.Id == "8").ShouldBeTrue();
 		}
 
 		[Fact]
@@ -523,7 +555,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 				{
 					ContextValue = new ContextValue
 					{
-						Value = level,
+						Values =new List<object>{ level},
 						Comparison = Comparisons.LessThan
 					},
 					MemberModel = new ModelMember(_type, _accessor,
@@ -553,7 +585,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 				{
 					ContextValue = new ContextValue
 					{
-						Value = level,
+						Values =new List<object>{ level},
 						Comparison = Comparisons.LessEqualThan
 					},
 					MemberModel = new ModelMember(_type, _accessor,
@@ -574,6 +606,100 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 			var item3 = results.Single(x => x.Id == "3");
 			item3.Level.ShouldBe(3);
 		}
+
+		[Fact]
+		public async Task CanQueryByMultipleStringsWithEqual()
+		{
+			await Seed();
+
+			QueryParameter[] args = {
+				new QueryParameter
+				{
+					ContextValue = new ContextValue
+					{
+						Values =new List<object>{ "Nest 6", "Desk 7" },
+						Comparison = Comparisons.Equal
+					},
+					MemberModel = new ModelMember(_type, _accessor,
+						_members.Single(x=> x.Name == "Name"), false)
+				}
+			};
+
+			var results = (await DocumentDbRepository.QueryAsync<DocumentDbFoo3>("test", args, null, null)).ToList();
+
+			results.Count.ShouldBe(2);
+
+			var item1 = results.Single(x => x.Id == "6");
+			item1.Name.ShouldBe("Nest 6");
+
+			var item2 = results.Single(x => x.Id == "7");
+			item2.Name.ShouldBe("Desk 7");
+		}
+
+		[Fact]
+		public async Task CanQueryByMultipleIntsWithEqual()
+		{
+			await Seed();
+
+			QueryParameter[] args = {
+				new QueryParameter
+				{
+					ContextValue = new ContextValue
+					{
+						Values =new List<object>{ 8, 9 },
+						Comparison = Comparisons.Equal
+					},
+					MemberModel = new ModelMember(_type, _accessor,
+						_members.Single(x=> x.Name == "Level"), false)
+				}
+			};
+
+			var results = (await DocumentDbRepository.QueryAsync<DocumentDbFoo3>("test", args, null, null)).ToList();
+
+			results.Count.ShouldBe(3);
+
+			var item1 = results.Single(x => x.Id == "6");
+			item1.Level.ShouldBe(8);
+
+			var item2 = results.Single(x => x.Id == "7");
+			item2.Level.ShouldBe(9);
+
+			var item3 = results.Single(x => x.Id == "8");
+			item3.Level.ShouldBe(9);
+		}
+
+		[Fact]
+		public async Task CanQueryByMultipleGuidsWithEqual()
+		{
+			await Seed();
+
+			QueryParameter[] args = {
+				new QueryParameter
+				{
+					ContextValue = new ContextValue
+					{
+						Values =new List<object>
+						{
+							Guid.Parse("DC742320-F3A4-4DE1-9239-6A9EC68BD430"),
+							Guid.Parse("D4FB1574-05CF-4422-9477-13D722A5448E"),
+							Guid.Parse("DE6EFD89-2D62-4E63-98D2-AEA9E622B223")
+						},
+						Comparison = Comparisons.Equal
+					},
+					MemberModel = new ModelMember(_type, _accessor,
+						_members.Single(x=> x.Name == "TypeId"), false)
+				}
+			};
+
+			var results = (await DocumentDbRepository.QueryAsync<DocumentDbFoo3>("test", args, null, null)).ToList();
+
+			results.Count.ShouldBe(3);
+
+			results.Any(x => x.Id == "6").ShouldBeTrue();
+			results.Any(x => x.Id == "7").ShouldBeTrue();
+			results.Any(x => x.Id == "8").ShouldBeTrue();
+		}
+
 
 		public void Dispose()
 		{

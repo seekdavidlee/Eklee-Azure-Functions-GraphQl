@@ -86,7 +86,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository
 			QueryParameter[] args = {
 				new QueryParameter
 				{
-					ContextValue = new ContextValue { Value = "Bar",
+					ContextValue = new ContextValue { Values =new List<object>{ "Bar"},
 						Comparison = Comparisons.StringStartsWith },
 					MemberModel = new ModelMember(_type, _accessor,
 						_members.Single(x=>x.Name == "Name"), false)

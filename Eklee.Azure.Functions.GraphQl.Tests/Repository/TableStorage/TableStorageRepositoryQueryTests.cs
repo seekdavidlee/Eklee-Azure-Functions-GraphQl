@@ -99,21 +99,21 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 			QueryParameter[] args = {
 				new QueryParameter
 				{
-					ContextValue = new ContextValue { Value = "Bar 5",
+					ContextValue = new ContextValue { Values = new List<object>{ "Bar 5"},
 						Comparison = Comparisons.Equal },
 					MemberModel = new ModelMember(_type, _accessor,
 						_members.Single(x=>x.Name == "Name"), false)
 				},
 				new QueryParameter
 				{
-					ContextValue = new ContextValue { Value = "cat 5",
+					ContextValue = new ContextValue { Values = new List<object>{ "cat 5"},
 						Comparison = Comparisons.Equal },
 					MemberModel = new ModelMember(_type, _accessor,
 						_members.Single(x=>x.Name == "Category"), false)
 				},
 				new QueryParameter
 				{
-					ContextValue = new ContextValue { Value = "Sa Sa Ba",
+					ContextValue = new ContextValue { Values =new List<object>{  "Sa Sa Ba"},
 						Comparison = Comparisons.Equal },
 					MemberModel = new ModelMember(_type, _accessor,
 						_members.Single(x=>x.Name == "Description"), false)
@@ -134,7 +134,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 			QueryParameter[] args = {
 				new QueryParameter
 				{
-					ContextValue = new ContextValue { Value = "Bar 5",
+					ContextValue = new ContextValue { Values = new List<object>{ "Bar 5"},
 						Comparison = Comparisons.Equal },
 					MemberModel = new ModelMember(_type, _accessor,
 						_members.Single(x=>x.Name == "Name"), false)
@@ -155,7 +155,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 			QueryParameter[] args = {
 				new QueryParameter
 				{
-					ContextValue = new ContextValue { Value = 6,
+					ContextValue = new ContextValue { Values = new List<object>{ 6},
 						Comparison = Comparisons.Equal },
 					MemberModel = new ModelMember(_type, _accessor,
 						_members.Single(x=>x.Name == "Level"), false)
@@ -176,7 +176,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 			QueryParameter[] args = {
 				new QueryParameter
 				{
-					ContextValue = new ContextValue { Value = 6,
+					ContextValue = new ContextValue { Values =new List<object>{  6},
 						Comparison = Comparisons.GreaterThan },
 					MemberModel = new ModelMember(_type, _accessor,
 						_members.Single(x=>x.Name == "Level"), false)
@@ -196,7 +196,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 			QueryParameter[] args = {
 				new QueryParameter
 				{
-					ContextValue = new ContextValue { Value = 6,
+					ContextValue = new ContextValue { Values = new List<object>{ 6 },
 						Comparison = Comparisons.GreaterEqualThan },
 					MemberModel = new ModelMember(_type, _accessor,
 						_members.Single(x=>x.Name == "Level"), false)
@@ -217,7 +217,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 			QueryParameter[] args = {
 				new QueryParameter
 				{
-					ContextValue = new ContextValue { Value = 2,
+					ContextValue = new ContextValue { Values =new List<object>{  2},
 						Comparison = Comparisons.LessEqualThan },
 					MemberModel = new ModelMember(_type, _accessor,
 						_members.Single(x=>x.Name == "Level"), false)
@@ -239,7 +239,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 			QueryParameter[] args = {
 				new QueryParameter
 				{
-					ContextValue = new ContextValue { Value = 2,
+					ContextValue = new ContextValue { Values =new List<object>{  2},
 						Comparison = Comparisons.LessThan },
 					MemberModel = new ModelMember(_type, _accessor,
 						_members.Single(x=>x.Name == "Level"), false)
@@ -259,14 +259,14 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 			QueryParameter[] args = {
 				new QueryParameter
 				{
-					ContextValue = new ContextValue { Value = 2,
+					ContextValue = new ContextValue { Values =new List<object>{  2},
 						Comparison = Comparisons.LessEqualThan },
 					MemberModel = new ModelMember(_type, _accessor,
 						_members.Single(x=>x.Name == "Level"), false)
 				},
 				new QueryParameter
 				{
-					ContextValue = new ContextValue { Value = "Foo 4",
+					ContextValue = new ContextValue { Values =new List<object>{  "Foo 4"},
 						Comparison = Comparisons.Equal },
 					MemberModel = new ModelMember(_type, _accessor,
 						_members.Single(x=>x.Name == "Name"), false)
@@ -287,7 +287,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 			QueryParameter[] args = {
 				new QueryParameter
 				{
-					ContextValue = new ContextValue { Value = new DateTime(2017, 1, 1).ToUtc(),
+					ContextValue = new ContextValue { Values =new List<object>{  new DateTime(2017, 1, 1).ToUtc()},
 						Comparison = Comparisons.Equal },
 					MemberModel = new ModelMember(_type, _accessor,
 						_members.Single(x=>x.Name == "Effective"), false)
@@ -308,7 +308,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 			QueryParameter[] args = {
 				new QueryParameter
 				{
-					ContextValue = new ContextValue { Value = new DateTime(2017,1,1).ToUtc(),
+					ContextValue = new ContextValue { Values =new List<object>{  new DateTime(2017,1,1).ToUtc()},
 						Comparison = Comparisons.GreaterThan },
 					MemberModel = new ModelMember(_type, _accessor,
 						_members.Single(x=>x.Name == "Effective"), false)
@@ -329,7 +329,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 			QueryParameter[] args = {
 				new QueryParameter
 				{
-					ContextValue = new ContextValue { Value = new DateTime(2017,1,1).ToUtc(),
+					ContextValue = new ContextValue { Values =new List<object>{  new DateTime(2017,1,1).ToUtc()},
 						Comparison = Comparisons.GreaterEqualThan },
 					MemberModel = new ModelMember(_type, _accessor,
 						_members.Single(x=>x.Name == "Effective"), false)
@@ -351,7 +351,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 			QueryParameter[] args = {
 				new QueryParameter
 				{
-					ContextValue = new ContextValue { Value = new DateTime(2016,1,1).ToUtc(),
+					ContextValue = new ContextValue { Values =new List<object>{  new DateTime(2016,1,1).ToUtc()},
 						Comparison = Comparisons.LessThan },
 					MemberModel = new ModelMember(_type, _accessor,
 						_members.Single(x=>x.Name == "Effective"), false)
@@ -373,7 +373,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 			QueryParameter[] args = {
 				new QueryParameter
 				{
-					ContextValue = new ContextValue { Value = Guid.Parse("9B522321-B689-43EC-A3DC-DC17EE2A42DD"),
+					ContextValue = new ContextValue { Values =new List<object>{  Guid.Parse("9B522321-B689-43EC-A3DC-DC17EE2A42DD")},
 						Comparison = Comparisons.Equal },
 					MemberModel = new ModelMember(_type, _accessor,
 						_members.Single(x=>x.Name == "TypeId"), false)

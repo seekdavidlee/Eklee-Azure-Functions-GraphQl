@@ -14,7 +14,8 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.TableStorage
 			_queryParameter = queryParameter;
 			_value = null;
 
-			if (queryParameter.ContextValue.Value is DateTime value && value != DateTime.MinValue)
+			if (queryParameter.ContextValue.IsSingleValue() &&
+			    queryParameter.ContextValue.GetFirstValue() is DateTime value && value != DateTime.MinValue)
 			{
 				_value = value;
 				return true;

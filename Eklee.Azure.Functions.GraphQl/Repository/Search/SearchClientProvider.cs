@@ -194,7 +194,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 
 			var searchTextParam = queryParameters.Single(x => x.MemberModel.Name == "searchtext");
 
-			var results = await client.Documents.SearchAsync((string)searchTextParam.ContextValue.Value, searchParameters);
+			var results = await client.Documents.SearchAsync((string)searchTextParam.ContextValue.GetFirstValue(), searchParameters);
 
 			TypeAccessor accessor = TypeAccessor.Create(type);
 			var members = accessor.GetMembers();

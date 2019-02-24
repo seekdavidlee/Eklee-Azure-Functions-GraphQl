@@ -2,53 +2,40 @@
 
 namespace Eklee.Azure.Functions.GraphQl.Repository.TableStorage
 {
-	public class TableStorageComparisonInt : ITableStorageComparison
+	public class TableStorageComparisonInt : TableStorageComparisonBase<int>
 	{
-		private QueryParameter _queryParameter;
-
-		private int? _value;
-
-		public bool CanHandle(QueryParameter queryParameter)
+		protected override string GenerateFilterConditionFor(Comparisons comparison, int value)
 		{
-			_queryParameter = queryParameter;
-			_value = null;
-
-			if (queryParameter.ContextValue.Value is int value && value != 0)
-			{
-				_value = value;
-				return true;
-			}
-
-			return false;
-		}
-
-		public string Generate()
-		{
-			if (_queryParameter.ContextValue.Comparison == Comparisons.Equal)
+			if (QueryParameter.ContextValue.Comparison == Comparisons.Equal)
 				// ReSharper disable once PossibleInvalidOperationException
-				return TableQuery.GenerateFilterConditionForInt(_queryParameter.MemberModel.Member.Name, QueryComparisons.Equal, _value.Value);
+				return TableQuery.GenerateFilterConditionForInt(QueryParameter.MemberModel.Member.Name, QueryComparisons.Equal, value);
 
-			if (_queryParameter.ContextValue.Comparison == Comparisons.GreaterEqualThan)
+			if (QueryParameter.ContextValue.Comparison == Comparisons.GreaterEqualThan)
 				// ReSharper disable once PossibleInvalidOperationException
-				return TableQuery.GenerateFilterConditionForInt(_queryParameter.MemberModel.Member.Name, QueryComparisons.GreaterThanOrEqual, _value.Value);
+				return TableQuery.GenerateFilterConditionForInt(QueryParameter.MemberModel.Member.Name, QueryComparisons.GreaterThanOrEqual, value);
 
-			if (_queryParameter.ContextValue.Comparison == Comparisons.GreaterThan)
+			if (QueryParameter.ContextValue.Comparison == Comparisons.GreaterThan)
 				// ReSharper disable once PossibleInvalidOperationException
-				return TableQuery.GenerateFilterConditionForInt(_queryParameter.MemberModel.Member.Name, QueryComparisons.GreaterThan, _value.Value);
+				return TableQuery.GenerateFilterConditionForInt(QueryParameter.MemberModel.Member.Name, QueryComparisons.GreaterThan, value);
 
-			if (_queryParameter.ContextValue.Comparison == Comparisons.LessEqualThan)
+			if (QueryParameter.ContextValue.Comparison == Comparisons.LessEqualThan)
 				// ReSharper disable once PossibleInvalidOperationException
-				return TableQuery.GenerateFilterConditionForInt(_queryParameter.MemberModel.Member.Name, QueryComparisons.LessThanOrEqual, _value.Value);
+				return TableQuery.GenerateFilterConditionForInt(QueryParameter.MemberModel.Member.Name, QueryComparisons.LessThanOrEqual, value);
 
-			if (_queryParameter.ContextValue.Comparison == Comparisons.LessThan)
+			if (QueryParameter.ContextValue.Comparison == Comparisons.LessThan)
 				// ReSharper disable once PossibleInvalidOperationException
-				return TableQuery.GenerateFilterConditionForInt(_queryParameter.MemberModel.Member.Name, QueryComparisons.LessThan, _value.Value);
+				return TableQuery.GenerateFilterConditionForInt(QueryParameter.MemberModel.Member.Name, QueryComparisons.LessThan, value);
 
-			if (_queryParameter.ContextValue.Comparison == Comparisons.NotEqual)
+			if (QueryParameter.ContextValue.Comparison == Comparisons.NotEqual)
 				// ReSharper disable once PossibleInvalidOperationException
-				return TableQuery.GenerateFilterConditionForInt(_queryParameter.MemberModel.Member.Name, QueryComparisons.NotEqual, _value.Value);
+				return TableQuery.GenerateFilterConditionForInt(QueryParameter.MemberModel.Member.Name, QueryComparisons.NotEqual, value);
 
 			return null;
+		}
+
+		protected override bool AssertCanHandleContextValue(object o)
+		{
+			return o is int value && value != 0;
 		}
 	}
 }

@@ -101,7 +101,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 			QueryParameter[] args = {
 				new QueryParameter
 				{
-					ContextValue = new ContextValue { Value = "Foo",
+					ContextValue = new ContextValue { Values = new List<object>{ "Foo"},
 						Comparison = Comparisons.StringStartsWith },
 					MemberModel = new ModelMember(_type, _accessor,
 						_members.Single(x=>x.Name == "Name"), false)
@@ -125,7 +125,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 			QueryParameter[] args = {
 				new QueryParameter
 				{
-					ContextValue = new ContextValue { Value = "ha ha",
+					ContextValue = new ContextValue { Values = new List<object>{  "ha ha"},
 						Comparison = Comparisons.StringEndsWith},
 					MemberModel = new ModelMember(_type, _accessor,
 						_members.Single(x=>x.Name == "Description"), false)
@@ -148,7 +148,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 			QueryParameter[] args = {
 				new QueryParameter
 				{
-					ContextValue = new ContextValue { Value = "ha",
+					ContextValue = new ContextValue { Values =new List<object>{ "ha"},
 						Comparison = Comparisons.StringContains },
 					MemberModel = new ModelMember(_type, _accessor,
 						_members.Single(x=>x.Name == "Description"), false)
@@ -174,7 +174,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 				{
 					ContextValue = new ContextValue
 					{
-						Value = "cat 1",
+						Values =new List<object>{ "cat 1"},
 						Comparison = Comparisons.Equal
 					},
 					MemberModel = new ModelMember(_type, _accessor,
@@ -183,7 +183,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 				new QueryParameter
 				{
 					ContextValue = new ContextValue {
-						Value = 2,
+						Values = new List<object>{ 2},
 						Comparison = Comparisons.Equal },
 					MemberModel = new ModelMember(_type, _accessor,
 						_members.Single(x=>x.Name == "Level"), false)
@@ -214,7 +214,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 				{
 					ContextValue = new ContextValue
 					{
-						Value = typeId,
+						Values =new List<object>{typeId},
 						Comparison = Comparisons.Equal
 					},
 					MemberModel = new ModelMember(_type, _accessor,
@@ -242,7 +242,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 				{
 					ContextValue = new ContextValue
 					{
-						Value = date,
+						Values =new List<object>{date},
 						Comparison = Comparisons.Equal
 					},
 					MemberModel = new ModelMember(_type, _accessor,
@@ -270,7 +270,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 				{
 					ContextValue = new ContextValue
 					{
-						Value = date,
+						Values =new List<object>{ date},
 						Comparison = Comparisons.GreaterEqualThan
 					},
 					MemberModel = new ModelMember(_type, _accessor,
@@ -300,7 +300,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 				{
 					ContextValue = new ContextValue
 					{
-						Value = date,
+						Values =new List<object>{ date},
 						Comparison = Comparisons.GreaterThan
 					},
 					MemberModel = new ModelMember(_type, _accessor,
@@ -327,7 +327,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 				{
 					ContextValue = new ContextValue
 					{
-						Value = date,
+						Values =new List<object>{ date},
 						Comparison = Comparisons.LessThan
 					},
 					MemberModel = new ModelMember(_type, _accessor,
@@ -354,7 +354,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 				{
 					ContextValue = new ContextValue
 					{
-						Value = date,
+						Values =new List<object>{ date},
 						Comparison = Comparisons.LessEqualThan
 					},
 					MemberModel = new ModelMember(_type, _accessor,
@@ -384,7 +384,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 				{
 					ContextValue = new ContextValue
 					{
-						Value = false,
+						Values =new List<object>{ false},
 						Comparison = Comparisons.Equal
 					},
 					MemberModel = new ModelMember(_type, _accessor,
@@ -412,7 +412,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 				{
 					ContextValue = new ContextValue
 					{
-						Value = true,
+						Values =new List<object>{ true},
 						Comparison = Comparisons.Equal
 					},
 					MemberModel = new ModelMember(_type, _accessor,
@@ -439,7 +439,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 				{
 					ContextValue = new ContextValue
 					{
-						Value = level,
+						Values =new List<object>{ level},
 						Comparison = Comparisons.Equal
 					},
 					MemberModel = new ModelMember(_type, _accessor,
@@ -466,7 +466,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 				{
 					ContextValue = new ContextValue
 					{
-						Value = level,
+						Values =new List<object>{ level},
 						Comparison = Comparisons.GreaterThan
 					},
 					MemberModel = new ModelMember(_type, _accessor,
@@ -493,7 +493,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 				{
 					ContextValue = new ContextValue
 					{
-						Value = level,
+						Values =new List<object>{ level},
 						Comparison = Comparisons.GreaterEqualThan
 					},
 					MemberModel = new ModelMember(_type, _accessor,
@@ -523,7 +523,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 				{
 					ContextValue = new ContextValue
 					{
-						Value = level,
+						Values =new List<object>{ level},
 						Comparison = Comparisons.LessThan
 					},
 					MemberModel = new ModelMember(_type, _accessor,
@@ -553,7 +553,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 				{
 					ContextValue = new ContextValue
 					{
-						Value = level,
+						Values =new List<object>{ level},
 						Comparison = Comparisons.LessEqualThan
 					},
 					MemberModel = new ModelMember(_type, _accessor,

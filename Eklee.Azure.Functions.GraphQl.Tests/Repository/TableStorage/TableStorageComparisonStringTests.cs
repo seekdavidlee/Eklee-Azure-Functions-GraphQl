@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Eklee.Azure.Functions.GraphQl.Repository.TableStorage;
 using FastMember;
@@ -20,7 +21,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 		[Fact]
 		public void CanHandleString()
 		{
-			_tableStorageComparisonString.CanHandle(new QueryParameter { ContextValue = new ContextValue { Value = "abc" } }).ShouldBe(true);
+			_tableStorageComparisonString.CanHandle(new QueryParameter { ContextValue = new ContextValue { Values = new List<object> { "abc" } } }).ShouldBe(true);
 		}
 
 		[Fact]
@@ -31,7 +32,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 			var members = accessor.GetMembers();
 
 			_tableStorageComparisonString.CanHandle(
-				new QueryParameter { ContextValue = new ContextValue { Value = "abc", Comparison = Comparisons.Equal }, MemberModel = new ModelMember(type, accessor, members.Single(), false) });
+				new QueryParameter { ContextValue = new ContextValue { Values = new List<object> { "abc" }, Comparison = Comparisons.Equal }, MemberModel = new ModelMember(type, accessor, members.Single(), false) });
 			string.IsNullOrEmpty(_tableStorageComparisonString.Generate()).ShouldBe(false);
 		}
 
@@ -43,20 +44,20 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 			var members = accessor.GetMembers();
 
 			_tableStorageComparisonString.CanHandle(
-				new QueryParameter { ContextValue = new ContextValue { Value = "abc" }, MemberModel = new ModelMember(type, accessor, members.Single(), false) });
+				new QueryParameter { ContextValue = new ContextValue { Values = new List<object> { "abc" } }, MemberModel = new ModelMember(type, accessor, members.Single(), false) });
 			string.IsNullOrEmpty(_tableStorageComparisonString.Generate()).ShouldBe(true);
 		}
 
 		[Fact]
 		public void CannotHandleInt()
 		{
-			_tableStorageComparisonString.CanHandle(new QueryParameter { ContextValue = new ContextValue { Value = 5 } }).ShouldBe(false);
+			_tableStorageComparisonString.CanHandle(new QueryParameter { ContextValue = new ContextValue { Values = new List<object> { 5 } } }).ShouldBe(false);
 		}
 
 		[Fact]
 		public void CannotHandleDate()
 		{
-			_tableStorageComparisonString.CanHandle(new QueryParameter { ContextValue = new ContextValue { Value = DateTime.Today } }).ShouldBe(false);
+			_tableStorageComparisonString.CanHandle(new QueryParameter { ContextValue = new ContextValue { Values = new List<object> { DateTime.Today } } }).ShouldBe(false);
 		}
 	}
 }

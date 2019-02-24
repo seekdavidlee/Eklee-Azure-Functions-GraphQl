@@ -2,33 +2,22 @@
 
 namespace Eklee.Azure.Functions.GraphQl.Repository.TableStorage
 {
-	public class TableStorageComparisonString : ITableStorageComparison
+	public class TableStorageComparisonString : TableStorageComparisonBase<string>
 	{
-		private QueryParameter _queryParameter;
-
-		private string _value;
-		public bool CanHandle(QueryParameter queryParameter)
+		protected override string GenerateFilterConditionFor(Comparisons comparison, string value)
 		{
-			_queryParameter = queryParameter;
-			_value = null;
-
-			if (queryParameter.ContextValue.Value is string value && !string.IsNullOrEmpty(value))
+			if (comparison == Comparisons.Equal)
 			{
-				_value = value;
-				return true;
-			}
-
-			return false;
-		}
-
-		public string Generate()
-		{
-			if (_queryParameter.ContextValue.Comparison == Comparisons.Equal)
-			{
-				return TableQuery.GenerateFilterCondition(_queryParameter.MemberModel.Member.Name, QueryComparisons.Equal, _value);
+				return TableQuery.GenerateFilterCondition(QueryParameter.MemberModel.Member.Name,
+					QueryComparisons.Equal, value);
 			}
 
 			return null;
+		}
+
+		protected override bool AssertCanHandleContextValue(object o)
+		{
+			return o is string value && !string.IsNullOrEmpty(value);
 		}
 	}
 }

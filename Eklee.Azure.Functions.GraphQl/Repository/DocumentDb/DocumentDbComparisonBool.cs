@@ -11,7 +11,8 @@
 			_queryParameter = queryParameter;
 			_value = null;
 
-			if (queryParameter.ContextValue.Value is bool value)
+			if (queryParameter.ContextValue.IsSingleValue() && 
+			    queryParameter.ContextValue.GetFirstValue() is bool value)
 			{
 				_value = value;
 				return true;

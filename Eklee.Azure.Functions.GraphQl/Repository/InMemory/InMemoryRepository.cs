@@ -77,7 +77,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.InMemory
 		private bool AssertIfIntegers(object x, QueryParameter queryParameter)
 		{
 			if (x is int xStr && queryParameter.ContextValue.Comparison.HasValue &&
-				queryParameter.ContextValue.Value is int ctxValueStr)
+				queryParameter.ContextValue.GetFirstValue() is int ctxValueStr)
 			{
 				switch (queryParameter.ContextValue.Comparison)
 				{
@@ -112,7 +112,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.InMemory
 			var x = queryParameter.MemberModel.TypeAccessor[obj, queryParameter.MemberModel.Member.Name];
 			//queryParameter.MemberModel.
 			if (x is string xStr && queryParameter.ContextValue.Comparison.HasValue &&
-				queryParameter.ContextValue.Value is string ctxValueStr)
+				queryParameter.ContextValue.GetFirstValue() is string ctxValueStr)
 			{
 				switch (queryParameter.ContextValue.Comparison)
 				{

@@ -47,7 +47,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 			{
 				new QueryParameter
 				{
-					ContextValue = new ContextValue { Value = id, Comparison = Comparisons.Equal},
+					ContextValue = new ContextValue { Values = new List<object>{ id }, Comparison = Comparisons.Equal},
 					MemberModel = new ModelMember(type, accessor, member, false)
 				}
 			}, null, null);

@@ -35,22 +35,19 @@ namespace Eklee.Azure.Functions.GraphQl
 
 					var first = queryStep.QueryParameters.First();
 
-					foreach (var queryValue in queryValues)
+					first.ContextValue = new ContextValue { Values = queryValues, Comparison = Comparisons.Equal };
+
+					try
 					{
-						first.ContextValue = new ContextValue { Value = queryValue, Comparison = Comparisons.Equal };
-
-						try
-						{
-							var results = (await _graphQlRepositoryProvider.QueryAsync(queryName, queryStep, graphRequestContext)).ToList();
-							nextQueryResults.AddRange(results);
-						}
-						catch (Exception e)
-						{
-							_logger.LogError(e, "An error has occured while executing query on repository.");
-							throw;
-						}
+						var results = (await _graphQlRepositoryProvider.QueryAsync(queryName, queryStep, graphRequestContext)).ToList();
+						nextQueryResults.AddRange(results);
 					}
-
+					catch (Exception e)
+					{
+						_logger.LogError(e, "An error has occured while executing query on repository.");
+						throw;
+					}
+	
 					ctx.SetQueryResult(nextQueryResults);
 				}
 				else

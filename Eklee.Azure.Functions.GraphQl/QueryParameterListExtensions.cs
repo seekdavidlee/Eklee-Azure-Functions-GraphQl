@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -13,10 +14,15 @@ namespace Eklee.Azure.Functions.GraphQl
 			{
 				all.Append(string.Join("_",
 					list.QueryParameters.Where(
-						x => x.ContextValue?.Value != null && x.ContextValue.Comparison.HasValue).Select(
-						x => $"{x.ContextValue.Comparison.Value}{ x.ContextValue.Value}")));
+						x => x.ContextValue?.Values != null && x.ContextValue.Comparison.HasValue).Select(
+						x => $"{x.ContextValue.Comparison.Value}{ GetValue(x.ContextValue.Values)}")));
 			});
 			return all.ToString();
+		}
+
+		private static string GetValue(List<object> list)
+		{
+			return string.Join("_", list.Select(x => x.ToString()));
 		}
 	}
 }

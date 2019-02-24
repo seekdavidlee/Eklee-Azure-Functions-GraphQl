@@ -148,7 +148,15 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Http
 			var parameters = queryParameters.ToList();
 
 			Dictionary<string, string> items =
-				parameters.ToDictionary(x => x.MemberModel.Name, x => x.ContextValue.Value.ToString());
+				parameters.ToDictionary(x => x.MemberModel.Name, x =>
+				{
+					if (!x.ContextValue.IsSingleValue())
+					{
+						// TODO: Investigate the impact as we need to support multiple values.
+						throw new NotImplementedException("Multiple values not supported.");
+					}
+					return x.ContextValue.GetFirstValue().ToString();
+				});
 
 			// ReSharper disable once AssignNullToNotNullAttribute
 			var resourceQueries = _queryTransforms[typeof(T).FullName];

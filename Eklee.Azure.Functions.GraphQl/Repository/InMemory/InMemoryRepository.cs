@@ -82,7 +82,12 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.InMemory
 				switch (queryParameter.ContextValue.Comparison)
 				{
 					case Comparisons.Equal:
-						return xStr == ctxValueStr;
+						if (queryParameter.ContextValue.IsSingleValue())
+							return xStr == ctxValueStr;
+						else
+						{
+							return queryParameter.ContextValue.Values.Any(v => (int)v == xStr);
+						}
 
 					case Comparisons.NotEqual:
 						return xStr != ctxValueStr;
@@ -117,7 +122,12 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.InMemory
 				switch (queryParameter.ContextValue.Comparison)
 				{
 					case Comparisons.Equal:
-						return xStr == ctxValueStr;
+						if (queryParameter.ContextValue.IsSingleValue())
+							return xStr == ctxValueStr;
+						else
+						{
+							return queryParameter.ContextValue.Values.Any(v => (string)v == xStr);
+						}
 
 					case Comparisons.StringContains:
 						return xStr.Contains(ctxValueStr);

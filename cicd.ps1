@@ -55,17 +55,21 @@ param([switch]$testunit, [switch]$testint,
 
 	Write-Host "C= $currentDir"
 
+	$reportFileName = (Get-Date).ToString("yyyyMMddHHmmss") + ".json"
+
 	pushd Examples\Eklee.Azure.Functions.GraphQl.Example\bin\Release\netstandard2.0
-	node_modules\.bin\newman run ..\..\..\..\..\tests\Eklee.Azure.Functions.GraphQl.postman_collection.json -e ..\..\..\..\..\tests\Eklee.Azure.Functions.GraphQl.Local.postman_environment.json --reporters cli,json --reporter-json-export "$currentDir\report.json"
+	node_modules\.bin\newman run ..\..\..\..\..\tests\Eklee.Azure.Functions.GraphQl.postman_collection.json -e ..\..\..\..\..\tests\Eklee.Azure.Functions.GraphQl.Local.postman_environment.json --reporters cli,json --reporter-json-export "$currentDir\$reportFileName"
 	popd
 
-	$report = (Get-Content "$currentDir\report.json" | Out-String | ConvertFrom-Json)	
+	$report = (Get-Content "$currentDir\$reportFileName" | Out-String | ConvertFrom-Json)	
 
 	Write-Host "Stopping Jobs"
 
 	Stop-Job $hostJob
 
-	if ($report.run.failures.length > 0) {
+	$failures = $report.run.failures.length
+	Write-Host "Failures: $failures"
+	if ($failures -gt 0) {
 		Write-Host "Failed!" -ForegroundColor red
 	} else {
 		Write-Host "All good!" -ForegroundColor green
@@ -82,6 +86,7 @@ param([switch]$testunit, [switch]$testint,
 		Copy-Item $currentDir\LICENSE $currentDir\LICENSE.txt
 		nuget.exe pack $app\$app.csproj -Properties Configuration=$buildConfig -IncludeReferencedProjects
 		Remove-Item $currentDir\LICENSE.txt
+		Remove-Item $currentDir\$reportFileName
 	}
 	.\Reset.ps1 -ResourceGroupName $ResourceGroupName -Name $Name -SubscriptionId $SubscriptionId
 	

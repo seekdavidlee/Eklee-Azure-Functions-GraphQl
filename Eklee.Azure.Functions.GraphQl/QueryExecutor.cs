@@ -33,21 +33,28 @@ namespace Eklee.Azure.Functions.GraphQl
 
 					var queryValues = queryStep.Mapper(ctx);
 
-					var first = queryStep.QueryParameters.First();
-
-					first.ContextValue = new ContextValue { Values = queryValues, Comparison = Comparisons.Equal };
-
-					try
+					if (queryValues.Count > 0)
 					{
-						var results = (await _graphQlRepositoryProvider.QueryAsync(queryName, queryStep, graphRequestContext)).ToList();
-						nextQueryResults.AddRange(results);
+						var first = queryStep.QueryParameters.First();
+
+						first.ContextValue = new ContextValue { Values = queryValues, Comparison = Comparisons.Equal };
+
+						try
+						{
+							var results = (await _graphQlRepositoryProvider.QueryAsync(queryName, queryStep, graphRequestContext)).ToList();
+							nextQueryResults.AddRange(results);
+						}
+						catch (Exception e)
+						{
+							_logger.LogError(e, "An error has occured while executing query on repository.");
+							throw;
+						}
 					}
-					catch (Exception e)
+					else
 					{
-						_logger.LogError(e, "An error has occured while executing query on repository.");
-						throw;
+						_logger.LogWarning($"No values detected for queryStep @ {queryName}");
 					}
-	
+
 					ctx.SetQueryResult(nextQueryResults);
 				}
 				else

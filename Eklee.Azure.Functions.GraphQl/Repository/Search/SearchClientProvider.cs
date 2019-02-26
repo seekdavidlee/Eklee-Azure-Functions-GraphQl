@@ -40,12 +40,14 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 
 		public void ConfigureSearchService(Dictionary<string, object> configurations, Type sourceType)
 		{
-			var fields = GetTypeFields(sourceType);
-			var prefix = configurations.GetStringValue(SearchConstants.Prefix, sourceType) ?? "";
 			string id = sourceType.Name.ToLower();
+
+			if (_searchClientProviderInfos.Any(x => x.Id == id)) return;
+
+			var prefix = configurations.GetStringValue(SearchConstants.Prefix, sourceType) ?? "";
 			string indexName = prefix + id;
 
-			_searchServiceClient.Indexes.CreateOrUpdate(new Index(indexName, fields));
+			_searchServiceClient.Indexes.CreateOrUpdate(new Index(indexName, GetTypeFields(sourceType)));
 
 			_searchClientProviderInfos.Add(new SearchClientProviderInfo
 			{

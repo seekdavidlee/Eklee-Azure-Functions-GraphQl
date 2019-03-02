@@ -179,9 +179,10 @@ namespace Eklee.Azure.Functions.GraphQl
 		public static ContextValue GetContextValue(this Dictionary<string, object> args, ModelMember modelMember)
 		{
 			var name = modelMember.Name;
-			var contextValue = new ContextValue { IsNotSet = !args.ContainsKey(name) };
 
-			if (!contextValue.IsNotSet)
+			var contextValue = new ContextValue();
+
+			if (args.ContainsKey(name))
 			{
 				Dictionary<string, object> arg = (Dictionary<string, object>)args[name];
 

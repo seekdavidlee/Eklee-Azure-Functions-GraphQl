@@ -5,7 +5,6 @@ namespace Eklee.Azure.Functions.GraphQl
 {
 	public class ContextValue
 	{
-		public bool IsNotSet { get; set; }
 		public List<object> Values { get; set; }
 
 		public object GetFirstValue()
@@ -19,18 +18,5 @@ namespace Eklee.Azure.Functions.GraphQl
 		}
 
 		public Comparisons? Comparison { get; set; }
-	}
-
-	public enum Comparisons
-	{
-		Equal,
-		StringStartsWith,
-		StringEndsWith,
-		StringContains,
-		NotEqual,
-		GreaterThan,
-		GreaterEqualThan,
-		LessThan,
-		LessEqualThan
 	}
 }

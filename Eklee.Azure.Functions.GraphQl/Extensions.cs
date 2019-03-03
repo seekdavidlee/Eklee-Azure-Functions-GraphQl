@@ -78,27 +78,39 @@ namespace Eklee.Azure.Functions.GraphQl
 
 			if (validateionResult != null) return validateionResult;
 
-			var graphQlDomain = executionContext.Resolve<IGraphQlDomain>();
 			var logger = executionContext.Resolve<ILogger>();
+
+			if (httpRequest.ContentType == "application/graphql")
+			{
+				// https://graphql.org/learn/serving-over-http/
+				// If the "application/graphql" Content-Type header is present, treat the HTTP POST body contents as the GraphQL query string.
+				return await ProcessRequest(executionContext, httpRequest, logger, body => new GraphQlDomainRequest { Query = body });
+			}
 
 			if (httpRequest.ContentType == "application/json")
 			{
-				var requestBody = await httpRequest.ReadAsStringAsync();
-
-				logger.LogInformation($"Request-Body: {requestBody}");
-
-				var results = await graphQlDomain.ExecuteAsync(JsonConvert.DeserializeObject<GraphQlDomainRequest>(requestBody));
-
-				if (results.Errors != null && results.Errors.Any(x =>
-						x.InnerException != null && x.InnerException.GetType() == typeof(SecurityException)))
-					return new UnauthorizedResult();
-
-				return new OkObjectResult(results);
+				return await ProcessRequest(executionContext, httpRequest, logger, JsonConvert.DeserializeObject<GraphQlDomainRequest>);
 			}
 
-			// TODO: Log request Content-Type is unsupported.
-
+			logger.LogWarning($"{httpRequest.ContentType} is not supported.");
 			return new BadRequestResult();
+		}
+
+		private static async Task<IActionResult> ProcessRequest(ExecutionContext executionContext, HttpRequest httpRequest, ILogger logger, Func<string, GraphQlDomainRequest> handler)
+		{
+			var graphQlDomain = executionContext.Resolve<IGraphQlDomain>();
+
+			var requestBody = await httpRequest.ReadAsStringAsync();
+
+			logger.LogInformation($"Request-Body: {requestBody}");
+
+			var results = await graphQlDomain.ExecuteAsync(handler(requestBody));
+
+			if (results.Errors != null && results.Errors.Any(x =>
+					x.InnerException != null && x.InnerException.GetType() == typeof(SecurityException)))
+				return new UnauthorizedResult();
+
+			return new OkObjectResult(results);
 		}
 
 		/// <summary>
@@ -179,9 +191,10 @@ namespace Eklee.Azure.Functions.GraphQl
 		public static ContextValue GetContextValue(this Dictionary<string, object> args, ModelMember modelMember)
 		{
 			var name = modelMember.Name;
-			var contextValue = new ContextValue { IsNotSet = !args.ContainsKey(name) };
 
-			if (!contextValue.IsNotSet)
+			var contextValue = new ContextValue();
+
+			if (args.ContainsKey(name))
 			{
 				Dictionary<string, object> arg = (Dictionary<string, object>)args[name];
 

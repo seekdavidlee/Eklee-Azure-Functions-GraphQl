@@ -15,15 +15,6 @@ using Microsoft.Extensions.Logging;
 
 namespace Eklee.Azure.Functions.GraphQl
 {
-	public enum AssertAction
-	{
-		BatchCreate,
-		Create,
-		Update,
-		Delete,
-		DeleteAll
-	}
-
 	public class ModelConventionInputBuilder<TSource> : IModelConventionInputBuilder<TSource> where TSource : class
 	{
 		private readonly ObjectGraphType _objectGraphType;

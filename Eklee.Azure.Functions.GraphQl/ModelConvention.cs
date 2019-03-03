@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using Eklee.Azure.Functions.GraphQl.Attributes;
 using FastMember;
-using IdGraphType = GraphQL.Types.IdGraphType;
 
 namespace Eklee.Azure.Functions.GraphQl
 {

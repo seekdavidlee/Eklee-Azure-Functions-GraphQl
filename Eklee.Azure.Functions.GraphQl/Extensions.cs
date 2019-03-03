@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Reflection;
 using System.Security;
 using System.Text;
 using System.Threading.Tasks;
@@ -304,6 +305,13 @@ namespace Eklee.Azure.Functions.GraphQl
 		{
 			var modelConvention = new ModelConvention<TSourceType>();
 			modelConventionType.Name = modelConvention.Name;
+
+			if (typeof(TSourceType).GetCustomAttribute(
+				typeof(DescriptionAttribute)) is DescriptionAttribute descAttr)
+			{
+				modelConventionType.Description = descAttr.Description;
+			}
+
 			modelConvention.ForEachWithField(
 				(type, name, desc) => modelConventionType.Field(type, name, desc));
 		}

@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Eklee.Azure.Functions.GraphQl.Example.Models
 {
+	[Description("Author for the book.")]
 	public class Author
 	{
 		[Key]

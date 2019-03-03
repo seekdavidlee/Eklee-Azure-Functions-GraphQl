@@ -48,7 +48,7 @@ namespace Eklee.Azure.Functions.GraphQl
 				Query = graphQlDomainRequest.Query,
 				EnableMetrics = enableMetrics,
 				UserContext = _graphRequestContext,
-				ExposeExceptions = exposeExceptions,
+				ExposeExceptions = exposeExceptions
 			};
 
 			if (graphQlDomainRequest.Variables != null)

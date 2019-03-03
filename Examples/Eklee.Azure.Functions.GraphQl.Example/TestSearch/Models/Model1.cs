@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Eklee.Azure.Functions.GraphQl.Example.TestSearch.Models
 {
+	[Description("Model 1 class for testing Search.")]
 	public class Model1
 	{
 		[Key]

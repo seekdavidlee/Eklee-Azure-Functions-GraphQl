@@ -11,7 +11,7 @@ namespace Eklee.Azure.Functions.GraphQl
 		private readonly IDistributedCache _distributedCache;
 		private readonly ILogger _logger;
 
-		public QueryBuilderFactory(IGraphQlRepositoryProvider graphQlRepository, 
+		public QueryBuilderFactory(IGraphQlRepositoryProvider graphQlRepository,
 			IDistributedCache distributedCache,
 			ILogger logger)
 		{
@@ -20,9 +20,9 @@ namespace Eklee.Azure.Functions.GraphQl
 			_logger = logger;
 		}
 
-		public QueryBuilder<TSource> Create<TSource>(ObjectGraphType<object> objectGraphType, string queryName)
+		public QueryBuilder<TSource> Create<TSource>(ObjectGraphType<object> objectGraphType, string queryName, string description = null)
 		{
-			return new QueryBuilder<TSource>(objectGraphType, queryName, _graphQlRepository, _distributedCache, _logger);
+			return new QueryBuilder<TSource>(objectGraphType, queryName, description, _graphQlRepository, _distributedCache, _logger);
 		}
 	}
 }

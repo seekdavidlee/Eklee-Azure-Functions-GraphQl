@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Eklee.Azure.Functions.GraphQl.Example.Models
 {
+	[Description("Represents the relationship between a book and its authors.")]
 	public class BookAuthors
 	{
 		[Key]

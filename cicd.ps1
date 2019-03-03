@@ -1,4 +1,4 @@
-param([switch]$testunit, [switch]$testint, 
+param([switch]$testunit, [switch]$testint, [switch]$skippackage, 
 	[Parameter(Mandatory=$False)][string]$ResourceGroupName, 
 	[Parameter(Mandatory=$False)][string]$Name,	
 	[Parameter(Mandatory=$False)][string]$SubscriptionId)
@@ -74,19 +74,23 @@ param([switch]$testunit, [switch]$testint,
 	} else {
 		Write-Host "All good!" -ForegroundColor green
 
-		Write-Host "Generating nuget package"
+		if ($skippackage){
+			Write-Host "Skip building nuget package..."
+		} else {
+			Write-Host "Generating nuget package"
 
-		pushd .\$app
-		dotnet clean --configuration $buildConfig
-		dotnet build --configuration $buildConfig
-		Move-Item -Path bin\Release\netstandard2.0\bin\$app.dll -Destination bin\Release\netstandard2.0\$app.dll
-		Remove-Item -Path bin\Release\netstandard2.0\bin -Recurse
-		popd
-		Remove-Item $currentDir\*.nupkg
-		Copy-Item $currentDir\LICENSE $currentDir\LICENSE.txt
-		nuget.exe pack $app\$app.csproj -Properties Configuration=$buildConfig -IncludeReferencedProjects
-		Remove-Item $currentDir\LICENSE.txt
-		Remove-Item $currentDir\$reportFileName
+			pushd .\$app
+			dotnet clean --configuration $buildConfig
+			dotnet build --configuration $buildConfig
+			Move-Item -Path bin\Release\netstandard2.0\bin\$app.dll -Destination bin\Release\netstandard2.0\$app.dll
+			Remove-Item -Path bin\Release\netstandard2.0\bin -Recurse
+			popd
+			Remove-Item $currentDir\*.nupkg
+			Copy-Item $currentDir\LICENSE $currentDir\LICENSE.txt
+			nuget.exe pack $app\$app.csproj -Properties Configuration=$buildConfig -IncludeReferencedProjects
+			Remove-Item $currentDir\LICENSE.txt
+			Remove-Item $currentDir\$reportFileName
+		}
 	}
 	.\Reset.ps1 -ResourceGroupName $ResourceGroupName -Name $Name -SubscriptionId $SubscriptionId
 	

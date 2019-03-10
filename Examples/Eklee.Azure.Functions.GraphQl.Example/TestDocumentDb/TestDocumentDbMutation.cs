@@ -9,6 +9,8 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestDocumentDb
 	{
 		public TestDocumentDbMutation(InputBuilderFactory inputBuilderFactory, IConfiguration configuration)
 		{
+			Name = "mutation";
+
 			var key = configuration["DocumentDb:Key"];
 			var url = configuration["DocumentDb:Url"];
 			var requestUnits = Convert.ToInt32(configuration["DocumentDb:RequestUnits"]);
@@ -33,7 +35,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestDocumentDb
 				.AddDatabase(db)
 				.AddPartition(x => x.Field)
 				.BuildDocumentDb()
-				.DeleteAll(() => new Status { Message = "All Model1 have been removed." })
+				.DeleteAll(() => new Status { Message = "All Model2 have been removed." })
 				.Build();
 
 			inputBuilderFactory.Create<Model3>(this)
@@ -44,7 +46,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestDocumentDb
 				.AddDatabase(db)
 				.AddPartition(x => x.Field)
 				.BuildDocumentDb()
-				.DeleteAll(() => new Status { Message = "All Model1 have been removed." })
+				.DeleteAll(() => new Status { Message = "All Model3 have been removed." })
 				.Build();
 		}
 	}

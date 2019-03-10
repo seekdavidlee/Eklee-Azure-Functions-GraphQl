@@ -4,6 +4,16 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Eklee.Azure.Functions.GraphQl.Example.TestSearch.Models
 {
+	[Description("Types of Model1s")]
+	public enum Model2Types
+	{
+		[Description("Model 2 Type 1")]
+		M2Type1,
+
+		[Description("Model 2 Type 2")]
+		M2Type2
+	}
+
 	public class Model2
 	{
 		[Key]
@@ -21,5 +31,8 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestSearch.Models
 
 		[Description("Field")]
 		public string Field { get; set; }
+
+		[Description("Model2Types")]
+		public Model2Types? Type { get; set; }
 	}
 }

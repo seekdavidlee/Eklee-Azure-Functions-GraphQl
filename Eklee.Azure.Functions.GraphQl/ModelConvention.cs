@@ -44,6 +44,19 @@ namespace Eklee.Azure.Functions.GraphQl
 			return member.Type.GetGraphTypeFromType();
 		}
 
+		private Type GetEnumGraphType(Member m, Type baseType)
+		{
+			var enumType = typeof(ModelEnumConventionType<>).MakeGenericType(baseType);
+
+			if (m.GetAttribute(typeof(ModelFieldAttribute), false) is ModelFieldAttribute modelField && modelField.IsRequired)
+			{
+				var nonNull = typeof(NonNullGraphType<>).MakeGenericType(enumType);
+				return nonNull;
+			}
+
+			return enumType;
+		}
+
 		public void ForEachWithField(Action<Type, string, string> addFieldAction)
 		{
 			ModelType.ForEach(m =>
@@ -64,6 +77,24 @@ namespace Eklee.Azure.Functions.GraphQl
 				}
 				else
 				{
+					if (m.Type.IsEnum)
+					{
+						addFieldAction(GetEnumGraphType(m, m.Type), m.Name, m.GetDescription());
+						return;
+					}
+
+					if (m.Type.IsNullable() &&
+						m.Type.GetGenericArguments().Length > 0)
+					{
+						var nullableType = m.Type.GetGenericArguments()[0];
+
+						if (nullableType.IsEnum)
+						{
+							addFieldAction(GetEnumGraphType(m, nullableType), m.Name, m.GetDescription());
+							return;
+						}
+					}
+
 					// See: https://docs.microsoft.com/en-us/dotnet/framework/reflection-and-codedom/how-to-examine-and-instantiate-generic-types-with-reflection
 
 					if (m.Type.IsGenericType && m.Type.GetGenericTypeDefinition() == typeof(List<>))

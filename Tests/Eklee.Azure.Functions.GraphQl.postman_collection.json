@@ -1162,13 +1162,13 @@
 							"raw": "query{\r\n  searchModel2(id:{equal:\"model2_4\"}){\r\n    id\r\n    field\r\n    type\r\n    dateField\r\n    doubleField\r\n    intField\r\n  }\r\n}"
 						},
 						"url": {
-							"raw": "{{endpoint}}/api/testinmemory/graph",
+							"raw": "{{endpoint}}/api/testdocumentdb/graph",
 							"host": [
 								"{{endpoint}}"
 							],
 							"path": [
 								"api",
-								"testinmemory",
+								"testdocumentdb",
 								"graph"
 							]
 						}

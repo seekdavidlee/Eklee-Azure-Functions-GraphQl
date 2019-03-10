@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Eklee.Azure.Functions.GraphQl.Example.Models;
 using Eklee.Azure.Functions.GraphQl.Example.TestSearch.Models;
 using Eklee.Azure.Functions.GraphQl.Repository.Search;
 using GraphQL.Types;

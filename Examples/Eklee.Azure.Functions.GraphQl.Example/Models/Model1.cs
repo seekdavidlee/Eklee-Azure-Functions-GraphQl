@@ -1,20 +1,22 @@
 ﻿using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using Eklee.Azure.Functions.GraphQl.Attributes;
 
-namespace Eklee.Azure.Functions.GraphQl.Example.TestSearch.Models
+namespace Eklee.Azure.Functions.GraphQl.Example.Models
 {
 	[Description("Types of Model1s")]
-	public enum Model2Types
+	public enum Model1Types
 	{
-		[Description("Model 2 Type 1")]
-		M2Type1,
+		[Description("Model 1 Type 1")]
+		M1Type1,
 
-		[Description("Model 2 Type 2")]
-		M2Type2
+		[Description("Model 1 Type 2")]
+		M1Type2
 	}
 
-	public class Model2
+	[Description("Model 1 class for testing Search.")]
+	public class Model1
 	{
 		[Key]
 		[Description("Id")]
@@ -32,7 +34,8 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestSearch.Models
 		[Description("Field")]
 		public string Field { get; set; }
 
-		[Description("Model2Types")]
-		public Model2Types? Type { get; set; }
+		[ModelField(true)]
+		[Description("Types")]
+		public Model1Types Type { get; set; }
 	}
 }

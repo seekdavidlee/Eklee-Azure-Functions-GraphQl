@@ -9,6 +9,8 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestSearch
 	{
 		public TestSearchMutation(InputBuilderFactory inputBuilderFactory, IConfiguration configuration)
 		{
+			Name = "mutation";
+
 			var conn = configuration["TableStorage:ConnectionString"];
 
 			inputBuilderFactory.Create<Model1>(this)

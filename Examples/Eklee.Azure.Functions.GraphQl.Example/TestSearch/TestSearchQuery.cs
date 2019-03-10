@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Eklee.Azure.Functions.GraphQl.Example.Models;
 using Eklee.Azure.Functions.GraphQl.Example.TestSearch.Models;
 using Eklee.Azure.Functions.GraphQl.Repository.Search;
 using GraphQL.Types;
@@ -15,6 +16,20 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestSearch
 			logger.LogInformation("Creating queries.");
 
 			Name = "query";
+
+			queryBuilderFactory.Create<Model1>(this, "searchModel1", "Search for a single Model 1 by Id")
+				.WithCache(TimeSpan.FromSeconds(15))
+				.WithParameterBuilder()
+				.WithProperty(x => x.Id)
+				.BuildQuery()
+				.BuildWithSingleResult();
+
+			queryBuilderFactory.Create<Model2>(this, "searchModel2", "Search for a single Model 2 by Id")
+				.WithCache(TimeSpan.FromSeconds(15))
+				.WithParameterBuilder()
+				.WithProperty(x => x.Id)
+				.BuildQuery()
+				.BuildWithSingleResult();
 
 			queryBuilderFactory.Create<MySearchResult>(this, "search1", "Searches across Models.")
 				.WithCache(TimeSpan.FromSeconds(10))

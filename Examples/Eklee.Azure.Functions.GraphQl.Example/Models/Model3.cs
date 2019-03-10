@@ -2,10 +2,9 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace Eklee.Azure.Functions.GraphQl.Example.TestSearch.Models
+namespace Eklee.Azure.Functions.GraphQl.Example.Models
 {
-	[Description("Model 1 class for testing Search.")]
-	public class Model1
+	public class Model3
 	{
 		[Key]
 		[Description("Id")]

@@ -3,6 +3,6 @@
 	public interface IDocumentDbComparison
 	{
 		bool CanHandle(QueryParameter queryParameter);
-		string Generate();
+		DocumentDbSqlParameter Generate();
 	}
 }

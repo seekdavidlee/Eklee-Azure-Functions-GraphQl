@@ -181,9 +181,11 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 					value is Guid guidValue && guidValue == Guid.Empty)
 				{
 					// Let's query for the partition.
+					var collection = new SqlParameterCollection { new SqlParameter("@id", item.GetKey()) };
+					var sqlQuery = new SqlQuerySpec("SELECT * FROM x WHERE x.id=@id", collection);
 
 					var query = _documentClient.CreateDocumentQuery<T>(GetDocumentCollectionUri<T>(graphRequestContext),
-						$"SELECT * FROM x WHERE x.id='{item.GetKey()}'",
+							sqlQuery,
 							new FeedOptions { EnableCrossPartitionQuery = true })
 						.AsDocumentQuery();
 
@@ -231,15 +233,24 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 
 		public async Task<IEnumerable<T>> QueryAsync<T>(IEnumerable<QueryParameter> queryParameters, IGraphRequestContext graphRequestContext)
 		{
+			var collection = new SqlParameterCollection();
+
 			var sql = "SELECT * FROM x WHERE ";
 			const string and = " AND ";
 
 			var queryParametersList = queryParameters.ToList();
-			queryParametersList.ForEach(x => sql += TranslateQueryParameter(x) + and);
+			queryParametersList.ForEach(x =>
+			{
+				var documentDbSqlParameter = TranslateQueryParameter(x);
+				documentDbSqlParameter.SqlParameters.ToList().ForEach(collection.Add);
+				sql += documentDbSqlParameter.Comparison + and;
+			});
 
 			if (sql.EndsWith(and))
 				sql = sql.Substring(0, sql.LastIndexOf("AND ", StringComparison.Ordinal));
 
+			var sqlQuery = new SqlQuerySpec(sql, collection);
+			
 			var options = new FeedOptions
 			{
 				EnableCrossPartitionQuery = true,
@@ -259,23 +270,23 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 			_logger.LogInformation($"Generated SQL query in DocumentDb provider: {sql}");
 
 			var query = _documentClient.CreateDocumentQuery<T>(
-				GetDocumentCollectionUri<T>(graphRequestContext), sql, options).AsDocumentQuery();
+				GetDocumentCollectionUri<T>(graphRequestContext), sqlQuery, options).AsDocumentQuery();
 
 			var results = await query.ExecuteNextAsync<T>();
 			return results.ToList();
 		}
 
-		private string TranslateQueryParameter(QueryParameter queryParameter)
+		private DocumentDbSqlParameter TranslateQueryParameter(QueryParameter queryParameter)
 		{
 			var comparison = _documentDbComparisons.FirstOrDefault(x => x.CanHandle(queryParameter));
 
 			if (comparison == null) throw new NotImplementedException($"Comparison {queryParameter.ContextValue.Comparison} is not implemented for type.");
 
-			var statement = comparison.Generate();
+			var documentDbSqlParameter = comparison.Generate();
 
-			if (statement == null) throw new NotImplementedException($"Comparison {queryParameter.ContextValue.Comparison} is not implemented by {comparison.GetType().FullName}.");
+			if (documentDbSqlParameter == null) throw new NotImplementedException($"Comparison {queryParameter.ContextValue.Comparison} is not implemented by {comparison.GetType().FullName}.");
 
-			return statement;
+			return documentDbSqlParameter;
 		}
 
 		public async Task DeleteAllAsync<T>(IGraphRequestContext graphRequestContext)

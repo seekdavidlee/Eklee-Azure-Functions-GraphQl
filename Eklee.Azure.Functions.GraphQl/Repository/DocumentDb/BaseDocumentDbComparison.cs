@@ -38,6 +38,10 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 
 		public bool CanHandle(QueryParameter queryParameter)
 		{
+			// Reset from previous session.
+			Value = default(T);
+			Values = null;
+
 			QueryParameter = queryParameter;
 
 			if (QueryParameter.ContextValue.IsSingleValue() &&

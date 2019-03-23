@@ -1,30 +1,13 @@
 ﻿namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 {
-	public class DocumentDbComparisonBool : IDocumentDbComparison
+	public class DocumentDbComparisonBool : BaseDocumentDbComparison<bool>
 	{
-		private QueryParameter _queryParameter;
-
-		private bool? _value;
-
-		public bool CanHandle(QueryParameter queryParameter)
+		protected override string GetComprisonString(Comparisons comparison, string[] names)
 		{
-			_queryParameter = queryParameter;
-			_value = null;
-
-			if (queryParameter.ContextValue.IsSingleValue() && 
-			    queryParameter.ContextValue.GetFirstValue() is bool value)
+			if (names.Length == 1 && comparison == Comparisons.Equal)
 			{
-				_value = value;
-				return true;
+				return $" {GetPropertyName()} = {names[0]}";
 			}
-
-			return false;
-		}
-
-		public string Generate()
-		{
-			if (_queryParameter.ContextValue.Comparison == Comparisons.Equal)
-				return $" x.{_queryParameter.MemberModel.Member.Name} = {_value.ToString().ToLower()}";
 
 			return null;
 		}

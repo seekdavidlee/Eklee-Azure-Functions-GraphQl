@@ -17,6 +17,11 @@ namespace Eklee.Azure.Functions.GraphQl
 			return Values.Count == 1;
 		}
 
+		public bool IsMultipleValues()
+		{
+			return Values.Count > 1;
+		}
+
 		public Comparisons? Comparison { get; set; }
 	}
 }

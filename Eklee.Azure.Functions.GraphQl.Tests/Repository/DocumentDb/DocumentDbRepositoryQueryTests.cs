@@ -272,7 +272,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 		{
 			await Seed();
 
-			var date = DateTime.Parse("2018-01-01");
+			var date = DateTime.Parse("2018-01-01").ToUtc();
 			QueryParameter[] args = {
 				new QueryParameter
 				{
@@ -300,7 +300,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 		{
 			await Seed();
 
-			var date = DateTime.Parse("2019-04-01");
+			var date = DateTime.Parse("2019-04-01").ToUtc();
 			QueryParameter[] args = {
 				new QueryParameter
 				{
@@ -327,7 +327,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 		{
 			await Seed();
 
-			var date = DateTime.Parse("2019-04-01");
+			var date = DateTime.Parse("2019-04-01").ToUtc();
 			QueryParameter[] args = {
 				new QueryParameter
 				{
@@ -352,7 +352,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 		{
 			await Seed();
 
-			var date = DateTime.Parse("2014-01-02");
+			var date = DateTime.Parse("2014-01-02").ToUtc();
 			QueryParameter[] args = {
 				new QueryParameter
 				{
@@ -379,7 +379,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 		{
 			await Seed();
 
-			var date = DateTime.Parse("2014-12-01");
+			var date = DateTime.Parse("2014-12-01").ToUtc();
 			QueryParameter[] args = {
 				new QueryParameter
 				{

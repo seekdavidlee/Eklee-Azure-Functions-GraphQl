@@ -1,61 +1,46 @@
-﻿using System.Linq;
-
-namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
+﻿namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 {
-	public class DocumentDbComparisonInt : IDocumentDbComparison
+	public class DocumentDbComparisonInt : BaseDocumentDbComparison<int>
 	{
-		private QueryParameter _queryParameter;
-
-		private int? _value;
-		private int[] _values;
-
-		public bool CanHandle(QueryParameter queryParameter)
+		protected override bool AssertContextValue(int value)
 		{
-			_queryParameter = queryParameter;
-			_value = null;
-
-			if (queryParameter.ContextValue.GetFirstValue() is int value && value != 0)
-			{
-				if (_queryParameter.ContextValue.IsSingleValue())
-					_value = value;
-				else
-					_values = _queryParameter.ContextValue.Values.Select(x => (int)x).ToArray();
-				return true;
-			}
-
-			return false;
+			return value != 0;
 		}
 
-		private string GetJoinValues()
+		protected override string GetComprisonString(Comparisons comparison, string[] names)
 		{
-			return string.Join(",", _values);
-		}
-
-		public string Generate()
-		{
-			if (_queryParameter.ContextValue.Comparison == Comparisons.Equal)
+			if (comparison == Comparisons.Equal)
 			{
-				if (_queryParameter.ContextValue.IsSingleValue())
-					return $" x.{_queryParameter.MemberModel.Member.Name} = {_value}";
+				if (names.Length == 1)
+				{
+					return $" {GetPropertyName()} = {names[0]}";
+				}
 
-				return $" x.{_queryParameter.MemberModel.Member.Name} in ({GetJoinValues()})";
+				if (names.Length > 1)
+				{
+					return $" {GetPropertyName()} in ({string.Join(",", names)})";
+				}
 			}
 
+			if (names.Length == 1)
+			{
+				var name = names[0];
 
-			if (_queryParameter.ContextValue.Comparison == Comparisons.NotEqual)
-				return $" x.{_queryParameter.MemberModel.Member.Name} != {_value}";
+				if (comparison == Comparisons.NotEqual)
+					return $" {GetPropertyName()} != {name}";
 
-			if (_queryParameter.ContextValue.Comparison == Comparisons.GreaterThan)
-				return $" x.{_queryParameter.MemberModel.Member.Name} > {_value}";
+				if (comparison == Comparisons.GreaterThan)
+					return $" {GetPropertyName()} > {name}";
 
-			if (_queryParameter.ContextValue.Comparison == Comparisons.GreaterEqualThan)
-				return $" x.{_queryParameter.MemberModel.Member.Name} >= {_value}";
+				if (comparison == Comparisons.GreaterEqualThan)
+					return $" {GetPropertyName()} >= {name}";
 
-			if (_queryParameter.ContextValue.Comparison == Comparisons.LessThan)
-				return $" x.{_queryParameter.MemberModel.Member.Name} < {_value}";
+				if (comparison == Comparisons.LessThan)
+					return $" {GetPropertyName()} < {name}";
 
-			if (_queryParameter.ContextValue.Comparison == Comparisons.LessEqualThan)
-				return $" x.{_queryParameter.MemberModel.Member.Name} <= {_value}";
+				if (comparison == Comparisons.LessEqualThan)
+					return $" {GetPropertyName()} <= {name}";
+			}
 
 			return null;
 		}

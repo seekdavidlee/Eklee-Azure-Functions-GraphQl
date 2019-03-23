@@ -2,53 +2,37 @@
 
 namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 {
-	public class DocumentDbComparisonDate : IDocumentDbComparison
+	public class DocumentDbComparisonDate : BaseDocumentDbComparison<DateTime>
 	{
-		private QueryParameter _queryParameter;
-
-		private DateTime? _value;
-
-		public bool CanHandle(QueryParameter queryParameter)
+		protected override bool AssertContextValue(DateTime value)
 		{
-			_queryParameter = queryParameter;
-			_value = null;
+			return value != DateTime.MinValue;
+		}
 
-			if (queryParameter.ContextValue.IsSingleValue() &&
-			    queryParameter.ContextValue.GetFirstValue() is DateTime value && value != DateTime.MinValue)
+		protected override string GetComprisonString(Comparisons comparison, string[] names)
+		{
+			if (names.Length == 1)
 			{
-				_value = value;
-				return true;
+				var name = names[0];
+
+				if (comparison == Comparisons.Equal)
+					return $" {GetPropertyName()} = {name}";
+
+				if (comparison == Comparisons.NotEqual)
+					return $" {GetPropertyName()} != {name}";
+
+				if (comparison == Comparisons.GreaterThan)
+					return $" {GetPropertyName()} > {name}";
+
+				if (comparison == Comparisons.GreaterEqualThan)
+					return $" {GetPropertyName()} >= {name}";
+
+				if (comparison == Comparisons.LessThan)
+					return $" {GetPropertyName()} < {name}";
+
+				if (comparison == Comparisons.LessEqualThan)
+					return $" {GetPropertyName()} <= {name}";
 			}
-
-			return false;
-		}
-
-		private string GetDateTimeString()
-		{
-			if (!_value.HasValue) throw new InvalidOperationException("DateTime comparison is not valid for a null value.");
-
-			return _value.Value.ToString("yyyy-MM-ddTHH:mm:ssZ");
-		}
-
-		public string Generate()
-		{
-			if (_queryParameter.ContextValue.Comparison == Comparisons.Equal)
-				return $" x.{_queryParameter.MemberModel.Member.Name} = '{GetDateTimeString()}'";
-
-			if (_queryParameter.ContextValue.Comparison == Comparisons.NotEqual)
-				return $" x.{_queryParameter.MemberModel.Member.Name} != '{GetDateTimeString()}'";
-
-			if (_queryParameter.ContextValue.Comparison == Comparisons.GreaterThan)
-				return $" x.{_queryParameter.MemberModel.Member.Name} > '{GetDateTimeString()}'";
-
-			if (_queryParameter.ContextValue.Comparison == Comparisons.GreaterEqualThan)
-				return $" x.{_queryParameter.MemberModel.Member.Name} >= '{GetDateTimeString()}'";
-
-			if (_queryParameter.ContextValue.Comparison == Comparisons.LessThan)
-				return $" x.{_queryParameter.MemberModel.Member.Name} < '{GetDateTimeString()}'";
-
-			if (_queryParameter.ContextValue.Comparison == Comparisons.LessEqualThan)
-				return $" x.{_queryParameter.MemberModel.Member.Name} <= '{GetDateTimeString()}'";
 
 			return null;
 		}

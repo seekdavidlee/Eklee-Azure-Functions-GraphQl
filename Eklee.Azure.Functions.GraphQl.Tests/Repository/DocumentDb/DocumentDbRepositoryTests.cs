@@ -158,5 +158,29 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 
 			await DocumentDbRepository.DeleteAllAsync<DocumentDbFoo2>(null);
 		}
+
+		[Fact]
+		public async Task CanUpdate()
+		{
+			Expression<Func<DocumentDbFoo1, string>> expression = x => x.MyStringCategory;
+			var configurations = GetBaseConfigurations<DocumentDbFoo1>((MemberExpression)expression.Body);
+
+			DocumentDbRepository.Configure(typeof(DocumentDbFoo1), configurations);
+
+			string id = Guid.NewGuid().ToString("N");
+			await DocumentDbRepository.AddAsync(new DocumentDbFoo1
+			{
+				Id = id,
+				MyStringCategory = "foo",
+				Name = "foo 12"
+			}, null);
+
+			await DocumentDbRepository.UpdateAsync(new DocumentDbFoo1
+			{
+				Id = id,
+				MyStringCategory = "foo",
+				Name = "foo 12 v2"
+			}, null);
+		}
 	}
 }

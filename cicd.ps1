@@ -1,4 +1,5 @@
-param([switch]$testunit, [switch]$testint, [switch]$skippackage, 
+param([switch]$testunit, [switch]$testint, [switch]$skippackage,
+	[switch]$skipfunctest, 
 	[Parameter(Mandatory=$False)][string]$ResourceGroupName, 
 	[Parameter(Mandatory=$False)][string]$Name,	
 	[Parameter(Mandatory=$False)][string]$SubscriptionId)
@@ -24,54 +25,57 @@ param([switch]$testunit, [switch]$testint, [switch]$skippackage,
 		return;
 	}
 
-	if ($testint) { 
+	if ($testint) {
+		.\Reset.ps1 -ResourceGroupName $ResourceGroupName -Name $Name -SubscriptionId $SubscriptionId
 		return;
 	}
+
+	.\Reset.ps1 -ResourceGroupName $ResourceGroupName -Name $Name -SubscriptionId $SubscriptionId
 
 	$app = "Eklee.Azure.Functions.GraphQl"	
 
 	$currentDir = Get-Location
 
-	pushd Examples\Eklee.Azure.Functions.GraphQl.Example
-	dotnet build --configuration=$buildConfig
-	popd
+	if (!$skipfunctest) {
+		pushd Examples\Eklee.Azure.Functions.GraphQl.Example
+		dotnet build --configuration=$buildConfig
+		popd
 
-	pushd Examples\Eklee.Azure.Functions.GraphQl.Example\bin\Release\netstandard2.0
-	npm install --save-dev azure-functions-core-tools
-	npm install --save-dev newman
-	popd
-	$hostJob = Start-Job -ScriptBlock {
-		param([string]$currentDir)
-		Write-Host $currentDir
-		cd $currentDir
-		Get-Location
 		pushd Examples\Eklee.Azure.Functions.GraphQl.Example\bin\Release\netstandard2.0
-		node_modules\.bin\func host start
-	} -ArgumentList $currentDir
+		npm install --save-dev azure-functions-core-tools
+		npm install --save-dev newman
+		popd
+
+		Start-Process -WorkingDirectory Examples\Eklee.Azure.Functions.GraphQl.Example\bin\Release\netstandard2.0 -FilePath node_modules\.bin\func -ArgumentList "host start"
+
+		Start-Sleep -s 10
+
+		$func = Get-Process -Name func
+
+		$reportFileName = (Get-Date).ToString("yyyyMMddHHmmss") + ".json"
+
+		pushd Examples\Eklee.Azure.Functions.GraphQl.Example\bin\Release\netstandard2.0
+		node_modules\.bin\newman run ..\..\..\..\..\tests\Eklee.Azure.Functions.GraphQl.postman_collection.json -e ..\..\..\..\..\tests\Eklee.Azure.Functions.GraphQl.Local.postman_environment.json --reporters cli,json --reporter-json-export "$currentDir\$reportFileName"
+		popd
+
+		$report = (Get-Content "$currentDir\$reportFileName" | Out-String | ConvertFrom-Json)	
+
+		$failures = $report.run.failures.length
+		Write-Host "Failures: $failures"
+	} else {
+		# Override.
+		$failures = 0
+	}
 	
-	Start-Sleep -s 10
-
-	Receive-Job -Name $hostJob.Name
-
-	Write-Host "C= $currentDir"
-
-	$reportFileName = (Get-Date).ToString("yyyyMMddHHmmss") + ".json"
-
-	pushd Examples\Eklee.Azure.Functions.GraphQl.Example\bin\Release\netstandard2.0
-	node_modules\.bin\newman run ..\..\..\..\..\tests\Eklee.Azure.Functions.GraphQl.postman_collection.json -e ..\..\..\..\..\tests\Eklee.Azure.Functions.GraphQl.Local.postman_environment.json --reporters cli,json --reporter-json-export "$currentDir\$reportFileName"
-	popd
-
-	$report = (Get-Content "$currentDir\$reportFileName" | Out-String | ConvertFrom-Json)	
-
-	Write-Host "Stopping Jobs"
-
-	Stop-Job $hostJob
-
-	$failures = $report.run.failures.length
-	Write-Host "Failures: $failures"
 	if ($failures -gt 0) {
 		Write-Host "Failed!" -ForegroundColor red
 	} else {
+		
+		if ($func) {
+			Write-Host "Killing job"
+			Stop-Process $func
+		}
+
 		Write-Host "All good!" -ForegroundColor green
 
 		if ($skippackage){
@@ -89,7 +93,10 @@ param([switch]$testunit, [switch]$testint, [switch]$skippackage,
 			Copy-Item $currentDir\LICENSE $currentDir\LICENSE.txt
 			nuget.exe pack $app\$app.csproj -Properties Configuration=$buildConfig -IncludeReferencedProjects
 			Remove-Item $currentDir\LICENSE.txt
-			Remove-Item $currentDir\$reportFileName
+
+			if ($reportFileName) {
+				Remove-Item $currentDir\$reportFileName
+			}
 		}
 	}
 	.\Reset.ps1 -ResourceGroupName $ResourceGroupName -Name $Name -SubscriptionId $SubscriptionId

@@ -31,7 +31,7 @@ namespace Eklee.Azure.Functions.GraphQl.Validations
 		{
 			if (value is string valueString)
 			{
-				if (string.IsNullOrEmpty(valueString) && (stringLength.MinimumLength > 0 || stringLength.MaximumLength > 0))
+				if (string.IsNullOrEmpty(valueString) && stringLength.MinimumLength > 0)
 				{
 					message = $"String value must be more than {stringLength.MinimumLength} in length.";
 					return false;

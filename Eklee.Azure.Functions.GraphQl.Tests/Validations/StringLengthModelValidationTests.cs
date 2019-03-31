@@ -13,6 +13,9 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Validations
 	{
 		[StringLength(10, MinimumLength = 5)]
 		public string MyField { get; set; }
+
+		[StringLength(10)]
+		public string MyField2 { get; set; }
 	}
 
 	[Trait(Constants.Category, Constants.UnitTests)]
@@ -70,6 +73,21 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Validations
 
 			_stringLengthModelValidation.TryAssertMemberValueIsValid(member,
 				"abcdefghij", out errorCode, out message).ShouldBeTrue();
+
+			errorCode.ShouldBeNullOrEmpty();
+			message.ShouldBeNullOrEmpty();
+		}
+
+		[Fact]
+		public void ReturnTrueIfSetForEmptyStringNotForMax()
+		{
+			var member = GetMember<StringLengthTestModel1, string>(x => x.MyField2);
+
+			string errorCode;
+			string message;
+
+			_stringLengthModelValidation.TryAssertMemberValueIsValid(member,
+				"", out errorCode, out message).ShouldBeTrue();
 
 			errorCode.ShouldBeNullOrEmpty();
 			message.ShouldBeNullOrEmpty();

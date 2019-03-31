@@ -28,6 +28,21 @@ namespace Eklee.Azure.Functions.GraphQl.Validations
 			return _typeAccessors[key.FullName];
 		}
 
+		private Type GetModelType(Type type)
+		{
+			var args = type.GetType().GetGenericArguments();
+			if (args.Length == 1)
+			{
+				args = args[0].GetGenericArguments();
+				if (args.Length == 1)
+				{
+					return args[0];
+				}
+			}
+
+			return null;
+		}
+
 		public INodeVisitor Validate(ValidationContext context)
 		{
 			return new EnterLeaveListener(cfg =>
@@ -40,7 +55,9 @@ namespace Eklee.Azure.Functions.GraphQl.Validations
 					var type = argDef.ResolvedType;
 					if (type.IsInputType())
 					{
-						var modelType = type.GetType().GetGenericArguments()[0].GetGenericArguments()[0];
+						var modelType = GetModelType(type.GetType());
+
+						if (modelType == null) return;
 
 						var modelValidations = _modelValidations.Where(x => x.CanHandle(modelType)).ToList();
 

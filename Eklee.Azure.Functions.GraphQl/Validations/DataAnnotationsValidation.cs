@@ -41,8 +41,10 @@ namespace Eklee.Azure.Functions.GraphQl.Validations
 					if (type.IsInputType())
 					{
 						var modelType = type.GetType().GetGenericArguments()[0].GetGenericArguments()[0];
-						var modelValidation = _modelValidations.FirstOrDefault(x => x.CanHandle(modelType));
-						if (modelValidation != null)
+
+						var modelValidations = _modelValidations.Where(x => x.CanHandle(modelType)).ToList();
+
+						if (modelValidations.Count > 0)
 						{
 							var members = GetTypeAccessor(modelType).GetMembers().ToList();
 							var o = arg.Value.Value;
@@ -53,16 +55,18 @@ namespace Eklee.Azure.Functions.GraphQl.Validations
 								{
 									foreach (string key in item.Keys)
 									{
-										var member = members.SingleOrDefault(x => x.Name.ToLower() == key);
+										var member = members.SingleOrDefault(x => x.Name.ToLower() == key.ToLower());
 										if (member != null)
 										{
-											string errorCode;
-											string message;
-
-											if (!modelValidation.TryAssertMemberValueIsValid(member, item[key], out errorCode, out message))
+											modelValidations.ForEach(modelValidation =>
 											{
-												context.ReportError(new ValidationError(context.OriginalQuery, errorCode, message, arg));
-											}
+												string errorCode;
+												string message;
+												if (!modelValidation.TryAssertMemberValueIsValid(member, item[key], out errorCode, out message))
+												{
+													context.ReportError(new ValidationError(context.OriginalQuery, errorCode, message, arg));
+												}
+											});
 										}
 									}
 								}

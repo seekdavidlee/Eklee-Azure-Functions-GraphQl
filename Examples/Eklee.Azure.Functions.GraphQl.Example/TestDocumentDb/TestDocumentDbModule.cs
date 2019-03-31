@@ -13,6 +13,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestDocumentDb
 			builder.RegisterGraphQl<TestDocumentDbSchema>();
 			builder.RegisterType<TestDocumentDbQuery>();
 			builder.RegisterType<TestDocumentDbMutation>();
+			builder.UseDataAnnotationsValidation();
 		}
 	}
 }

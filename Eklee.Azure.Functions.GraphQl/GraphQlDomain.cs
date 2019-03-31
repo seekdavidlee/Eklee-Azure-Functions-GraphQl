@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Eklee.Azure.Functions.Http;
 using GraphQL;
 using GraphQL.Instrumentation;
 using GraphQL.Types;
+using GraphQL.Validation;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -19,10 +21,12 @@ namespace Eklee.Azure.Functions.GraphQl
 		private readonly ILogger _logger;
 		private readonly IHttpRequestContext _requestContext;
 		private readonly IGraphRequestContext _graphRequestContext;
+		private readonly IEnumerable<IValidationRule> _validationRules;
 
 		public GraphQlDomain(ISchema schema, IDocumentExecuter documentExecuter, IConfiguration configuration, ILogger logger,
 			IHttpRequestContext requestContext,
-			IGraphRequestContext graphRequestContext)
+			IGraphRequestContext graphRequestContext,
+			IEnumerable<IValidationRule> validationRules)
 		{
 			_schema = schema;
 			_documentExecuter = documentExecuter;
@@ -30,6 +34,7 @@ namespace Eklee.Azure.Functions.GraphQl
 			_logger = logger;
 			_requestContext = requestContext;
 			_graphRequestContext = graphRequestContext;
+			_validationRules = validationRules;
 		}
 
 		public async Task<ExecutionResult> ExecuteAsync(GraphQlDomainRequest graphQlDomainRequest)
@@ -48,7 +53,8 @@ namespace Eklee.Azure.Functions.GraphQl
 				Query = graphQlDomainRequest.Query,
 				EnableMetrics = enableMetrics,
 				UserContext = _graphRequestContext,
-				ExposeExceptions = exposeExceptions
+				ExposeExceptions = exposeExceptions,
+				ValidationRules = DocumentValidator.CoreRules().Concat(_validationRules)
 			};
 
 			if (graphQlDomainRequest.Variables != null)

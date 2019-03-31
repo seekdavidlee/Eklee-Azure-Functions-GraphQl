@@ -14,6 +14,7 @@ using Eklee.Azure.Functions.GraphQl.Repository.Http;
 using Eklee.Azure.Functions.GraphQl.Repository.InMemory;
 using Eklee.Azure.Functions.GraphQl.Repository.Search;
 using Eklee.Azure.Functions.GraphQl.Repository.TableStorage;
+using Eklee.Azure.Functions.GraphQl.Validations;
 using Eklee.Azure.Functions.Http;
 using FastMember;
 using GraphQL;
@@ -22,6 +23,7 @@ using GraphQL.Http;
 using GraphQL.Types;
 using GraphQL.Types.Relay;
 using GraphQL.Types.Relay.DataObjects;
+using GraphQL.Validation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -323,6 +325,13 @@ namespace Eklee.Azure.Functions.GraphQl
 			modelConventionInputType.Name = $"{modelConvention.Name}Input";
 			modelConvention.ForEachWithField(
 				(type, name, desc) => modelConventionInputType.Field(type, name, desc));
+		}
+
+		public static ContainerBuilder UseDataAnnotationsValidation(this ContainerBuilder containerBuilder)
+		{
+			containerBuilder.RegisterType<StringLengthModelValidation>().As<IModelValidation>().SingleInstance();
+			containerBuilder.RegisterType<DataAnnotationsValidation>().As<IValidationRule>();
+			return containerBuilder;
 		}
 	}
 }

@@ -24,6 +24,7 @@ The first step is to setup your DI via the Autofac Module. Be sure to register y
 
 - [Mutations](Documentation/Mutations.md)
 - [Queries](Documentation/Queries.md)
+- [Validations](Documentation/Validations.md)
 
 ```
 using Autofac;
@@ -43,7 +44,7 @@ namespace Eklee.Examples
 }
 ```
 
-## Caching:
+### Caching:
 
 To setup caching, in your Module setup, use the extension method UseDistributedCache. Note that MemoryDistributedCache is just an example. In a production senario, you may choose something like Azure Redis.
 
@@ -51,7 +52,7 @@ To setup caching, in your Module setup, use the extension method UseDistributedC
 builder.UseDistributedCache<MemoryDistributedCache>();
 ```
 
-## Misc
+### Misc
 
 For more information about the library used for dependency injection support, check out: [https://github.com/seekdavidlee/Eklee-Azure-Functions-Http](https://github.com/seekdavidlee/Eklee-Azure-Functions-Http)
 
@@ -82,7 +83,7 @@ Simply leverage the extension method ProcessGraphQlRequest with the HTTP request
 return await executionContext.ProcessGraphQlRequest(req);
 ```
 
-## Next Steps: Setup Models and update Mutation and Query classes.
+### Next Steps: Setup Models and update Mutation and Query classes.
 
 We use a Model-First (with Fluent syntax) to define the GraphQL schema. Description is a required attribute on the model which provides documentation for the model property.
 

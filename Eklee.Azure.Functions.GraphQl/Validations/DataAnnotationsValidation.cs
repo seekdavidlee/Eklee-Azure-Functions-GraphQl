@@ -44,6 +44,18 @@ namespace Eklee.Azure.Functions.GraphQl.Validations
 			return null;
 		}
 
+		private Type FilterSearchTypes(Type type)
+		{
+			if (type == null) return null;
+
+			if (type.FullName.StartsWith("Eklee.Azure.Functions.GraphQl.Filters"))
+			{
+				return null;
+			}
+
+			return type;
+		}
+
 		public INodeVisitor Validate(ValidationContext context)
 		{
 			return new EnterLeaveListener(cfg =>
@@ -56,7 +68,7 @@ namespace Eklee.Azure.Functions.GraphQl.Validations
 					var type = argDef.ResolvedType;
 					if (type.IsInputType())
 					{
-						var modelType = GetModelType(type);
+						var modelType = FilterSearchTypes(GetModelType(type));
 
 						if (modelType == null) return;
 

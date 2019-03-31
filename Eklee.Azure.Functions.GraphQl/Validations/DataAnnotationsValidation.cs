@@ -1,6 +1,7 @@
 ﻿using FastMember;
 using GraphQL;
 using GraphQL.Language.AST;
+using GraphQL.Types;
 using GraphQL.Validation;
 using System;
 using System.Collections;
@@ -28,7 +29,7 @@ namespace Eklee.Azure.Functions.GraphQl.Validations
 			return _typeAccessors[key.FullName];
 		}
 
-		private Type GetModelType(Type type)
+		private Type GetModelType(IGraphType type)
 		{
 			var args = type.GetType().GetGenericArguments();
 			if (args.Length == 1)
@@ -55,7 +56,7 @@ namespace Eklee.Azure.Functions.GraphQl.Validations
 					var type = argDef.ResolvedType;
 					if (type.IsInputType())
 					{
-						var modelType = GetModelType(type.GetType());
+						var modelType = GetModelType(type);
 
 						if (modelType == null) return;
 

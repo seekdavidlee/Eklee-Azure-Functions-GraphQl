@@ -1,4 +1,6 @@
 ﻿using Autofac;
+using Eklee.Azure.Functions.GraphQl.Example.Validations;
+using Eklee.Azure.Functions.GraphQl.Validations;
 using Eklee.Azure.Functions.Http;
 using Microsoft.Extensions.Caching.Distributed;
 
@@ -13,6 +15,8 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestDocumentDb
 			builder.RegisterGraphQl<TestDocumentDbSchema>();
 			builder.RegisterType<TestDocumentDbQuery>();
 			builder.RegisterType<TestDocumentDbMutation>();
+			builder.UseDataAnnotationsValidation();
+			builder.RegisterType<MyValidation>().As<IModelValidation>();
 		}
 	}
 }

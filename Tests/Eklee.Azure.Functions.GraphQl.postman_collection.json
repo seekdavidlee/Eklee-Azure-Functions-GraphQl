@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "2f8f85e7-b8e0-4ea4-9cd6-369b5723b5da",
+		"_postman_id": "26916148-e408-4b9c-b3b4-03e43337f293",
 		"name": "Eklee.Azure.Functions.GraphQl",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -79,6 +79,58 @@
 								"{{tenant1Id}}",
 								"oauth2",
 								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetSchema",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "5dab6571-3ead-40f8-9049-95fafe47e5a2",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{access_token}}"
+							},
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":\"IntrospectionQuery\",\"variables\":{},\"query\":\"query IntrospectionQuery {\\n  __schema {\\n    queryType {\\n      name\\n    }\\n    mutationType {\\n      name\\n    }\\n    subscriptionType {\\n      name\\n    }\\n    types {\\n      ...FullType\\n    }\\n    directives {\\n      name\\n      description\\n      locations\\n      args {\\n        ...InputValue\\n      }\\n    }\\n  }\\n}\\n\\nfragment FullType on __Type {\\n  kind\\n  name\\n  description\\n  fields(includeDeprecated: true) {\\n    name\\n    description\\n    args {\\n      ...InputValue\\n    }\\n    type {\\n      ...TypeRef\\n    }\\n    isDeprecated\\n    deprecationReason\\n  }\\n  inputFields {\\n    ...InputValue\\n  }\\n  interfaces {\\n    ...TypeRef\\n  }\\n  enumValues(includeDeprecated: true) {\\n    name\\n    description\\n    isDeprecated\\n    deprecationReason\\n  }\\n  possibleTypes {\\n    ...TypeRef\\n  }\\n}\\n\\nfragment InputValue on __InputValue {\\n  name\\n  description\\n  type {\\n    ...TypeRef\\n  }\\n  defaultValue\\n}\\n\\nfragment TypeRef on __Type {\\n  kind\\n  name\\n  ofType {\\n    kind\\n    name\\n    ofType {\\n      kind\\n      name\\n      ofType {\\n        kind\\n        name\\n        ofType {\\n          kind\\n          name\\n          ofType {\\n            kind\\n            name\\n            ofType {\\n              kind\\n              name\\n              ofType {\\n                kind\\n                name\\n              }\\n            }\\n          }\\n        }\\n      }\\n    }\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/testdocumentdb/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"testdocumentdb",
+								"graph"
 							]
 						}
 					},
@@ -741,6 +793,135 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "CleanupModel1",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "799fd824-64d9-479e-8fa5-e310b87b1259",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/graphql",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "mutation {\r\n  deleteAllModel1{\r\n    message\r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/testsearch/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"testsearch",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CleanupModel2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "799fd824-64d9-479e-8fa5-e310b87b1259",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/graphql"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "mutation {\r\n  deleteAllModel2{\r\n    message\r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/testsearch/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"testsearch",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CleanupModel3",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "799fd824-64d9-479e-8fa5-e310b87b1259",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/graphql"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "mutation {\r\n  deleteAllModel3{\r\n    message\r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/testsearch/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"testsearch",
+								"graph"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -979,6 +1160,76 @@
 					"response": []
 				},
 				{
+					"name": "SeedModel4",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Has 2 errors\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors.length).to.eql(3);",
+									"    ",
+									"    var errorDateTime = jsonData.errors.filter(function(item){",
+									"        return item.extensions.code === \"DateTimeError\";",
+									"    });",
+									"    ",
+									"    pm.expect(errorDateTime.length).to.eql(1);",
+									"    ",
+									"    var invalidStringLength = jsonData.errors.filter(function(item){",
+									"        return item.extensions.code === \"InvalidStringLength\";",
+									"    });",
+									"    ",
+									"    pm.expect(invalidStringLength.length).to.eql(2);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/graphql"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "mutation{\r\n  batchCreateModel4(model4:\r\n  [ { id:\"model4_1\", dateField: \"01-01-0001\", doubleField: 556.77, field:\"test 1\", intField: 44 }\r\n\t{ id:\"model4_2\", dateField: \"2018-01-02\", doubleField: 66.71, field:\"t\", intField: 4 }\r\n\t{ id:\"model4_3\", dateField: \"2018-11-12\", doubleField: 66.71, field:\"abcdefghijk\", intField: 4 }\r\n\t]) {\r\n    id\r\n    intField\r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/testdocumentdb/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"testdocumentdb",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "QuerySingleModel1",
 					"event": [
 						{
@@ -1160,6 +1411,218 @@
 						"body": {
 							"mode": "raw",
 							"raw": "query{\r\n  searchModel2(id:{equal:\"model2_4\"}){\r\n    id\r\n    field\r\n    type\r\n    dateField\r\n    doubleField\r\n    intField\r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/testdocumentdb/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"testdocumentdb",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CleanupModel1",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/graphql"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "mutation {\r\n  deleteAllModel1{\r\n    message\r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/testdocumentdb/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"testdocumentdb",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CleanupModel2",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/graphql"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "mutation {\r\n  deleteAllModel2{\r\n    message\r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/testdocumentdb/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"testdocumentdb",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CleanupModel3",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/graphql"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "mutation {\r\n  deleteAllModel3{\r\n    message\r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/testdocumentdb/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"testdocumentdb",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CleanupModel4",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/graphql"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "mutation {\r\n  deleteAllModel4{\r\n    message\r\n  }\r\n}"
 						},
 						"url": {
 							"raw": "{{endpoint}}/api/testdocumentdb/graph",

@@ -48,6 +48,17 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestDocumentDb
 				.BuildDocumentDb()
 				.DeleteAll(() => new Status { Message = "All Model3 have been removed." })
 				.Build();
+
+			inputBuilderFactory.Create<Model4>(this)
+				.ConfigureDocumentDb<Model4>()
+				.AddKey(key)
+				.AddUrl(url)
+				.AddRequestUnit(requestUnits)
+				.AddDatabase(db)
+				.AddPartition(x => x.Field)
+				.BuildDocumentDb()
+				.DeleteAll(() => new Status { Message = "All Model3 have been removed." })
+				.Build();
 		}
 	}
 }

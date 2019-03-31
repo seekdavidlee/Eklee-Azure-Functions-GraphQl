@@ -2,7 +2,7 @@
 <package >
 	<metadata>
 		<id>Eklee.Azure.Functions.GraphQl</id>
-		<version>0.13.0</version>
+		<version>0.13.1</version>
 		<title>Eklee.Azure.Functions.GraphQl</title>
 		<authors>Eng-Keong David Lee</authors>
 		<owners>Eng-Keong David Lee</owners>
@@ -13,7 +13,7 @@
 		<releaseNotes>Use SQL Parameters instead of raw value from GraphQL inputs for CosmosDB related queries.</releaseNotes>
 		<tags>GraphQL, Azure, Functions, Caching, .NET, Graph, Paging, Pagination, CosmosDB, DocumentDB, Search, Table</tags>
 		<dependencies>
-			<dependency id="Eklee.Azure.Functions.Http" version="0.8.1" />
+			<dependency id="Eklee.Azure.Functions.Http" version="0.8.2" />
 			<dependency id="GraphQL" version="2.4.0" />
 			<dependency id="FastMember" version="1.4.1" />
 			<dependency id="Microsoft.Azure.DocumentDB.Core" version="2.2.3" />

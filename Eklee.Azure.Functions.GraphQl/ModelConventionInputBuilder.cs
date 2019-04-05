@@ -23,17 +23,20 @@ namespace Eklee.Azure.Functions.GraphQl
 		private readonly string _sourceName;
 		private Action _deleteSetupAction;
 		private readonly ISearchMappedModels _searchMappedModels;
+		private readonly IQueryArgumentsBuilder _queryArgumentsBuilder;
 
 		internal ModelConventionInputBuilder(
 			ObjectGraphType objectGraphType,
 			IGraphQlRepositoryProvider graphQlRepositoryProviderProvider,
 			ILogger logger,
-			ISearchMappedModels searchMappedModels)
+			ISearchMappedModels searchMappedModels,
+			IQueryArgumentsBuilder queryArgumentsBuilder)
 		{
 			_objectGraphType = objectGraphType;
 			_graphQlRepositoryProvider = graphQlRepositoryProviderProvider;
 			_logger = logger;
 			_searchMappedModels = searchMappedModels;
+			_queryArgumentsBuilder = queryArgumentsBuilder;
 			_sourceName = typeof(TSource).Name.ToLower();
 
 			// Default setup for delete.
@@ -43,9 +46,9 @@ namespace Eklee.Azure.Functions.GraphQl
 
 				if (_objectGraphType.HasField(fieldName)) return;
 
-				_objectGraphType.FieldAsync<ModelConventionType<TSource>>(fieldName, description: $"Deletes a single {GetTypeName()} instance.", arguments: new QueryArguments(
-						new QueryArgument<NonNullGraphType<ModelConventionInputType<TSource>>> { Name = _sourceName }
-					),
+				_objectGraphType.FieldAsync<ModelConventionType<TSource>>(fieldName,
+					description: $"Deletes a single {GetTypeName()} instance.",
+					arguments: _queryArgumentsBuilder.BuildNonNull<TSource>(_sourceName),
 					resolve: async context =>
 					{
 						AssertWithClaimsPrincipal(AssertAction.Delete, context);
@@ -142,9 +145,9 @@ namespace Eklee.Azure.Functions.GraphQl
 
 				if (_objectGraphType.HasField(fieldName)) return;
 
-				_objectGraphType.FieldAsync<ModelConventionType<TDeleteOutput>>(fieldName, description: $"Deletes a single {GetTypeName()} instance.", arguments: new QueryArguments(
-						new QueryArgument<NonNullGraphType<ModelConventionInputType<TDeleteInput>>> { Name = _sourceName }
-					),
+				_objectGraphType.FieldAsync<ModelConventionType<TDeleteOutput>>(fieldName,
+					description: $"Deletes a single {GetTypeName()} instance.",
+					arguments: _queryArgumentsBuilder.BuildNonNull<TDeleteInput>(_sourceName),
 					resolve: async context =>
 					{
 						AssertWithClaimsPrincipal(AssertAction.Delete, context);
@@ -222,9 +225,9 @@ namespace Eklee.Azure.Functions.GraphQl
 
 			if (_objectGraphType.HasField(fieldName)) return;
 
-			_objectGraphType.FieldAsync<ListGraphType<ModelConventionType<TSource>>>(fieldName, description: $"Batch create {GetTypeName()} instances.", arguments: new QueryArguments(
-					new QueryArgument<ListGraphType<ModelConventionInputType<TSource>>> { Name = _sourceName }
-				),
+			_objectGraphType.FieldAsync<ListGraphType<ModelConventionType<TSource>>>(fieldName,
+				description: $"Batch create {GetTypeName()} instances.",
+				arguments: _queryArgumentsBuilder.BuildList<TSource>(_sourceName),
 				resolve: async context =>
 				{
 					AssertWithClaimsPrincipal(AssertAction.BatchCreate, context);
@@ -257,9 +260,9 @@ namespace Eklee.Azure.Functions.GraphQl
 
 			if (_objectGraphType.HasField(fieldName)) return;
 
-			_objectGraphType.FieldAsync<ModelConventionType<TSource>>(fieldName, description: $"Creates a single {GetTypeName()} instance.", arguments: new QueryArguments(
-					new QueryArgument<NonNullGraphType<ModelConventionInputType<TSource>>> { Name = _sourceName }
-				),
+			_objectGraphType.FieldAsync<ModelConventionType<TSource>>(fieldName, 
+				description: $"Creates a single {GetTypeName()} instance.", 
+				arguments: _queryArgumentsBuilder.BuildNonNull<TSource>(_sourceName),
 				resolve: async context =>
 				{
 					AssertWithClaimsPrincipal(AssertAction.Create, context);
@@ -291,9 +294,9 @@ namespace Eklee.Azure.Functions.GraphQl
 
 			if (_objectGraphType.HasField(fieldName)) return;
 
-			_objectGraphType.FieldAsync<ModelConventionType<TSource>>(fieldName, description: $"Updates a single {GetTypeName()} instance.", arguments: new QueryArguments(
-					new QueryArgument<NonNullGraphType<ModelConventionInputType<TSource>>> { Name = _sourceName }
-				),
+			_objectGraphType.FieldAsync<ModelConventionType<TSource>>(fieldName, 
+				description: $"Updates a single {GetTypeName()} instance.", 
+				arguments:_queryArgumentsBuilder.BuildNonNull<TSource>(_sourceName),
 				resolve: async context =>
 				{
 					AssertWithClaimsPrincipal(AssertAction.Update, context);

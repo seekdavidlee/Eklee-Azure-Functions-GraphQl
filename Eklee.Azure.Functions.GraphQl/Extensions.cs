@@ -41,6 +41,7 @@ namespace Eklee.Azure.Functions.GraphQl
 			builder.RegisterType<DocumentExecuter>().As<IDocumentExecuter>().SingleInstance();
 			builder.RegisterType<DocumentWriter>().As<IDocumentWriter>().SingleInstance();
 			builder.RegisterType<TSchema>().As<ISchema>().SingleInstance();
+			builder.RegisterType<QueryArgumentsBuilder>().As<IQueryArgumentsBuilder>().SingleInstance();
 
 			builder.RegisterType<DocumentDbComparisonInt>().As<IDocumentDbComparison>().SingleInstance();
 			builder.RegisterType<DocumentDbComparisonString>().As<IDocumentDbComparison>().SingleInstance();

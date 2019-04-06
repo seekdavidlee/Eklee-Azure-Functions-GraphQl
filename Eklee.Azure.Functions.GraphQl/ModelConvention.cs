@@ -57,7 +57,7 @@ namespace Eklee.Azure.Functions.GraphQl
 			return enumType;
 		}
 
-		public void ForEachWithField(Action<Type, string, string> addFieldAction)
+		public void ForEachWithField(Action<Type, string, string, Func<ResolveFieldContext<TSourceType>, object>> addFieldAction, bool isInput)
 		{
 			ModelType.ForEach(m =>
 			{
@@ -73,13 +73,13 @@ namespace Eklee.Azure.Functions.GraphQl
 					m.Type == typeof(List<string>))
 				{
 					addFieldAction(GetGraphTypeFromTypeWithModelFieldAttribute(m),
-						m.Name, m.GetDescription());
+						m.Name, m.GetDescription(), null);
 				}
 				else
 				{
 					if (m.Type.IsEnum)
 					{
-						addFieldAction(GetEnumGraphType(m, m.Type), m.Name, m.GetDescription());
+						addFieldAction(GetEnumGraphType(m, m.Type), m.Name, m.GetDescription(), null);
 						return;
 					}
 
@@ -90,20 +90,22 @@ namespace Eklee.Azure.Functions.GraphQl
 
 						if (nullableType.IsEnum)
 						{
-							addFieldAction(GetEnumGraphType(m, nullableType), m.Name, m.GetDescription());
+							addFieldAction(GetEnumGraphType(m, nullableType), m.Name, m.GetDescription(), null);
 							return;
 						}
 					}
 
 					// See: https://docs.microsoft.com/en-us/dotnet/framework/reflection-and-codedom/how-to-examine-and-instantiate-generic-types-with-reflection
 
+					var genericType = isInput ? typeof(ModelConventionInputType<>) : typeof(ModelConventionType<>);
+
 					if (m.Type.IsGenericType && m.Type.GetGenericTypeDefinition() == typeof(List<>))
 					{
-						addFieldAction(typeof(ListGraphType<>).MakeGenericType(typeof(ModelConventionType<>).MakeGenericType(m.Type.GetGenericArguments()[0])), m.Name, m.GetDescription());
+						addFieldAction(typeof(ListGraphType<>).MakeGenericType(genericType.MakeGenericType(m.Type.GetGenericArguments()[0])), m.Name, m.GetDescription(), null);
 					}
 					else
 					{
-						addFieldAction(typeof(ModelConventionType<>).MakeGenericType(m.Type), m.Name, m.GetDescription());
+						addFieldAction(genericType.MakeGenericType(m.Type), m.Name, m.GetDescription(), null);
 					}
 				}
 			});

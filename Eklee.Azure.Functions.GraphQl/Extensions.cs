@@ -317,7 +317,7 @@ namespace Eklee.Azure.Functions.GraphQl
 			}
 
 			modelConvention.ForEachWithField(
-				(type, name, desc) => modelConventionType.Field(type, name, desc));
+				(type, name, desc, resolve) => modelConventionType.Field(type, name, desc, resolve: resolve), false);
 		}
 
 		public static void AddFields<TSourceType>(this ModelConventionInputType<TSourceType> modelConventionInputType)
@@ -325,7 +325,7 @@ namespace Eklee.Azure.Functions.GraphQl
 			var modelConvention = new ModelConvention<TSourceType>();
 			modelConventionInputType.Name = $"{modelConvention.Name}Input";
 			modelConvention.ForEachWithField(
-				(type, name, desc) => modelConventionInputType.Field(type, name, desc));
+				(type, name, desc, resolve) => modelConventionInputType.Field(type, name, desc, resolve: resolve), true);
 		}
 
 		public static ContainerBuilder UseDataAnnotationsValidation(this ContainerBuilder containerBuilder)

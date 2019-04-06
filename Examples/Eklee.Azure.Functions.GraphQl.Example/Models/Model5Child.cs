@@ -11,5 +11,8 @@ namespace Eklee.Azure.Functions.GraphQl.Example.Models
 
 		[Description("Field")]
 		public string Field { get; set; }
+
+		[Description("Parent")]
+		public Model5 Parent { get; set; }
 	}
 }

@@ -66,6 +66,8 @@ namespace Eklee.Azure.Functions.GraphQl
 			builder.RegisterGeneric(typeof(EdgeType<>));
 			builder.RegisterGeneric(typeof(ModelEnumConventionType<>));
 
+			builder.RegisterType<FieldMutationResolver>().As<IFieldMutationResolver>();
+
 			builder.RegisterType<InMemoryRepository>().As<IGraphQlRepository>().SingleInstance();
 			builder.RegisterType<HttpRepository>().As<IGraphQlRepository>().SingleInstance();
 			builder.RegisterType<DocumentDbRepository>().As<IGraphQlRepository>().SingleInstance();

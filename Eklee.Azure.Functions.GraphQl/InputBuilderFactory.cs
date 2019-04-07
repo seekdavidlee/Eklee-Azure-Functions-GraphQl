@@ -12,17 +12,20 @@ namespace Eklee.Azure.Functions.GraphQl
 		private readonly ILogger _logger;
 		private readonly ISearchMappedModels _searchMappedModels;
 		private readonly IQueryArgumentsBuilder _queryArgumentsBuilder;
+		private readonly IFieldMutationResolver _fieldMutationResolver;
 
 		public InputBuilderFactory(
 			IGraphQlRepositoryProvider graphQlRepositoryProvider,
 			ILogger logger,
 			ISearchMappedModels searchMappedModels,
-			IQueryArgumentsBuilder queryArgumentsBuilder)
+			IQueryArgumentsBuilder queryArgumentsBuilder,
+			IFieldMutationResolver fieldMutationResolver)
 		{
 			_graphQlRepositoryProvider = graphQlRepositoryProvider;
 			_logger = logger;
 			_searchMappedModels = searchMappedModels;
 			_queryArgumentsBuilder = queryArgumentsBuilder;
+			_fieldMutationResolver = fieldMutationResolver;
 		}
 
 		public ModelConventionInputBuilder<TSource> Create<TSource>(ObjectGraphType objectGraphType) where TSource : class
@@ -36,7 +39,8 @@ namespace Eklee.Azure.Functions.GraphQl
 					_graphQlRepositoryProvider,
 					_logger,
 					_searchMappedModels,
-					_queryArgumentsBuilder);
+					_queryArgumentsBuilder,
+					_fieldMutationResolver);
 			}
 			catch (Exception e)
 			{

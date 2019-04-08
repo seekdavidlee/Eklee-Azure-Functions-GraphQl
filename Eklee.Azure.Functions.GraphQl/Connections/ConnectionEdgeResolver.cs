@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Eklee.Azure.Functions.GraphQl.Connections
 {
-	public class ConnectionFieldResolver : IConnectionEdgeResolver
+	public class ConnectionEdgeResolver : IConnectionEdgeResolver
 	{
 		public List<ConnectionEdge> HandleConnectionEdges<TSource>(TSource item, Action<object> entityAction)
 		{
@@ -21,7 +21,14 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 
 			entityAction(item);
 
-			return connectionEdges.Values.Where(x => !string.IsNullOrEmpty(x.SourceId)).ToList();
+			var list = connectionEdges.Values.Where(x => !string.IsNullOrEmpty(x.SourceId)).ToList();
+
+			list.ForEach(val =>
+			{
+				val.Id = $"{val.FieldName}_{val.SourceId}_{val.DestinationId}";
+			});
+
+			return list;
 		}
 
 		private void DiscoverConnectionEdges(TypeAccessor type,
@@ -53,7 +60,13 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 
 							DiscoverConnectionEdges(childType, id, child, connectionEdges, entityAction);
 
+							type[instance, member.Name] = null;
+
 							entityAction?.Invoke(child);
+						}
+						else
+						{
+							type[instance, member.Name] = null;
 						}
 					}
 				}
@@ -70,6 +83,8 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 						connEdge.MetaFieldName = member.Name;
 						connEdge.MetaType = member.Type.FullName;
 						connEdge.MetaValue = JsonConvert.SerializeObject(type[instance, member.Name]);
+
+						type[instance, member.Name] = null;
 					}
 				}
 			}

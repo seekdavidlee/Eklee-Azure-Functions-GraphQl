@@ -8,8 +8,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Connections
 	[Trait(Constants.Category, Constants.UnitTests)]
 	public class ConnectionFieldResolverTests
 	{
-		private readonly ConnectionFieldResolver _connectionFieldResolver =
-			new ConnectionFieldResolver();
+		private readonly ConnectionEdgeResolver _connectionFieldResolver =
+			new ConnectionEdgeResolver();
 
 		[Fact]
 		public void CanResolveEdgeConnectionBetween2ModelsRepresentedAsParentChild()
@@ -45,11 +45,14 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Connections
 				if (entity is Model1 em1)
 				{
 					m1 = em1;
+					m1.FriendEdge.ShouldBeNull();
+					m1.FriendEdgeMeta.ShouldBeNull();
 				}
 
 				if (entity is Model2 em2)
 				{
 					m2 = em2;
+					m2.Edge.ShouldBeNull();
 				}
 			});
 
@@ -60,7 +63,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Connections
 			m2.ShouldNotBeNull();
 
 			list[0].SourceId.ShouldBe(model1.Id);
-			list[0].DestinationId.ShouldBe(model1.FriendEdge.Id);
+			list[0].DestinationId.ShouldBe(m2.Id);
 		}
 	}
 }

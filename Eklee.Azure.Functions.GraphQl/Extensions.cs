@@ -8,6 +8,7 @@ using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 using Autofac;
+using Eklee.Azure.Functions.GraphQl.Connections;
 using Eklee.Azure.Functions.GraphQl.Repository;
 using Eklee.Azure.Functions.GraphQl.Repository.DocumentDb;
 using Eklee.Azure.Functions.GraphQl.Repository.Http;
@@ -67,6 +68,7 @@ namespace Eklee.Azure.Functions.GraphQl
 			builder.RegisterGeneric(typeof(ModelEnumConventionType<>));
 
 			builder.RegisterType<FieldMutationResolver>().As<IFieldMutationResolver>();
+			builder.RegisterType<ConnectionEdgeResolver>().As<IConnectionEdgeResolver>();
 
 			builder.RegisterType<InMemoryRepository>().As<IGraphQlRepository>().SingleInstance();
 			builder.RegisterType<HttpRepository>().As<IGraphQlRepository>().SingleInstance();

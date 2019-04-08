@@ -1,4 +1,5 @@
-﻿using Eklee.Azure.Functions.GraphQl.Repository.Search;
+﻿using Eklee.Azure.Functions.GraphQl.Connections;
+using Eklee.Azure.Functions.GraphQl.Repository.Search;
 using GraphQL;
 using GraphQL.Types;
 using Microsoft.Extensions.Logging;
@@ -16,15 +17,18 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 		private readonly IGraphQlRepositoryProvider _graphQlRepositoryProvider;
 		private readonly ISearchMappedModels _searchMappedModels;
 		private readonly ILogger _logger;
+		private readonly IConnectionEdgeResolver _connectionEdgeResolver;
 
 		public FieldMutationResolver(
 			IGraphQlRepositoryProvider graphQlRepositoryProvider,
 			ISearchMappedModels searchMappedModels,
-			ILogger logger)
+			ILogger logger,
+			IConnectionEdgeResolver connectionEdgeResolver)
 		{
 			_graphQlRepositoryProvider = graphQlRepositoryProvider;
 			_searchMappedModels = searchMappedModels;
 			_logger = logger;
+			_connectionEdgeResolver = connectionEdgeResolver;
 		}
 
 		public Func<ClaimsPrincipal, AssertAction, bool> ClaimsPrincipalAssertion { get; set; }
@@ -141,8 +145,17 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 
 			try
 			{
-				await _graphQlRepositoryProvider.GetRepository<TSource>()
-					.AddAsync(item, context.UserContext as IGraphRequestContext);
+				var list = _connectionEdgeResolver.HandleConnectionEdges(item, async (model) =>
+				{
+					await _graphQlRepositoryProvider.GetRepository(model.GetType())
+						.AddAsync(model, context.UserContext as IGraphRequestContext);
+				});
+
+				foreach (var model in list)
+				{
+					await _graphQlRepositoryProvider.GetRepository(typeof(ConnectionEdge))
+						.AddAsync(model, context.UserContext as IGraphRequestContext);
+				}
 
 				if (_searchMappedModels.TryGetMappedSearchType<TSource>(out var mappedSearchType))
 				{

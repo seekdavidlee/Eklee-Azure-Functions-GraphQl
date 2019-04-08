@@ -293,8 +293,13 @@ namespace Eklee.Azure.Functions.GraphQl
 		{
 			var f = TypeAccessor.Create(typeof(T));
 
-			var keys = string.Join("", f.GetMembers().Where(x => x.GetAttribute(typeof(KeyAttribute), false) != null)
-				.Select(x => f[item, x.Name].ToString()));
+			return f.GetKey(item);
+		}
+
+		public static string GetKey(this TypeAccessor t, object item)
+		{
+			var keys = string.Join("", t.GetMembers().Where(x => x.GetAttribute(typeof(KeyAttribute), false) != null)
+				.Select(x => t[item, x.Name].ToString()));
 
 			if (string.IsNullOrEmpty(keys)) throw new InvalidOperationException("Missing Key Attribute");
 

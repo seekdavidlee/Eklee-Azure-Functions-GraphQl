@@ -1,4 +1,5 @@
 ﻿using System;
+using Eklee.Azure.Functions.GraphQl.Connections;
 using Eklee.Azure.Functions.GraphQl.Example.Models;
 using GraphQL.Types;
 using Microsoft.Extensions.Configuration;
@@ -69,6 +70,17 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestDocumentDb
 				.AddPartition(x => x.Field)
 				.BuildDocumentDb()
 				.DeleteAll(() => new Status { Message = "All Model3 have been removed." })
+				.Build();
+
+			inputBuilderFactory.Create<ConnectionEdge>(this)
+				.ConfigureDocumentDb<ConnectionEdge>()
+				.AddKey(key)
+				.AddUrl(url)
+				.AddRequestUnit(requestUnits)
+				.AddDatabase(db)
+				.AddPartition(x => x.SourceId)
+				.BuildDocumentDb()
+				.DeleteAll(() => new Status { Message = "All ConnectionEdges have been removed." })
 				.Build();
 		}
 	}

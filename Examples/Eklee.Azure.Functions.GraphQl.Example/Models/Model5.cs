@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Eklee.Azure.Functions.GraphQl.Connections;
+using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
@@ -22,6 +23,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.Models
 		[Description("Field")]
 		public string Field { get; set; }
 
+		[Connection]
 		[Description("Child")]
 		public Model5Child Child { get; set; }
 	}

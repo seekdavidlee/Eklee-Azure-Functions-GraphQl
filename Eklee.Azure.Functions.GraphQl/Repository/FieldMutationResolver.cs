@@ -145,16 +145,16 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 
 			try
 			{
-				var list = _connectionEdgeResolver.HandleConnectionEdges(item, async (model) =>
+				var edges = _connectionEdgeResolver.HandleConnectionEdges(item, async (model) =>
 				{
 					await _graphQlRepositoryProvider.GetRepository(model.GetType())
 						.AddAsync(model, context.UserContext as IGraphRequestContext);
 				});
 
-				foreach (var model in list)
+				foreach (var edge in edges)
 				{
 					await _graphQlRepositoryProvider.GetRepository(typeof(ConnectionEdge))
-						.AddAsync(model, context.UserContext as IGraphRequestContext);
+						.AddAsync(edge, context.UserContext as IGraphRequestContext);
 				}
 
 				if (_searchMappedModels.TryGetMappedSearchType<TSource>(out var mappedSearchType))

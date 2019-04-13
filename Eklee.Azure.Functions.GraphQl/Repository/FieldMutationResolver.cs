@@ -148,7 +148,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 				var edges = _connectionEdgeResolver.HandleConnectionEdges(item, async (model) =>
 				{
 					await _graphQlRepositoryProvider.GetRepository(model.GetType())
-						.AddAsync(model, context.UserContext as IGraphRequestContext);
+						.AddAsync(model.GetType(), model, context.UserContext as IGraphRequestContext);
 				});
 
 				foreach (var edge in edges)

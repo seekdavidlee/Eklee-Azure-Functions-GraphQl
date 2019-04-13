@@ -81,23 +81,21 @@ namespace Eklee.Azure.Functions.GraphQl.Validations
 
 							if (typeof(IEnumerable).IsAssignableFrom(o.GetType()))
 							{
-								foreach (IDictionary item in (IEnumerable)o)
+								var items = (Dictionary<string, object>)o;
+								foreach (var item in items)
 								{
-									foreach (string key in item.Keys)
+									var member = members.SingleOrDefault(x => x.Name.ToLower() == item.Key.ToLower());
+									if (member != null)
 									{
-										var member = members.SingleOrDefault(x => x.Name.ToLower() == key.ToLower());
-										if (member != null)
+										modelValidations.ForEach(modelValidation =>
 										{
-											modelValidations.ForEach(modelValidation =>
+											string errorCode;
+											string message;
+											if (!modelValidation.TryAssertMemberValueIsValid(member, items[item.Key], out errorCode, out message))
 											{
-												string errorCode;
-												string message;
-												if (!modelValidation.TryAssertMemberValueIsValid(member, item[key], out errorCode, out message))
-												{
-													context.ReportError(new ValidationError(context.OriginalQuery, errorCode, message, arg));
-												}
-											});
-										}
+												context.ReportError(new ValidationError(context.OriginalQuery, errorCode, message, arg));
+											}
+										});
 									}
 								}
 							}

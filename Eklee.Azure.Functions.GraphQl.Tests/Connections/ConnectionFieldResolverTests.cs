@@ -64,6 +64,14 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Connections
 
 			list[0].SourceId.ShouldBe(model1.Id);
 			list[0].DestinationId.ShouldBe(m2.Id);
+			list[0].MetaFieldName.ShouldNotBeNull();
+			list[0].MetaFieldName.ShouldNotBeEmpty();
+
+			list[0].MetaType.ShouldNotBeNull();
+			list[0].MetaType.ShouldNotBeEmpty();
+
+			list[0].MetaValue.ShouldNotBeNull();
+			list[0].MetaValue.ShouldNotBeEmpty();
 		}
 	}
 }

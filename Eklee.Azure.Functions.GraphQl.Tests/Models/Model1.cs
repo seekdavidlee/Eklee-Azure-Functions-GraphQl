@@ -13,9 +13,6 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Models
 		public int Field2 { get; set; }
 
 		[Connection]
-		public Model2 FriendEdge { get; set; }
-
-		[ConnectionMetaFor("FriendEdge")]
-		public Model1Model2AreFriends FriendEdgeMeta { get; set; }
+		public Model1Friend BestFriend { get; set; }
 	}
 }

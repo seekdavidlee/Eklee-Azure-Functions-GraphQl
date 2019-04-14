@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Eklee.Azure.Functions.GraphQl.Connections;
 using Eklee.Azure.Functions.GraphQl.Repository;
 using Microsoft.Extensions.Logging;
 
@@ -11,11 +12,13 @@ namespace Eklee.Azure.Functions.GraphQl
 	{
 		private readonly IGraphQlRepositoryProvider _graphQlRepositoryProvider;
 		private readonly ILogger _logger;
+		private readonly IConnectionEdgeResolver _connectionEdgeResolver;
 
-		public QueryExecutor(IGraphQlRepositoryProvider graphQlRepositoryProvider, ILogger logger)
+		public QueryExecutor(IGraphQlRepositoryProvider graphQlRepositoryProvider, ILogger logger, IConnectionEdgeResolver connectionEdgeResolver)
 		{
 			_graphQlRepositoryProvider = graphQlRepositoryProvider;
 			_logger = logger;
+			_connectionEdgeResolver = connectionEdgeResolver;
 		}
 
 		public async Task<IEnumerable<TSource>> ExecuteAsync(string queryName, IEnumerable<QueryStep> querySteps, IGraphRequestContext graphRequestContext)
@@ -41,7 +44,7 @@ namespace Eklee.Azure.Functions.GraphQl
 
 						try
 						{
-							var results = (await _graphQlRepositoryProvider.QueryAsync(queryName, queryStep, graphRequestContext)).ToList();
+							var results = await QueryAsync(queryName, queryStep, graphRequestContext);
 							nextQueryResults.AddRange(results);
 						}
 						catch (Exception e)
@@ -59,7 +62,7 @@ namespace Eklee.Azure.Functions.GraphQl
 				}
 				else
 				{
-					ctx.SetQueryResult((await _graphQlRepositoryProvider.QueryAsync(queryName, queryStep, graphRequestContext)).ToList());
+					ctx.SetQueryResult(await QueryAsync(queryName, queryStep, graphRequestContext));
 				}
 
 				queryStep.ContextAction?.Invoke(ctx);
@@ -68,6 +71,18 @@ namespace Eklee.Azure.Functions.GraphQl
 			}
 
 			return ctx.GetResults<TSource>();
+		}
+
+		private async Task<List<object>> QueryAsync(string queryName, QueryStep queryStep, IGraphRequestContext graphRequestContext)
+		{
+			var results = (await _graphQlRepositoryProvider.QueryAsync(queryName, queryStep, graphRequestContext)).ToList();
+
+			if (results.Count > 0)
+			{
+				var edeges = _connectionEdgeResolver.HandleConnectionEdges(results.First(), null);
+			}
+
+			return results;
 		}
 	}
 }

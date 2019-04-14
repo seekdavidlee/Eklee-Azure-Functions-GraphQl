@@ -1,11 +1,10 @@
-﻿using Eklee.Azure.Functions.GraphQl.Connections;
-using System;
+﻿using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace Eklee.Azure.Functions.GraphQl.Example.Models
 {
-	public class Model5
+	public class Model6
 	{
 		[Key]
 		[Description("Id")]
@@ -22,13 +21,5 @@ namespace Eklee.Azure.Functions.GraphQl.Example.Models
 
 		[Description("Field")]
 		public string Field { get; set; }
-
-		[Connection]
-		[Description("A Best Friend")]
-		public Model5Friend BestFriend { get; set; }
-
-		[Connection]
-		[Description("A Close Friend")]
-		public Model5Friend CloseFriend { get; set; }
 	}
 }

@@ -1,20 +1,19 @@
 ﻿using Eklee.Azure.Functions.GraphQl.Connections;
 using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
 
 namespace Eklee.Azure.Functions.GraphQl.Example.Models
 {
-	public class Model5Child
+	public class Model5Friend
 	{
-		[Key]
-		[Description("Id")]
+		[ConnectionEdgeDestinationKey]
+		[Description("Id of Model 1, The Friend.")]
 		public string Id { get; set; }
 
 		[Description("Field")]
 		public string Field { get; set; }
 
-		[Connection]
-		[Description("Parent")]
-		public Model5 Parent { get; set; }
+		[ConnectionEdgeDestination]
+		[Description("TheFriend")]
+		public Model5 TheFriend { get; set; }
 	}
 }

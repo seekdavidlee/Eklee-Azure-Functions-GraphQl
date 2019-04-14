@@ -21,6 +21,7 @@ using FastMember;
 using GraphQL;
 using GraphQL.Builders;
 using GraphQL.Http;
+using GraphQL.Language.AST;
 using GraphQL.Types;
 using GraphQL.Types.Relay;
 using GraphQL.Types.Relay.DataObjects;
@@ -197,12 +198,27 @@ namespace Eklee.Azure.Functions.GraphQl
 			return description != null ? description.Description : "";
 		}
 
-		public static ContextValue GetContextValue(this Dictionary<string, object> args, ModelMember modelMember)
+		private static SelectValue CreateSelectValue(Field field)
+		{
+			var value = new SelectValue
+			{
+				FieldName = field.Name,
+				SelectValues = field.SelectionSet.Children.Select(c => (Field)c).Select(CreateSelectValue).ToList()
+			};
+
+			return value;
+		}
+
+		public static ContextValue GetContextValue(this ResolveFieldContext<object> context, ModelMember modelMember)
 		{
 			var name = modelMember.Name;
 
 			var contextValue = new ContextValue();
 
+			contextValue.SelectValues = context.SubFields.Select(x =>
+			CreateSelectValue(x.Value)).ToList();
+
+			var args = context.Arguments;
 			if (args.ContainsKey(name))
 			{
 				Dictionary<string, object> arg = (Dictionary<string, object>)args[name];

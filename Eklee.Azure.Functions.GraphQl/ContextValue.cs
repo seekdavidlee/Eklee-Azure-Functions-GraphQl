@@ -3,6 +3,13 @@ using System.Linq;
 
 namespace Eklee.Azure.Functions.GraphQl
 {
+	public class SelectValue
+	{
+		public string FieldName { get; set; }
+
+		public List<SelectValue> SelectValues { get; set; }
+	}
+
 	public class ContextValue
 	{
 		public List<object> Values { get; set; }
@@ -23,5 +30,7 @@ namespace Eklee.Azure.Functions.GraphQl
 		}
 
 		public Comparisons? Comparison { get; set; }
+
+		public List<SelectValue> SelectValues { get; set; }
 	}
 }

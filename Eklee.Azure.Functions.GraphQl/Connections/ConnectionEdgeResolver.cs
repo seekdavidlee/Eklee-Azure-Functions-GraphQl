@@ -52,12 +52,13 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 			return null;
 		}
 
-		private void DiscoverConnectionEdges(TypeAccessor sourceTypeAccessor,
-		string sourceId,
-		Type sourceType,
-		object instance,
-		List<ConnectionEdge> connectionEdges,
-		InternalConnectionEdgeState internalConnectionEdgeState)
+		private void DiscoverConnectionEdges(
+			TypeAccessor sourceTypeAccessor,
+			string sourceId,
+			Type sourceType,
+			object instance,
+			List<ConnectionEdge> connectionEdges,
+			InternalConnectionEdgeState internalConnectionEdgeState)
 		{
 			foreach (var member in sourceTypeAccessor.GetMembers())
 			{

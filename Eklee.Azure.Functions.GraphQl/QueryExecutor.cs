@@ -79,7 +79,15 @@ namespace Eklee.Azure.Functions.GraphQl
 
 			if (results.Count > 0)
 			{
-				var edeges = _connectionEdgeResolver.HandleConnectionEdges(results.First(), null);
+				var queryParameters = _connectionEdgeResolver.ListConnectionEdgeQueryParameter(results).ToList();
+
+				if (queryParameters.Count > 0)
+				{
+					var repo = _graphQlRepositoryProvider.GetRepository<ConnectionEdge>();
+					var connectionEdges = await repo.QueryAsync<ConnectionEdge>("q1",
+						queryParameters.ToQueryParameters(), null, graphRequestContext);
+					connectionEdges.Populate(results);
+				}
 			}
 
 			return results;

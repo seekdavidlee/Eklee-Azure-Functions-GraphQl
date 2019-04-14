@@ -7,7 +7,9 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 		[Key]
 		public string Id { get; set; }
 
-		public string FieldName { get; set; }
+		public string SourceFieldName { get; set; }
+
+		public string SourceType { get; set; }
 
 		public string SourceId { get; set; }
 

@@ -146,20 +146,15 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Connections
 			edge.Id.ShouldNotBeNull();
 			edge.Id.ShouldNotBeEmpty();
 
-			edge.FieldName.ShouldNotBeNull();
-			edge.FieldName.ShouldNotBeEmpty();
+			edge.SourceFieldName.ShouldNotBeNullOrEmpty();
+			edge.SourceType.ShouldNotBeNullOrEmpty();
 
 			edge.SourceId.ShouldBe(srcId);
 			edge.DestinationId.ShouldBe(destId);
 
-			edge.MetaFieldName.ShouldNotBeNull();
-			edge.MetaFieldName.ShouldNotBeEmpty();
-
-			edge.MetaType.ShouldNotBeNull();
-			edge.MetaType.ShouldNotBeEmpty();
-
-			edge.MetaValue.ShouldNotBeNull();
-			edge.MetaValue.ShouldNotBeEmpty();
+			edge.MetaFieldName.ShouldNotBeNullOrEmpty();
+			edge.MetaType.ShouldNotBeNullOrEmpty();
+			edge.MetaValue.ShouldNotBeNullOrEmpty();
 		}
 
 		[Fact]

@@ -80,5 +80,10 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 		{
 			await GetProvider<T>(graphRequestContext).DeleteAllAsync<T>(graphRequestContext);
 		}
+
+		public async Task AddOrUpdateAsync<T>(T item, IGraphRequestContext graphRequestContext) where T : class
+		{
+			await GetProvider<T>(graphRequestContext).CreateOrUpdateAsync(item, graphRequestContext);
+		}
 	}
 }

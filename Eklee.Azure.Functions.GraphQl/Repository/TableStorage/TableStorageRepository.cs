@@ -80,5 +80,10 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.TableStorage
 		{
 			return _providers.Single(x => x.CanHandle<T>(graphRequestContext));
 		}
+
+		public Task AddOrUpdateAsync<T>(T item, IGraphRequestContext graphRequestContext) where T : class
+		{
+			throw new NotImplementedException();
+		}
 	}
 }

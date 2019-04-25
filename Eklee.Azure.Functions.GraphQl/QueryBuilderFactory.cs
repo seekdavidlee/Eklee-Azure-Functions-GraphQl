@@ -11,22 +11,22 @@ namespace Eklee.Azure.Functions.GraphQl
 		private readonly IGraphQlRepositoryProvider _graphQlRepository;
 		private readonly IDistributedCache _distributedCache;
 		private readonly ILogger _logger;
-		private readonly IConnectionEdgeResolver _connectionEdgeResolver;
+		private readonly IConnectionEdgeHandler _connectionEdgeHandler;
 
 		public QueryBuilderFactory(IGraphQlRepositoryProvider graphQlRepository,
 			IDistributedCache distributedCache,
 			ILogger logger,
-			IConnectionEdgeResolver connectionEdgeResolver)
+			IConnectionEdgeHandler connectionEdgeHandler)
 		{
 			_graphQlRepository = graphQlRepository;
 			_distributedCache = distributedCache;
 			_logger = logger;
-			_connectionEdgeResolver = connectionEdgeResolver;
+			_connectionEdgeHandler = connectionEdgeHandler;
 		}
 
 		public QueryBuilder<TSource> Create<TSource>(ObjectGraphType<object> objectGraphType, string queryName, string description = null)
 		{
-			return new QueryBuilder<TSource>(objectGraphType, queryName, description, _graphQlRepository, _distributedCache, _logger, _connectionEdgeResolver);
+			return new QueryBuilder<TSource>(objectGraphType, queryName, description, _graphQlRepository, _distributedCache, _logger, _connectionEdgeHandler);
 		}
 	}
 }

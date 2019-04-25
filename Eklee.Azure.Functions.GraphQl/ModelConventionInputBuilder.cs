@@ -169,6 +169,18 @@ namespace Eklee.Azure.Functions.GraphQl
 				resolve: async context => await _fieldMutationResolver.AddAsync<TSource>(context, _sourceName));
 		}
 
+		private void AddCreateOrUpdateField()
+		{
+			var fieldName = $"createOrUpdate{typeof(TSource).Name}";
+
+			if (_objectGraphType.HasField(fieldName)) return;
+
+			_objectGraphType.FieldAsync<ModelConventionType<TSource>>(fieldName,
+				description: $"Creates or updates a single {GetTypeName()} instance.",
+				arguments: _queryArgumentsBuilder.BuildNonNull<TSource>(_sourceName),
+				resolve: async context => await _fieldMutationResolver.AddOrUpdateAsync<TSource>(context, _sourceName));
+		}
+
 		private void AddUpdateField()
 		{
 			var fieldName = $"update{GetTypeName()}";
@@ -188,6 +200,8 @@ namespace Eklee.Azure.Functions.GraphQl
 			AddCreateField();
 
 			AddUpdateField();
+
+			AddCreateOrUpdateField();
 
 			_deleteSetupAction();
 

@@ -172,6 +172,40 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			return item;
 		}
 
+		public async Task<TSource> AddOrUpdateAsync<TSource>(ResolveFieldContext<object> context, string sourceName) where TSource : class
+		{
+			AssertWithClaimsPrincipal(AssertAction.Create, context);
+			var item = context.GetArgument<TSource>(sourceName);
+
+			try
+			{
+				var edges = _connectionEdgeResolver.HandleConnectionEdges(item, async (model) =>
+				{
+					await _graphQlRepositoryProvider.GetRepository(model.GetType())
+						.AddOrUpdateAsync(model.GetType(), model, context.UserContext as IGraphRequestContext);
+				});
+
+				foreach (var edge in edges)
+				{
+					await _graphQlRepositoryProvider.GetRepository(typeof(ConnectionEdge))
+						.AddOrUpdateAsync(edge, context.UserContext as IGraphRequestContext);
+				}
+
+				if (_searchMappedModels.TryGetMappedSearchType<TSource>(out var mappedSearchType))
+				{
+					var mappedInstance = _searchMappedModels.CreateInstanceFromMap(item);
+					await _graphQlRepositoryProvider.GetRepository(mappedSearchType)
+						.AddAsync(mappedSearchType, mappedInstance, context.UserContext as IGraphRequestContext);
+				}
+			}
+			catch (Exception e)
+			{
+				_logger.LogError(e, "An error has occured while performing an add operation.");
+				throw;
+			}
+			return item;
+		}
+
 		public async Task<TSource> UpdateAsync<TSource>(ResolveFieldContext<object> context, string sourceName) where TSource : class
 		{
 			AssertWithClaimsPrincipal(AssertAction.Update, context);

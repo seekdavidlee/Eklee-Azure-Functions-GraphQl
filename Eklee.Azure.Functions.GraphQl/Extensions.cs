@@ -70,6 +70,7 @@ namespace Eklee.Azure.Functions.GraphQl
 
 			builder.RegisterType<FieldMutationResolver>().As<IFieldMutationResolver>();
 			builder.RegisterType<ConnectionEdgeResolver>().As<IConnectionEdgeResolver>();
+			builder.RegisterType<ConnectionEdgeHandler>().As<IConnectionEdgeHandler>();
 
 			builder.RegisterType<InMemoryRepository>().As<IGraphQlRepository>().SingleInstance();
 			builder.RegisterType<HttpRepository>().As<IGraphQlRepository>().SingleInstance();

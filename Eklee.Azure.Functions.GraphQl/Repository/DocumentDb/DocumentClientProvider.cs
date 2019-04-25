@@ -96,6 +96,12 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 			_documentTypeInfos.Add(documentTypeInfo);
 		}
 
+		public async Task CreateOrUpdateAsync<T>(T item, IGraphRequestContext graphRequestContext)
+		{
+			await _documentClient.UpsertDocumentAsync(
+				GetDocumentCollectionUri<T>(graphRequestContext), GetTransformed(item), null, true);
+		}
+
 		public async Task CreateAsync<T>(T item, IGraphRequestContext graphRequestContext)
 		{
 			await _documentClient.CreateDocumentAsync(

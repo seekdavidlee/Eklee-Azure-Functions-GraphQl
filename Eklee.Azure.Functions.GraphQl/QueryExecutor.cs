@@ -12,13 +12,13 @@ namespace Eklee.Azure.Functions.GraphQl
 	{
 		private readonly IGraphQlRepositoryProvider _graphQlRepositoryProvider;
 		private readonly ILogger _logger;
-		private readonly IConnectionEdgeResolver _connectionEdgeResolver;
+		private readonly IConnectionEdgeHandler _connectionEdgeHandler;
 
-		public QueryExecutor(IGraphQlRepositoryProvider graphQlRepositoryProvider, ILogger logger, IConnectionEdgeResolver connectionEdgeResolver)
+		public QueryExecutor(IGraphQlRepositoryProvider graphQlRepositoryProvider, ILogger logger, IConnectionEdgeHandler connectionEdgeHandler)
 		{
 			_graphQlRepositoryProvider = graphQlRepositoryProvider;
 			_logger = logger;
-			_connectionEdgeResolver = connectionEdgeResolver;
+			_connectionEdgeHandler = connectionEdgeHandler;
 		}
 
 		public async Task<IEnumerable<TSource>> ExecuteAsync(string queryName, IEnumerable<QueryStep> querySteps, IGraphRequestContext graphRequestContext)
@@ -77,20 +77,11 @@ namespace Eklee.Azure.Functions.GraphQl
 		{
 			var results = (await _graphQlRepositoryProvider.QueryAsync(queryName, queryStep, graphRequestContext)).ToList();
 
-			if (results.Count > 0)
-			{
-				var queryParameters = _connectionEdgeResolver.ListConnectionEdgeQueryParameter(results).ToList();
-
-				if (queryParameters.Count > 0)
-				{
-					var repo = _graphQlRepositoryProvider.GetRepository<ConnectionEdge>();
-					var connectionEdges = await repo.QueryAsync<ConnectionEdge>("q1",
-						queryParameters.ToQueryParameters(), null, graphRequestContext);
-					connectionEdges.Populate(results);
-				}
-			}
+			if (results.Count > 0) await _connectionEdgeHandler.QueryAsync(results, queryStep, graphRequestContext);
 
 			return results;
 		}
+
+
 	}
 }

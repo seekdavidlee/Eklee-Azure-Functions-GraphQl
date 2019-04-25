@@ -80,5 +80,10 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 		{
 			await GetProvider<T>(graphRequestContext).DeleteAllAsync<T>(graphRequestContext);
 		}
+
+		public Task AddOrUpdateAsync<T>(T item, IGraphRequestContext graphRequestContext) where T : class
+		{
+			throw new NotImplementedException();
+		}
 	}
 }

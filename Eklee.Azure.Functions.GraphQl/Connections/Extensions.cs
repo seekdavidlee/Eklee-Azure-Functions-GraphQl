@@ -1,9 +1,6 @@
 ﻿using FastMember;
-using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 
 namespace Eklee.Azure.Functions.GraphQl.Connections
 {
@@ -38,32 +35,6 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 			};
 
 			return new List<QueryParameter> { srcIdQp, srcTypeQp };
-		}
-
-		public static void Populate(this IEnumerable<ConnectionEdge> connectionEdges, List<object> results)
-		{
-			var list = connectionEdges.ToList();
-
-			if (list.Count > 0)
-			{
-				var accessor = TypeAccessor.Create(results.First().GetType());
-				var dictionary = new Dictionary<string, object>();
-				results.ForEach(item => dictionary.Add(accessor.GetKey(item), item));
-
-				var methodInfo = typeof(JsonConvert).GetMethods().Single(x =>
-				x.Name == "DeserializeObject" &&
-				x.IsGenericMethod &&
-				x.GetParameters().Count() == 1);
-
-				list.ForEach(x =>
-				{
-					var o = dictionary[x.SourceId];
-
-					MethodInfo generic = methodInfo.MakeGenericMethod(Type.GetType(x.MetaType));
-
-					accessor[o, x.SourceFieldName] = generic.Invoke(null, new object[] { x.MetaValue });
-				});
-			}
 		}
 	}
 }

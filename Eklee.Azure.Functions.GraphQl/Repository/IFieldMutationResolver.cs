@@ -22,6 +22,8 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 
 		Task<TSource> UpdateAsync<TSource>(ResolveFieldContext<object> context, string sourceName) where TSource : class;
 
+		Task<TSource> AddOrUpdateAsync<TSource>(ResolveFieldContext<object> context, string sourceName) where TSource : class;
+
 		Func<ClaimsPrincipal, AssertAction, bool> ClaimsPrincipalAssertion { get; set; }
 	}
 }

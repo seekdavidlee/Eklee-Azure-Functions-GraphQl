@@ -31,12 +31,12 @@ namespace Eklee.Azure.Functions.GraphQl
 			IGraphQlRepositoryProvider graphQlRepositoryProvider,
 			IDistributedCache distributedCache,
 			ILogger logger,
-			IConnectionEdgeResolver connectionEdgeResolver)
+			IConnectionEdgeHandler connectionEdgeHandler)
 		{
 			_objectGraphType = objectGraphType;
 			_queryName = queryName;
 			_description = description;
-			_queryExecutor = new QueryExecutor<TSource>(graphQlRepositoryProvider, logger, connectionEdgeResolver);
+			_queryExecutor = new QueryExecutor<TSource>(graphQlRepositoryProvider, logger, connectionEdgeHandler);
 			_distributedCache = distributedCache;
 			_logger = logger;
 

@@ -151,5 +151,10 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.InMemory
 			collection.Clear();
 			return Task.CompletedTask;
 		}
+
+		public Task AddOrUpdateAsync<T>(T item, IGraphRequestContext graphRequestContext) where T : class
+		{
+			throw new NotImplementedException();
+		}
 	}
 }

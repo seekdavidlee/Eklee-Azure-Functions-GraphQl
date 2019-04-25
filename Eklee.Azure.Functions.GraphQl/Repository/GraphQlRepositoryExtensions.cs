@@ -48,6 +48,11 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			await RunAsync(graphQlRepository, type, mappedInstance, "AddAsync", graphRequestContext);
 		}
 
+		public static async Task AddOrUpdateAsync(this IGraphQlRepository graphQlRepository, Type type, object mappedInstance, IGraphRequestContext graphRequestContext)
+		{
+			await RunAsync(graphQlRepository, type, mappedInstance, "AddOrUpdateAsync", graphRequestContext);
+		}
+
 		public static async Task UpdateAsync(this IGraphQlRepository graphQlRepository, Type type, object mappedInstance, IGraphRequestContext graphRequestContext)
 		{
 			await RunAsync(graphQlRepository, type, mappedInstance, "UpdateAsync", graphRequestContext);

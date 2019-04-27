@@ -1230,6 +1230,64 @@
 					"response": []
 				},
 				{
+					"name": "SeedModel5",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Created data contains 12 items\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.batchCreateModel5.length).to.eql(1);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/graphql",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "mutation{\r\n  batchCreateModel5(model5:\r\n  [ {\r\n    id:\"model5_1\"\r\n  \tdateField:\"2019-01-01\"\r\n    doubleField: 5.67\r\n    field:\"do\"\r\n    intField: 6\r\n    closeFriend: {\r\n      id: \"model_4\"\r\n      field: \"df\"\r\n      theFriend: {\r\n        id:\"model_4\"\r\n        field:\"sdqq\"\r\n        dateField:\"2011-01-05\"\r\n        doubleField: 56.89\r\n        intField:87\r\n      }\r\n    }\r\n    bestFriend:{\r\n      id:\"model5_2\"\r\n      field:\"ray\"\r\n      theFriend:{\r\n        id:\"model5_2\"\r\n        dateField:\"2019-01-01\"\r\n        doubleField: 5.67\r\n        field:\"do\"\r\n        intField: 6\r\n      }\r\n    }\r\n  } ]){\r\n    id\r\n    intField\r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/testdocumentdb/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"testdocumentdb",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "QuerySingleModel1",
 					"event": [
 						{

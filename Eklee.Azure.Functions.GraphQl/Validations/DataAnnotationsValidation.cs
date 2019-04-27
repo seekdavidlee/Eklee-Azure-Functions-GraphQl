@@ -76,26 +76,24 @@ namespace Eklee.Azure.Functions.GraphQl.Validations
 
 						if (modelValidations.Count > 0)
 						{
-							var members = GetTypeAccessor(modelType).GetMembers().ToList();
+							var ta = GetTypeAccessor(modelType);
+							var members = ta.GetMembers().ToList();
 							var o = arg.Value.Value;
 
 							if (typeof(IEnumerable).IsAssignableFrom(o.GetType()))
 							{
-								var items = (Dictionary<string, object>)o;
-								foreach (var item in items)
+								if (o is IDictionary)
 								{
-									var member = members.SingleOrDefault(x => x.Name.ToLower() == item.Key.ToLower());
-									if (member != null)
+									Validate((Dictionary<string, object>)o,
+										members, modelValidations, context, arg);
+								}
+
+								if (o is IList)
+								{
+									foreach (var oItem in (IList)o)
 									{
-										modelValidations.ForEach(modelValidation =>
-										{
-											string errorCode;
-											string message;
-											if (!modelValidation.TryAssertMemberValueIsValid(member, items[item.Key], out errorCode, out message))
-											{
-												context.ReportError(new ValidationError(context.OriginalQuery, errorCode, message, arg));
-											}
-										});
+										Validate((Dictionary<string, object>)oItem,
+											members, modelValidations, context, arg);
 									}
 								}
 							}
@@ -103,6 +101,30 @@ namespace Eklee.Azure.Functions.GraphQl.Validations
 					}
 				});
 			});
+		}
+
+		private static void Validate(Dictionary<string, object> items,
+			List<Member> members,
+			List<IModelValidation> modelValidations,
+			ValidationContext context,
+			Argument arg)
+		{
+			foreach (var item in items)
+			{
+				var member = members.SingleOrDefault(x => x.Name.ToLower() == item.Key.ToLower());
+				if (member != null)
+				{
+					modelValidations.ForEach(modelValidation =>
+					{
+						string errorCode;
+						string message;
+						if (!modelValidation.TryAssertMemberValueIsValid(member, items[item.Key], out errorCode, out message))
+						{
+							context.ReportError(new ValidationError(context.OriginalQuery, errorCode, message, arg));
+						}
+					});
+				}
+			}
 		}
 
 		private static string GetValue(Inputs input, string argumentName, string fieldTypeName)

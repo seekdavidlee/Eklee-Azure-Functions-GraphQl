@@ -81,10 +81,17 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Connections
 			var m5_a = GetModel("model5_a", list);
 			m5_a.ShouldNotBeNull();
 			m5_a.Id.ShouldBe("model5_a");
+			m5_a.Edge1.ShouldBeNull();
+			m5_a.Edge2.ShouldBeNull();
+			m5_a.Edge3.ShouldBeNull();
 
 			var m5_b = GetModel("model5_b", list);
 			m5_b.ShouldNotBeNull();
 			m5_b.Id.ShouldBe("model5_b");
+
+			m5_b.Edge1.ShouldBeNull();
+			m5_b.Edge2.ShouldBeNull();
+			m5_b.Edge3.ShouldBeNull();
 		}
 
 		private ModelWith3Connections GetModel(string id, List<object> list)
@@ -143,9 +150,16 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Connections
 			m5_a.Edge1.Other.Id.ShouldBe("other1");
 			m5_a.Edge1.Other.Field1.ShouldBe("testother");
 
+			m5_a.Edge2.ShouldBeNull();
+			m5_a.Edge3.ShouldBeNull();
+
 			var m5_b = GetModel("model5_b", list);
 			m5_b.ShouldNotBeNull();
 			m5_b.Id.ShouldBe("model5_b");
+
+			m5_b.Edge1.ShouldBeNull();
+			m5_b.Edge2.ShouldBeNull();
+			m5_b.Edge3.ShouldBeNull();
 		}
 
 		private ConnectionEdge SetupConnectionEdge<TMeta, TSrc>(TMeta meta,

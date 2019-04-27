@@ -27,7 +27,7 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 		{
 			var selections = GetFirstComplexSelectValues(queryStep);
 
-			if (selections.Count > 0)
+			if (selections != null && selections.Count > 0)
 			{
 				await QueryAndPopulateEdgeConnections(selections, results, graphRequestContext);
 			}
@@ -124,7 +124,9 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 			if (qp != null)
 			{
 				var selectedValues = qp.ContextValue.SelectValues;
-				return selectedValues.Where(x => x.SelectValues != null && x.SelectValues.Count > 0).ToList();
+
+				if (selectedValues != null)
+					return selectedValues.Where(x => x.SelectValues != null && x.SelectValues.Count > 0).ToList();
 			}
 
 			return null;

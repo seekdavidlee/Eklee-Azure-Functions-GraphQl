@@ -143,7 +143,6 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 
 			connectionEdge.DestinationId = destId.ToString();
 			connectionEdge.DestinationFieldName = destinationId.Name;
-			connectionEdge.DestinationTypeName = destinationModel.Type.AssemblyQualifiedName;
 			connectionEdge.Id = $"{connectionEdge.SourceFieldName}_{connectionEdge.SourceId}_{connectionEdge.DestinationId}";
 			connectionEdge.MetaFieldName = destinationModel.Name;
 			connectionEdge.MetaValue = JsonConvert.SerializeObject(edgeObjectInstance);

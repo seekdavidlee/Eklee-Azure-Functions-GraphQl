@@ -33,6 +33,9 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 			}
 		}
 
+		private const string ConnectionEdgeQueryName = "ConnectionEdgeQueryName";
+		private const string EntityQueryName = "EntityQueryName";
+
 		private async Task QueryAndPopulateEdgeConnections(
 			List<SelectValue> selections,
 			List<object> results,
@@ -43,7 +46,8 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 
 			if (edgeQueryParameters.Count > 0)
 			{
-				var connectionEdges = (await GetConnectionEdgeRepository().QueryAsync<ConnectionEdge>("q1",
+				var connectionEdges = (await GetConnectionEdgeRepository().QueryAsync<ConnectionEdge>(
+					ConnectionEdgeQueryName,
 					edgeQueryParameters.ToQueryParameters(), null, graphRequestContext)).ToList();
 
 				if (connectionEdges.Count > 0)
@@ -56,35 +60,42 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 					{
 						var sourceObject = dictionary[connectionEdge.SourceId];
 
-						var edgeObject = GetObject(connectionEdge.MetaValue, connectionEdge.MetaType);
+						var edgeObject = DeserializeObject(connectionEdge.MetaValue, connectionEdge.MetaType);
 
 						accessor[sourceObject, connectionEdge.SourceFieldName] = edgeObject;
 
 						var selection = selections.SingleOrDefault(s => s.FieldName.ToLower() == connectionEdge.SourceFieldName.ToLower());
+
 						if (selection != null)
 						{
-							var qp = new QueryStep();
-							var destType = Type.GetType(connectionEdge.DestinationTypeName);
-							var destTypeAccessor = TypeAccessor.Create(destType);
-							var destQueryMember = destTypeAccessor.GetMembers().Single(m => m.Name.ToLower() == connectionEdge.DestinationFieldName.ToLower());
-							qp.QueryParameters.Add(new QueryParameter
-							{
-								ContextValue = new ContextValue { Comparison = Comparisons.Equal, Values = new List<object> { connectionEdge.DestinationId } },
-								MemberModel = new ModelMember(destType, destTypeAccessor, destQueryMember, false)
-							});
+							var entity = (await _graphQlRepositoryProvider.QueryAsync(EntityQueryName,
+								CreateQueryStep(connectionEdge),
+								graphRequestContext)).SingleOrDefault();
 
-							var mRes = (await _graphQlRepositoryProvider.QueryAsync("q3", qp, graphRequestContext)).SingleOrDefault();
-
-							if (mRes == null) continue;
+							if (entity == null) continue;
 
 							var edgeObjectTypeAccessor = TypeAccessor.Create(edgeObject.GetType());
-							edgeObjectTypeAccessor[edgeObject, connectionEdge.MetaFieldName] = mRes;
+							edgeObjectTypeAccessor[edgeObject, connectionEdge.MetaFieldName] = entity;
 
-							await QueryAndPopulateEdgeConnections(new List<SelectValue> { selection }, new List<object> { mRes }, graphRequestContext);
+							await QueryAndPopulateEdgeConnections(new List<SelectValue> { selection }, new List<object> { entity }, graphRequestContext);
 						}
 					}
 				}
 			}
+		}
+
+		private QueryStep CreateQueryStep(ConnectionEdge connectionEdge)
+		{
+			var qp = new QueryStep();
+			var destType = Type.GetType(connectionEdge.SourceType);
+			var destTypeAccessor = TypeAccessor.Create(destType);
+			var destQueryMember = destTypeAccessor.GetMembers().Single(m => m.Name.ToLower() == connectionEdge.DestinationFieldName.ToLower());
+			qp.QueryParameters.Add(new QueryParameter
+			{
+				ContextValue = new ContextValue { Comparison = Comparisons.Equal, Values = new List<object> { connectionEdge.DestinationId } },
+				MemberModel = new ModelMember(destType, destTypeAccessor, destQueryMember, false)
+			});
+			return qp;
 		}
 
 		private IGraphQlRepository GetConnectionEdgeRepository()
@@ -99,7 +110,7 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 				x.IsGenericMethod &&
 				x.GetParameters().Count() == 1);
 
-		private static object GetObject(string value, string typeName)
+		private static object DeserializeObject(string value, string typeName)
 		{
 			MethodInfo generic = _jsonConvertDeserializeObject.MakeGenericMethod(
 				Type.GetType(typeName));

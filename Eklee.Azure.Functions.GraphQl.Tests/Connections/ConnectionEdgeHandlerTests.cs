@@ -1,7 +1,6 @@
 ﻿using Eklee.Azure.Functions.GraphQl.Connections;
 using Eklee.Azure.Functions.GraphQl.Repository;
 using Eklee.Azure.Functions.GraphQl.Tests.Models;
-using FastMember;
 using Newtonsoft.Json;
 using NSubstitute;
 using Shouldly;
@@ -48,7 +47,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Connections
 			};
 		}
 
-		private QueryStep PrepQuery()
+		private QueryStep PrepQuery(SelectValue selectValue)
 		{
 			var qs = new QueryStep();
 			qs.QueryParameters.Add(new QueryParameter
@@ -63,6 +62,9 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Connections
 					Comparison = Comparisons.Equal
 				}
 			});
+
+			qs.QueryParameters.First().ContextValue.SelectValues.Add(selectValue);
+
 			return qs;
 		}
 
@@ -70,7 +72,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Connections
 		public async Task OneLevelQueryWorks()
 		{
 			var list = PrepData();
-			var qs = PrepQuery();
+			var qs = PrepQuery(new SelectValue());
 
 			await _connectionEdgeHandler.QueryAsync(list, qs, null);
 
@@ -94,9 +96,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Connections
 		[Fact]
 		public async Task TwoLevelQueryWorks()
 		{
-			var list = PrepData();
-			var qs = PrepQuery();
-			qs.QueryParameters.First().ContextValue.SelectValues.Add(new SelectValue
+			var selectValue = new SelectValue
 			{
 				FieldName = "Edge1",
 				SelectValues = new List<SelectValue>
@@ -104,14 +104,28 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Connections
 					new SelectValue { FieldName = "Id" },
 					new SelectValue { FieldName = "Field1" }
 				}
-			});
+			};
 
-			SetupConnectionEdgeInputAndOutput(new string[] { "model5_a", "model5_b" },
+			var list = PrepData();
+			var qs = PrepQuery(selectValue);
+
+			const string other1Id = "other1";
+
+			var connectionEdges = new List<ConnectionEdge>
+			{
 				SetupConnectionEdge<ModelWith3ConnectionsEdge, ModelWith3Connections>(
 					new ModelWith3ConnectionsEdge
 					{
-						 
-					}, "model5_a", "id", "model5_a_conn"));
+						Id = "other1edge",
+						Field1 = "SHARP"
+					}, "model5_a", "id", other1Id)
+			};
+
+			SetupConnectionEdgeRepository(new string[] { "model5_a", "model5_b" }, connectionEdges, other1Id,
+				new List<object> { new ModelWith3ConnectionsOther
+				{
+					Id = other1Id, Field1 = "testother"
+				} });
 
 			await _connectionEdgeHandler.QueryAsync(list, qs, null);
 
@@ -120,6 +134,14 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Connections
 			var m5_a = GetModel("model5_a", list);
 			m5_a.ShouldNotBeNull();
 			m5_a.Id.ShouldBe("model5_a");
+
+			m5_a.Edge1.ShouldNotBeNull();
+			m5_a.Edge1.Id.ShouldBe("other1edge");
+			m5_a.Edge1.Field1.ShouldBe("SHARP");
+
+			m5_a.Edge1.Other.ShouldNotBeNull();
+			m5_a.Edge1.Other.Id.ShouldBe("other1");
+			m5_a.Edge1.Other.Field1.ShouldBe("testother");
 
 			var m5_b = GetModel("model5_b", list);
 			m5_b.ShouldNotBeNull();
@@ -135,16 +157,17 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Connections
 			{
 				DestinationFieldName = destFieldName,
 				DestinationId = destId,
-				MetaFieldName = "Edge1",
-				MetaType = typeof(TMeta).FullName,
+				MetaFieldName = "Other",
+				MetaType = typeof(TMeta).AssemblyQualifiedName,
 				MetaValue = JsonConvert.SerializeObject(meta),
-				SourceFieldName = "id",
+				SourceFieldName = "Edge1",
 				SourceId = srcId,
-				SourceType = typeof(TSrc).FullName
+				SourceType = typeof(TSrc).AssemblyQualifiedName
 			};
 		}
 
-		private void SetupConnectionEdgeInputAndOutput(string[] idList, params ConnectionEdge[] connectionEdges)
+		private void SetupConnectionEdgeRepository(string[] idList,
+			List<ConnectionEdge> connectionEdges, string connectionOtherId, List<object> connectionsOthers)
 		{
 			_connectionEdgeRepository.QueryAsync<ConnectionEdge>(Arg.Any<string>(),
 				Arg.Is<IEnumerable<QueryParameter>>(x =>
@@ -152,6 +175,13 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Connections
 				x.First().ContextValue.Values.Count == idList.Length &&
 				x.First().ContextValue.Values.All(v => idList.Contains((string)v))), null, null)
 				.Returns(Task.FromResult(connectionEdges.AsEnumerable()));
+
+			_graphQlRepositoryProvider.QueryAsync(Arg.Any<string>(),
+				Arg.Is<QueryStep>(x =>
+				x.QueryParameters.First().ContextValue.Comparison == Comparisons.Equal &&
+				x.QueryParameters.First().ContextValue.Values.Count == 1 &&
+				x.QueryParameters.First().ContextValue.Values.First().Equals(connectionOtherId)), null)
+				.Returns(Task.FromResult(connectionsOthers.AsEnumerable()));
 		}
 	}
 }

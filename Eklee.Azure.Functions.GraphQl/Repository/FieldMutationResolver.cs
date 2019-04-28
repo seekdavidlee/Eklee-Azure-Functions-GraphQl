@@ -18,17 +18,20 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 		private readonly ISearchMappedModels _searchMappedModels;
 		private readonly ILogger _logger;
 		private readonly IConnectionEdgeResolver _connectionEdgeResolver;
+		private readonly IConnectionEdgeHandler _connectionEdgeHandler;
 
 		public FieldMutationResolver(
 			IGraphQlRepositoryProvider graphQlRepositoryProvider,
 			ISearchMappedModels searchMappedModels,
 			ILogger logger,
-			IConnectionEdgeResolver connectionEdgeResolver)
+			IConnectionEdgeResolver connectionEdgeResolver,
+			IConnectionEdgeHandler connectionEdgeHandler)
 		{
 			_graphQlRepositoryProvider = graphQlRepositoryProvider;
 			_searchMappedModels = searchMappedModels;
 			_logger = logger;
 			_connectionEdgeResolver = connectionEdgeResolver;
+			_connectionEdgeHandler = connectionEdgeHandler;
 		}
 
 		public Func<ClaimsPrincipal, AssertAction, bool> ClaimsPrincipalAssertion { get; set; }
@@ -86,13 +89,17 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 		{
 			try
 			{
-				await _graphQlRepositoryProvider.GetRepository<TSource>().DeleteAsync(item, context.UserContext as IGraphRequestContext);
+				IGraphRequestContext ctx = context.UserContext as IGraphRequestContext;
+
+				await _connectionEdgeHandler.RemoveEdgeConnections(item, ctx);
+
+				await _graphQlRepositoryProvider.GetRepository<TSource>().DeleteAsync(item, ctx);
 
 				if (_searchMappedModels.TryGetMappedSearchType<TSource>(out var mappedSearchType))
 				{
 					var mappedInstance = _searchMappedModels.CreateInstanceFromMap(item);
 					await _graphQlRepositoryProvider.GetRepository(mappedSearchType)
-						.DeleteAsync(mappedSearchType, mappedInstance, context.UserContext as IGraphRequestContext);
+						.DeleteAsync(mappedSearchType, mappedInstance, ctx);
 				}
 			}
 			catch (Exception e)

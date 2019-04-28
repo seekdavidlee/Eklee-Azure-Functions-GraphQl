@@ -23,6 +23,23 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 			_connectionEdgeResolver = connectionEdgeResolver;
 		}
 
+		public async Task RemoveEdgeConnections(object item, IGraphRequestContext graphRequestContext)
+		{
+			var edgeQueryParameters = _connectionEdgeResolver.ListConnectionEdgeQueryParameter(new List<object> { item });
+
+			var connectionEdges = (await GetConnectionEdgeRepository().QueryAsync<ConnectionEdge>(
+				ConnectionEdgeQueryName,
+				edgeQueryParameters.ToQueryParameters(), null, graphRequestContext)).ToList();
+
+			if (edgeQueryParameters.Count > 0)
+			{
+				foreach (var connectionEdge in connectionEdges)
+				{
+					await GetConnectionEdgeRepository().DeleteAsync(connectionEdge, graphRequestContext);
+				}
+			}
+		}
+
 		public async Task QueryAsync(List<object> results, QueryStep queryStep, IGraphRequestContext graphRequestContext)
 		{
 			var selections = GetFirstComplexSelectValues(queryStep);

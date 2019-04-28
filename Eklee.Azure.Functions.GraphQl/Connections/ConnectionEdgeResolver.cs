@@ -84,7 +84,7 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 			List<ConnectionEdge> connectionEdges,
 			InternalConnectionEdgeState internalConnectionEdgeState)
 		{
-			var edgeType = edgeObjectInstance.GetType();
+			var edgeType = member.Type;
 			var edgeTypeAccessor = TypeAccessor.Create(edgeType);
 
 			var connectionEdge = new ConnectionEdge
@@ -143,7 +143,7 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 
 			connectionEdge.DestinationId = destId.ToString();
 			connectionEdge.DestinationFieldName = destinationId.Name;
-			connectionEdge.Id = $"{connectionEdge.SourceFieldName}_{connectionEdge.SourceId}_{connectionEdge.DestinationId}";
+			connectionEdge.Id = $"{connectionEdge.SourceFieldName}_{connectionEdge.SourceId}";
 			connectionEdge.MetaFieldName = destinationModel.Name;
 			connectionEdge.MetaValue = JsonConvert.SerializeObject(edgeObjectInstance);
 			connectionEdges.Add(connectionEdge);

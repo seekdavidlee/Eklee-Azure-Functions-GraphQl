@@ -148,5 +148,32 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 
 			return null;
 		}
+
+		public async Task DeleteAllEdgeConnectionsOfType<T>(IGraphRequestContext graphRequestContext)
+		{
+			var connectionEdges = (await GetConnectionEdgeRepository().QueryAsync<ConnectionEdge>(
+				ConnectionEdgeQueryName,
+				GetQueryParameters<T>(), null, graphRequestContext)).ToList();
+
+			if (connectionEdges.Count > 0)
+			{
+				foreach (var connectionEdge in connectionEdges)
+				{
+					await GetConnectionEdgeRepository().DeleteAsync(connectionEdge, graphRequestContext);
+				}
+			}
+		}
+
+		private List<QueryParameter> GetQueryParameters<T>()
+		{
+			var accessor = TypeAccessor.Create(typeof(ConnectionEdge));
+			var member = accessor.GetMembers().Single(x => x.Name == "SourceType");
+
+			return new List<QueryParameter> {new QueryParameter
+			{
+				ContextValue = new ContextValue { Comparison = Comparisons.Equal, Values = new List<object> { typeof(T).AssemblyQualifiedName } },
+				MemberModel = new ModelMember(member.Type, accessor, member, false)
+			} };
+		}
 	}
 }

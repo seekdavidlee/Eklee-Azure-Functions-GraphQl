@@ -58,7 +58,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestDocumentDb
 				.AddDatabase(db)
 				.AddPartition(x => x.Field)
 				.BuildDocumentDb()
-				.DeleteAll(() => new Status { Message = "All Model3 have been removed." })
+				.DeleteAll(() => new Status { Message = "All Model4 have been removed." })
 				.Build();
 
 			inputBuilderFactory.Create<Model5>(this)
@@ -69,7 +69,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestDocumentDb
 				.AddDatabase(db)
 				.AddPartition(x => x.Field)
 				.BuildDocumentDb()
-				.DeleteAll(() => new Status { Message = "All Model3 have been removed." })
+				.DeleteAll(() => new Status { Message = "All Model5 have been removed." })
 				.Build();
 
 			inputBuilderFactory.Create<Model5Friend>(this)
@@ -80,7 +80,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestDocumentDb
 				.AddDatabase(db)
 				.AddPartition(x => x.Field)
 				.BuildDocumentDb()
-				.DeleteAll(() => new Status { Message = "All Model3 have been removed." })
+				.DeleteAll(() => new Status { Message = "All Model5Friend have been removed." })
 				.Build();
 
 			inputBuilderFactory.Create<ConnectionEdge>(this)

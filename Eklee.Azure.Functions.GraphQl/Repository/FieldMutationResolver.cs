@@ -128,12 +128,16 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			AssertWithClaimsPrincipal(AssertAction.DeleteAll, context);
 			try
 			{
-				await _graphQlRepositoryProvider.GetRepository<TSource>().DeleteAllAsync<TSource>(context.UserContext as IGraphRequestContext);
+				var ctx = context.UserContext as IGraphRequestContext;
+
+				await _connectionEdgeHandler.DeleteAllEdgeConnectionsOfType<TSource>(ctx);
+
+				await _graphQlRepositoryProvider.GetRepository<TSource>().DeleteAllAsync<TSource>(ctx);
 
 				if (_searchMappedModels.TryGetMappedSearchType<TSource>(out var mappedSearchType))
 				{
 					await _graphQlRepositoryProvider.GetRepository(mappedSearchType)
-						.DeleteAllAsync(mappedSearchType, context.UserContext as IGraphRequestContext);
+						.DeleteAllAsync(mappedSearchType, ctx);
 				}
 			}
 			catch (Exception e)

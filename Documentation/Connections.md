@@ -4,7 +4,7 @@
 
 When 2 Models are related to each other via some form of relationship, we can easily create this relationship via the use of the Connection attribute. 
 
-## Connection Attribute
+## Connection attribute
 
 Let's take the following as an example.
 
@@ -136,7 +136,7 @@ Now, we can search for Model5 and find Model5's best friend. Let's take a look a
 
 When we found model5_1, we can see model5_1's best friend to be model5_2. We can continue the chain and find model5_2's best friend who is actually model5_3. Notice that we can keep going down and chain if we want to.
 
-# Other Notes
+# Other notes
 
 * The Connection concept is currently ONLY supported with the use of CosmosDb. It is not available in other types of Data Sources. We will be adding the other Data Sources shortly.
 * It can potentially get complex if you decide to find all the best friends a few more levels deep. This has the effect of slowing down the response time as a query is executed for each level.

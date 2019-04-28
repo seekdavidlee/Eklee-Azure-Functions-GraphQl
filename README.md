@@ -24,7 +24,6 @@ The first step is to setup your DI via the Autofac Module. Be sure to register y
 
 - [Mutations](Documentation/Mutations.md)
 - [Queries](Documentation/Queries.md)
-- [Validations](Documentation/Validations.md)
 
 ```
 using Autofac;
@@ -42,14 +41,6 @@ namespace Eklee.Examples
         }
     }
 }
-```
-
-### Caching:
-
-To setup caching, in your Module setup, use the extension method UseDistributedCache. Note that MemoryDistributedCache is just an example. In a production senario, you may choose something like Azure Redis.
-
-```
-builder.UseDistributedCache<MemoryDistributedCache>();
 ```
 
 ### Misc
@@ -102,18 +93,12 @@ using System.ComponentModel.DataAnnotations;
 
 Once we have completed these steps, we are ready to start running the Azure HTTP Function.
 
-# Tracing support:
+# Other topics:
 
-To enable support for tracing, please add set EnableMetrics configuration to true under GraphQl.
-
-```
-{
-    ...
-    "GraphQl": {
-      "EnableMetrics": "true" 
-    } 
-}
-```
+- [Tracing](Documentation/Tracing.md)
+- [Query Caching](Documentation/Caching.md)
+- [Model Validation](Documentation/Validations.md)
+- [Connecting Models](Documentation/Connections.md)
 
 # Recommanded tools:
 

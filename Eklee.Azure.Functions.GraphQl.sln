@@ -27,9 +27,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Eklee.Azure.Functions.Graph
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentation", "{103848FB-533A-494B-AF42-2A17ED6249E3}"
 	ProjectSection(SolutionItems) = preProject
+		Documentation\Caching.md = Documentation\Caching.md
+		Documentation\Connections.md = Documentation\Connections.md
 		Documentation\Mutations.md = Documentation\Mutations.md
 		Documentation\Nuget.md = Documentation\Nuget.md
 		Documentation\Queries.md = Documentation\Queries.md
+		Documentation\Tracing.md = Documentation\Tracing.md
 		Documentation\Validations.md = Documentation\Validations.md
 	EndProjectSection
 EndProject

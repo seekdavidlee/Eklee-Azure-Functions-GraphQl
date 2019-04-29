@@ -8,6 +8,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 	{
 		void Configure(Type sourceType, Dictionary<string, object> configurations);
 		Task BatchAddAsync<T>(IEnumerable<T> items, IGraphRequestContext graphRequestContext) where T : class;
+		Task BatchAddOrUpdateAsync<T>(IEnumerable<T> items, IGraphRequestContext graphRequestContext) where T : class;
 		Task AddAsync<T>(T item, IGraphRequestContext graphRequestContext) where T : class;
 		Task AddOrUpdateAsync<T>(T item, IGraphRequestContext graphRequestContext) where T : class;
 		Task UpdateAsync<T>(T item, IGraphRequestContext graphRequestContext) where T : class;

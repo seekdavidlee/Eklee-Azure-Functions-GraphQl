@@ -38,27 +38,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 
 		public async Task<List<TSource>> BatchAddAsync<TSource>(ResolveFieldContext<object> context, string sourceName) where TSource : class
 		{
-			AssertWithClaimsPrincipal(AssertAction.BatchCreate, context);
-			var items = context.GetArgument<IEnumerable<TSource>>(sourceName).ToList();
-			try
-			{
-				await _graphQlRepositoryProvider.GetRepository<TSource>().BatchAddAsync(items, context.UserContext as IGraphRequestContext);
-
-				if (_searchMappedModels.TryGetMappedSearchType<TSource>(out var mappedSearchType))
-				{
-					var mappedInstances = items.Select(item => Convert.ChangeType(_searchMappedModels.CreateInstanceFromMap(item), mappedSearchType)).ToList();
-
-					await _graphQlRepositoryProvider.GetRepository(mappedSearchType)
-						.BatchAddAsync(mappedSearchType, mappedInstances, context.UserContext as IGraphRequestContext);
-				}
-
-				return items;
-			}
-			catch (Exception e)
-			{
-				_logger.LogError(e, "An error has occured while performing a batch add operation.");
-				throw;
-			}
+			return await InternalBatchAsync<TSource>(context, sourceName, AssertAction.BatchCreate);
 		}
 
 		private void AssertWithClaimsPrincipal(AssertAction assertAction, ResolveFieldContext<object> context)
@@ -154,25 +134,25 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			AssertWithClaimsPrincipal(AssertAction.Create, context);
 			var item = context.GetArgument<TSource>(sourceName);
 
+			var ctx = context.UserContext as IGraphRequestContext;
 			try
 			{
 				var edges = _connectionEdgeResolver.HandleConnectionEdges(item, async (model) =>
 				{
 					await _graphQlRepositoryProvider.GetRepository(model.GetType())
-						.AddAsync(model.GetType(), model, context.UserContext as IGraphRequestContext);
+						.AddAsync(model.GetType(), model, ctx);
 				});
 
 				foreach (var edge in edges)
 				{
-					await _graphQlRepositoryProvider.GetRepository(typeof(ConnectionEdge))
-						.AddAsync(edge, context.UserContext as IGraphRequestContext);
+					await _graphQlRepositoryProvider.GetRepository(typeof(ConnectionEdge)).AddAsync(edge, ctx);
 				}
 
 				if (_searchMappedModels.TryGetMappedSearchType<TSource>(out var mappedSearchType))
 				{
 					var mappedInstance = _searchMappedModels.CreateInstanceFromMap(item);
 					await _graphQlRepositoryProvider.GetRepository(mappedSearchType)
-						.AddAsync(mappedSearchType, mappedInstance, context.UserContext as IGraphRequestContext);
+						.AddAsync(mappedSearchType, mappedInstance, ctx);
 				}
 			}
 			catch (Exception e)
@@ -238,6 +218,61 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 				throw;
 			}
 			return item;
+		}
+
+		public async Task<List<TSource>> BatchAddOrUpdateAsync<TSource>(ResolveFieldContext<object> context, string sourceName) where TSource : class
+		{
+			return await InternalBatchAsync<TSource>(context, sourceName, AssertAction.BatchCreateOrUpdate);
+		}
+
+		private async Task<List<TSource>> InternalBatchAsync<TSource>(
+			ResolveFieldContext<object> context, string sourceName,
+			AssertAction assertAction) where TSource : class
+		{
+			AssertWithClaimsPrincipal(assertAction, context);
+
+			var items = context.GetArgument<IEnumerable<TSource>>(sourceName).ToList();
+			var ctx = context.UserContext as IGraphRequestContext;
+			try
+			{
+				var edges = _connectionEdgeResolver.HandleConnectionEdges(items, async (model) =>
+				{
+					await _graphQlRepositoryProvider.GetRepository(model.GetType())
+						.AddAsync(model.GetType(), model, ctx);
+				});
+
+				switch (assertAction)
+				{
+					case AssertAction.BatchCreate:
+
+						await _graphQlRepositoryProvider.GetRepository(typeof(ConnectionEdge)).BatchAddAsync(edges, ctx);
+						await _graphQlRepositoryProvider.GetRepository<TSource>().BatchAddAsync(items, ctx);
+						break;
+
+					case AssertAction.BatchCreateOrUpdate:
+						await _graphQlRepositoryProvider.GetRepository(typeof(ConnectionEdge)).BatchAddOrUpdateAsync(edges, ctx);
+						await _graphQlRepositoryProvider.GetRepository<TSource>().BatchAddOrUpdateAsync(items, ctx);
+						break;
+
+					default:
+						throw new InvalidOperationException("This internal method is only for batch operations.");
+				}
+
+				if (_searchMappedModels.TryGetMappedSearchType<TSource>(out var mappedSearchType))
+				{
+					var mappedInstances = items.Select(item => Convert.ChangeType(_searchMappedModels.CreateInstanceFromMap(item), mappedSearchType)).ToList();
+
+					await _graphQlRepositoryProvider.GetRepository(mappedSearchType)
+						.BatchAddAsync(mappedSearchType, mappedInstances, ctx);
+				}
+
+				return items;
+			}
+			catch (Exception e)
+			{
+				_logger.LogError(e, "An error has occured while performing a batch add operation.");
+				throw;
+			}
 		}
 	}
 }

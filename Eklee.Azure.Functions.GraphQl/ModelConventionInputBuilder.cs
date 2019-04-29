@@ -157,6 +157,18 @@ namespace Eklee.Azure.Functions.GraphQl
 				resolve: async context => await _fieldMutationResolver.BatchAddAsync<TSource>(context, _sourceName));
 		}
 
+		private void AddBatchCreateOrUpdateField()
+		{
+			var fieldName = $"batchCreateOrUpdate{GetTypeName()}";
+
+			if (_objectGraphType.HasField(fieldName)) return;
+
+			_objectGraphType.FieldAsync<ListGraphType<ModelConventionType<TSource>>>(fieldName,
+				description: $"Batch create or update {GetTypeName()} instances.",
+				arguments: _queryArgumentsBuilder.BuildList<TSource>(_sourceName),
+				resolve: async context => await _fieldMutationResolver.BatchAddOrUpdateAsync<TSource>(context, _sourceName));
+		}
+
 		private void AddCreateField()
 		{
 			var fieldName = $"create{typeof(TSource).Name}";
@@ -193,17 +205,67 @@ namespace Eklee.Azure.Functions.GraphQl
 				resolve: async context => await _fieldMutationResolver.UpdateAsync<TSource>(context, _sourceName));
 		}
 
+		private bool _disableBatchCreate;
+
+		public ModelConventionInputBuilder<TSource> DisableBatchCreate()
+		{
+			_disableBatchCreate = true;
+			return this;
+		}
+
+		private bool _disableCreate;
+
+		public ModelConventionInputBuilder<TSource> DisableCreate()
+		{
+			_disableCreate = true;
+			return this;
+		}
+
+		private bool _disableUpdate;
+
+		public ModelConventionInputBuilder<TSource> DisableUpdate()
+		{
+			_disableUpdate = true;
+			return this;
+		}
+
+		private bool _disableCreateOrUpdate;
+
+		public ModelConventionInputBuilder<TSource> DisableCreateOrUpdate()
+		{
+			_disableCreateOrUpdate = true;
+			return this;
+		}
+
+		private bool _disableDelete;
+
+		public ModelConventionInputBuilder<TSource> DisableDelete()
+		{
+			_disableDelete = true;
+			return this;
+		}
+
+		private bool _disableBatchCreateOrUpdate;
+
+		public ModelConventionInputBuilder<TSource> DisableBatchCreateOrUpdate()
+		{
+			_disableBatchCreateOrUpdate = true;
+			return this;
+		}
+
 		public void Build()
 		{
-			AddBatchCreateField();
+			if (!_disableBatchCreate) AddBatchCreateField();
 
-			AddCreateField();
+			if (!_disableCreate) AddCreateField();
 
-			AddUpdateField();
+			if (!_disableUpdate) AddUpdateField();
 
-			AddCreateOrUpdateField();
+			if (!_disableCreateOrUpdate) AddCreateOrUpdateField();
 
-			_deleteSetupAction();
+			if (!_disableDelete) _deleteSetupAction();
+
+			if (!_disableBatchCreateOrUpdate) AddBatchCreateOrUpdateField();
 
 			_deleteAllAction?.Invoke();
 		}

@@ -8,6 +8,18 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 {
 	public class ConnectionEdgeResolver : IConnectionEdgeResolver
 	{
+		public List<ConnectionEdge> HandleConnectionEdges<TSource>(List<TSource> items, Action<object> entityAction)
+		{
+			var connectionEdges = new List<ConnectionEdge>();
+
+			foreach(var item in items)
+			{
+				HandleConnectionEdges(item, entityAction);
+			}
+
+			return connectionEdges;
+		}
+
 		public List<ConnectionEdge> HandleConnectionEdges<TSource>(TSource item, Action<object> entityAction)
 		{
 			var internalConnectionEdgeState = new InternalConnectionEdgeState(entityAction);

@@ -199,5 +199,13 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Http
 		{
 			throw new NotImplementedException();
 		}
+
+		public async Task BatchAddOrUpdateAsync<T>(IEnumerable<T> items, IGraphRequestContext graphRequestContext) where T : class
+		{
+			foreach (var item in items.ToList())
+			{
+				await AddOrUpdateAsync(item, graphRequestContext);
+			}
+		}
 	}
 }

@@ -70,6 +70,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestDocumentDb
 				.AddPartition(x => x.Field)
 				.BuildDocumentDb()
 				.DeleteAll(() => new Status { Message = "All Model5 have been removed." })
+				.DisableBatchCreate()   // Note it would be hard to use batch create in this context. Use batchCreateOrUpdate instead.
 				.Build();
 
 			inputBuilderFactory.Create<Model5Friend>(this)

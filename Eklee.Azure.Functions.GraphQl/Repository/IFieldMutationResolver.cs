@@ -10,6 +10,8 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 	{
 		Task<List<TSource>> BatchAddAsync<TSource>(ResolveFieldContext<object> context, string sourceName) where TSource : class;
 
+		Task<List<TSource>> BatchAddOrUpdateAsync<TSource>(ResolveFieldContext<object> context, string sourceName) where TSource : class;
+
 		Task<TDeleteOutput> DeleteAsync<TSource, TDeleteInput, TDeleteOutput>(ResolveFieldContext<object> context, string sourceName,
 			Func<TDeleteInput, TSource> mapDelete,
 			Func<TSource, TDeleteOutput> transform) where TSource : class;

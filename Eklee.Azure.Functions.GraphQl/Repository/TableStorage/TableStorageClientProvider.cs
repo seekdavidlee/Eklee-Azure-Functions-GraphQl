@@ -59,6 +59,11 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.TableStorage
 			_tableStorageInfos.Add(info);
 		}
 
+		public Task BatchAddOrUpdateAsync<T>(IEnumerable<T> items, IGraphRequestContext graphRequestContext) where T : class
+		{
+			throw new NotImplementedException();
+		}
+
 		public async Task BatchAddAsync<T>(IEnumerable<T> items, IGraphRequestContext graphRequestContext) where T : class
 		{
 			var info = Get<T>(graphRequestContext);
@@ -121,6 +126,11 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.TableStorage
 			var info = Get<T>(graphRequestContext);
 
 			await info.Table.ExecuteAsync(TableOperation.Insert(Convert(item, info.PartitionKeyMemberName)));
+		}
+
+		public Task AddOrUpdateAsync<T>(T item, IGraphRequestContext graphRequestContext) where T : class
+		{
+			throw new NotImplementedException();
 		}
 
 		public bool CanHandle<T>(IGraphRequestContext graphRequestContext)

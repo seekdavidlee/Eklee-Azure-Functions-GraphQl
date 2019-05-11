@@ -12,9 +12,9 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 		{
 			var connectionEdges = new List<ConnectionEdge>();
 
-			foreach(var item in items)
+			foreach (var item in items)
 			{
-				HandleConnectionEdges(item, entityAction);
+				connectionEdges.AddRange(HandleConnectionEdges(item, entityAction));
 			}
 
 			return connectionEdges;

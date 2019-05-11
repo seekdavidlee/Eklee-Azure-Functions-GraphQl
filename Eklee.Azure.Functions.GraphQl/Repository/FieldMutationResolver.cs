@@ -143,10 +143,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 						.AddAsync(model.GetType(), model, ctx);
 				});
 
-				foreach (var edge in edges)
-				{
-					await _graphQlRepositoryProvider.GetRepository(typeof(ConnectionEdge)).AddAsync(edge, ctx);
-				}
+				await _graphQlRepositoryProvider.GetRepository(typeof(ConnectionEdge)).BatchAddAsync(edges, ctx);
 
 				if (_searchMappedModels.TryGetMappedSearchType<TSource>(out var mappedSearchType))
 				{
@@ -167,26 +164,23 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 		{
 			AssertWithClaimsPrincipal(AssertAction.Create, context);
 			var item = context.GetArgument<TSource>(sourceName);
-
+			var ctx = context.UserContext as IGraphRequestContext;
 			try
 			{
 				var edges = _connectionEdgeResolver.HandleConnectionEdges(item, async (model) =>
 				{
 					await _graphQlRepositoryProvider.GetRepository(model.GetType())
-						.AddOrUpdateAsync(model.GetType(), model, context.UserContext as IGraphRequestContext);
+						.AddOrUpdateAsync(model.GetType(), model, ctx);
 				});
 
-				foreach (var edge in edges)
-				{
-					await _graphQlRepositoryProvider.GetRepository(typeof(ConnectionEdge))
-						.AddOrUpdateAsync(edge, context.UserContext as IGraphRequestContext);
-				}
+				await _graphQlRepositoryProvider.GetRepository(typeof(ConnectionEdge))
+					.BatchAddOrUpdateAsync(edges, ctx);
 
 				if (_searchMappedModels.TryGetMappedSearchType<TSource>(out var mappedSearchType))
 				{
 					var mappedInstance = _searchMappedModels.CreateInstanceFromMap(item);
 					await _graphQlRepositoryProvider.GetRepository(mappedSearchType)
-						.AddAsync(mappedSearchType, mappedInstance, context.UserContext as IGraphRequestContext);
+						.AddAsync(mappedSearchType, mappedInstance, ctx);
 				}
 			}
 			catch (Exception e)
@@ -237,8 +231,15 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			{
 				var edges = _connectionEdgeResolver.HandleConnectionEdges(items, async (model) =>
 				{
-					await _graphQlRepositoryProvider.GetRepository(model.GetType())
-						.AddAsync(model.GetType(), model, ctx);
+					if (assertAction == AssertAction.BatchCreate)
+						await _graphQlRepositoryProvider.GetRepository(model.GetType())
+							.AddAsync(model.GetType(), model, ctx);
+
+					if (assertAction == AssertAction.BatchCreateOrUpdate)
+					{
+						await _graphQlRepositoryProvider.GetRepository(model.GetType())
+							.AddOrUpdateAsync(model.GetType(), model, ctx);
+					}
 				});
 
 				switch (assertAction)
@@ -257,6 +258,9 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 					default:
 						throw new InvalidOperationException("This internal method is only for batch operations.");
 				}
+
+				await _graphQlRepositoryProvider.GetRepository(typeof(ConnectionEdge))
+					.BatchAddOrUpdateAsync(edges, ctx);
 
 				if (_searchMappedModels.TryGetMappedSearchType<TSource>(out var mappedSearchType))
 				{

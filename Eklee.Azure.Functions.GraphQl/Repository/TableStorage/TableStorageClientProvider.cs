@@ -59,12 +59,17 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.TableStorage
 			_tableStorageInfos.Add(info);
 		}
 
-		public Task BatchAddOrUpdateAsync<T>(IEnumerable<T> items, IGraphRequestContext graphRequestContext) where T : class
+		public async Task BatchAddOrUpdateAsync<T>(IEnumerable<T> items, IGraphRequestContext graphRequestContext) where T : class
 		{
-			throw new NotImplementedException();
+			await InternalBatchAsync(items, graphRequestContext, false);
 		}
 
 		public async Task BatchAddAsync<T>(IEnumerable<T> items, IGraphRequestContext graphRequestContext) where T : class
+		{
+			await InternalBatchAsync(items, graphRequestContext, true);
+		}
+
+		private async Task InternalBatchAsync<T>(IEnumerable<T> items, IGraphRequestContext graphRequestContext, bool insert) where T : class
 		{
 			var info = Get<T>(graphRequestContext);
 
@@ -77,7 +82,11 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.TableStorage
 				{
 					batchOperations.Add(partitionKey, new TableBatchOperation());
 				}
-				batchOperations[partitionKey].Insert(Convert(item, partitionKey));
+
+				if (insert)
+					batchOperations[partitionKey].Insert(Convert(item, partitionKey));
+				else
+					batchOperations[partitionKey].Merge(Convert(item, partitionKey));
 			});
 
 			_logger.LogInformation($"Generated {batchOperations.Count} batch operations for {info.Id}.");

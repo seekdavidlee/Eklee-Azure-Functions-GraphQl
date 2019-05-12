@@ -1,4 +1,5 @@
-﻿using Eklee.Azure.Functions.GraphQl.Example.Models;
+﻿using Eklee.Azure.Functions.GraphQl.Connections;
+using Eklee.Azure.Functions.GraphQl.Example.Models;
 using Eklee.Azure.Functions.GraphQl.Example.TestSearch.Models;
 using GraphQL.Types;
 using Microsoft.Extensions.Configuration;
@@ -65,6 +66,14 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestSearch
 				.AddServiceName(serviceName)
 				.AddPrefix("lcl1")
 				.BuildSearch()
+				.Build();
+
+			inputBuilderFactory.Create<ConnectionEdge>(this)
+				.ConfigureTableStorage<ConnectionEdge>()
+				.AddConnectionString(conn)
+				.AddPartition(x => x.SourceType)
+				.BuildTableStorage()
+				.DeleteAll(() => new Status { Message = "All ConnectionEdges have been removed." })
 				.Build();
 		}
 	}

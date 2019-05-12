@@ -28,7 +28,6 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestDocumentDb
 				.BuildWithSingleResult();
 
 			queryBuilderFactory.Create<Model5>(this, "searchModel5", "Search for a single Model 5 by Id")
-				.WithCache(TimeSpan.FromSeconds(15))
 				.WithParameterBuilder()
 				.WithProperty(x => x.Id)
 				.BuildQuery()

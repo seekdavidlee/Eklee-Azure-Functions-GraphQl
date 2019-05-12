@@ -137,9 +137,11 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.TableStorage
 			await info.Table.ExecuteAsync(TableOperation.Insert(Convert(item, info.PartitionKeyMemberName)));
 		}
 
-		public Task AddOrUpdateAsync<T>(T item, IGraphRequestContext graphRequestContext) where T : class
+		public async Task AddOrUpdateAsync<T>(T item, IGraphRequestContext graphRequestContext) where T : class
 		{
-			throw new NotImplementedException();
+			var info = Get<T>(graphRequestContext);
+
+			await info.Table.ExecuteAsync(TableOperation.Merge(Convert(item, info.PartitionKeyMemberName)));
 		}
 
 		public bool CanHandle<T>(IGraphRequestContext graphRequestContext)

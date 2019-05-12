@@ -68,7 +68,22 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 
 		public IGraphQlRepository GetRepository(Type type)
 		{
-			return _repositories[type.FullName ?? throw new InvalidOperationException()];
+			return GetRepository(type.FullName);
+		}
+
+		private IGraphQlRepository GetRepository(string typeFullName)
+		{
+			return _repositories[typeFullName ?? throw new InvalidOperationException()];
+		}
+
+		public bool IsRepositoryExist(Type type)
+		{
+			return _repositories.Any(x => x.Key == type.FullName);
+		}
+
+		public bool IsRepositoryExist<TRepository>()
+		{
+			return IsRepositoryExist(typeof(TRepository));
 		}
 	}
 }

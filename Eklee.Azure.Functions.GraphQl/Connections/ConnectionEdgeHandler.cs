@@ -25,6 +25,8 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 
 		public async Task RemoveEdgeConnections(object item, IGraphRequestContext graphRequestContext)
 		{
+			if (!IsRepositoryExist()) return;
+
 			var edgeQueryParameters = _connectionEdgeResolver.ListConnectionEdgeQueryParameter(new List<object> { item });
 
 			var connectionEdges = (await GetConnectionEdgeRepository().QueryAsync<ConnectionEdge>(
@@ -75,6 +77,9 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 
 					foreach (var connectionEdge in connectionEdges)
 					{
+						if (!dictionary.ContainsKey(connectionEdge.SourceId))
+							throw new InvalidOperationException($"{connectionEdge.SourceId} is invalid.");
+
 						var sourceObject = dictionary[connectionEdge.SourceId];
 
 						var edgeObject = DeserializeObject(connectionEdge.MetaValue, connectionEdge.MetaType);
@@ -115,8 +120,20 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 			return qp;
 		}
 
+		private bool? _isRepositoryExist;
+		private bool IsRepositoryExist()
+		{
+			if (!_isRepositoryExist.HasValue)
+			{
+				_isRepositoryExist = _graphQlRepositoryProvider.IsRepositoryExist<ConnectionEdge>();
+			}
+
+			return _isRepositoryExist.Value;
+		}
+
 		private IGraphQlRepository GetConnectionEdgeRepository()
 		{
+			_graphQlRepositoryProvider.IsRepositoryExist<ConnectionEdge>();
 			if (_connectionEdgeRepository == null)
 				_connectionEdgeRepository = _graphQlRepositoryProvider.GetRepository<ConnectionEdge>();
 			return _connectionEdgeRepository;
@@ -151,6 +168,8 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 
 		public async Task DeleteAllEdgeConnectionsOfType<T>(IGraphRequestContext graphRequestContext)
 		{
+			if (!IsRepositoryExist()) return;
+
 			var connectionEdges = (await GetConnectionEdgeRepository().QueryAsync<ConnectionEdge>(
 				ConnectionEdgeQueryName,
 				GetQueryParameters<T>(), null, graphRequestContext)).ToList();

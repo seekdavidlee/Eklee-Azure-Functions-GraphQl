@@ -143,7 +143,8 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 						.AddAsync(model.GetType(), model, ctx);
 				});
 
-				await _graphQlRepositoryProvider.GetRepository(typeof(ConnectionEdge)).BatchAddAsync(edges, ctx);
+				if (edges.Count > 0)
+					await _graphQlRepositoryProvider.GetRepository(typeof(ConnectionEdge)).BatchAddAsync(edges, ctx);
 
 				if (_searchMappedModels.TryGetMappedSearchType<TSource>(out var mappedSearchType))
 				{
@@ -173,8 +174,9 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 						.AddOrUpdateAsync(model.GetType(), model, ctx);
 				});
 
-				await _graphQlRepositoryProvider.GetRepository(typeof(ConnectionEdge))
-					.BatchAddOrUpdateAsync(edges, ctx);
+				if (edges.Count > 0)
+					await _graphQlRepositoryProvider.GetRepository(typeof(ConnectionEdge))
+						.BatchAddOrUpdateAsync(edges, ctx);
 
 				if (_searchMappedModels.TryGetMappedSearchType<TSource>(out var mappedSearchType))
 				{
@@ -227,40 +229,55 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 
 			var items = context.GetArgument<IEnumerable<TSource>>(sourceName).ToList();
 			var ctx = context.UserContext as IGraphRequestContext;
+
+			var batchItems = new Dictionary<Type, List<object>>();
+
 			try
 			{
-				var edges = _connectionEdgeResolver.HandleConnectionEdges(items, async (model) =>
+				var edges = _connectionEdgeResolver.HandleConnectionEdges(items, (model) =>
 				{
-					if (assertAction == AssertAction.BatchCreate)
-						await _graphQlRepositoryProvider.GetRepository(model.GetType())
-							.AddAsync(model.GetType(), model, ctx);
+					var key = model.GetType();
+					List<object> itemsList;
 
-					if (assertAction == AssertAction.BatchCreateOrUpdate)
+					if (batchItems.ContainsKey(key))
 					{
-						await _graphQlRepositoryProvider.GetRepository(model.GetType())
-							.AddOrUpdateAsync(model.GetType(), model, ctx);
+						itemsList = batchItems[key];
 					}
+					else
+					{
+						itemsList = new List<object>();
+						batchItems[key] = itemsList;
+					}
+
+					itemsList.Add(model);
 				});
 
 				switch (assertAction)
 				{
 					case AssertAction.BatchCreate:
+						if (edges.Count > 0)
+							await _graphQlRepositoryProvider.GetRepository(typeof(ConnectionEdge)).BatchAddAsync(edges, ctx);
 
-						await _graphQlRepositoryProvider.GetRepository(typeof(ConnectionEdge)).BatchAddAsync(edges, ctx);
-						await _graphQlRepositoryProvider.GetRepository<TSource>().BatchAddAsync(items, ctx);
+						foreach (var batchItem in batchItems)
+						{
+							await _graphQlRepositoryProvider.GetRepository(batchItem.Key).BatchAddAsync(batchItem.Key, batchItem.Value, ctx);
+						}
+
 						break;
 
 					case AssertAction.BatchCreateOrUpdate:
-						await _graphQlRepositoryProvider.GetRepository(typeof(ConnectionEdge)).BatchAddOrUpdateAsync(edges, ctx);
-						await _graphQlRepositoryProvider.GetRepository<TSource>().BatchAddOrUpdateAsync(items, ctx);
+						if (edges.Count > 0)
+							await _graphQlRepositoryProvider.GetRepository(typeof(ConnectionEdge)).BatchAddOrUpdateAsync(edges, ctx);
+
+						foreach (var batchItem in batchItems)
+						{
+							await _graphQlRepositoryProvider.GetRepository(batchItem.Key).BatchAddOrUpdateAsync(batchItem.Key, batchItem.Value, ctx);
+						}
 						break;
 
 					default:
 						throw new InvalidOperationException("This internal method is only for batch operations.");
 				}
-
-				await _graphQlRepositoryProvider.GetRepository(typeof(ConnectionEdge))
-					.BatchAddOrUpdateAsync(edges, ctx);
 
 				if (_searchMappedModels.TryGetMappedSearchType<TSource>(out var mappedSearchType))
 				{

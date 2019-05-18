@@ -194,5 +194,18 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Http
 
 			await InternalSendAsync(default(T), resource);
 		}
+
+		public Task AddOrUpdateAsync<T>(T item, IGraphRequestContext graphRequestContext) where T : class
+		{
+			throw new NotImplementedException();
+		}
+
+		public async Task BatchAddOrUpdateAsync<T>(IEnumerable<T> items, IGraphRequestContext graphRequestContext) where T : class
+		{
+			foreach (var item in items.ToList())
+			{
+				await AddOrUpdateAsync(item, graphRequestContext);
+			}
+		}
 	}
 }

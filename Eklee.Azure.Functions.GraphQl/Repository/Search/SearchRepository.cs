@@ -39,8 +39,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 
 		public async Task BatchAddAsync<T>(IEnumerable<T> items, IGraphRequestContext graphRequestContext) where T : class
 		{
-			var provider = GetProvider<T>(graphRequestContext);
-			await provider.BatchCreateAsync(items, graphRequestContext);
+			await GetProvider<T>(graphRequestContext).BatchCreateAsync(items, graphRequestContext);
 		}
 
 		public async Task AddAsync<T>(T item, IGraphRequestContext graphRequestContext) where T : class
@@ -79,6 +78,16 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 		public async Task DeleteAllAsync<T>(IGraphRequestContext graphRequestContext) where T : class
 		{
 			await GetProvider<T>(graphRequestContext).DeleteAllAsync<T>(graphRequestContext);
+		}
+
+		public async Task AddOrUpdateAsync<T>(T item, IGraphRequestContext graphRequestContext) where T : class
+		{
+			await GetProvider<T>(graphRequestContext).CreateOrUpdateAsync(item, graphRequestContext);
+		}
+
+		public async Task BatchAddOrUpdateAsync<T>(IEnumerable<T> items, IGraphRequestContext graphRequestContext) where T : class
+		{
+			await GetProvider<T>(graphRequestContext).BatchCreateOrUpdateAsync(items, graphRequestContext);
 		}
 	}
 }

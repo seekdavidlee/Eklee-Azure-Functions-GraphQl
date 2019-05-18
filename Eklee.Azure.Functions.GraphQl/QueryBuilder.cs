@@ -4,6 +4,7 @@ using System.Linq;
 using System.Security;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Eklee.Azure.Functions.GraphQl.Connections;
 using Eklee.Azure.Functions.GraphQl.Repository;
 using GraphQL;
 using GraphQL.Builders;
@@ -29,12 +30,13 @@ namespace Eklee.Azure.Functions.GraphQl
 			string description,
 			IGraphQlRepositoryProvider graphQlRepositoryProvider,
 			IDistributedCache distributedCache,
-			ILogger logger)
+			ILogger logger,
+			IConnectionEdgeHandler connectionEdgeHandler)
 		{
 			_objectGraphType = objectGraphType;
 			_queryName = queryName;
 			_description = description;
-			_queryExecutor = new QueryExecutor<TSource>(graphQlRepositoryProvider, logger);
+			_queryExecutor = new QueryExecutor<TSource>(graphQlRepositoryProvider, logger, connectionEdgeHandler);
 			_distributedCache = distributedCache;
 			_logger = logger;
 

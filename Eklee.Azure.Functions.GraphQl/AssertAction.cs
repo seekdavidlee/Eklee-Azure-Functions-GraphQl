@@ -2,6 +2,7 @@
 {
 	public enum AssertAction
 	{
+		BatchCreateOrUpdate,
 		BatchCreate,
 		Create,
 		Update,

@@ -161,6 +161,16 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 			await client.Documents.IndexAsync(new IndexBatch<T>(list));
 		}
 
+		public Task BatchCreateOrUpdateAsync<T>(IEnumerable<T> items, IGraphRequestContext graphRequestContext) where T : class
+		{
+			throw new NotImplementedException();
+		}
+
+		public Task CreateOrUpdateAsync<T>(T item, IGraphRequestContext graphRequestContext) where T : class
+		{
+			throw new NotImplementedException();
+		}
+
 		public async Task CreateAsync<T>(T item, IGraphRequestContext graphRequestContext) where T : class
 		{
 			var client = Get<T>(graphRequestContext);

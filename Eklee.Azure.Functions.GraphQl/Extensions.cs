@@ -8,6 +8,7 @@ using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 using Autofac;
+using Eklee.Azure.Functions.GraphQl.Connections;
 using Eklee.Azure.Functions.GraphQl.Repository;
 using Eklee.Azure.Functions.GraphQl.Repository.DocumentDb;
 using Eklee.Azure.Functions.GraphQl.Repository.Http;
@@ -20,6 +21,7 @@ using FastMember;
 using GraphQL;
 using GraphQL.Builders;
 using GraphQL.Http;
+using GraphQL.Language.AST;
 using GraphQL.Types;
 using GraphQL.Types.Relay;
 using GraphQL.Types.Relay.DataObjects;
@@ -41,6 +43,7 @@ namespace Eklee.Azure.Functions.GraphQl
 			builder.RegisterType<DocumentExecuter>().As<IDocumentExecuter>().SingleInstance();
 			builder.RegisterType<DocumentWriter>().As<IDocumentWriter>().SingleInstance();
 			builder.RegisterType<TSchema>().As<ISchema>().SingleInstance();
+			builder.RegisterType<QueryArgumentsBuilder>().As<IQueryArgumentsBuilder>().SingleInstance();
 
 			builder.RegisterType<DocumentDbComparisonInt>().As<IDocumentDbComparison>().SingleInstance();
 			builder.RegisterType<DocumentDbComparisonString>().As<IDocumentDbComparison>().SingleInstance();
@@ -64,6 +67,10 @@ namespace Eklee.Azure.Functions.GraphQl
 			builder.RegisterType<PageInfoType>();
 			builder.RegisterGeneric(typeof(EdgeType<>));
 			builder.RegisterGeneric(typeof(ModelEnumConventionType<>));
+
+			builder.RegisterType<FieldMutationResolver>().As<IFieldMutationResolver>();
+			builder.RegisterType<ConnectionEdgeResolver>().As<IConnectionEdgeResolver>();
+			builder.RegisterType<ConnectionEdgeHandler>().As<IConnectionEdgeHandler>();
 
 			builder.RegisterType<InMemoryRepository>().As<IGraphQlRepository>().SingleInstance();
 			builder.RegisterType<HttpRepository>().As<IGraphQlRepository>().SingleInstance();
@@ -192,12 +199,27 @@ namespace Eklee.Azure.Functions.GraphQl
 			return description != null ? description.Description : "";
 		}
 
-		public static ContextValue GetContextValue(this Dictionary<string, object> args, ModelMember modelMember)
+		private static SelectValue CreateSelectValue(Field field)
+		{
+			var value = new SelectValue
+			{
+				FieldName = field.Name,
+				SelectValues = field.SelectionSet.Children.Select(c => (Field)c).Select(CreateSelectValue).ToList()
+			};
+
+			return value;
+		}
+
+		public static ContextValue GetContextValue(this ResolveFieldContext<object> context, ModelMember modelMember)
 		{
 			var name = modelMember.Name;
 
 			var contextValue = new ContextValue();
 
+			contextValue.SelectValues = context.SubFields.Select(x =>
+			CreateSelectValue(x.Value)).ToList();
+
+			var args = context.Arguments;
 			if (args.ContainsKey(name))
 			{
 				Dictionary<string, object> arg = (Dictionary<string, object>)args[name];
@@ -290,8 +312,13 @@ namespace Eklee.Azure.Functions.GraphQl
 		{
 			var f = TypeAccessor.Create(typeof(T));
 
-			var keys = string.Join("", f.GetMembers().Where(x => x.GetAttribute(typeof(KeyAttribute), false) != null)
-				.Select(x => f[item, x.Name].ToString()));
+			return f.GetKey(item);
+		}
+
+		public static string GetKey(this TypeAccessor t, object item)
+		{
+			var keys = string.Join("", t.GetMembers().Where(x => x.GetAttribute(typeof(KeyAttribute), false) != null)
+				.Select(x => t[item, x.Name].ToString()));
 
 			if (string.IsNullOrEmpty(keys)) throw new InvalidOperationException("Missing Key Attribute");
 
@@ -316,7 +343,7 @@ namespace Eklee.Azure.Functions.GraphQl
 			}
 
 			modelConvention.ForEachWithField(
-				(type, name, desc) => modelConventionType.Field(type, name, desc));
+				(type, name, desc, resolve) => modelConventionType.Field(type, name, desc, resolve: resolve), false);
 		}
 
 		public static void AddFields<TSourceType>(this ModelConventionInputType<TSourceType> modelConventionInputType)
@@ -324,7 +351,7 @@ namespace Eklee.Azure.Functions.GraphQl
 			var modelConvention = new ModelConvention<TSourceType>();
 			modelConventionInputType.Name = $"{modelConvention.Name}Input";
 			modelConvention.ForEachWithField(
-				(type, name, desc) => modelConventionInputType.Field(type, name, desc));
+				(type, name, desc, resolve) => modelConventionInputType.Field(type, name, desc, resolve: resolve), true);
 		}
 
 		public static ContainerBuilder UseDataAnnotationsValidation(this ContainerBuilder containerBuilder)

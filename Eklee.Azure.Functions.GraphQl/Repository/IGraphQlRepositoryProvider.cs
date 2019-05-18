@@ -10,5 +10,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 		Task<IEnumerable<object>> QueryAsync(string queryName, QueryStep queryStep, IGraphRequestContext graphRequestContext);
 		IGraphQlRepository GetRepository<TRepository>();
 		IGraphQlRepository GetRepository(Type type);
+		bool IsRepositoryExist<TRepository>();
+		bool IsRepositoryExist(Type type);
 	}
 }

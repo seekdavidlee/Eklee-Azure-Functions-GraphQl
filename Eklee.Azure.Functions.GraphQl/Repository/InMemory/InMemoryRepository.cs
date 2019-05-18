@@ -74,8 +74,9 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.InMemory
 			return Task.FromResult(collection.Values.Select(x => (T)x).AsEnumerable());
 		}
 
-		private bool AssertIfIntegers(object x, QueryParameter queryParameter)
+		private bool AssertIfIntegers(object obj, QueryParameter queryParameter)
 		{
+			var x = queryParameter.MemberModel.TypeAccessor[obj, queryParameter.MemberModel.Member.Name];
 			if (x is int xStr && queryParameter.ContextValue.Comparison.HasValue &&
 				queryParameter.ContextValue.GetFirstValue() is int ctxValueStr)
 			{
@@ -149,6 +150,23 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.InMemory
 		{
 			Dictionary<string, object> collection = GetCollection<T>();
 			collection.Clear();
+			return Task.CompletedTask;
+		}
+
+		public Task AddOrUpdateAsync<T>(T item, IGraphRequestContext graphRequestContext) where T : class
+		{
+			Dictionary<string, object> collection = GetCollection<T>();
+			collection[item.GetKey()] = item;
+			return Task.CompletedTask;
+		}
+
+		public Task BatchAddOrUpdateAsync<T>(IEnumerable<T> items, IGraphRequestContext graphRequestContext) where T : class
+		{
+			Dictionary<string, object> collection = GetCollection<T>();
+			foreach (var item in items)
+			{
+				collection[item.GetKey()] = item;
+			}
 			return Task.CompletedTask;
 		}
 	}

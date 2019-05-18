@@ -1,4 +1,5 @@
-﻿using Eklee.Azure.Functions.GraphQl.Example.Models;
+﻿using Eklee.Azure.Functions.GraphQl.Connections;
+using Eklee.Azure.Functions.GraphQl.Example.Models;
 using Eklee.Azure.Functions.GraphQl.Example.TestSearch.Models;
 using GraphQL.Types;
 using Microsoft.Extensions.Configuration;

@@ -5,6 +5,7 @@ using System.Dynamic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using FastMember;
 using GraphQL;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
@@ -93,6 +94,12 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 				});
 
 			_documentTypeInfos.Add(documentTypeInfo);
+		}
+
+		public async Task CreateOrUpdateAsync<T>(T item, IGraphRequestContext graphRequestContext)
+		{
+			await _documentClient.UpsertDocumentAsync(
+				GetDocumentCollectionUri<T>(graphRequestContext), GetTransformed(item), null, true);
 		}
 
 		public async Task CreateAsync<T>(T item, IGraphRequestContext graphRequestContext)
@@ -231,14 +238,40 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 				GetDocumentUri(item, graphRequestContext), await GetRequestOptions(item, graphRequestContext));
 		}
 
+		private const string All = "*";
+
+		private string GetMemberFieldName(string fieldName, TypeAccessor typeAccessor)
+		{
+			return typeAccessor.GetMembers().Single(
+				x => x.Name.ToLower() == fieldName.ToLower()).Name;
+		}
+
+		private string GetFields(List<QueryParameter> queryParameters)
+		{
+			if (queryParameters.Count > 0)
+			{
+				var first = queryParameters.First();
+				var ctx = first.ContextValue;
+
+				if (ctx != null && ctx.SelectValues != null)
+				{
+					var ta = first.MemberModel.TypeAccessor;
+					return string.Join(",", ctx.SelectValues.Select(x => $"x.{GetMemberFieldName(x.FieldName, ta)}"));
+				}
+
+			}
+
+			return All;
+		}
+
 		public async Task<IEnumerable<T>> QueryAsync<T>(IEnumerable<QueryParameter> queryParameters, IGraphRequestContext graphRequestContext)
 		{
 			var collection = new SqlParameterCollection();
 
-			var sql = "SELECT * FROM x WHERE ";
+			var queryParametersList = queryParameters.ToList();
+			var sql = $"SELECT {GetFields(queryParametersList)} FROM x WHERE ";
 			const string and = " AND ";
 
-			var queryParametersList = queryParameters.ToList();
 			queryParametersList.ForEach(x =>
 			{
 				var documentDbSqlParameter = TranslateQueryParameter(x);
@@ -250,7 +283,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 				sql = sql.Substring(0, sql.LastIndexOf("AND ", StringComparison.Ordinal));
 
 			var sqlQuery = new SqlQuerySpec(sql, collection);
-			
+
 			var options = new FeedOptions
 			{
 				EnableCrossPartitionQuery = true,

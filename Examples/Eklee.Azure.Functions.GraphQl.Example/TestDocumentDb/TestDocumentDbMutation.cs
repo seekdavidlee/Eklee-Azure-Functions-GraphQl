@@ -1,4 +1,5 @@
 ﻿using System;
+using Eklee.Azure.Functions.GraphQl.Connections;
 using Eklee.Azure.Functions.GraphQl.Example.Models;
 using GraphQL.Types;
 using Microsoft.Extensions.Configuration;
@@ -57,7 +58,41 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestDocumentDb
 				.AddDatabase(db)
 				.AddPartition(x => x.Field)
 				.BuildDocumentDb()
-				.DeleteAll(() => new Status { Message = "All Model3 have been removed." })
+				.DeleteAll(() => new Status { Message = "All Model4 have been removed." })
+				.Build();
+
+			inputBuilderFactory.Create<Model5>(this)
+				.ConfigureDocumentDb<Model5>()
+				.AddKey(key)
+				.AddUrl(url)
+				.AddRequestUnit(requestUnits)
+				.AddDatabase(db)
+				.AddPartition(x => x.Field)
+				.BuildDocumentDb()
+				.DeleteAll(() => new Status { Message = "All Model5 have been removed." })
+				.DisableBatchCreate()   // Note it would be hard to use batch create in this context. Use batchCreateOrUpdate instead.
+				.Build();
+
+			inputBuilderFactory.Create<Model5Friend>(this)
+				.ConfigureDocumentDb<Model5Friend>()
+				.AddKey(key)
+				.AddUrl(url)
+				.AddRequestUnit(requestUnits)
+				.AddDatabase(db)
+				.AddPartition(x => x.Field)
+				.BuildDocumentDb()
+				.DeleteAll(() => new Status { Message = "All Model5Friend have been removed." })
+				.Build();
+
+			inputBuilderFactory.Create<ConnectionEdge>(this)
+				.ConfigureDocumentDb<ConnectionEdge>()
+				.AddKey(key)
+				.AddUrl(url)
+				.AddRequestUnit(requestUnits)
+				.AddDatabase(db)
+				.AddPartition(x => x.SourceId)
+				.BuildDocumentDb()
+				.DeleteAll(() => new Status { Message = "All ConnectionEdges have been removed." })
 				.Build();
 		}
 	}

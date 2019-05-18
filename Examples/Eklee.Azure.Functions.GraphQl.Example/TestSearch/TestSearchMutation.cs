@@ -67,14 +67,6 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestSearch
 				.AddPrefix("lcl1")
 				.BuildSearch()
 				.Build();
-
-			inputBuilderFactory.Create<ConnectionEdge>(this)
-				.ConfigureTableStorage<ConnectionEdge>()
-				.AddConnectionString(conn)
-				.AddPartition(x => x.SourceType)
-				.BuildTableStorage()
-				.DeleteAll(() => new Status { Message = "All ConnectionEdges have been removed." })
-				.Build();
 		}
 	}
 }

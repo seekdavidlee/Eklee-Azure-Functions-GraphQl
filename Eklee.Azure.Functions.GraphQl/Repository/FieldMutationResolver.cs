@@ -158,7 +158,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 				_logger.LogError(e, "An error has occured while performing an add operation.");
 				throw;
 			}
-			return item;
+			return context.GetArgument<TSource>(sourceName);
 		}
 
 		public async Task<TSource> AddOrUpdateAsync<TSource>(ResolveFieldContext<object> context, string sourceName) where TSource : class
@@ -190,7 +190,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 				_logger.LogError(e, "An error has occured while performing an add operation.");
 				throw;
 			}
-			return item;
+			return context.GetArgument<TSource>(sourceName);
 		}
 
 		public async Task<TSource> UpdateAsync<TSource>(ResolveFieldContext<object> context, string sourceName) where TSource : class
@@ -213,7 +213,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 				_logger.LogError(e, "An error has occured while performing an update operation.");
 				throw;
 			}
-			return item;
+			return context.GetArgument<TSource>(sourceName);
 		}
 
 		public async Task<List<TSource>> BatchAddOrUpdateAsync<TSource>(ResolveFieldContext<object> context, string sourceName) where TSource : class
@@ -287,7 +287,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 						.BatchAddAsync(mappedSearchType, mappedInstances, ctx);
 				}
 
-				return items;
+				return context.GetArgument<IEnumerable<TSource>>(sourceName).ToList();
 			}
 			catch (Exception e)
 			{

@@ -3482,6 +3482,11 @@
 									"pm.test(\"Created data contains 1 items\", function () {",
 									"    var jsonData = pm.response.json();",
 									"    pm.expect(jsonData.data.createOrUpdateModel5.id).to.eql(\"model5_1\");",
+									"    pm.expect(jsonData.data.createOrUpdateModel5.dateField).to.eql(\"2019-01-01\");",
+									"    pm.expect(jsonData.data.createOrUpdateModel5.doubleField).to.eql(5.67);",
+									"    pm.expect(jsonData.data.createOrUpdateModel5.bestFriend.id).to.eql(\"model5_2\");",
+									"    pm.expect(jsonData.data.createOrUpdateModel5.closeFriend.id).to.eql(\"model5_4\");",
+									"    pm.expect(jsonData.data.createOrUpdateModel5.closeFriend.theFriend.id).to.eql(\"model5_4\");",
 									"});"
 								],
 								"type": "text/javascript"
@@ -3499,7 +3504,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "mutation {\r\n  createOrUpdateModel5(model5:{\r\n    id:\"model5_1\"\r\n  \tdateField:\"2019-01-01\"\r\n    doubleField: 5.67\r\n    field:\"do\"\r\n    intField: 6\r\n    closeFriend: {\r\n      id: \"model5_4\"\r\n      field: \"df\"\r\n      theFriend: {\r\n        id:\"model5_4\"\r\n        field:\"sdqq\"\r\n        dateField:\"2011-01-05\"\r\n        doubleField: 56.89\r\n        intField:87\r\n      }\r\n    }\r\n    bestFriend:{\r\n      id:\"model5_2\"\r\n      field:\"ray\"\r\n      theFriend:{\r\n        id:\"model5_2\"\r\n        dateField:\"2019-01-01\"\r\n        doubleField: 5.67\r\n        field:\"do\"\r\n        intField: 6\r\n      }\r\n    }\r\n  }){\r\n    id\r\n    bestFriend{\r\n      id\r\n    }\r\n    closeFriend {\r\n      id\r\n    }\r\n  }\r\n}"
+							"raw": "mutation {\r\n  createOrUpdateModel5(model5:{\r\n    id:\"model5_1\"\r\n  \tdateField:\"2019-01-01\"\r\n    doubleField: 5.67\r\n    field:\"do\"\r\n    intField: 6\r\n    closeFriend: {\r\n      id: \"model5_4\"\r\n      field: \"df\"\r\n      theFriend: {\r\n        id:\"model5_4\"\r\n        field:\"sdqq\"\r\n        dateField:\"2011-01-05\"\r\n        doubleField: 56.89\r\n        intField:87\r\n      }\r\n    }\r\n    bestFriend:{\r\n      id:\"model5_2\"\r\n      field:\"ray\"\r\n      theFriend:{\r\n        id:\"model5_2\"\r\n        dateField:\"2019-01-01\"\r\n        doubleField: 5.67\r\n        field:\"do\"\r\n        intField: 6\r\n      }\r\n    }\r\n  }){\r\n    id\r\n    dateField\r\n    doubleField\r\n    bestFriend{\r\n      id\r\n    }\r\n    closeFriend {\r\n      id\r\n      field\r\n      theFriend {\r\n    \tid\r\n      }\r\n    }\r\n  }\r\n}"
 						},
 						"url": {
 							"raw": "{{endpoint}}/api/testdocumentdb/graph",

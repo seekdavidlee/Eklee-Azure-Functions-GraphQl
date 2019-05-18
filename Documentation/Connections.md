@@ -138,5 +138,5 @@ When we found model5_1, we can see model5_1's best friend to be model5_2. We can
 
 # Other notes
 
-* The Connection concept is currently ONLY supported with the use of CosmosDb. It is not available in other types of Data Sources. We will be adding the other Data Sources shortly.
+* The Connection concept is currently ONLY supported with the use of CosmosDb. It is partially supported in Azure Table Storage and not available in other types of Data Sources. We will be adding the other Data Sources shortly.
 * It can potentially get complex if you decide to find all the best friends a few more levels deep. This has the effect of slowing down the response time as a query is executed for each level.

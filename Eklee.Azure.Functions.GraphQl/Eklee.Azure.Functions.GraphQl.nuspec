@@ -2,7 +2,7 @@
 <package >
 	<metadata>
 		<id>Eklee.Azure.Functions.GraphQl</id>
-		<version>0.14.0</version>
+		<version>0.14.1</version>
 		<title>Eklee.Azure.Functions.GraphQl</title>
 		<authors>Eng-Keong David Lee</authors>
 		<owners>Eng-Keong David Lee</owners>
@@ -13,11 +13,11 @@
 		<releaseNotes>Connect your Models via ConnectionAttribute! It allows you to create relationships (edges) between Models. In addition, we have enhanced the CosmosDb query to only return the selected fields you have defined in your query..</releaseNotes>
 		<tags>GraphQL, Azure, Functions, Caching, .NET, Graph, Paging, Pagination, CosmosDB, DocumentDB, Search, Table</tags>
 		<dependencies>
-			<dependency id="Eklee.Azure.Functions.Http" version="0.8.2" />
+			<dependency id="Eklee.Azure.Functions.Http" version="0.8.3" />
 			<dependency id="GraphQL" version="2.4.0" />
-			<dependency id="FastMember" version="1.4.1" />
-			<dependency id="Microsoft.Azure.DocumentDB.Core" version="2.3.0" />
-			<dependency id="Microsoft.Azure.Search" version="5.0.3" />
+			<dependency id="FastMember" version="1.5.0" />
+			<dependency id="Microsoft.Azure.DocumentDB.Core" version="2.4.0" />
+			<dependency id="Microsoft.Azure.Search" version="9.0.1" />
 			<dependency id="WindowsAzure.Storage" version="9.3.3" />
 		</dependencies>
 	</metadata>

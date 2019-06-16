@@ -69,41 +69,8 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 					return null;
 				}
 
-				DataType type = null;
-				var isSearchable = false;
-
-				if (x.Type == typeof(string))
-				{
-					type = DataType.String;
-					isSearchable = true;
-				}
-
-				if (x.Type == typeof(DateTime))
-					type = DataType.DateTimeOffset;
-
-				if (x.Type == typeof(bool))
-					type = DataType.Boolean;
-
-				if (x.Type == typeof(int))
-					type = DataType.Int32;
-
-				if (x.Type == typeof(long))
-					type = DataType.Int64;
-
-				if (x.Type == typeof(decimal))
-					type = DataType.Double;
-
-				if (x.Type == typeof(double))
-					type = DataType.Double;
-
-				if (x.Type == typeof(float))
-					type = DataType.Double;
-
-				if (x.Type == typeof(Guid))
-					type = DataType.String;
-
-				if (type == null) throw new ArgumentException($"Type of {x.Type.FullName} cannot be translated to Search Data-type.");
-
+				DataType type = GetDataType(x.Type);
+				var isSearchable = x.Type == typeof(string);
 				var isKey = x.GetAttribute(typeof(KeyAttribute), false) != null;
 
 				var field = new Field(x.Name, type)
@@ -114,6 +81,38 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 
 				return field;
 			}).Where(field => field != null).ToList();
+		}
+
+		private DataType GetDataType(Type type)
+		{
+			if (type == typeof(string))
+				return DataType.String;
+
+			if (type == typeof(DateTime))
+				return DataType.DateTimeOffset;
+
+			if (type == typeof(bool))
+				return DataType.Boolean;
+
+			if (type == typeof(int))
+				return DataType.Int32;
+
+			if (type == typeof(long))
+				return DataType.Int64;
+
+			if (type == typeof(decimal))
+				return DataType.Double;
+
+			if (type == typeof(double))
+				return DataType.Double;
+
+			if (type == typeof(float))
+				return DataType.Double;
+
+			if (type == typeof(Guid))
+				return DataType.String;
+
+			throw new ArgumentException($"Type of {type.FullName} cannot be translated to Search Data-type.");
 		}
 
 		public bool CanHandle<T>(IGraphRequestContext graphRequestContext)

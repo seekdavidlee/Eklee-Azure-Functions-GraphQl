@@ -42,8 +42,7 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 			{
 				var srcType = itemList.First().GetType();
 				var srcTypeAccessor = TypeAccessor.Create(srcType);
-				var connMembers = srcTypeAccessor.GetMembers().Where(x => x.GetAttribute(
-					 typeof(ConnectionAttribute), false) as ConnectionAttribute != null).ToList();
+				var connMembers = srcTypeAccessor.GetMembers().Where(x => GetConnectionAttribute(x) != null).ToList();
 
 				var list = new List<ConnectionEdgeQueryParameter>();
 				itemList.ForEach(item =>
@@ -64,6 +63,12 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 			return null;
 		}
 
+		private ConnectionAttribute GetConnectionAttribute(Member member)
+		{
+			return member.GetAttribute(
+					 typeof(ConnectionAttribute), false) as ConnectionAttribute;
+		}
+
 		private void DiscoverConnectionEdges(
 			TypeAccessor sourceTypeAccessor,
 			string sourceId,
@@ -74,13 +79,12 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 		{
 			foreach (var member in sourceTypeAccessor.GetMembers())
 			{
-				ConnectionAttribute connAttribute = member.GetAttribute(typeof(ConnectionAttribute), true) as ConnectionAttribute;
-				if (connAttribute != null)
+				if (GetConnectionAttribute(member) != null)
 				{
 					var value = sourceTypeAccessor[instance, member.Name];
 					if (value != null)
 					{
-						HandleConnectionEdge(sourceId, sourceType, connAttribute, member, value, connectionEdges, internalConnectionEdgeState);
+						HandleConnectionEdge(sourceId, sourceType, member, value, connectionEdges, internalConnectionEdgeState);
 						sourceTypeAccessor[instance, member.Name] = null;
 					}
 				}
@@ -90,7 +94,6 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 		private void HandleConnectionEdge(
 			string sourceId,
 			Type sourceType,
-			ConnectionAttribute connAttribute,
 			Member member,
 			object edgeObjectInstance,
 			List<ConnectionEdge> connectionEdges,

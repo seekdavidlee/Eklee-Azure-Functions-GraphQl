@@ -84,7 +84,15 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 
 						var edgeObject = DeserializeObject(connectionEdge.MetaValue, connectionEdge.MetaType);
 
-						accessor[sourceObject, connectionEdge.SourceFieldName] = edgeObject;
+						var member = accessor.GetMembers().Single(x => x.Name == connectionEdge.SourceFieldName);
+						if (member.IsList())
+						{
+							member.CreateNewListIfNullThenAddItemToList(accessor, sourceObject, edgeObject);							
+						}
+						else
+						{
+							accessor[sourceObject, connectionEdge.SourceFieldName] = edgeObject;
+						}
 
 						var selection = selections.SingleOrDefault(s => s.FieldName.ToLower() == connectionEdge.SourceFieldName.ToLower());
 

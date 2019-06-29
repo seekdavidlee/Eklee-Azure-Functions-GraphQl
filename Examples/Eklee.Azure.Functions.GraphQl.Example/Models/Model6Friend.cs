@@ -3,7 +3,7 @@ using System.ComponentModel;
 
 namespace Eklee.Azure.Functions.GraphQl.Example.Models
 {
-	public class Model5Friend
+	public class Model6Friend
 	{
 		[ConnectionEdgeDestinationKey]
 		[Description("Id of Connection.")]
@@ -14,6 +14,6 @@ namespace Eklee.Azure.Functions.GraphQl.Example.Models
 
 		[ConnectionEdgeDestination]
 		[Description("TheFriend")]
-		public Model5 TheFriend { get; set; }
+		public Model6 TheFriend { get; set; }
 	}
 }

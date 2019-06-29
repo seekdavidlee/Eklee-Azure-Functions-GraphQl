@@ -84,6 +84,29 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestDocumentDb
 				.DeleteAll(() => new Status { Message = "All Model5Friend have been removed." })
 				.Build();
 
+			inputBuilderFactory.Create<Model6>(this)
+				.ConfigureDocumentDb<Model6>()
+				.AddKey(key)
+				.AddUrl(url)
+				.AddRequestUnit(requestUnits)
+				.AddDatabase(db)
+				.AddPartition(x => x.Field)
+				.BuildDocumentDb()
+				.DeleteAll(() => new Status { Message = "All Model6 have been removed." })
+				.DisableBatchCreate()   // Note it would be hard to use batch create in this context. Use batchCreateOrUpdate instead.
+				.Build();
+
+			inputBuilderFactory.Create<Model6Friend>(this)
+				.ConfigureDocumentDb<Model6Friend>()
+				.AddKey(key)
+				.AddUrl(url)
+				.AddRequestUnit(requestUnits)
+				.AddDatabase(db)
+				.AddPartition(x => x.Field)
+				.BuildDocumentDb()
+				.DeleteAll(() => new Status { Message = "All Model6Friend have been removed." })
+				.Build();
+
 			inputBuilderFactory.Create<ConnectionEdge>(this)
 				.ConfigureDocumentDb<ConnectionEdge>()
 				.AddKey(key)

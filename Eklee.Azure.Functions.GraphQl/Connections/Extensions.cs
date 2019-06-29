@@ -1,6 +1,8 @@
 ﻿using FastMember;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace Eklee.Azure.Functions.GraphQl.Connections
 {
@@ -35,6 +37,21 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 			};
 
 			return new List<QueryParameter> { srcIdQp, srcTypeQp };
+		}
+
+		public static bool IsList(this Member member)
+		{
+			return member.Type.IsGenericType && member.Type.GetGenericTypeDefinition() == typeof(List<>);
+		}
+
+		public static void CreateNewListIfNullThenAddItemToList(this Member member, TypeAccessor accessor, object sourceObject, object item)
+		{
+			if (accessor[sourceObject, member.Name] == null)
+			{
+				accessor[sourceObject, member.Name] = Activator.CreateInstance(member.Type);
+			}
+
+			member.Type.GetMethod("Add").Invoke(accessor[sourceObject, member.Name], new object[] { item });
 		}
 	}
 }

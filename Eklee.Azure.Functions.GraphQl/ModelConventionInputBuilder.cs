@@ -7,7 +7,6 @@ using Eklee.Azure.Functions.GraphQl.Repository.InMemory;
 using Eklee.Azure.Functions.GraphQl.Repository.Search;
 using Eklee.Azure.Functions.GraphQl.Repository.TableStorage;
 using GraphQL.Types;
-using Microsoft.Extensions.Logging;
 
 namespace Eklee.Azure.Functions.GraphQl
 {
@@ -15,7 +14,6 @@ namespace Eklee.Azure.Functions.GraphQl
 	{
 		private readonly ObjectGraphType _objectGraphType;
 		private readonly IGraphQlRepositoryProvider _graphQlRepositoryProvider;
-		private readonly ILogger _logger;
 		private readonly string _sourceName;
 		private Action _deleteSetupAction;
 		private readonly ISearchMappedModels _searchMappedModels;
@@ -25,14 +23,12 @@ namespace Eklee.Azure.Functions.GraphQl
 		internal ModelConventionInputBuilder(
 			ObjectGraphType objectGraphType,
 			IGraphQlRepositoryProvider graphQlRepositoryProviderProvider,
-			ILogger logger,
 			ISearchMappedModels searchMappedModels,
 			IQueryArgumentsBuilder queryArgumentsBuilder,
 			IFieldMutationResolver fieldMutationResolver)
 		{
 			_objectGraphType = objectGraphType;
 			_graphQlRepositoryProvider = graphQlRepositoryProviderProvider;
-			_logger = logger;
 			_searchMappedModels = searchMappedModels;
 			_queryArgumentsBuilder = queryArgumentsBuilder;
 			_fieldMutationResolver = fieldMutationResolver;

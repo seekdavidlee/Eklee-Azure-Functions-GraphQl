@@ -37,7 +37,6 @@ namespace Eklee.Azure.Functions.GraphQl
 				return new ModelConventionInputBuilder<TSource>(
 					objectGraphType,
 					_graphQlRepositoryProvider,
-					_logger,
 					_searchMappedModels,
 					_queryArgumentsBuilder,
 					_fieldMutationResolver);

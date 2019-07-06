@@ -1,49 +1,76 @@
 ﻿using Eklee.Azure.Functions.GraphQl.Connections;
-using Eklee.Azure.Functions.GraphQl.Tests.Models;
-using Newtonsoft.Json;
+using FastMember;
 using Shouldly;
 using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 
 namespace Eklee.Azure.Functions.GraphQl.Tests.Connections
 {
+	public class ConnectionsFooChild
+	{
+		public string Id { get; set; }
+		public int Value { get; set; }
+	}
+
+	public class ConnectionsFoo
+	{
+		public string Name { get; set; }
+
+		public List<ConnectionsFooChild> ConnectionsFooChildren { get; set; }
+	}
+
 	[Trait(Constants.Category, Constants.UnitTests)]
 	public class ExtensionsTests
 	{
-		[Fact]
-		public void CanPopulate()
+		private TypeAccessor _typeAccessor;
+
+		public ExtensionsTests()
 		{
-			var friend = new Model1Friend
-			{
-				Id = "bf1",
-				Field1 = "dss",
-				Field2 = 544
-			};
+			_typeAccessor = TypeAccessor.Create(typeof(ConnectionsFoo));
+		}
 
-			var list = new List<ConnectionEdge> {
-				new ConnectionEdge
-				{
-					SourceFieldName = "BestFriend",
-					SourceId = "f1",
-					MetaType = friend.GetType().AssemblyQualifiedName,
-					MetaValue = JsonConvert.SerializeObject(friend)
-				}
-			};
+		[Fact]
+		public void IsList()
+		{
+			var listMember = _typeAccessor.GetMembers().Single(x => x.Name == "ConnectionsFooChildren");
+			listMember.IsList().ShouldBeTrue();
+		}
 
-			var m1 = new Model1
-			{
-				Id = "f1",
-				Field1 = "so",
-				Field2 = 12
-			};
-			var models = new List<object> { m1 };
+		[Fact]
+		public void IsNotList()
+		{
+			var listMember = _typeAccessor.GetMembers().Single(x => x.Name == "Name");
+			listMember.IsList().ShouldBeFalse();
+		}
 
-			//list.Populate(models);
 
-			//m1.BestFriend.ShouldNotBeNull();
-			//m1.BestFriend.Id.ShouldBe(friend.Id);
-			//m1.BestFriend.Field1.ShouldBe(friend.Field1);
-			//m1.BestFriend.Field2.ShouldBe(friend.Field2);
+		[Fact]
+		public void ShouldCreateNewListAndAddItems()
+		{
+			var parent = new ConnectionsFoo();
+			parent.Name = "parent1";
+
+			var child1 = new ConnectionsFooChild();
+			child1.Id = "child1";
+
+			var listMember = _typeAccessor.GetMembers().Single(x => x.Name == "ConnectionsFooChildren");
+
+			parent.ConnectionsFooChildren.ShouldBeNull();
+
+			listMember.CreateNewListIfNullThenAddItemToList(_typeAccessor, parent, child1);
+
+			parent.ConnectionsFooChildren.ShouldNotBeNull();
+
+			var child2 = new ConnectionsFooChild();
+			child2.Id = "child2";
+
+			listMember.CreateNewListIfNullThenAddItemToList(_typeAccessor, parent, child2);
+
+			parent.ConnectionsFooChildren.Count.ShouldBe(2);			
+
+			parent.ConnectionsFooChildren[0].Id.ShouldBe("child1");
+			parent.ConnectionsFooChildren[1].Id.ShouldBe("child2");
 		}
 	}
 }

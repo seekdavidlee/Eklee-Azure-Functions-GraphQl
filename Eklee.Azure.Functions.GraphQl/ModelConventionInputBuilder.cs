@@ -7,7 +7,6 @@ using Eklee.Azure.Functions.GraphQl.Repository.InMemory;
 using Eklee.Azure.Functions.GraphQl.Repository.Search;
 using Eklee.Azure.Functions.GraphQl.Repository.TableStorage;
 using GraphQL.Types;
-using Microsoft.Extensions.Logging;
 
 namespace Eklee.Azure.Functions.GraphQl
 {
@@ -15,24 +14,22 @@ namespace Eklee.Azure.Functions.GraphQl
 	{
 		private readonly ObjectGraphType _objectGraphType;
 		private readonly IGraphQlRepositoryProvider _graphQlRepositoryProvider;
-		private readonly ILogger _logger;
 		private readonly string _sourceName;
 		private Action _deleteSetupAction;
 		private readonly ISearchMappedModels _searchMappedModels;
 		private readonly IQueryArgumentsBuilder _queryArgumentsBuilder;
-		private readonly IFieldMutationResolver _fieldMutationResolver;
+		private readonly IFieldMutationResolver _fieldMutationResolver; // Singleton, so don't store anything which requires a per instance behavior.
+		private Func<ClaimsPrincipal, AssertAction, bool> _claimsPrincipalAssertion;
 
 		internal ModelConventionInputBuilder(
 			ObjectGraphType objectGraphType,
 			IGraphQlRepositoryProvider graphQlRepositoryProviderProvider,
-			ILogger logger,
 			ISearchMappedModels searchMappedModels,
 			IQueryArgumentsBuilder queryArgumentsBuilder,
 			IFieldMutationResolver fieldMutationResolver)
 		{
 			_objectGraphType = objectGraphType;
 			_graphQlRepositoryProvider = graphQlRepositoryProviderProvider;
-			_logger = logger;
 			_searchMappedModels = searchMappedModels;
 			_queryArgumentsBuilder = queryArgumentsBuilder;
 			_fieldMutationResolver = fieldMutationResolver;
@@ -48,13 +45,13 @@ namespace Eklee.Azure.Functions.GraphQl
 				_objectGraphType.FieldAsync<ModelConventionType<TSource>>(fieldName,
 					description: $"Deletes a single {GetTypeName()} instance.",
 					arguments: _queryArgumentsBuilder.BuildNonNull<TSource>(_sourceName),
-					resolve: async context => await _fieldMutationResolver.DeleteAsync<TSource>(context, _sourceName));
+					resolve: async context => await _fieldMutationResolver.DeleteAsync<TSource>(context, _sourceName, _claimsPrincipalAssertion));
 			};
 		}
 
 		public ModelConventionInputBuilder<TSource> AssertWithClaimsPrincipal(Func<ClaimsPrincipal, AssertAction, bool> claimsPrincipalAssertion)
 		{
-			_fieldMutationResolver.ClaimsPrincipalAssertion = claimsPrincipalAssertion;
+			_claimsPrincipalAssertion = claimsPrincipalAssertion;
 			return this;
 		}
 
@@ -117,7 +114,8 @@ namespace Eklee.Azure.Functions.GraphQl
 				_objectGraphType.FieldAsync<ModelConventionType<TDeleteOutput>>(fieldName,
 					description: $"Deletes a single {GetTypeName()} instance.",
 					arguments: _queryArgumentsBuilder.BuildNonNull<TDeleteInput>(_sourceName),
-					resolve: async context => await _fieldMutationResolver.DeleteAsync(context, _sourceName, mapDelete, transform));
+					resolve: async context => await _fieldMutationResolver.DeleteAsync(
+						context, _sourceName, mapDelete, transform, _claimsPrincipalAssertion));
 			};
 
 			return this;
@@ -135,7 +133,8 @@ namespace Eklee.Azure.Functions.GraphQl
 
 				_objectGraphType.FieldAsync<ModelConventionType<TDeleteOutput>>(fieldName,
 					description: $"Deletes all {GetTypeName()} instances.",
-					resolve: async context => await _fieldMutationResolver.DeleteAllAsync<TSource, TDeleteOutput>(context, _sourceName, getOutput));
+					resolve: async context => await _fieldMutationResolver.DeleteAllAsync<TSource, TDeleteOutput>(
+						context, _sourceName, getOutput, _claimsPrincipalAssertion));
 			};
 			return this;
 		}
@@ -154,7 +153,8 @@ namespace Eklee.Azure.Functions.GraphQl
 			_objectGraphType.FieldAsync<ListGraphType<ModelConventionType<TSource>>>(fieldName,
 				description: $"Batch create {GetTypeName()} instances.",
 				arguments: _queryArgumentsBuilder.BuildList<TSource>(_sourceName),
-				resolve: async context => await _fieldMutationResolver.BatchAddAsync<TSource>(context, _sourceName));
+				resolve: async context => await _fieldMutationResolver.BatchAddAsync<TSource>(
+					context, _sourceName, _claimsPrincipalAssertion));
 		}
 
 		private void AddBatchCreateOrUpdateField()
@@ -166,7 +166,8 @@ namespace Eklee.Azure.Functions.GraphQl
 			_objectGraphType.FieldAsync<ListGraphType<ModelConventionType<TSource>>>(fieldName,
 				description: $"Batch create or update {GetTypeName()} instances.",
 				arguments: _queryArgumentsBuilder.BuildList<TSource>(_sourceName),
-				resolve: async context => await _fieldMutationResolver.BatchAddOrUpdateAsync<TSource>(context, _sourceName));
+				resolve: async context => await _fieldMutationResolver.BatchAddOrUpdateAsync<TSource>(
+					context, _sourceName, _claimsPrincipalAssertion));
 		}
 
 		private void AddCreateField()
@@ -178,7 +179,8 @@ namespace Eklee.Azure.Functions.GraphQl
 			_objectGraphType.FieldAsync<ModelConventionType<TSource>>(fieldName,
 				description: $"Creates a single {GetTypeName()} instance.",
 				arguments: _queryArgumentsBuilder.BuildNonNull<TSource>(_sourceName),
-				resolve: async context => await _fieldMutationResolver.AddAsync<TSource>(context, _sourceName));
+				resolve: async context => await _fieldMutationResolver.AddAsync<TSource>(
+					context, _sourceName, _claimsPrincipalAssertion));
 		}
 
 		private void AddCreateOrUpdateField()
@@ -190,7 +192,8 @@ namespace Eklee.Azure.Functions.GraphQl
 			_objectGraphType.FieldAsync<ModelConventionType<TSource>>(fieldName,
 				description: $"Creates or updates a single {GetTypeName()} instance.",
 				arguments: _queryArgumentsBuilder.BuildNonNull<TSource>(_sourceName),
-				resolve: async context => await _fieldMutationResolver.AddOrUpdateAsync<TSource>(context, _sourceName));
+				resolve: async context => await _fieldMutationResolver.AddOrUpdateAsync<TSource>(
+					context, _sourceName, _claimsPrincipalAssertion));
 		}
 
 		private void AddUpdateField()
@@ -202,7 +205,8 @@ namespace Eklee.Azure.Functions.GraphQl
 			_objectGraphType.FieldAsync<ModelConventionType<TSource>>(fieldName,
 				description: $"Updates a single {GetTypeName()} instance.",
 				arguments: _queryArgumentsBuilder.BuildNonNull<TSource>(_sourceName),
-				resolve: async context => await _fieldMutationResolver.UpdateAsync<TSource>(context, _sourceName));
+				resolve: async context => await _fieldMutationResolver.UpdateAsync<TSource>(
+					context, _sourceName, _claimsPrincipalAssertion));
 		}
 
 		private bool _disableBatchCreate;

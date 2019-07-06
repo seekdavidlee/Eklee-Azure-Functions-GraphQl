@@ -1230,6 +1230,302 @@
 					"response": []
 				},
 				{
+					"name": "SeedModel6",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Has no errors\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.eql(undefined);",
+									"});",
+									"",
+									"pm.test(\"Contains correct JSON payload\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.batchCreateOrUpdateModel6[0].id).to.eql(\"model6_1\");",
+									"    pm.expect(jsonData.data.batchCreateOrUpdateModel6[0].bestFriends[0].id).to.eql(\"model6_2\");",
+									"    pm.expect(jsonData.data.batchCreateOrUpdateModel6[0].bestFriends[1].id).to.eql(\"model6_3\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/graphql"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "mutation{\r\n  batchCreateOrUpdateModel6(model6:[{\r\n     id:\"model6_1\"\r\n    field:\"model6_1\"\r\n    intField: 22\r\n    dateField:\"2019-07-21\"\r\n    doubleField: 78.91\r\n    bestFriends:[{\r\n      id:\"model6_2\"\r\n      field:\"some info about this friend model 2\"\r\n    },\r\n    {\r\n      id:\"model6_3\"\r\n      field:\"some info about this friend model 3\"\r\n    }\r\n    ] \r\n  }, \r\n\t{\r\n     id:\"model6_2\"\r\n    field:\"model6_2\"\r\n    intField: 21\r\n    dateField:\"2019-07-21\"\r\n    doubleField: 17.01     \r\n  } , \r\n\t{\r\n     id:\"model6_3\"\r\n    field:\"model6_3\"\r\n    intField: 20\r\n    dateField:\"2011-01-21\"\r\n    doubleField: 9.12     \r\n  }   \r\n  \r\n  ]){\r\n    id\r\n    bestFriends {\r\n      id\r\n      field\r\n    }\r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/testdocumentdb/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"testdocumentdb",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "SeedModelTestPermissionModel1",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {",
+									"    pm.response.to.have.status(401);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/graphql"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "mutation {\r\n  batchCreateOrUpdateTestPermissionModel1(testpermissionmodel1:[{\r\n    id: \"abc1\"\r\n    category :\"foo\"\r\n    value:\"1234567890\"\r\n  }]){\r\n    id\r\n    category\r\n    value\r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/testdocumentdbwithpermissions/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"testdocumentdbwithpermissions",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "SeedModelTestPermissionModel1_WithLogin",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/graphql"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "mutation {\r\n  batchCreateOrUpdateTestPermissionModel1(testpermissionmodel1:[{\r\n    id: \"abc1\"\r\n    category :\"foo\"\r\n    value:\"1234567890\"\r\n  }]){\r\n    id\r\n    category\r\n    value\r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/testdocumentdbwithpermissions/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"testdocumentdbwithpermissions",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "SeedModelTestPermissionModel2_WithLogin",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {",
+									"    pm.response.to.have.status(401);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/graphql"
+							},
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "mutation {\r\n  batchCreateOrUpdateTestPermissionModel2(testpermissionmodel2:[{\r\n    id: \"abc1\"\r\n    category :\"foo\"\r\n    value:\"1234567890\"\r\n  }]){\r\n    id\r\n    category\r\n    value\r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/testdocumentdbwithpermissions/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"testdocumentdbwithpermissions",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "SeedModelTestPermissionModel3_WithLogin",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/graphql"
+							},
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "mutation {\r\n  batchCreateOrUpdateTestPermissionModel3(testpermissionmodel3:[{\r\n    id: \"abc1\"\r\n    category :\"foo\"\r\n    value:\"1234567890\"\r\n  }]){\r\n    id\r\n    category\r\n    value\r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/testdocumentdbwithpermissions/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"testdocumentdbwithpermissions",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "QuerySingleModel1",
 					"event": [
 						{
@@ -1411,6 +1707,212 @@
 						"body": {
 							"mode": "raw",
 							"raw": "query{\r\n  searchModel2(id:{equal:\"model2_4\"}){\r\n    id\r\n    field\r\n    type\r\n    dateField\r\n    doubleField\r\n    intField\r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/testdocumentdb/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"testdocumentdb",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "QuerySingleModel6_1",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Has no errors\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.eql(undefined);",
+									"});",
+									"",
+									"pm.test(\"Contains correct JSON payload\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.searchModel6.id).to.eql(\"model6_1\");",
+									"    ",
+									"     pm.expect(jsonData.data.searchModel6.intField).to.eql(22);",
+									"     pm.expect(jsonData.data.searchModel6.field).to.eql(\"model6_1\");",
+									"     pm.expect(jsonData.data.searchModel6.bestFriends.length).to.eql(2);",
+									"    ",
+									"    pm.expect(jsonData.data.searchModel6.bestFriends[0].id).to.eql(\"model6_2\");",
+									"    pm.expect(jsonData.data.searchModel6.bestFriends[1].id).to.eql(\"model6_3\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/graphql"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "query{\r\n  searchModel6(id:{equal:\"model6_1\"}){\r\n    id\r\n    field\r\n    intField\r\n    bestFriends {\r\n      id\r\n      field\r\n      theFriend{\r\n        id\r\n        intField\r\n      }\r\n    }\r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/testdocumentdb/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"testdocumentdb",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "QuerySingleModel6_2",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Has no errors\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.eql(undefined);",
+									"});",
+									"",
+									"pm.test(\"Contains correct JSON payload\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.searchModel6.id).to.eql(\"model6_2\");",
+									"    ",
+									"    pm.expect(jsonData.data.searchModel6.intField).to.eql(21);",
+									"    pm.expect(jsonData.data.searchModel6.field).to.eql(\"model6_2\");",
+									"    ",
+									"    pm.expect(jsonData.data.searchModel6.bestFriends).to.eql(null);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/graphql"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "query{\r\n  searchModel6(id:{equal:\"model6_2\"}){\r\n    id\r\n    field\r\n    intField\r\n    bestFriends {\r\n      id\r\n      field\r\n      theFriend{\r\n        id\r\n        intField\r\n      }\r\n    }\r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/testdocumentdb/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"testdocumentdb",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "QuerySingleModel6_3",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Has no errors\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.eql(undefined);",
+									"});",
+									"",
+									"pm.test(\"Contains correct JSON payload\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.searchModel6.id).to.eql(\"model6_3\");",
+									"    ",
+									"    pm.expect(jsonData.data.searchModel6.intField).to.eql(20);",
+									"    pm.expect(jsonData.data.searchModel6.field).to.eql(\"model6_3\");",
+									"    ",
+									"    pm.expect(jsonData.data.searchModel6.bestFriends).to.eql(null);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/graphql"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "query{\r\n  searchModel6(id:{equal:\"model6_3\"}){\r\n    id\r\n    field\r\n    intField\r\n    bestFriends {\r\n      id\r\n      field\r\n      theFriend{\r\n        id\r\n        intField\r\n      }\r\n    }\r\n  }\r\n}"
 						},
 						"url": {
 							"raw": "{{endpoint}}/api/testdocumentdb/graph",
@@ -1632,6 +2134,233 @@
 							"path": [
 								"api",
 								"testdocumentdb",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CleanupModel6",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/graphql"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "mutation {\r\n  deleteAllModel6{\r\n    message\r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/testdocumentdb/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"testdocumentdb",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CleanupModelTestPermissionModel1",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/graphql"
+							},
+							{
+								"key": "Authorization",
+								"value": "Bearer {{access_token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "mutation {\r\n  deleteAllTestPermissionModel1{\r\n    message\r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/testdocumentdbwithpermissions/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"testdocumentdbwithpermissions",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CleanupModelTestPermissionModel2",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"pm.test(\"Status code is 401\", function () {",
+									"    pm.response.to.have.status(401);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/graphql"
+							},
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "mutation {\r\n  deleteAllTestPermissionModel2{\r\n    message\r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/testdocumentdbwithpermissions/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"testdocumentdbwithpermissions",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CleanupModelTestPermissionModel3",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/graphql"
+							},
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "mutation {\r\n  deleteAllTestPermissionModel3{\r\n    message\r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/testdocumentdbwithpermissions/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"testdocumentdbwithpermissions",
 								"graph"
 							]
 						}

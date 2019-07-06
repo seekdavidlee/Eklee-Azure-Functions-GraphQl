@@ -1,6 +1,7 @@
 ﻿using FastMember;
 using Newtonsoft.Json;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -28,7 +29,7 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 			var srcTypeAccessor = TypeAccessor.Create(srcType);
 			var id = srcTypeAccessor.GetKey(item);
 
-			DiscoverConnectionEdges(srcTypeAccessor, id, srcType, item, connectionEdges, internalConnectionEdgeState);
+			DiscoverConnectionEdges(srcTypeAccessor, id, srcType, item, connectionEdges, internalConnectionEdgeState, entityAction);
 
 			internalConnectionEdgeState.InvokeAction(item, id, srcType.Name);
 
@@ -42,8 +43,7 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 			{
 				var srcType = itemList.First().GetType();
 				var srcTypeAccessor = TypeAccessor.Create(srcType);
-				var connMembers = srcTypeAccessor.GetMembers().Where(x => x.GetAttribute(
-					 typeof(ConnectionAttribute), false) as ConnectionAttribute != null).ToList();
+				var connMembers = srcTypeAccessor.GetMembers().Where(x => GetConnectionAttribute(x) != null).ToList();
 
 				var list = new List<ConnectionEdgeQueryParameter>();
 				itemList.ForEach(item =>
@@ -64,23 +64,45 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 			return null;
 		}
 
+		private ConnectionAttribute GetConnectionAttribute(Member member)
+		{
+			return member.GetAttribute(
+					 typeof(ConnectionAttribute), false) as ConnectionAttribute;
+		}
+
 		private void DiscoverConnectionEdges(
 			TypeAccessor sourceTypeAccessor,
 			string sourceId,
 			Type sourceType,
 			object instance,
 			List<ConnectionEdge> connectionEdges,
-			InternalConnectionEdgeState internalConnectionEdgeState)
+			InternalConnectionEdgeState internalConnectionEdgeState, Action<object> entityAction)
 		{
 			foreach (var member in sourceTypeAccessor.GetMembers())
 			{
-				ConnectionAttribute connAttribute = member.GetAttribute(typeof(ConnectionAttribute), true) as ConnectionAttribute;
-				if (connAttribute != null)
+				if (GetConnectionAttribute(member) != null)
 				{
 					var value = sourceTypeAccessor[instance, member.Name];
 					if (value != null)
 					{
-						HandleConnectionEdge(sourceId, sourceType, connAttribute, member, value, connectionEdges, internalConnectionEdgeState);
+						if (member.IsList())
+						{
+							var argType = member.Type.GetGenericArguments()[0];
+							foreach (var itemValue in (IList)value)
+							{
+								HandleConnectionEdge(sourceId, sourceType,
+									argType,
+									member.Name, itemValue, connectionEdges,
+									internalConnectionEdgeState, entityAction, true);
+							}
+						}
+						else
+						{
+							HandleConnectionEdge(sourceId, sourceType,
+								member.Type, member.Name, value, connectionEdges,
+								internalConnectionEdgeState, entityAction, false);
+						}
+
 						sourceTypeAccessor[instance, member.Name] = null;
 					}
 				}
@@ -90,19 +112,20 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 		private void HandleConnectionEdge(
 			string sourceId,
 			Type sourceType,
-			ConnectionAttribute connAttribute,
-			Member member,
+			Type edgeType,
+			string sourceFieldName,
 			object edgeObjectInstance,
 			List<ConnectionEdge> connectionEdges,
-			InternalConnectionEdgeState internalConnectionEdgeState)
+			InternalConnectionEdgeState internalConnectionEdgeState,
+			Action<object> entityAction,
+			bool isListEdge)
 		{
-			var edgeType = member.Type;
 			var edgeTypeAccessor = TypeAccessor.Create(edgeType);
 
 			var connectionEdge = new ConnectionEdge
 			{
 				SourceType = sourceType.AssemblyQualifiedName,
-				SourceFieldName = member.Name,
+				SourceFieldName = sourceFieldName,
 				SourceId = sourceId,
 				MetaType = edgeType.AssemblyQualifiedName
 			};
@@ -148,14 +171,18 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 			if (destObject != null)
 			{
 				var id = destId.ToString();
-				DiscoverConnectionEdges(edgeTypeAccessor, id, edgeType, destObject, connectionEdges, internalConnectionEdgeState);
+				DiscoverConnectionEdges(edgeTypeAccessor, id, edgeType, destObject, connectionEdges, internalConnectionEdgeState, entityAction);
 				internalConnectionEdgeState.InvokeAction(destObject, id, destinationModel.Type.Name);
 				edgeTypeAccessor[edgeObjectInstance, destinationModel.Name] = null;
 			}
 
 			connectionEdge.DestinationId = destId.ToString();
 			connectionEdge.DestinationFieldName = destinationId.Name;
-			connectionEdge.Id = $"{connectionEdge.SourceFieldName}_{connectionEdge.SourceId}";
+
+			connectionEdge.Id = isListEdge ?
+				$"{connectionEdge.SourceFieldName}_src{connectionEdge.SourceId}_des{connectionEdge.DestinationId}" :
+				$"{connectionEdge.SourceFieldName}_{connectionEdge.SourceId}";
+
 			connectionEdge.MetaFieldName = destinationModel.Name;
 			connectionEdge.MetaValue = JsonConvert.SerializeObject(edgeObjectInstance);
 			connectionEdges.Add(connectionEdge);

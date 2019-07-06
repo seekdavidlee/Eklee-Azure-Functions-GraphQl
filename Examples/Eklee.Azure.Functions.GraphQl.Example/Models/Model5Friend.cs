@@ -6,7 +6,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.Models
 	public class Model5Friend
 	{
 		[ConnectionEdgeDestinationKey]
-		[Description("Id of Model 1, The Friend.")]
+		[Description("Id of Connection.")]
 		public string Id { get; set; }
 
 		[Description("Field")]

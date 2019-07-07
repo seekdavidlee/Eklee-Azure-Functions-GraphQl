@@ -131,6 +131,22 @@ namespace Eklee.Azure.Functions.GraphQl
 
 			var steps = _queryParameterBuilder.GetQuerySteps(context).ToList();
 
+			if (steps.Count == 0)
+			{
+				var qs = _queryParameterBuilder.NewQueryStep();
+
+				qs.QueryParameters = new List<QueryParameter>
+				{
+						new QueryParameter
+						{
+							MemberModel = new ModelMember(typeof(TSource),null, null,true)
+						}
+				};
+
+				steps.Add(qs);
+
+			}
+
 			if (_cacheInSeconds > 0)
 			{
 				var key = steps.GetCacheKey<TSource>();

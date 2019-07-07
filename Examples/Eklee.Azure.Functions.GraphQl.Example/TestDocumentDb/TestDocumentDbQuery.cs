@@ -38,6 +38,11 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestDocumentDb
 				.WithProperty(x => x.Id)
 				.BuildQuery()
 				.BuildWithSingleResult();
+
+			queryBuilderFactory.Create<Model6>(this, "searchAllModel6", "Get all Model 6")
+				.WithParameterBuilder()
+				.BuildQuery()
+				.BuildWithListResult();
 		}
 	}
 }

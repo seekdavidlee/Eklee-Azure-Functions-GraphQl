@@ -15,14 +15,20 @@ namespace Eklee.Azure.Functions.GraphQl
 		private readonly ModelConvention<TSource> _modelConvention = new ModelConvention<TSource>();
 		private readonly List<ModelMember> _modelMemberList = new List<ModelMember>();
 		private readonly List<QueryStep> _querySteps = new List<QueryStep>();
-		private readonly QueryStep _queryStep = new QueryStep
+		private readonly QueryStep _queryStep;
+
+		public QueryStep NewQueryStep()
 		{
-			ContextAction = ctx => ctx.SetResults(ctx.GetQueryResults<TSource>())
-		};
+			return new QueryStep
+			{
+				ContextAction = ctx => ctx.SetResults(ctx.GetQueryResults<TSource>())
+			};
+		}
 
 		public QueryParameterBuilder(QueryBuilder<TSource> queryBuilder)
 		{
 			_queryBuilder = queryBuilder;
+			_queryStep = NewQueryStep();
 		}
 
 		public QueryParameterBuilder<TSource> WithKeys()

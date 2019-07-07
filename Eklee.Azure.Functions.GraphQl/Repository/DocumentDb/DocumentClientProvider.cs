@@ -269,18 +269,30 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 			var collection = new SqlParameterCollection();
 
 			var queryParametersList = queryParameters.ToList();
-			var sql = $"SELECT {GetFields(queryParametersList)} FROM x WHERE ";
-			const string and = " AND ";
 
-			queryParametersList.ForEach(x =>
+			string sql;
+
+			if (queryParametersList.Count == 1 && queryParametersList.Single().ContextValue == null)
 			{
-				var documentDbSqlParameter = TranslateQueryParameter(x);
-				documentDbSqlParameter.SqlParameters.ToList().ForEach(collection.Add);
-				sql += documentDbSqlParameter.Comparison + and;
-			});
+				sql = $"SELECT {GetFields(queryParametersList)} FROM x";
+			}
+			else
+			{
+				sql = $"SELECT {GetFields(queryParametersList)} FROM x WHERE ";
+				const string and = " AND ";
 
-			if (sql.EndsWith(and))
-				sql = sql.Substring(0, sql.LastIndexOf("AND ", StringComparison.Ordinal));
+				queryParametersList.ForEach(x =>
+				{
+					var documentDbSqlParameter = TranslateQueryParameter(x);
+					documentDbSqlParameter.SqlParameters.ToList().ForEach(collection.Add);
+					sql += documentDbSqlParameter.Comparison + and;
+				});
+
+				if (sql.EndsWith(and))
+					sql = sql.Substring(0, sql.LastIndexOf("AND ", StringComparison.Ordinal));
+			}
+
+
 
 			var sqlQuery = new SqlQuerySpec(sql, collection);
 
@@ -291,13 +303,14 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 				// See: https://docs.microsoft.com/en-us/azure/cosmos-db/index-policy
 
 				EnableScanInQuery = queryParametersList.Any(
-					x => x.ContextValue.Comparison == Comparisons.StringContains ||
+					x => x.ContextValue != null && (
+						 x.ContextValue.Comparison == Comparisons.StringContains ||
 						 x.ContextValue.Comparison == Comparisons.StringEndsWith ||
 						 x.ContextValue.Comparison == Comparisons.StringStartsWith ||
 						 x.ContextValue.Comparison == Comparisons.GreaterEqualThan ||
 						 x.ContextValue.Comparison == Comparisons.GreaterThan ||
 						 x.ContextValue.Comparison == Comparisons.LessThan ||
-						 x.ContextValue.Comparison == Comparisons.LessEqualThan)
+						 x.ContextValue.Comparison == Comparisons.LessEqualThan))
 			};
 
 			_logger.LogInformation($"Generated SQL query in DocumentDb provider: {sql}");

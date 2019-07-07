@@ -163,7 +163,7 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 		private List<SelectValue> GetFirstComplexSelectValues(QueryStep queryStep)
 		{
 			var qp = queryStep.QueryParameters.FirstOrDefault();
-			if (qp != null)
+			if (qp != null && qp.ContextValue != null)
 			{
 				var selectedValues = qp.ContextValue.SelectValues;
 

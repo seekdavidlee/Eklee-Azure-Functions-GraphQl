@@ -136,7 +136,7 @@ Now, we can search for Model5 and find Model5's best friend. Let's take a look a
 
 When we found model5_1, we can see model5_1's best friend to be model5_2. We can continue the chain and find model5_2's best friend who is actually model5_3. Notice that we can keep going down and chain if we want to.
 
-## Search back from ConnectionEdge to Source
+## Query ConnectionEdge to find Source entity
 
 In cases where you know the destination Id, but would like to figure out what Source entities are associated with this, you can use the WithDestinationId to build up a query.
 
@@ -183,6 +183,53 @@ public class Model7ToModel8
 	[ConnectionEdgeDestination]
 	[Description("TheModel8")]
 	public Model8 TheModel8 { get; set; }
+}
+```
+
+Let's run the following mutations.
+
+```
+mutation {
+  batchCreateOrUpdateModel7(model7:[{
+    id:"model7_1"
+    field:"model7_1"
+    model7ToModel8 :{
+      id:"model8_1"
+      field:"model8_1_conn_to_model7_1"
+      theModel8:{
+        id:"model8_1"
+        field:"model8_1"
+      }
+    }
+  },
+{
+    id:"model7_2"
+    field:"model7_2"
+    model7ToModel8 :{
+      id:"model8_2"
+      field:"model8_2_conn_to_model7_2"
+      theModel8:{
+        id:"model8_2"
+        field:"model8_2"
+      }
+    }
+  },
+{
+    id:"model7_3"
+    field:"model7_3"
+    model7ToModel8 :{
+      id:"model8_2"
+      field:"model8_2_conn_to_model7_3"
+      theModel8:{
+        id:"model8_2"
+        field:"model8_2"
+      }
+    }
+  }    
+  
+  ]){
+    id
+  }
 }
 ```
 

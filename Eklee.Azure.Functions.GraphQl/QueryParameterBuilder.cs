@@ -6,6 +6,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Eklee.Azure.Functions.GraphQl.Repository.Search;
 using GraphQL.Types;
+using Eklee.Azure.Functions.GraphQl.Connections;
 
 namespace Eklee.Azure.Functions.GraphQl
 {
@@ -57,7 +58,10 @@ namespace Eklee.Azure.Functions.GraphQl
 		{
 			if (_queryStep.QueryParameters.Count > 0)
 			{
-				_queryStep.QueryParameters.ForEach(qsqp => qsqp.ContextValue = context.GetContextValue(qsqp.MemberModel));
+				_queryStep.QueryParameters.ForEach(qsqp =>
+				{
+					qsqp.ContextValue = context.GetContextValue(qsqp.MemberModel);
+				});
 				return new List<QueryStep> { _queryStep };
 			}
 
@@ -72,7 +76,9 @@ namespace Eklee.Azure.Functions.GraphQl
 					}
 					else
 					{
-						queryParameter.ContextValue = context.GetContextValue(queryParameter.MemberModel);
+						// This could be preset.
+						if (queryParameter.ContextValue == null)
+							queryParameter.ContextValue = context.GetContextValue(queryParameter.MemberModel);
 					}
 				});
 			});
@@ -206,6 +212,11 @@ namespace Eklee.Azure.Functions.GraphQl
 
 			_querySteps.Add(step);
 
+		}
+
+		public ConnectionEdgeQueryBuilder<TSource, TConnectionType> WithConnectionEdgeBuilder<TConnectionType>()
+		{
+			return new ConnectionEdgeQueryBuilder<TSource, TConnectionType>(this, _querySteps, _modelMemberList);
 		}
 
 		public QueryBuilder<TSource> BuildQuery()

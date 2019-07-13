@@ -89,7 +89,5 @@ namespace Eklee.Azure.Functions.GraphQl
 			}
 			return results;
 		}
-
-
 	}
 }

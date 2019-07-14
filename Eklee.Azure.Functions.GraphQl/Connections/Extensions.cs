@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 
 namespace Eklee.Azure.Functions.GraphQl.Connections
 {
@@ -18,7 +17,7 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 			{
 				ContextValue = new ContextValue
 				{
-					Comparison = Comparisons.StringContains,
+					Comparison = Comparisons.Equal, // Equals would translate to "in".
 					Values = connectionEdgeQueryParameters.Select(x => x.SourceId).Distinct().Select(x => (object)x).ToList()
 				},
 				MemberModel = new ModelMember(srcType, connEdgeTypeAccessor,

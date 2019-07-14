@@ -40,6 +40,8 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 		{
 			var queryStep = _source.NewQueryStep();
 
+			queryStep.ForceCreateContextValueIfNull = true;
+
 			var type = typeof(TSource);
 			var typeAccessor = TypeAccessor.Create(type);
 			var members = typeAccessor.GetMembers().ToList();
@@ -56,7 +58,6 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 				var connectionEdges = ctx.GetQueryResults<ConnectionEdge>();
 				return connectionEdges.Select(x => (object)x.SourceId).ToList();
 			};
-
 			return queryStep;
 		}
 
@@ -99,7 +100,11 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 						members.Single(x => x.Name == "DestinationId"), false);
 				queryStep.QueryParameters.Add(new QueryParameter
 				{
-					MemberModel = destinationIdMember
+					MemberModel = destinationIdMember,
+					Rule = new ContextValueSetRule
+					{
+						DisableSetSelectValues = true
+					}
 				});
 
 				_modelMemberList.Add(destinationIdMember);

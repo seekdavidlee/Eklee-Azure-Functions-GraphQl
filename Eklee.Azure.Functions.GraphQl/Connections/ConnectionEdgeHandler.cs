@@ -141,7 +141,6 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 
 		private IGraphQlRepository GetConnectionEdgeRepository()
 		{
-			_graphQlRepositoryProvider.IsRepositoryExist<ConnectionEdge>();
 			if (_connectionEdgeRepository == null)
 				_connectionEdgeRepository = _graphQlRepositoryProvider.GetRepository<ConnectionEdge>();
 			return _connectionEdgeRepository;

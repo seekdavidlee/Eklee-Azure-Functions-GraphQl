@@ -43,6 +43,14 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestDocumentDb
 				.WithParameterBuilder()
 				.BuildQuery()
 				.BuildWithListResult();
+
+			queryBuilderFactory.Create<Model7>(this, "GetModel7WithModel8Id", "Get Model7")
+				.WithParameterBuilder()
+				.WithConnectionEdgeBuilder<Model7ToModel8>()
+					.WithDestinationId()
+				.BuildConnectionEdgeParameters()
+				.BuildQuery()
+				.BuildWithListResult();
 		}
 	}
 }

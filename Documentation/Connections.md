@@ -136,6 +136,147 @@ Now, we can search for Model5 and find Model5's best friend. Let's take a look a
 
 When we found model5_1, we can see model5_1's best friend to be model5_2. We can continue the chain and find model5_2's best friend who is actually model5_3. Notice that we can keep going down and chain if we want to.
 
+## Query ConnectionEdge to find Source entity
+
+In cases where you know the destination Id, but would like to figure out what Source entities are associated with this, you can use the WithDestinationId to build up a query.
+
+Let's take the following structure where Model7 and Model8 are related via Connection type Model7ToModel8.
+
+```
+public class Model7
+{
+	[Key]
+	[Description("Id")]
+	public string Id { get; set; }
+
+	[Description("Field")]
+	public string Field { get; set; }
+
+	[Connection]
+	[Description("Model7ToModel8")]
+	public Model7ToModel8 Model7ToModel8 { get; set; }
+}
+```
+
+```
+public class Model8
+{
+	[Key]
+	[Description("Id")]
+	public string Id { get; set; }
+
+	[Description("Field")]
+	public string Field { get; set; }
+}
+```
+
+```
+public class Model7ToModel8
+{
+	[ConnectionEdgeDestinationKey]
+	[Description("Id of destination")]
+	public string Id { get; set; }
+
+	[Description("Field")]
+	public string Field { get; set; }
+
+	[ConnectionEdgeDestination]
+	[Description("TheModel8")]
+	public Model8 TheModel8 { get; set; }
+}
+```
+
+Let's run the following mutations.
+
+```
+mutation {
+  batchCreateOrUpdateModel7(model7:[{
+    id:"model7_1"
+    field:"model7_1"
+    model7ToModel8 :{
+      id:"model8_1"
+      field:"model8_1_conn_to_model7_1"
+      theModel8:{
+        id:"model8_1"
+        field:"model8_1"
+      }
+    }
+  },
+{
+    id:"model7_2"
+    field:"model7_2"
+    model7ToModel8 :{
+      id:"model8_2"
+      field:"model8_2_conn_to_model7_2"
+      theModel8:{
+        id:"model8_2"
+        field:"model8_2"
+      }
+    }
+  },
+{
+    id:"model7_3"
+    field:"model7_3"
+    model7ToModel8 :{
+      id:"model8_2"
+      field:"model8_2_conn_to_model7_3"
+      theModel8:{
+        id:"model8_2"
+        field:"model8_2"
+      }
+    }
+  }    
+  
+  ]){
+    id
+  }
+}
+```
+
+Now, we can build the following query.
+
+```
+queryBuilderFactory.Create<Model7>(this, "GetModel7WithModel8Id", "Get Model7")
+	.WithParameterBuilder()
+	.WithConnectionEdgeBuilder<Model7ToModel8>()
+		.WithDestinationId()
+	.BuildConnectionEdgeParameters()
+	.BuildQuery()
+	.BuildWithListResult();
+```
+
+In the example above, we can see that the Model7 is the source entity. If we know the Id for Model8, we wouldn't be able to easily get to Model8. However, with WithConnectionEdgeBuilder, we can just define the query with DestinationId and now we can query for Model7.
+
+```
+query{
+  getModel7WithModel8Id(destinationid:{ equal:"model8_2" }){
+  	id
+    field
+  }
+}
+```
+
+The result would look like the following:
+
+```
+{
+  "data": {
+    "getModel7WithModel8Id": [
+      {
+        "id": "model7_2",
+        "field": "model7_2"
+      },
+      {
+        "id": "model7_3",
+        "field": "model7_3"
+      }
+    ]
+  },
+  "extensions": {}
+}
+```
+
+
 # Other notes
 
 * The Connection concept is currently ONLY supported with the use of CosmosDb. It is partially supported in Azure Table Storage and not available in other types of Data Sources. We will be adding the other Data Sources shortly.

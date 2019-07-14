@@ -6,6 +6,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Eklee.Azure.Functions.GraphQl.Repository.Search;
 using GraphQL.Types;
+using Eklee.Azure.Functions.GraphQl.Connections;
 
 namespace Eklee.Azure.Functions.GraphQl
 {
@@ -53,17 +54,30 @@ namespace Eklee.Azure.Functions.GraphQl
 			_queryStep.QueryParameters.Add(new QueryParameter { MemberModel = modelMember });
 		}
 
+		/// <summary>
+		/// Returns a clone copy of the stored query steps. We have to return a new instance
+		/// given the QueryStep itself stored here is singleton.
+		/// </summary>
+		/// <param name="context"></param>
+		/// <returns></returns>
 		internal List<QueryStep> GetQuerySteps(ResolveFieldContext<object> context)
 		{
 			if (_queryStep.QueryParameters.Count > 0)
 			{
-				_queryStep.QueryParameters.ForEach(qsqp => qsqp.ContextValue = context.GetContextValue(qsqp.MemberModel));
-				return new List<QueryStep> { _queryStep };
+				var queryStep = _queryStep.CloneQueryStep();
+
+				queryStep.QueryParameters.ForEach(qsqp =>
+				{
+					qsqp.ContextValue = context.GetContextValue(qsqp.MemberModel, qsqp.Rule);
+				});
+				return new List<QueryStep> { queryStep };
 			}
 
-			_querySteps.ForEach(queryStep =>
+			var clonedList = _querySteps.Select(x => x.CloneQueryStep()).ToList();
+
+			clonedList.ToList().ForEach(queryStep =>
 			{
-				var first = queryStep.Mapper != null;
+				var first = queryStep.Mapper != null && !queryStep.ForceCreateContextValueIfNull;
 				queryStep.QueryParameters.ForEach(queryParameter =>
 				{
 					if (first)
@@ -72,12 +86,13 @@ namespace Eklee.Azure.Functions.GraphQl
 					}
 					else
 					{
-						queryParameter.ContextValue = context.GetContextValue(queryParameter.MemberModel);
+						if (queryParameter.ContextValue == null)
+							queryParameter.ContextValue = context.GetContextValue(queryParameter.MemberModel, queryParameter.Rule);
 					}
 				});
 			});
 
-			return _querySteps;
+			return clonedList;
 		}
 
 		public void ForEach(Action<ModelMember> action)
@@ -206,6 +221,11 @@ namespace Eklee.Azure.Functions.GraphQl
 
 			_querySteps.Add(step);
 
+		}
+
+		public ConnectionEdgeQueryBuilder<TSource, TConnectionType> WithConnectionEdgeBuilder<TConnectionType>()
+		{
+			return new ConnectionEdgeQueryBuilder<TSource, TConnectionType>(this, _querySteps, _modelMemberList);
 		}
 
 		public QueryBuilder<TSource> BuildQuery()

@@ -185,7 +185,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Connections
 		{
 			_connectionEdgeRepository.QueryAsync<ConnectionEdge>(Arg.Any<string>(),
 				Arg.Is<IEnumerable<QueryParameter>>(x =>
-				x.First().ContextValue.Comparison == Comparisons.StringContains &&
+				x.First().ContextValue.Comparison == Comparisons.Equal &&
 				x.First().ContextValue.Values.Count == idList.Length &&
 				x.First().ContextValue.Values.All(v => idList.Contains((string)v))), null, null)
 				.Returns(Task.FromResult(connectionEdges.AsEnumerable()));

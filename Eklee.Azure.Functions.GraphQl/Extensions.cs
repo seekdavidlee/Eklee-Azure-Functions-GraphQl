@@ -210,14 +210,19 @@ namespace Eklee.Azure.Functions.GraphQl
 			return value;
 		}
 
-		public static ContextValue GetContextValue(this ResolveFieldContext<object> context, ModelMember modelMember)
+		private static void PopulateSelectValues(this ContextValue contextValue, ResolveFieldContext<object> context)
+		{
+			contextValue.SelectValues = context.SubFields.Select(x => CreateSelectValue(x.Value)).ToList();
+		}
+
+		public static ContextValue GetContextValue(this ResolveFieldContext<object> context, ModelMember modelMember, ContextValueSetRule rule)
 		{
 			var name = modelMember.Name;
 
 			var contextValue = new ContextValue();
 
-			contextValue.SelectValues = context.SubFields.Select(x =>
-			CreateSelectValue(x.Value)).ToList();
+			if (rule == null || !rule.DisableSetSelectValues)
+				contextValue.PopulateSelectValues(context);
 
 			var args = context.Arguments;
 			if (args.ContainsKey(name))
@@ -359,6 +364,18 @@ namespace Eklee.Azure.Functions.GraphQl
 			containerBuilder.RegisterType<StringLengthModelValidation>().As<IModelValidation>().SingleInstance();
 			containerBuilder.RegisterType<DataAnnotationsValidation>().As<IValidationRule>();
 			return containerBuilder;
+		}
+
+		/// <summary>
+		/// Clones an existing instance.
+		/// </summary>
+		/// <typeparam name="T">T.</typeparam>
+		/// <param name="source">Source instance.</param>
+		/// <returns>Clone copy of instance.</returns>
+		public static T Clone<T>(this T source)
+		{
+			var serialized = JsonConvert.SerializeObject(source);
+			return JsonConvert.DeserializeObject<T>(serialized);
 		}
 	}
 }

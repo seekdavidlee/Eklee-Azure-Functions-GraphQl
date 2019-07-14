@@ -41,7 +41,12 @@ namespace Eklee.Azure.Functions.GraphQl
 					{
 						var first = queryStep.QueryParameters.First();
 
-						first.ContextValue = new ContextValue { Values = queryValues, Comparison = Comparisons.Equal };
+						first.ContextValue = new ContextValue
+						{
+							Values = queryValues,
+							Comparison = Comparisons.Equal,
+							SelectValues = first.ContextValue != null && first.ContextValue.SelectValues != null ? first.ContextValue.SelectValues : null
+						};
 
 						try
 						{
@@ -89,7 +94,5 @@ namespace Eklee.Azure.Functions.GraphQl
 			}
 			return results;
 		}
-
-
 	}
 }

@@ -33,13 +33,13 @@ $signature = [System.Convert]::ToBase64String($hashPayLoad);
 [System.Web.HttpUtility]::UrlEncode("type=$keyType&ver=$tokenVersion&sig=$signature")
 }
 
-$resource = Get-AzureRmResource `
+$resource = Get-AzResource `
     -ResourceType "Microsoft.DocumentDb/databaseAccounts" `
     -ResourceGroupName $ResourceGroupName `
     -ResourceName $AccountName `
     -ApiVersion 2015-04-08
 
-$primaryMasterKey = (Invoke-AzureRmResourceAction `
+$primaryMasterKey = (Invoke-AzResourceAction `
     -Action listKeys `
     -ResourceId $resource.ResourceId `
     -ApiVersion 2015-04-08 `

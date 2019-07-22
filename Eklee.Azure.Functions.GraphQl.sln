@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28010.2046
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29102.190
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Eklee.Azure.Functions.GraphQl", "Eklee.Azure.Functions.GraphQl\Eklee.Azure.Functions.GraphQl.csproj", "{8624FB98-269B-4773-B9AC-222A31A60E6A}"
 EndProject
@@ -15,7 +15,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		cicd.ps1 = cicd.ps1
 		ConfigureTestLocalSettings.ps1 = ConfigureTestLocalSettings.ps1
 		LICENSE = LICENSE
-		Login.ps1 = Login.ps1
 		README.md = README.md
 		Reset.ps1 = Reset.ps1
 		ResetDocumentDb.ps1 = ResetDocumentDb.ps1

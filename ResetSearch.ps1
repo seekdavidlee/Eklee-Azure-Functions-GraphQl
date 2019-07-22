@@ -2,14 +2,14 @@ param(
 	[Parameter(Mandatory=$True)][string]$ResourceGroupName, 
 	[Parameter(Mandatory=$True)][string]$ServiceName)
 
-$resource = Get-AzureRmResource `
+$resource = Get-AzResource `
     -ResourceType "Microsoft.Search/searchServices" `
     -ResourceGroupName $ResourceGroupName `
     -ResourceName $ServiceName `
     -ApiVersion 2015-08-19
 
 # Get the primary admin API key
-$primaryKey = (Invoke-AzureRmResourceAction `
+$primaryKey = (Invoke-AzResourceAction `
     -Action listAdminKeys `
     -ResourceId $resource.ResourceId `
     -ApiVersion 2015-08-19 `

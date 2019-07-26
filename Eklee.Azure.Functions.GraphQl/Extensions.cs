@@ -210,7 +210,7 @@ namespace Eklee.Azure.Functions.GraphQl
 			return value;
 		}
 
-		private static void PopulateSelectValues(this ContextValue contextValue, ResolveFieldContext<object> context)
+		public static void PopulateSelectValues(this ContextValue contextValue, ResolveFieldContext<object> context)
 		{
 			contextValue.SelectValues = context.SubFields.Select(x => CreateSelectValue(x.Value)).ToList();
 		}

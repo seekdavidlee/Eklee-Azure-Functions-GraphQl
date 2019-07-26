@@ -87,7 +87,7 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 						var member = accessor.GetMembers().Single(x => x.Name == connectionEdge.SourceFieldName);
 						if (member.IsList())
 						{
-							member.CreateNewListIfNullThenAddItemToList(accessor, sourceObject, edgeObject);							
+							member.CreateNewListIfNullThenAddItemToList(accessor, sourceObject, edgeObject);
 						}
 						else
 						{
@@ -98,13 +98,14 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 
 						if (selection != null)
 						{
-							var entity = (await _graphQlRepositoryProvider.QueryAsync(EntityQueryName,
-								CreateQueryStep(connectionEdge),
-								graphRequestContext)).SingleOrDefault();
+							//var entity = (await _graphQlRepositoryProvider.QueryAsync(EntityQueryName,
+							//	CreateQueryStep(connectionEdge),
+							//	graphRequestContext)).SingleOrDefault();
 
-							if (entity == null) continue;
+							//if (entity == null) continue;
 
 							var edgeObjectTypeAccessor = TypeAccessor.Create(edgeObject.GetType());
+							var entity = await GetValue(edgeObjectTypeAccessor, connectionEdge, graphRequestContext);
 							edgeObjectTypeAccessor[edgeObject, connectionEdge.MetaFieldName] = entity;
 
 							await QueryAndPopulateEdgeConnections(new List<SelectValue> { selection }, new List<object> { entity }, graphRequestContext);
@@ -114,19 +115,37 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 			}
 		}
 
-		private QueryStep CreateQueryStep(ConnectionEdge connectionEdge)
+		private async Task<object> GetValue(
+			TypeAccessor edgeObjectTypeAccessor,
+			ConnectionEdge connectionEdge,
+			IGraphRequestContext graphRequestContext)
 		{
-			var qp = new QueryStep();
-			var destType = Type.GetType(connectionEdge.SourceType);
-			var destTypeAccessor = TypeAccessor.Create(destType);
+			var member = edgeObjectTypeAccessor.GetMembers().Single(x => x.Name == connectionEdge.MetaFieldName);
+			var destTypeAccessor = TypeAccessor.Create(member.Type);
 			var destQueryMember = destTypeAccessor.GetMembers().Single(m => m.Name.ToLower() == connectionEdge.DestinationFieldName.ToLower());
+			var qp = new QueryStep();
 			qp.QueryParameters.Add(new QueryParameter
 			{
 				ContextValue = new ContextValue { Comparison = Comparisons.Equal, Values = new List<object> { connectionEdge.DestinationId } },
-				MemberModel = new ModelMember(destType, destTypeAccessor, destQueryMember, false)
+				MemberModel = new ModelMember(member.Type, destTypeAccessor, destQueryMember, false)
 			});
-			return qp;
+
+			return (await _graphQlRepositoryProvider.QueryAsync(EntityQueryName, qp, graphRequestContext)).SingleOrDefault();
 		}
+
+		//private QueryStep CreateQueryStep(ConnectionEdge connectionEdge)
+		//{
+		//	var qp = new QueryStep();
+		//	var destType = Type.GetType(connectionEdge.SourceType);
+		//	var destTypeAccessor = TypeAccessor.Create(destType);
+		//	var destQueryMember = destTypeAccessor.GetMembers().Single(m => m.Name.ToLower() == connectionEdge.DestinationFieldName.ToLower());
+		//	qp.QueryParameters.Add(new QueryParameter
+		//	{
+		//		ContextValue = new ContextValue { Comparison = Comparisons.Equal, Values = new List<object> { connectionEdge.DestinationId } },
+		//		MemberModel = new ModelMember(destType, destTypeAccessor, destQueryMember, false)
+		//	});
+		//	return qp;
+		//}
 
 		private bool? _isRepositoryExist;
 		private bool IsRepositoryExist()

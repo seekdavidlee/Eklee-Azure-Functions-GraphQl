@@ -5,38 +5,38 @@ param(
 
 $documentDbUrl = "https://$Name.documents.azure.com/"
 
-$resource = Get-AzureRmResource `
+$resource = Get-AzResource `
 	-ResourceType "Microsoft.DocumentDb/databaseAccounts" `
 	-ResourceGroupName $ResourceGroupName `
 	-ResourceName $Name `
 	-ApiVersion 2015-04-08
 
-$primaryMasterKey = (Invoke-AzureRmResourceAction `
+$primaryMasterKey = (Invoke-AzResourceAction `
 	-Action listKeys `
 	-ResourceId $resource.ResourceId `
 	-ApiVersion 2015-04-08 `
 	-Force).primaryMasterKey
 
-$resource = Get-AzureRmResource `
+$resource = Get-AzResource `
     -ResourceType "Microsoft.Search/searchServices" `
     -ResourceGroupName $ResourceGroupName `
     -ResourceName $Name `
     -ApiVersion 2015-08-19
 
 # Get the primary admin API key for search
-$primaryKey = (Invoke-AzureRmResourceAction `
+$primaryKey = (Invoke-AzResourceAction `
     -Action listAdminKeys `
     -ResourceId $resource.ResourceId `
     -ApiVersion 2015-08-19 `
 	-Force).PrimaryKey
 
-$storageAccount = Get-AzureRmStorageAccount `
+$storageAccount = Get-AzStorageAccount `
     -ResourceGroupName $ResourceGroupName `
 	-Name $Name
 
 $ctx = $storageAccount.Context
 
-$accountKey = (Get-AzureRmStorageAccountKey -ResourceGroupName $ResourceGroupName -Name $Name).Value[0] 
+$accountKey = (Get-AzStorageAccountKey -ResourceGroupName $ResourceGroupName -Name $Name).Value[0] 
 $connectionString = "DefaultEndpointsProtocol=https;AccountName=$Name;AccountKey=$accountKey;EndpointSuffix=core.windows.net"
 
 $settings = @{ Search = @{ ServiceName="$Name"; ApiKey="$primaryKey" }; DocumentDb = @{ Key="$primaryMasterKey";Url="$documentDbUrl";RequestUnits="400" }; TableStorage=@{ConnectionString="$connectionString"} } | ConvertTo-Json -Depth 10

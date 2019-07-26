@@ -5,11 +5,20 @@ param(
 
 $context = Get-AzContext
 if (!$context) {
-	Connect-AzAccount -SubscriptionId $SubscriptionId
+	Write-Host "No context found."
+	Connect-AzAccount -SubscriptionId $SubscriptionId -ErrorAction Stop
 }else {
-	if ($context.SubscriptionId -ne $SubscriptionId){
-		Clear-AzContext -Force
-		Connect-AzAccount -SubscriptionId $SubscriptionId
+	$subscriptions = Get-AzSubscription -WarningAction SilentlyContinue -WarningVariable status
+	if ($status) {
+		Write-Host "Your login has expired."
+		Connect-AzAccount -SubscriptionId $SubscriptionId -ErrorAction Stop
+	} else {
+		$subscription = $subscriptions | Where { $_.Id -eq $SubscriptionId }
+		if (!$subscription){
+			Write-Host "No subscriptions match Id $SubscriptionId ."
+			Clear-AzContext -Force
+			Connect-AzAccount -SubscriptionId $SubscriptionId -ErrorAction Stop			
+		}
 	}
 }
 

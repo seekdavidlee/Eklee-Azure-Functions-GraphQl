@@ -2,12 +2,19 @@ param([switch]$testunit, [switch]$testint, [switch]$skippackage,
 	[switch]$skipfunctest, 
 	[Parameter(Mandatory=$False)][string]$ResourceGroupName, 
 	[Parameter(Mandatory=$False)][string]$Name,	
-	[Parameter(Mandatory=$False)][string]$SubscriptionId)
+	[Parameter(Mandatory=$False)][string]$SubscriptionId,	
+	[Parameter(Mandatory=$False)][string]$BuildConfiguration)
 
 	$ErrorActionPreference = "Stop"
 
-	$buildConfig = "Release"
-
+	if (!$BuildConfiguration){
+		$buildConfig = "Release"		
+	} else {
+		$buildConfig = $BuildConfiguration
+	}
+	
+	Write-Host "BuildConfiguration = $buildConfig"
+	
 	dotnet test .\Eklee.Azure.Functions.GraphQl.Tests\Eklee.Azure.Functions.GraphQl.Tests.csproj --filter Category=Unit
 	
 	if ($lastexitcode -ne 0){
@@ -17,7 +24,25 @@ param([switch]$testunit, [switch]$testint, [switch]$skippackage,
 	if ($testunit) { 
 		return;
 	}
-	.\Login.ps1 -SubscriptionId $SubscriptionId
+
+	$context = Get-AzContext
+	if (!$context) {
+		Write-Host "No context found."
+		Connect-AzAccount -SubscriptionId $SubscriptionId -ErrorAction Stop
+	}else {
+		$subscriptions = Get-AzSubscription -WarningAction SilentlyContinue -WarningVariable status
+		if ($status) {
+			Write-Host "Your login has expired."
+			Connect-AzAccount -SubscriptionId $SubscriptionId -ErrorAction Stop
+		} else {
+			$subscription = $subscriptions | Where { $_.Id -eq $SubscriptionId }
+			if (!$subscription){
+				Write-Host "No subscriptions match Id $SubscriptionId ."
+				Clear-AzContext -Force
+				Connect-AzAccount -SubscriptionId $SubscriptionId -ErrorAction Stop			
+			}
+		}
+	}
 	.\ConfigureTestLocalSettings.ps1 -SourceRootDir (Get-Location).Path -ResourceGroupName $ResourceGroupName -Name $Name
 	dotnet test .\Eklee.Azure.Functions.GraphQl.Tests\Eklee.Azure.Functions.GraphQl.Tests.csproj --filter Category=Integration
 	
@@ -41,12 +66,12 @@ param([switch]$testunit, [switch]$testint, [switch]$skippackage,
 		dotnet build --configuration=$buildConfig
 		popd
 
-		pushd Examples\Eklee.Azure.Functions.GraphQl.Example\bin\Release\netstandard2.0
+		pushd Examples\Eklee.Azure.Functions.GraphQl.Example\bin\$buildConfig\netstandard2.0
 		npm install --save-dev azure-functions-core-tools
 		npm install --save-dev newman
 		popd
 
-		Start-Process -WorkingDirectory Examples\Eklee.Azure.Functions.GraphQl.Example\bin\Release\netstandard2.0 -FilePath node_modules\.bin\func -ArgumentList "host start"
+		Start-Process -WorkingDirectory Examples\Eklee.Azure.Functions.GraphQl.Example\bin\$buildConfig\netstandard2.0 -FilePath node_modules\.bin\func -ArgumentList "host start"
 
 		Start-Sleep -s 10
 
@@ -54,7 +79,7 @@ param([switch]$testunit, [switch]$testint, [switch]$skippackage,
 
 		$reportFileName = (Get-Date).ToString("yyyyMMddHHmmss") + ".json"
 
-		pushd Examples\Eklee.Azure.Functions.GraphQl.Example\bin\Release\netstandard2.0
+		pushd Examples\Eklee.Azure.Functions.GraphQl.Example\bin\$buildConfig\netstandard2.0
 		node_modules\.bin\newman run ..\..\..\..\..\tests\Eklee.Azure.Functions.GraphQl.postman_collection.json -e ..\..\..\..\..\tests\Eklee.Azure.Functions.GraphQl.Local.postman_environment.json --reporters cli,json --reporter-json-export "$currentDir\$reportFileName"
 		popd
 
@@ -86,8 +111,8 @@ param([switch]$testunit, [switch]$testint, [switch]$skippackage,
 			pushd .\$app
 			dotnet clean --configuration $buildConfig
 			dotnet build --configuration $buildConfig
-			Move-Item -Path bin\Release\netstandard2.0\bin\$app.dll -Destination bin\Release\netstandard2.0\$app.dll
-			Remove-Item -Path bin\Release\netstandard2.0\bin -Recurse
+			Move-Item -Path bin\$buildConfig\netstandard2.0\bin\$app.dll -Destination bin\$buildConfig\netstandard2.0\$app.dll
+			Remove-Item -Path bin\$buildConfig\netstandard2.0\bin -Recurse
 			popd
 			Remove-Item $currentDir\*.nupkg
 			Copy-Item $currentDir\LICENSE $currentDir\LICENSE.txt

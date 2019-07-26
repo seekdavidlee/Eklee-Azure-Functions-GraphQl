@@ -272,7 +272,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 
 			string sql;
 
-			if (queryParametersList.Count == 1 && queryParametersList.Single().ContextValue == null)
+			if (queryParametersList.Count == 1 && (queryParametersList.Single().ContextValue == null || queryParametersList.Single().ContextValue.Values == null))
 			{
 				sql = $"SELECT {GetFields(queryParametersList)} FROM x";
 			}

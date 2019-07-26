@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Eklee.Azure.Functions.GraphQl.Connections;
 using Eklee.Azure.Functions.GraphQl.Repository;
+using FastMember;
 using GraphQL;
 using GraphQL.Builders;
 using GraphQL.Types;
@@ -135,11 +136,17 @@ namespace Eklee.Azure.Functions.GraphQl
 			{
 				var qs = _queryParameterBuilder.NewQueryStep();
 
+				var ctxValue = new ContextValue();
+				ctxValue.PopulateSelectValues(context);
+				Type t = typeof(TSource);
+				var ta = TypeAccessor.Create(t);
+
 				qs.QueryParameters = new List<QueryParameter>
 				{
 						new QueryParameter
 						{
-							MemberModel = new ModelMember(typeof(TSource),null, null,true)
+							MemberModel = new ModelMember(t, ta, null, true),
+							ContextValue = ctxValue
 						}
 				};
 

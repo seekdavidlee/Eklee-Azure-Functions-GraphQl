@@ -1,6 +1,7 @@
 ﻿using Eklee.Azure.Functions.GraphQl.Connections;
 using Eklee.Azure.Functions.GraphQl.Repository;
 using Eklee.Azure.Functions.GraphQl.Tests.Models;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using NSubstitute;
 using Shouldly;
@@ -18,7 +19,6 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Connections
 		private readonly IGraphQlRepositoryProvider _graphQlRepositoryProvider;
 		private readonly IConnectionEdgeHandler _connectionEdgeHandler;
 		private IGraphQlRepository _connectionEdgeRepository;
-		private readonly Type _type = typeof(ModelWith3Connections);
 
 		public ConnectionEdgeHandlerTests()
 		{
@@ -27,7 +27,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Connections
 
 			_graphQlRepositoryProvider.GetRepository<ConnectionEdge>().Returns(_connectionEdgeRepository);
 
-			_connectionEdgeHandler = new ConnectionEdgeHandler(_graphQlRepositoryProvider, new ConnectionEdgeResolver());
+			_connectionEdgeHandler = new ConnectionEdgeHandler(_graphQlRepositoryProvider, new ConnectionEdgeResolver(), Substitute.For<ILogger>());
 		}
 
 		private List<object> PrepData()

@@ -3,17 +3,10 @@ param([switch]$testunit, [switch]$testint, [switch]$skippackage,
 	[Parameter(Mandatory=$False)][string]$ResourceGroupName, 
 	[Parameter(Mandatory=$False)][string]$Name,	
 	[Parameter(Mandatory=$False)][string]$SubscriptionId,	
-	[Parameter(Mandatory=$False)][string]$BuildConfiguration)
+	[Parameter(Mandatory=$False)][string]$BuildConfiguration,	
+	[Parameter(Mandatory=$False)][string]$IncrementVersionType)
 
 	$ErrorActionPreference = "Stop"
-
-	if (!$BuildConfiguration){
-		$buildConfig = "Release"		
-	} else {
-		$buildConfig = $BuildConfiguration
-	}
-	
-	Write-Host "BuildConfiguration = $buildConfig"
 	
 	dotnet test .\Eklee.Azure.Functions.GraphQl.Tests\Eklee.Azure.Functions.GraphQl.Tests.csproj --filter Category=Unit
 	
@@ -24,6 +17,50 @@ param([switch]$testunit, [switch]$testint, [switch]$skippackage,
 	if ($testunit) { 
 		return;
 	}
+
+	# Note: We are following: https://semver.org/
+	# Given a version number MAJOR.MINOR.PATCH, increment the:
+
+	# MAJOR version when you make incompatible API changes,
+	# MINOR version when you add functionality in a backwards-compatible manner, and
+	# PATCH version when you make backwards-compatible bug fixes.
+
+	$versions = (Get-Content version.txt).Split(".")
+	$major = [int]$versions[0]
+	$minor = [int]$versions[1]
+	$patch = [int]$versions[2]
+	
+	if (!$BuildConfiguration){
+		$buildConfig = "Release"
+		
+		if (!$IncrementVersionType) {
+			# Assume we are doing a minor release
+			$minor = $minor + 1
+		} else {
+			if ($IncrementVersionType.ToLower() -eq "major") {
+				$minor = $minor + 1
+			}
+
+			if ($IncrementVersionType.ToLower() -eq "minor") {
+				$minor = $minor + 1
+			}
+
+			if ($IncrementVersionType.ToLower() -eq "patch") {
+				$patch = $patch + 1
+			}
+		}
+
+	} else {
+		$buildConfig = $BuildConfiguration
+
+		# Assume we are doing a patch release
+		$patch = $patch + 1
+	}
+	
+	Write-Host "BuildConfiguration = $buildConfig"
+	$version = "$major.$minor.$patch"
+
+	Write-Host "Version = $version"
 
 	$context = Get-AzContext
 	if (!$context) {
@@ -62,14 +99,14 @@ param([switch]$testunit, [switch]$testint, [switch]$skippackage,
 	$currentDir = Get-Location
 
 	if (!$skipfunctest) {
-		pushd Examples\Eklee.Azure.Functions.GraphQl.Example
-		dotnet build --configuration=$buildConfig
-		popd
+		Push-Location Examples\Eklee.Azure.Functions.GraphQl.Example
+		dotnet build --configuration=$buildConfig -p:Version=$version
+		Pop-Location
 
-		pushd Examples\Eklee.Azure.Functions.GraphQl.Example\bin\$buildConfig\netstandard2.0
+		Push-Location Examples\Eklee.Azure.Functions.GraphQl.Example\bin\$buildConfig\netstandard2.0
 		npm install --save-dev azure-functions-core-tools
 		npm install --save-dev newman
-		popd
+		Pop-Location
 
 		Start-Process -WorkingDirectory Examples\Eklee.Azure.Functions.GraphQl.Example\bin\$buildConfig\netstandard2.0 -FilePath node_modules\.bin\func -ArgumentList "host start"
 
@@ -79,9 +116,9 @@ param([switch]$testunit, [switch]$testint, [switch]$skippackage,
 
 		$reportFileName = (Get-Date).ToString("yyyyMMddHHmmss") + ".json"
 
-		pushd Examples\Eklee.Azure.Functions.GraphQl.Example\bin\$buildConfig\netstandard2.0
+		Push-Location Examples\Eklee.Azure.Functions.GraphQl.Example\bin\$buildConfig\netstandard2.0
 		node_modules\.bin\newman run ..\..\..\..\..\tests\Eklee.Azure.Functions.GraphQl.postman_collection.json -e ..\..\..\..\..\tests\Eklee.Azure.Functions.GraphQl.Local.postman_environment.json --reporters cli,json --reporter-json-export "$currentDir\$reportFileName"
-		popd
+		Pop-Location
 
 		$report = (Get-Content "$currentDir\$reportFileName" | Out-String | ConvertFrom-Json)	
 
@@ -108,15 +145,16 @@ param([switch]$testunit, [switch]$testint, [switch]$skippackage,
 		} else {
 			Write-Host "Generating nuget package"
 
-			pushd .\$app
+			Push-Location .\$app
 			dotnet clean --configuration $buildConfig
-			dotnet build --configuration $buildConfig
+			dotnet build --configuration $buildConfig -p:Version=$version
 			Move-Item -Path bin\$buildConfig\netstandard2.0\bin\$app.dll -Destination bin\$buildConfig\netstandard2.0\$app.dll
 			Remove-Item -Path bin\$buildConfig\netstandard2.0\bin -Recurse
-			popd
+			Pop-Location
 			Remove-Item $currentDir\*.nupkg
 			Copy-Item $currentDir\LICENSE $currentDir\LICENSE.txt
-			nuget.exe pack $app\$app.csproj -Properties Configuration=$buildConfig -IncludeReferencedProjects
+			nuget.exe pack $app\$app.csproj -Properties Configuration=$buildConfig -IncludeReferencedProjects -Version $version
+			Set-Content -Path .\version.txt -Value $version	#Update new version number
 			Remove-Item $currentDir\LICENSE.txt
 
 			if ($reportFileName) {
@@ -125,4 +163,3 @@ param([switch]$testunit, [switch]$testint, [switch]$skippackage,
 		}
 	}
 	.\Reset.ps1 -ResourceGroupName $ResourceGroupName -Name $Name -SubscriptionId $SubscriptionId
-	

@@ -39,7 +39,11 @@ namespace Eklee.Azure.Functions.GraphQl
 
 					if (queryValues.Count > 0)
 					{
-						var first = queryStep.QueryParameters.First();
+						var first = queryStep.QueryParameters.FirstOrDefault(x => x.Rule != null && x.Rule.PopulateWithQueryValues);
+						if (first == null)
+						{
+							first = queryStep.QueryParameters.First();
+						}
 
 						first.ContextValue = new ContextValue
 						{

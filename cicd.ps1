@@ -38,11 +38,14 @@ param([switch]$testunit, [switch]$testint, [switch]$skippackage,
 			$minor = $minor + 1
 		} else {
 			if ($IncrementVersionType.ToLower() -eq "major") {
-				$minor = $minor + 1
+				$major = $major + 1
+				$minor = 0
+				$patch = 0
 			}
 
 			if ($IncrementVersionType.ToLower() -eq "minor") {
 				$minor = $minor + 1
+				$patch = 0
 			}
 
 			if ($IncrementVersionType.ToLower() -eq "patch") {

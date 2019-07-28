@@ -1,4 +1,6 @@
 ﻿using FastMember;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -10,8 +12,8 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 		private readonly QueryParameterBuilder<TSource> _source;
 		private readonly List<QueryStep> _querySteps;
 		private readonly List<ModelMember> _modelMemberList;
-
 		private bool _withDestinationId;
+		private bool _withDestinationIdFromSource;
 
 		public ConnectionEdgeQueryBuilder(QueryParameterBuilder<TSource> source,
 			List<QueryStep> querySteps,
@@ -28,15 +30,23 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 			return this;
 		}
 
-		public QueryParameterBuilder<TSource> BuildConnectionEdgeParameters()
+		public QueryParameterBuilder<TSource> BuildConnectionEdgeParameters(Action<QueryExecutionContext> mapper = null)
 		{
 			_querySteps.Add(QueryConnectionEdge());
-			_querySteps.Add(QuerySource());
+			_querySteps.Add(QuerySource(mapper));
 
 			return _source;
 		}
 
-		private QueryStep QuerySource()
+		private Func<QueryExecutionContext, List<object>> _mapper;
+		public ConnectionEdgeQueryBuilder<TSource, TConnectionType> WithDestinationIdFromSource(Func<QueryExecutionContext, List<object>> mapper)
+		{
+			_mapper = mapper;
+			_withDestinationIdFromSource = true;
+			return this;
+		}
+
+		private QueryStep QuerySource(Action<QueryExecutionContext> mapper = null)
 		{
 			var queryStep = _source.NewQueryStep();
 
@@ -56,6 +66,17 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 			queryStep.Mapper = (ctx) =>
 			{
 				var connectionEdges = ctx.GetQueryResults<ConnectionEdge>();
+
+				if (mapper != null)
+				{
+					var items = connectionEdges.Select(x => JsonConvert.DeserializeObject(
+						x.MetaValue, Type.GetType(x.MetaType))).ToList();
+
+					// Override result.
+					ctx.SetQueryResult(items);
+
+					mapper(ctx);
+				}
 				return connectionEdges.Select(x => (object)x.SourceId).ToList();
 			};
 			return queryStep;
@@ -65,7 +86,8 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 		{
 			var queryStep = new QueryStep
 			{
-				ContextAction = ctx => ctx.SetResults(ctx.GetQueryResults<ConnectionEdge>())
+				ContextAction = ctx => ctx.SetResults(ctx.GetQueryResults<ConnectionEdge>()),
+				Mapper = _mapper
 			};
 
 			var type = typeof(ConnectionEdge);
@@ -94,21 +116,22 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 				}
 			});
 
-			if (_withDestinationId)
-			{
-				var destinationIdMember = new ModelMember(type, typeAccessor,
-						members.Single(x => x.Name == "DestinationId"), false);
-				queryStep.QueryParameters.Add(new QueryParameter
-				{
-					MemberModel = destinationIdMember,
-					Rule = new ContextValueSetRule
-					{
-						DisableSetSelectValues = true
-					}
-				});
+			var destinationIdMember = new ModelMember(type, typeAccessor,
+					members.Single(x => x.Name == "DestinationId"), false);
 
+			queryStep.QueryParameters.Add(new QueryParameter
+			{
+				MemberModel = destinationIdMember,
+				Rule = new ContextValueSetRule
+				{
+					DisableSetSelectValues = _withDestinationId,
+					PopulateWithQueryValues = _withDestinationIdFromSource
+				}
+			});
+
+			if (_withDestinationId)
 				_modelMemberList.Add(destinationIdMember);
-			}
+
 			return queryStep;
 		}
 	}

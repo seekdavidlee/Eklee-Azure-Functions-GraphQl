@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Linq.Expressions;
 
 namespace Eklee.Azure.Functions.GraphQl.Connections
 {
@@ -46,6 +47,40 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 			return this;
 		}
 
+		private readonly List<Expression<Func<TConnectionType, object>>> _expressions = new List<Expression<Func<TConnectionType, object>>>();
+		public ConnectionEdgeQueryBuilder<TSource, TConnectionType> WithProperty(Expression<Func<TConnectionType, object>> expression)
+		{
+			_expressions.Add(expression);
+			return this;
+		}
+
+		private readonly Type _type = typeof(TConnectionType);
+		private readonly TypeAccessor _accessor = TypeAccessor.Create(typeof(TConnectionType));
+		
+		private void AddExpressions()
+		{
+			_expressions.ForEach(expression =>
+			{
+				MemberExpression memberExpression = expression.Body as MemberExpression ?? (expression.Body as UnaryExpression)?.Operand as MemberExpression;
+
+				if (memberExpression != null)
+				{
+					// Find the member.
+					var rawMemberExpression = memberExpression.ToString();
+					var depth = rawMemberExpression.Count(x => x == '.');
+					string path = depth > 1 ? rawMemberExpression.Substring(rawMemberExpression.IndexOf('.') + 1) : memberExpression.Member.Name;
+
+					var member = _accessor.GetMembers().ToList().Single(x =>
+						x.Name == (depth > 1 ? path.Substring(0, path.IndexOf('.')) : memberExpression.Member.Name));
+
+					var modelMember = new ModelMember(_type, _accessor, member, false);
+
+					_modelMemberList.Add(modelMember);
+				}
+			});
+
+		}
+
 		private QueryStep QuerySource(Action<QueryExecutionContext> mapper = null)
 		{
 			var queryStep = _source.NewQueryStep();
@@ -62,6 +97,8 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 			{
 				MemberModel = new ModelMember(type, typeAccessor, idMember, false)
 			});
+
+			AddExpressions();
 
 			queryStep.Mapper = (ctx) =>
 			{

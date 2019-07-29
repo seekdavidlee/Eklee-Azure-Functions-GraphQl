@@ -19,7 +19,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.InMemory
 
 		public InMemoryRepositoryTests()
 		{
-			_inMemoryRepository = new InMemoryRepository();
+			var list = new List<IInMemoryCompare> { new InMemoryCompareInt(), new InMemoryCompareString() };
+			_inMemoryRepository = new InMemoryRepository(new InMemoryComparerProvider(list));
 			_accessor = TypeAccessor.Create(_type);
 			_members = _accessor.GetMembers();
 		}

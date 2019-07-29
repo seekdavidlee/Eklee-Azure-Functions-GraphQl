@@ -7,7 +7,13 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.InMemory
 {
 	public class InMemoryRepository : IGraphQlRepository
 	{
+		public InMemoryRepository(IInMemoryComparerProvider inMemoryComparerProvider)
+		{
+			_inMemoryComparerProvider = inMemoryComparerProvider;
+		}
+
 		private readonly Dictionary<string, Dictionary<string, object>> _database = new Dictionary<string, Dictionary<string, object>>();
+		private readonly IInMemoryComparerProvider _inMemoryComparerProvider;
 
 		private Dictionary<string, object> GetCollection<T>()
 		{
@@ -62,88 +68,10 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.InMemory
 			var parameters = queryParameters.ToList();
 			if (parameters.Count > 0)
 			{
-				var list = collection.Values.Where(x =>
-					parameters.Count(queryParameter =>
-						AssertIfStrings(x, queryParameter) ||
-						AssertIfIntegers(x, queryParameter)) == parameters.Count)
-					.Select(x => (T)x);
-
-				return Task.FromResult(list);
+				return Task.FromResult(_inMemoryComparerProvider.Query(queryParameters, collection.Values.ToList()).Select(x => (T)x));
 			}
 
 			return Task.FromResult(collection.Values.Select(x => (T)x).AsEnumerable());
-		}
-
-		private bool AssertIfIntegers(object obj, QueryParameter queryParameter)
-		{
-			var x = queryParameter.MemberModel.TypeAccessor[obj, queryParameter.MemberModel.Member.Name];
-			if (x is int xStr && queryParameter.ContextValue.Comparison.HasValue &&
-				queryParameter.ContextValue.GetFirstValue() is int ctxValueStr)
-			{
-				switch (queryParameter.ContextValue.Comparison)
-				{
-					case Comparisons.Equal:
-						if (queryParameter.ContextValue.IsSingleValue())
-							return xStr == ctxValueStr;
-						else
-						{
-							return queryParameter.ContextValue.Values.Any(v => (int)v == xStr);
-						}
-
-					case Comparisons.NotEqual:
-						return xStr != ctxValueStr;
-
-					case Comparisons.GreaterThan:
-						return xStr > ctxValueStr;
-
-					case Comparisons.GreaterEqualThan:
-						return xStr >= ctxValueStr;
-
-					case Comparisons.LessThan:
-						return xStr < ctxValueStr;
-
-					case Comparisons.LessEqualThan:
-						return xStr <= ctxValueStr;
-
-					default:
-						throw new NotImplementedException($"Int comparison {queryParameter.ContextValue.Comparison} is not implemented by InMemoryRepository.");
-				}
-			}
-
-			return false;
-		}
-
-		private bool AssertIfStrings(object obj, QueryParameter queryParameter)
-		{
-			var x = queryParameter.MemberModel.TypeAccessor[obj, queryParameter.MemberModel.Member.Name];
-			//queryParameter.MemberModel.
-			if (x is string xStr && queryParameter.ContextValue.Comparison.HasValue &&
-				queryParameter.ContextValue.GetFirstValue() is string ctxValueStr)
-			{
-				switch (queryParameter.ContextValue.Comparison)
-				{
-					case Comparisons.Equal:
-						if (queryParameter.ContextValue.IsSingleValue())
-							return xStr == ctxValueStr;
-						else
-						{
-							return queryParameter.ContextValue.Values.Any(v => (string)v == xStr);
-						}
-
-					case Comparisons.StringContains:
-						return xStr.Contains(ctxValueStr);
-
-					case Comparisons.StringStartsWith:
-						return xStr.StartsWith(ctxValueStr);
-
-					case Comparisons.StringEndsWith:
-						return xStr.EndsWith(ctxValueStr);
-
-					default:
-						throw new NotImplementedException($"String comparison {queryParameter.ContextValue.Comparison} is not implemented by InMemoryRepository.");
-				}
-			}
-			return false;
 		}
 
 		public Task DeleteAllAsync<T>(IGraphRequestContext graphRequestContext) where T : class

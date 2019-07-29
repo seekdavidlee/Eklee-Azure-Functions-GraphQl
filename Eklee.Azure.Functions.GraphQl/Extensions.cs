@@ -57,6 +57,11 @@ namespace Eklee.Azure.Functions.GraphQl
 			builder.RegisterType<TableStorageComparisonBool>().As<ITableStorageComparison>().SingleInstance();
 			builder.RegisterType<TableStorageComparisonGuid>().As<ITableStorageComparison>().SingleInstance();
 
+			builder.RegisterType<InMemoryCompareInt>().As<IInMemoryCompare>().SingleInstance();
+			builder.RegisterType<InMemoryCompareString>().As<IInMemoryCompare>().SingleInstance();
+
+			builder.RegisterType<InMemoryComparerProvider>().As<IInMemoryComparerProvider>().SingleInstance();
+
 			builder.RegisterType<GraphDependencyResolver>().As<IDependencyResolver>();
 
 			builder.RegisterType<QueryBuilderFactory>();

@@ -59,7 +59,7 @@ namespace Eklee.Azure.Functions.GraphQl
 
 			builder.RegisterType<InMemoryCompareInt>().As<IInMemoryCompare>().SingleInstance();
 			builder.RegisterType<InMemoryCompareString>().As<IInMemoryCompare>().SingleInstance();
-
+			builder.RegisterType<InMemoryCompareDateTime>().As<IInMemoryCompare>().SingleInstance();
 			builder.RegisterType<InMemoryComparerProvider>().As<IInMemoryComparerProvider>().SingleInstance();
 
 			builder.RegisterType<GraphDependencyResolver>().As<IDependencyResolver>();

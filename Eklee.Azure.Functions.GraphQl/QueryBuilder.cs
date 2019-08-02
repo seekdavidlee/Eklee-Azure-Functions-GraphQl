@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using Eklee.Azure.Functions.GraphQl.Connections;
 using Eklee.Azure.Functions.GraphQl.Repository;
+using Eklee.Azure.Functions.GraphQl.Repository.InMemory;
 using FastMember;
 using GraphQL;
 using GraphQL.Builders;
@@ -32,7 +33,8 @@ namespace Eklee.Azure.Functions.GraphQl
 			IGraphQlRepositoryProvider graphQlRepositoryProvider,
 			IDistributedCache distributedCache,
 			ILogger logger,
-			IConnectionEdgeHandler connectionEdgeHandler)
+			IConnectionEdgeHandler connectionEdgeHandler,
+			IInMemoryComparerProvider inMemoryComparerProvider)
 		{
 			_objectGraphType = objectGraphType;
 			_queryName = queryName;
@@ -41,7 +43,7 @@ namespace Eklee.Azure.Functions.GraphQl
 			_distributedCache = distributedCache;
 			_logger = logger;
 
-			_queryParameterBuilder = new QueryParameterBuilder<TSource>(this);
+			_queryParameterBuilder = new QueryParameterBuilder<TSource>(this, inMemoryComparerProvider);
 		}
 
 		private QueryOutput _output;

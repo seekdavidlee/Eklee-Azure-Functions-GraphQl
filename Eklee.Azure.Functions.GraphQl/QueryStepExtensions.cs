@@ -16,6 +16,7 @@ namespace Eklee.Azure.Functions.GraphQl
 
 			clone.ContextAction = queryStep.ContextAction;
 			clone.Mapper = queryStep.Mapper;
+			clone.InMemoryFilterQueryParameters = queryStep.InMemoryFilterQueryParameters;
 
 			if (queryStep.Items != null && queryStep.Items.Count > 0)
 			{

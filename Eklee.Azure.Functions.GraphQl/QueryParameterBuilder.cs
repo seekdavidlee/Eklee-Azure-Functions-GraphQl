@@ -7,12 +7,14 @@ using System.Linq.Expressions;
 using Eklee.Azure.Functions.GraphQl.Repository.Search;
 using GraphQL.Types;
 using Eklee.Azure.Functions.GraphQl.Connections;
+using Eklee.Azure.Functions.GraphQl.Repository.InMemory;
 
 namespace Eklee.Azure.Functions.GraphQl
 {
 	public class QueryParameterBuilder<TSource>
 	{
 		private readonly QueryBuilder<TSource> _queryBuilder;
+		private readonly IInMemoryComparerProvider _inMemoryComparerProvider;
 		private readonly ModelConvention<TSource> _modelConvention = new ModelConvention<TSource>();
 		private readonly List<ModelMember> _modelMemberList = new List<ModelMember>();
 		private readonly List<QueryStep> _querySteps = new List<QueryStep>();
@@ -26,9 +28,10 @@ namespace Eklee.Azure.Functions.GraphQl
 			};
 		}
 
-		public QueryParameterBuilder(QueryBuilder<TSource> queryBuilder)
+		public QueryParameterBuilder(QueryBuilder<TSource> queryBuilder, IInMemoryComparerProvider inMemoryComparerProvider)
 		{
 			_queryBuilder = queryBuilder;
+			_inMemoryComparerProvider = inMemoryComparerProvider;
 			_queryStep = NewQueryStep();
 		}
 
@@ -90,6 +93,12 @@ namespace Eklee.Azure.Functions.GraphQl
 							queryParameter.ContextValue = context.GetContextValue(queryParameter.MemberModel, queryParameter.Rule);
 					}
 				});
+
+				if (queryStep.InMemoryFilterQueryParameters != null)
+				{
+					queryStep.InMemoryFilterQueryParameters.ForEach(queryParameter =>
+						queryParameter.ContextValue = context.GetContextValue(queryParameter.MemberModel, queryParameter.Rule));
+				}
 			});
 
 			return clonedList;
@@ -174,9 +183,13 @@ namespace Eklee.Azure.Functions.GraphQl
 			var step = new QueryStep
 			{
 				ContextAction = contextAction,
-				Mapper = mapper,
 				Items = stepBagItems
 			};
+
+			if (mapper != null)
+			{
+				step.Mapper = ctx => mapper(ctx.Context);
+			}
 
 			bool first = mapper != null;
 
@@ -225,7 +238,7 @@ namespace Eklee.Azure.Functions.GraphQl
 
 		public ConnectionEdgeQueryBuilder<TSource, TConnectionType> WithConnectionEdgeBuilder<TConnectionType>()
 		{
-			return new ConnectionEdgeQueryBuilder<TSource, TConnectionType>(this, _querySteps, _modelMemberList);
+			return new ConnectionEdgeQueryBuilder<TSource, TConnectionType>(this, _querySteps, _modelMemberList, _inMemoryComparerProvider);
 		}
 
 		public QueryBuilder<TSource> BuildQuery()

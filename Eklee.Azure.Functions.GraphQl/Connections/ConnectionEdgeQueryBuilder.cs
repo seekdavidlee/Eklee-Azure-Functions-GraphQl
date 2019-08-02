@@ -1,4 +1,5 @@
-﻿using FastMember;
+﻿using Eklee.Azure.Functions.GraphQl.Repository.InMemory;
+using FastMember;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -13,16 +14,19 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 		private readonly QueryParameterBuilder<TSource> _source;
 		private readonly List<QueryStep> _querySteps;
 		private readonly List<ModelMember> _modelMemberList;
+		private readonly IInMemoryComparerProvider _inMemoryComparerProvider;
 		private bool _withDestinationId;
 		private bool _withDestinationIdFromSource;
 
 		public ConnectionEdgeQueryBuilder(QueryParameterBuilder<TSource> source,
 			List<QueryStep> querySteps,
-			List<ModelMember> modelMemberList)
+			List<ModelMember> modelMemberList,
+			IInMemoryComparerProvider inMemoryComparerProvider)
 		{
 			_source = source;
 			_querySteps = querySteps;
 			_modelMemberList = modelMemberList;
+			_inMemoryComparerProvider = inMemoryComparerProvider;
 		}
 
 		public ConnectionEdgeQueryBuilder<TSource, TConnectionType> WithDestinationId()
@@ -56,9 +60,10 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 
 		private readonly Type _type = typeof(TConnectionType);
 		private readonly TypeAccessor _accessor = TypeAccessor.Create(typeof(TConnectionType));
-		
-		private void AddExpressions()
+
+		private List<QueryParameter> GetInMemoryFilterQueryParameters()
 		{
+			var modelMembers = new List<ModelMember>();
 			_expressions.ForEach(expression =>
 			{
 				MemberExpression memberExpression = expression.Body as MemberExpression ?? (expression.Body as UnaryExpression)?.Operand as MemberExpression;
@@ -76,9 +81,11 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 					var modelMember = new ModelMember(_type, _accessor, member, false);
 
 					_modelMemberList.Add(modelMember);
+					modelMembers.Add(modelMember);
 				}
 			});
 
+			return modelMembers.Select(m => new QueryParameter { MemberModel = m }).ToList();
 		}
 
 		private QueryStep QuerySource(Action<QueryExecutionContext> mapper = null)
@@ -98,21 +105,29 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 				MemberModel = new ModelMember(type, typeAccessor, idMember, false)
 			});
 
-			AddExpressions();
+			queryStep.InMemoryFilterQueryParameters = GetInMemoryFilterQueryParameters();
 
 			queryStep.Mapper = (ctx) =>
 			{
-				var connectionEdges = ctx.GetQueryResults<ConnectionEdge>();
+				var connectionEdges = ctx.Context.GetQueryResults<ConnectionEdge>();
 
 				if (mapper != null)
 				{
 					var items = connectionEdges.Select(x => JsonConvert.DeserializeObject(
 						x.MetaValue, Type.GetType(x.MetaType))).ToList();
 
-					// Override result.
-					ctx.SetQueryResult(items);
+					if (ctx.QueryStep.InMemoryFilterQueryParameters != null &&
+						ctx.QueryStep.InMemoryFilterQueryParameters.Count > 0)
+					{
+						items = _inMemoryComparerProvider.Query(ctx.QueryStep.InMemoryFilterQueryParameters, items);
+						var metaValues = items.Select(JsonConvert.SerializeObject).ToList();
+						connectionEdges = connectionEdges.Where(c => metaValues.Contains(c.MetaValue)).ToList();
+					}
 
-					mapper(ctx);
+					// Override result.
+					ctx.Context.SetQueryResult(items);
+
+					mapper(ctx.Context);
 				}
 				return connectionEdges.Select(x => (object)x.SourceId).ToList();
 			};
@@ -123,9 +138,13 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 		{
 			var queryStep = new QueryStep
 			{
-				ContextAction = ctx => ctx.SetResults(ctx.GetQueryResults<ConnectionEdge>()),
-				Mapper = _mapper
+				ContextAction = ctx => ctx.SetResults(ctx.GetQueryResults<ConnectionEdge>())
 			};
+
+			if (_mapper != null)
+			{
+				queryStep.Mapper = ctx => _mapper(ctx.Context);
+			}
 
 			var type = typeof(ConnectionEdge);
 			var typeAccessor = TypeAccessor.Create(type);

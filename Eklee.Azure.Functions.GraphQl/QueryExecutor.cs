@@ -35,7 +35,7 @@ namespace Eklee.Azure.Functions.GraphQl
 					// We may have to make several queries.
 					var nextQueryResults = new List<object>();
 
-					var queryValues = queryStep.Mapper(ctx);
+					var queryValues = queryStep.Mapper(new MapperQueryExecutionContext(ctx, queryStep));
 
 					if (queryValues.Count > 0)
 					{

@@ -102,7 +102,9 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestDocumentDb
 					.WithProperty(x => x.FieldDescription)
 					.BuildConnectionEdgeParameters(ctx =>
 					{
-						ctx.Items["model7IdList"] = ctx.GetQueryResults<Model7ToModel8>().Select(x => (object)x.Id).ToList();
+						ctx.Items["model7IdList"] = ctx.GetQueryResults<Model7ToModel8>().Select(x => x.Id)
+							.Distinct()
+							.Select(x => (object)x).ToList();
 					})
 				.ThenWithQuery<Model7>()
 				.WithPropertyFromSource(x => x.Id, ctx =>

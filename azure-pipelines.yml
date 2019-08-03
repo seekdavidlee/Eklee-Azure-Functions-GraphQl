@@ -3,7 +3,7 @@ pool:
 
 steps:
 
-- task: AzurePowerShell@3
+- task: AzurePowerShell@4
   displayName: 'Prepare local settings'
   inputs:
     azureSubscription: $(Global.ServiceConnectionName)

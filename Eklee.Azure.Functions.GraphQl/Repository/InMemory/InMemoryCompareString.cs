@@ -36,6 +36,9 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.InMemory
 				case Comparisons.StringEndsWith:
 					return xStr.EndsWith(ctxValueStr);
 
+				case Comparisons.NotEqual:
+					return !xStr.Equals(ctxValueStr);
+
 				default:
 					throw new NotImplementedException($"String comparison {queryParameter.ContextValue.Comparison} is not implemented by InMemoryCompareString.");
 			}

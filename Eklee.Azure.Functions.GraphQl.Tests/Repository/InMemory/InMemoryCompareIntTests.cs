@@ -13,7 +13,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.InMemory
 		[Fact]
 		public void CannotHandleString()
 		{
-			var inMem = new InMemItem { IntValue = 1, StrValue = "1" };
+			var inMem = new InMemItem { IntValue = 1 };
 
 			_memoryCompareInt.CanHandle(inMem, GetQueryParameter("IntValue", "1", Comparisons.Equal)).ShouldBeFalse();
 		}
@@ -21,7 +21,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.InMemory
 		[Fact]
 		public void CannotHandleDate()
 		{
-			var inMem = new InMemItem { IntValue = 1, StrValue = "1" };
+			var inMem = new InMemItem { IntValue = 1 };
 
 			_memoryCompareInt.CanHandle(inMem, GetQueryParameter("IntValue", DateTime.Now, Comparisons.Equal)).ShouldBeFalse();
 		}
@@ -29,7 +29,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.InMemory
 		[Fact]
 		public void CanHandleInt()
 		{
-			var inMem = new InMemItem { IntValue = 145, StrValue = "1" };
+			var inMem = new InMemItem { IntValue = 145 };
 
 			_memoryCompareInt.CanHandle(inMem, GetQueryParameter("IntValue", 145, Comparisons.Equal)).ShouldBeTrue();
 		}
@@ -37,7 +37,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.InMemory
 		[Fact]
 		public void CanCompareEqual_MeetsConditionIsTrue()
 		{
-			var inMem = new InMemItem { IntValue = 111, StrValue = "156" };
+			var inMem = new InMemItem { IntValue = 111 };
 
 			_memoryCompareInt.MeetsCondition(inMem, GetQueryParameter("IntValue", 111, Comparisons.Equal)).ShouldBeTrue();
 		}
@@ -69,7 +69,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.InMemory
 		[Fact]
 		public void CanCompareGreaterThan_MeetsConditionIsTrue()
 		{
-			var inMem = new InMemItem { IntValue = 125, StrValue = "156" };
+			var inMem = new InMemItem { IntValue = 125 };
 
 			_memoryCompareInt.MeetsCondition(inMem, GetQueryParameter("IntValue", 124, Comparisons.GreaterThan)).ShouldBeTrue();
 		}
@@ -77,7 +77,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.InMemory
 		[Fact]
 		public void CanCompareGreaterThan_MeetsConditionIsFalse()
 		{
-			var inMem = new InMemItem { IntValue = 122, StrValue = "156" };
+			var inMem = new InMemItem { IntValue = 122 };
 
 			_memoryCompareInt.MeetsCondition(inMem, GetQueryParameter("IntValue", 123, Comparisons.GreaterThan)).ShouldBeFalse();
 		}
@@ -85,7 +85,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.InMemory
 		[Fact]
 		public void CanCompareGreaterThanWithSameNumbers_MeetsConditionIsFalse()
 		{
-			var inMem = new InMemItem { IntValue = 123, StrValue = "156" };
+			var inMem = new InMemItem { IntValue = 123 };
 
 			_memoryCompareInt.MeetsCondition(inMem, GetQueryParameter("IntValue", 123, Comparisons.GreaterThan)).ShouldBeFalse();
 		}
@@ -93,7 +93,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.InMemory
 		[Fact]
 		public void CanCompareGreaterEqualThanWithSameNumbers_MeetsConditionIsTrue()
 		{
-			var inMem = new InMemItem { IntValue = 128, StrValue = "156" };
+			var inMem = new InMemItem { IntValue = 128 };
 
 			_memoryCompareInt.MeetsCondition(inMem, GetQueryParameter("IntValue", 128, Comparisons.GreaterEqualThan)).ShouldBeTrue();
 		}
@@ -101,7 +101,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.InMemory
 		[Fact]
 		public void CanCompareGreaterEqualThan_MeetsConditionIsTrue()
 		{
-			var inMem = new InMemItem { IntValue = 125, StrValue = "156" };
+			var inMem = new InMemItem { IntValue = 125 };
 
 			_memoryCompareInt.MeetsCondition(inMem, GetQueryParameter("IntValue", 124, Comparisons.GreaterEqualThan)).ShouldBeTrue();
 		}
@@ -109,7 +109,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.InMemory
 		[Fact]
 		public void CanCompareLessEqualThanWithSameNumbers_MeetsConditionIsTrue()
 		{
-			var inMem = new InMemItem { IntValue = 1284, StrValue = "156" };
+			var inMem = new InMemItem { IntValue = 1284 };
 
 			_memoryCompareInt.MeetsCondition(inMem, GetQueryParameter("IntValue", 1284, Comparisons.LessEqualThan)).ShouldBeTrue();
 		}
@@ -117,7 +117,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.InMemory
 		[Fact]
 		public void CanCompareLessEqualThan_MeetsConditionIsTrue()
 		{
-			var inMem = new InMemItem { IntValue = 123, StrValue = "156" };
+			var inMem = new InMemItem { IntValue = 123 };
 
 			_memoryCompareInt.MeetsCondition(inMem, GetQueryParameter("IntValue", 124, Comparisons.LessEqualThan)).ShouldBeTrue();
 		}
@@ -125,7 +125,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.InMemory
 		[Fact]
 		public void CanCompareLessEqualThan_MeetsConditionIsFalse()
 		{
-			var inMem = new InMemItem { IntValue = 125, StrValue = "156" };
+			var inMem = new InMemItem { IntValue = 125 };
 
 			_memoryCompareInt.MeetsCondition(inMem, GetQueryParameter("IntValue", 124, Comparisons.LessEqualThan)).ShouldBeFalse();
 		}
@@ -133,7 +133,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.InMemory
 		[Fact]
 		public void CanCompareLessThan_MeetsConditionIsTrue()
 		{
-			var inMem = new InMemItem { IntValue = 123, StrValue = "156" };
+			var inMem = new InMemItem { IntValue = 123 };
 
 			_memoryCompareInt.MeetsCondition(inMem, GetQueryParameter("IntValue", 124, Comparisons.LessThan)).ShouldBeTrue();
 		}
@@ -141,7 +141,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.InMemory
 		[Fact]
 		public void CanCompareLessThan_MeetsConditionIsFalse()
 		{
-			var inMem = new InMemItem { IntValue = 125, StrValue = "156" };
+			var inMem = new InMemItem { IntValue = 125 };
 
 			_memoryCompareInt.MeetsCondition(inMem, GetQueryParameter("IntValue", 124, Comparisons.LessThan)).ShouldBeFalse();
 		}

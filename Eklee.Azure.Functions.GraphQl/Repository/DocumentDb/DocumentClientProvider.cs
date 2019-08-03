@@ -240,30 +240,6 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 
 		private const string All = "*";
 
-		private string GetMemberFieldName(string fieldName, TypeAccessor typeAccessor)
-		{
-			return typeAccessor.GetMembers().Single(
-				x => x.Name.ToLower() == fieldName.ToLower()).Name;
-		}
-
-		private string GetFields(List<QueryParameter> queryParameters)
-		{
-			if (queryParameters.Count > 0)
-			{
-				var first = queryParameters.First();
-				var ctx = first.ContextValue;
-
-				if (ctx != null && ctx.SelectValues != null)
-				{
-					var ta = first.MemberModel.TypeAccessor;
-					return string.Join(",", ctx.SelectValues.Select(x => $"x.{GetMemberFieldName(x.FieldName, ta)}"));
-				}
-
-			}
-
-			return All;
-		}
-
 		public async Task<IEnumerable<T>> QueryAsync<T>(IEnumerable<QueryParameter> queryParameters, IGraphRequestContext graphRequestContext)
 		{
 			var collection = new SqlParameterCollection();
@@ -274,11 +250,11 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 
 			if (queryParametersList.Count == 1 && (queryParametersList.Single().ContextValue == null || queryParametersList.Single().ContextValue.Values == null))
 			{
-				sql = $"SELECT {GetFields(queryParametersList)} FROM x";
+				sql = $"SELECT {All} FROM x";
 			}
 			else
 			{
-				sql = $"SELECT {GetFields(queryParametersList)} FROM x WHERE ";
+				sql = $"SELECT {All} FROM x WHERE ";
 				const string and = " AND ";
 
 				queryParametersList.ForEach(x =>

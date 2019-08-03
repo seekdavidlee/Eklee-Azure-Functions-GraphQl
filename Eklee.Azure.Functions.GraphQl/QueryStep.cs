@@ -17,7 +17,7 @@ namespace Eklee.Azure.Functions.GraphQl
 		public Action<QueryExecutionContext> ContextAction { get; set; }
 
 		[JsonIgnore]
-		public Func<QueryExecutionContext, List<object>> Mapper { get; set; }
+		public Func<MapperQueryExecutionContext, List<object>> Mapper { get; set; }
 
 		public List<QueryParameter> QueryParameters { get; set; }
 		public DateTime? Ended { get; set; }
@@ -25,5 +25,7 @@ namespace Eklee.Azure.Functions.GraphQl
 		[JsonIgnore]
 		public Dictionary<string, object> Items { get; set; }
 		public bool ForceCreateContextValueIfNull { get; set; }
+
+		public List<QueryParameter> InMemoryFilterQueryParameters { get; set; }
 	}
 }

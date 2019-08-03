@@ -10,7 +10,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.Models
 		public string Id { get; set; }
 
 		[Description("Field")]
-		public string Field { get; set; }
+		public string FieldDescription { get; set; }
 
 		[ConnectionEdgeDestination]
 		[Description("TheModel8")]

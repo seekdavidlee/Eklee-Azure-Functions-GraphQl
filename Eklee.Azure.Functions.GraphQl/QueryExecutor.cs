@@ -35,11 +35,15 @@ namespace Eklee.Azure.Functions.GraphQl
 					// We may have to make several queries.
 					var nextQueryResults = new List<object>();
 
-					var queryValues = queryStep.Mapper(ctx);
+					var queryValues = queryStep.Mapper(new MapperQueryExecutionContext(ctx, queryStep));
 
 					if (queryValues.Count > 0)
 					{
-						var first = queryStep.QueryParameters.First();
+						var first = queryStep.QueryParameters.FirstOrDefault(x => x.Rule != null && x.Rule.PopulateWithQueryValues);
+						if (first == null)
+						{
+							first = queryStep.QueryParameters.First();
+						}
 
 						first.ContextValue = new ContextValue
 						{

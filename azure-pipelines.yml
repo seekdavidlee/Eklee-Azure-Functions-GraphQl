@@ -1,9 +1,9 @@
 pool:
-  vmImage: 'vs2017-win2016'
+  vmImage: 'windows-latest'
 
 steps:
 
-- task: AzurePowerShell@3
+- task: AzurePowerShell@4
   displayName: 'Prepare local settings'
   inputs:
     azureSubscription: $(Global.ServiceConnectionName)
@@ -20,7 +20,7 @@ steps:
     projects: 'Eklee.Azure.Functions.GraphQl.Tests\Eklee.Azure.Functions.GraphQl.Tests.csproj'
     arguments: '--filter Category=Unit'
 
-- task: AzurePowerShell@3
+- task: AzurePowerShell@4
   displayName: 'Reset Search'
   inputs:
     azureSubscription: $(Global.ServiceConnectionName)
@@ -29,7 +29,7 @@ steps:
     azurePowerShellVersion: 'latestVersion'
     scriptArguments: '-ResourceGroupName $(Global.ResourceGroupName) -ServiceName $(Global.Name)'
 
-- task: AzurePowerShell@3
+- task: AzurePowerShell@4
   displayName: 'Reset DoucmentDb'
   inputs:
     azureSubscription: $(Global.ServiceConnectionName)

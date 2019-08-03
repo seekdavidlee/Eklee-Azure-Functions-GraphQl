@@ -56,8 +56,25 @@ param([switch]$testunit, [switch]$testint, [switch]$skippackage,
 	} else {
 		$buildConfig = $BuildConfiguration
 
-		# Assume we are doing a patch release
-		$patch = $patch + 1
+		if (!$IncrementVersionType){
+			# Assume we are doing a patch release
+			$patch = $patch + 1
+		} else {
+			if ($IncrementVersionType.ToLower() -eq "major") {
+				$major = $major + 1
+				$minor = 0
+				$patch = 0
+			}
+
+			if ($IncrementVersionType.ToLower() -eq "minor") {
+				$minor = $minor + 1
+				$patch = 0
+			}
+
+			if ($IncrementVersionType.ToLower() -eq "patch") {
+				$patch = $patch + 1
+			}		
+		}
 	}
 	
 	Write-Host "BuildConfiguration = $buildConfig"

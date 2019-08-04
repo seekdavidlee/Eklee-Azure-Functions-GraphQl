@@ -52,10 +52,12 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 			return this;
 		}
 
-		public ConnectionEdgeQueryBuilder<TSource, TConnectionType> WithSourceIdFromSource(Func<QueryExecutionContext, List<object>> mapper)
+		private Type _withSourceIdFromSourceSourceType;
+		public ConnectionEdgeQueryBuilder<TSource, TConnectionType> WithSourceIdFromSource<TSourceType>(Func<QueryExecutionContext, List<object>> mapper)
 		{
 			_mapper = mapper;
 			_withSourceIdFromSource = true;
+			_withSourceIdFromSourceSourceType = typeof(TSourceType);
 			return this;
 		}
 
@@ -176,7 +178,7 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 				ContextValue = new ContextValue
 				{
 					Comparison = Comparisons.Equal,
-					Values = new List<object> { typeof(TSource).AssemblyQualifiedName }
+					Values = new List<object> { _withSourceIdFromSourceSourceType != null ? _withSourceIdFromSourceSourceType.AssemblyQualifiedName : typeof(TSource).AssemblyQualifiedName }
 				}
 			});
 

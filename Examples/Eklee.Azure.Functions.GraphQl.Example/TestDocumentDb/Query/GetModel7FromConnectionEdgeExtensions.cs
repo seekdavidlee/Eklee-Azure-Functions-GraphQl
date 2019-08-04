@@ -22,7 +22,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestDocumentDb.Query
 					ctx.Items["idList"] = ctx.GetQueryResults<Model7>().Select(x => (object)x.Id).ToList();
 				})
 				.WithConnectionEdgeBuilder<Model7ToModel8>()
-				.WithSourceIdFromSource(x => (List<object>)x.Items["idList"])
+				.WithSourceIdFromSource<Model7>(x => (List<object>)x.Items["idList"])
 				.BuildConnectionEdgeParameters(ctx =>
 				{
 					var connectionEdges = ctx.GetResults<ConnectionEdge>();

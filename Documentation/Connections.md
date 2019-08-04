@@ -333,6 +333,10 @@ query {
 }
 ```
 
+## Query ConnectionEdge Model with SourceId
+
+There may be instances where the user is performing a search (which doesn't use connection model). In this senario, you may want to query the connection edge yourself to figure out the child node hanging on the connection model. This is where ```WithSourceIdFromSource<T>``` may help you where T is the Source Model you are looking for using Source Id obtained from the search results.
+
 # Other notes
 
 * The Connection concept is currently ONLY supported with the use of CosmosDb. It is partially supported in Azure Table Storage and not available in other types of Data Sources. We will be adding the other Data Sources shortly.

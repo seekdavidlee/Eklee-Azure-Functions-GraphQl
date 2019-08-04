@@ -17,6 +17,7 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 		private readonly IInMemoryComparerProvider _inMemoryComparerProvider;
 		private bool _withDestinationId;
 		private bool _withDestinationIdFromSource;
+		private bool _withSourceIdFromSource;
 
 		public ConnectionEdgeQueryBuilder(QueryParameterBuilder<TSource> source,
 			List<QueryStep> querySteps,
@@ -48,6 +49,15 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 		{
 			_mapper = mapper;
 			_withDestinationIdFromSource = true;
+			return this;
+		}
+
+		private Type _withSourceIdFromSourceSourceType;
+		public ConnectionEdgeQueryBuilder<TSource, TConnectionType> WithSourceIdFromSource<TSourceType>(Func<QueryExecutionContext, List<object>> mapper)
+		{
+			_mapper = mapper;
+			_withSourceIdFromSource = true;
+			_withSourceIdFromSourceSourceType = typeof(TSourceType);
 			return this;
 		}
 
@@ -168,25 +178,44 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 				ContextValue = new ContextValue
 				{
 					Comparison = Comparisons.Equal,
-					Values = new List<object> { typeof(TSource).AssemblyQualifiedName }
+					Values = new List<object> { _withSourceIdFromSourceSourceType != null ? _withSourceIdFromSourceSourceType.AssemblyQualifiedName : typeof(TSource).AssemblyQualifiedName }
 				}
 			});
 
-			var destinationIdMember = new ModelMember(type, typeAccessor,
+			if (_withDestinationIdFromSource || _withDestinationId)
+			{
+				var destinationIdMember = new ModelMember(type, typeAccessor,
 					members.Single(x => x.Name == "DestinationId"), false);
 
-			queryStep.QueryParameters.Add(new QueryParameter
-			{
-				MemberModel = destinationIdMember,
-				Rule = new ContextValueSetRule
+				queryStep.QueryParameters.Add(new QueryParameter
 				{
-					DisableSetSelectValues = _withDestinationId,
-					PopulateWithQueryValues = _withDestinationIdFromSource
-				}
-			});
+					MemberModel = destinationIdMember,
+					Rule = new ContextValueSetRule
+					{
+						DisableSetSelectValues = _withDestinationId,
+						PopulateWithQueryValues = _withDestinationIdFromSource
+					}
+				});
 
-			if (_withDestinationId)
-				_modelMemberList.Add(destinationIdMember);
+				if (_withDestinationId)
+					_modelMemberList.Add(destinationIdMember);
+			}
+
+			if (_withSourceIdFromSource)
+			{
+				var srcIdMember = new ModelMember(type, typeAccessor,
+					members.Single(x => x.Name == "SourceId"), false);
+
+				queryStep.QueryParameters.Add(new QueryParameter
+				{
+					MemberModel = srcIdMember,
+					Rule = new ContextValueSetRule
+					{
+						DisableSetSelectValues = true,
+						PopulateWithQueryValues = true
+					}
+				});
+			}
 
 			return queryStep;
 		}

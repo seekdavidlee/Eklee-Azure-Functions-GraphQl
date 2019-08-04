@@ -72,11 +72,13 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 				DataType type = GetDataType(x.Type);
 				var isSearchable = x.Type == typeof(string);
 				var isKey = x.GetAttribute(typeof(KeyAttribute), false) != null;
+				var isFacetable = x.GetAttribute(typeof(IsFacetableAttribute), false) != null;
 
 				var field = new Field(x.Name, type)
 				{
 					IsKey = isKey,
-					IsSearchable = !isKey && isSearchable
+					IsSearchable = !isKey && isSearchable,
+					IsFacetable = isFacetable
 				};
 
 				return field;

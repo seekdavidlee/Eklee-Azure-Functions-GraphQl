@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Azure.Search;
+using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
@@ -22,7 +23,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestSearch.Models
 		[Description("DateField")]
 		public DateTime DateField { get; set; }
 
-
+		[IsFacetable]
 		[Description("Field")]
 		public string Field { get; set; }
 	}

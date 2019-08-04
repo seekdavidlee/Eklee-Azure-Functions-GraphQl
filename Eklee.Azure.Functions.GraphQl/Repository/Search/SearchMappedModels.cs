@@ -5,19 +5,6 @@ using FastMember;
 
 namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 {
-	public class SearchMappedModel
-	{
-		public Type SearchModelType { get; set; }
-		public Type ModelType { get; set; }
-	}
-
-	public interface ISearchMappedModels
-	{
-		void Map<TSearchModel, TModel>();
-		bool TryGetMappedSearchType<TModel>(out Type mappedSearchType);
-		object CreateInstanceFromMap<TModel>(TModel map);
-	}
-
 	public class SearchMappedModels : ISearchMappedModels
 	{
 		private readonly Dictionary<string, SearchMappedModel> _mappedTypes = new Dictionary<string, SearchMappedModel>();

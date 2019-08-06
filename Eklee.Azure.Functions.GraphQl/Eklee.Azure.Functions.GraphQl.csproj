@@ -9,8 +9,8 @@
     <PackageReference Include="Eklee.Azure.Functions.Http" Version="0.8.3" />
     <PackageReference Include="FastMember" Version="1.5.0" />
     <PackageReference Include="GraphQL" Version="2.4.0" />
-    <PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.4.0" />
-    <PackageReference Include="Microsoft.Azure.Search" Version="9.0.1" />
+    <PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.5.1" />
+    <PackageReference Include="Microsoft.Azure.Search" Version="9.1.0" />
     <PackageReference Include="WindowsAzure.Storage" Version="9.3.3" />
   </ItemGroup>
 

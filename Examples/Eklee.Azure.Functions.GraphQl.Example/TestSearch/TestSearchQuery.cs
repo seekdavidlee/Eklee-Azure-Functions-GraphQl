@@ -95,7 +95,6 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestSearch
 					x.SetResults(currentResults);
 				})
 				.BuildQuery().BuildWithListResult();
-
 		}
 	}
 }

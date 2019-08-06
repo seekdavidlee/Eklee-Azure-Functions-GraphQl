@@ -26,5 +26,13 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestSearch.Models
 		[IsFacetable]
 		[Description("Field")]
 		public string Field { get; set; }
+
+		[IsFacetable]
+		[Description("FieldTwo")]
+		public string FieldTwo { get; set; }
+
+		[IsFacetable]
+		[Description("FieldThree")]
+		public string FieldThree { get; set; }
 	}
 }

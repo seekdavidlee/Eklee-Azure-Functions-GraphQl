@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Autofac;
 using Eklee.Azure.Functions.GraphQl.Connections;
+using Eklee.Azure.Functions.GraphQl.Queries;
 using Eklee.Azure.Functions.GraphQl.Repository;
 using Eklee.Azure.Functions.GraphQl.Repository.DocumentDb;
 using Eklee.Azure.Functions.GraphQl.Repository.Http;
@@ -61,6 +62,17 @@ namespace Eklee.Azure.Functions.GraphQl
 			builder.RegisterType<InMemoryCompareString>().As<IInMemoryCompare>().SingleInstance();
 			builder.RegisterType<InMemoryCompareDateTime>().As<IInMemoryCompare>().SingleInstance();
 			builder.RegisterType<InMemoryComparerProvider>().As<IInMemoryComparerProvider>().SingleInstance();
+
+			builder.RegisterType<SearchFilterModelQueryArgument>().As<IModelMemberQueryArgument>().SingleInstance();
+			builder.RegisterType<SearchModelQueryArgument>().As<IModelMemberQueryArgument>().SingleInstance();
+			builder.RegisterType<StringQueryArgument>().As<IModelMemberQueryArgument>().SingleInstance();
+			builder.RegisterType<DateQueryArgument>().As<IModelMemberQueryArgument>().SingleInstance();
+			builder.RegisterType<IntQueryArgument>().As<IModelMemberQueryArgument>().SingleInstance();
+			builder.RegisterType<BoolQueryArgument>().As<IModelMemberQueryArgument>().SingleInstance();
+			builder.RegisterType<GuidQueryArgument>().As<IModelMemberQueryArgument>().SingleInstance();
+			builder.RegisterType<ModelMemberQueryArgumentProvider>().As<IModelMemberQueryArgumentProvider>().SingleInstance();
+
+			builder.RegisterType<ContextValueResolver>().As<IContextValueResolver>().SingleInstance();
 
 			builder.RegisterType<GraphDependencyResolver>().As<IDependencyResolver>();
 
@@ -218,104 +230,6 @@ namespace Eklee.Azure.Functions.GraphQl
 		public static void PopulateSelectValues(this ContextValue contextValue, ResolveFieldContext<object> context)
 		{
 			contextValue.SelectValues = context.SubFields.Select(x => CreateSelectValue(x.Value)).ToList();
-		}
-
-		public static ContextValue GetContextValue(this ResolveFieldContext<object> context, ModelMember modelMember, ContextValueSetRule rule)
-		{
-			var name = modelMember.Name;
-
-			var contextValue = new ContextValue();
-
-			if (rule == null || !rule.DisableSetSelectValues)
-				contextValue.PopulateSelectValues(context);
-
-			var args = context.Arguments;
-			if (args.ContainsKey(name))
-			{
-				Dictionary<string, object> arg = (Dictionary<string, object>)args[name];
-
-				if (modelMember.IsGuid)
-				{
-					contextValue.Values = new List<object> { Guid.Parse(arg.First().Value.ToString()) };
-				}
-				else
-				{
-					contextValue.Values = new List<object> { arg.First().Value };
-				}
-
-				if (contextValue.Values == null)
-				{
-					throw new ArgumentNullException($"{name}.Value");
-				}
-
-				string comparison = arg.First().Key;
-				if (comparison == "equal")
-				{
-					contextValue.Comparison = Comparisons.Equal;
-					return contextValue;
-				}
-
-				if (comparison == "contains" && contextValue.GetFirstValue() is string)
-				{
-					contextValue.Comparison = Comparisons.StringContains;
-					return contextValue;
-				}
-
-				if (comparison == "startsWith" && contextValue.GetFirstValue() is string)
-				{
-					contextValue.Comparison = Comparisons.StringStartsWith;
-					return contextValue;
-				}
-
-				if (comparison == "endsWith" && contextValue.GetFirstValue() is string)
-				{
-					contextValue.Comparison = Comparisons.StringEndsWith;
-					return contextValue;
-				}
-
-				if (comparison == "notEqual" && (
-						contextValue.GetFirstValue() is int ||
-						contextValue.GetFirstValue() is DateTime))
-				{
-					contextValue.Comparison = Comparisons.NotEqual;
-					return contextValue;
-				}
-
-				if (comparison == "greaterThan" && (
-						contextValue.GetFirstValue() is int ||
-						contextValue.GetFirstValue() is DateTime))
-				{
-					contextValue.Comparison = Comparisons.GreaterThan;
-					return contextValue;
-				}
-
-				if (comparison == "greaterEqualThan" && (
-						contextValue.GetFirstValue() is int ||
-						contextValue.GetFirstValue() is DateTime))
-				{
-					contextValue.Comparison = Comparisons.GreaterEqualThan;
-					return contextValue;
-				}
-
-				if (comparison == "lessThan" && (
-						contextValue.GetFirstValue() is int ||
-						contextValue.GetFirstValue() is DateTime))
-				{
-					contextValue.Comparison = Comparisons.LessThan;
-					return contextValue;
-				}
-
-				if (comparison == "lessEqualThan" && (
-						contextValue.GetFirstValue() is int ||
-						contextValue.GetFirstValue() is DateTime))
-				{
-					contextValue.Comparison = Comparisons.LessEqualThan;
-					return contextValue;
-				}
-				throw new NotImplementedException($"Comparison: {comparison} is not implemented for type {contextValue.GetFirstValue().GetType().Name}.");
-			}
-
-			return contextValue;
 		}
 
 		public static string GetKey<T>(this T item)

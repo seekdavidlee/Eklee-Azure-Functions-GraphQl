@@ -5,6 +5,7 @@ using System.Security;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Eklee.Azure.Functions.GraphQl.Connections;
+using Eklee.Azure.Functions.GraphQl.Queries;
 using Eklee.Azure.Functions.GraphQl.Repository;
 using Eklee.Azure.Functions.GraphQl.Repository.InMemory;
 using FastMember;
@@ -25,7 +26,7 @@ namespace Eklee.Azure.Functions.GraphQl
 		private readonly QueryExecutor<TSource> _queryExecutor;
 		private readonly IDistributedCache _distributedCache;
 		private readonly ILogger _logger;
-
+		private readonly IModelMemberQueryArgumentProvider _modelMemberQueryArgumentProvider;
 		private readonly QueryParameterBuilder<TSource> _queryParameterBuilder;
 		internal QueryBuilder(ObjectGraphType<object> objectGraphType,
 			string queryName,
@@ -34,7 +35,9 @@ namespace Eklee.Azure.Functions.GraphQl
 			IDistributedCache distributedCache,
 			ILogger logger,
 			IConnectionEdgeHandler connectionEdgeHandler,
-			IInMemoryComparerProvider inMemoryComparerProvider)
+			IInMemoryComparerProvider inMemoryComparerProvider,
+			IModelMemberQueryArgumentProvider modelMemberQueryArgumentProvider,
+			IContextValueResolver contextValueResolver)
 		{
 			_objectGraphType = objectGraphType;
 			_queryName = queryName;
@@ -42,8 +45,8 @@ namespace Eklee.Azure.Functions.GraphQl
 			_queryExecutor = new QueryExecutor<TSource>(graphQlRepositoryProvider, logger, connectionEdgeHandler);
 			_distributedCache = distributedCache;
 			_logger = logger;
-
-			_queryParameterBuilder = new QueryParameterBuilder<TSource>(this, inMemoryComparerProvider);
+			_modelMemberQueryArgumentProvider = modelMemberQueryArgumentProvider;
+			_queryParameterBuilder = new QueryParameterBuilder<TSource>(this, inMemoryComparerProvider, contextValueResolver);
 		}
 
 		private QueryOutput _output;
@@ -180,7 +183,8 @@ namespace Eklee.Azure.Functions.GraphQl
 				case QueryOutput.Single:
 					_objectGraphType.FieldAsync<ModelConventionType<TSource>>(_queryName,
 						description: _description,
-						arguments: _queryParameterBuilder.GetQueryArguments(), resolve: QueryResolver);
+						arguments: _modelMemberQueryArgumentProvider.GetQueryArguments(
+							_queryParameterBuilder.Members), resolve: QueryResolver);
 					break;
 
 				case QueryOutput.List:
@@ -191,14 +195,17 @@ namespace Eklee.Azure.Functions.GraphQl
 						{
 							cb.Description(_description);
 						}
-						_queryParameterBuilder.PopulateWithArguments(cb);
+
+						_modelMemberQueryArgumentProvider.PopulateConnectionBuilder(cb,
+							_queryParameterBuilder.Members);
 						cb.ResolveAsync(ConnectionResolver);
 					}
 					else
 					{
 						_objectGraphType.FieldAsync<ListGraphType<ModelConventionType<TSource>>>(_queryName,
 							description: _description,
-							arguments: _queryParameterBuilder.GetQueryArguments(), resolve: QueryResolver);
+							arguments: _modelMemberQueryArgumentProvider.GetQueryArguments(
+								_queryParameterBuilder.Members), resolve: QueryResolver);
 					}
 
 					break;

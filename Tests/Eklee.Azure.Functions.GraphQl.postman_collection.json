@@ -858,7 +858,145 @@
 						"body": {
 							"mode": "graphql",
 							"graphql": {
-								"query": "query {\r\n  searchWithAggregate(searchtext:{equal:\"ryan\"}){\r\n    results {\r\n      id\r\n      field\r\n    }\r\n    aggregates {\r\n      fieldName\r\n      fieldAggregates {\r\n        count\r\n        value\r\n      }\r\n    }\r\n  }\r\n}",
+								"query": "query {\r\n  searchWithAggregate(searchtext:{equal:\"ryan\"}, filters:[ ]){\r\n    results {\r\n      id\r\n      field\r\n    }\r\n    aggregates {\r\n      fieldName\r\n      fieldAggregates {\r\n        count\r\n        value\r\n      }\r\n    }\r\n  }\r\n}",
+								"variables": ""
+							}
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/testsearch/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"testsearch",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "SearchWithAggregateFilter_NotEqual",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Found Model\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    var searchWithAggregate = jsonData.data.searchWithAggregate;",
+									"    ",
+									"    pm.expect(searchWithAggregate.results.length).to.eql(2);",
+									"    ",
+									"    var found = searchWithAggregate.aggregates.filter(x=>x.fieldName === \"FieldTwo\")[0];",
+									"    ",
+									"    var noKaty = found.fieldAggregates.filter(fa=> fa.value === \"katy\");",
+									"    pm.expect(noKaty.length).to.eql(0);",
+									"",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query {\r\n  searchWithAggregate(searchtext:{equal:\"orange\"},filters:[\r\n    {\r\n      fieldName:\"FieldTwo\"\r\n      fieldValue:\"katy\"\r\n      comparison:notequal\r\n    }\r\n  ]){\r\n    results {\r\n      id\r\n      field\r\n    }\r\n    aggregates {\r\n      fieldName\r\n      fieldAggregates {\r\n        count\r\n        value\r\n      }\r\n    }\r\n  }\r\n}",
+								"variables": ""
+							}
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/testsearch/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"testsearch",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "SearchWithAggregateFilter_Equal",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Found Model\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    var searchWithAggregate = jsonData.data.searchWithAggregate;",
+									"    ",
+									"    pm.expect(searchWithAggregate.results.length).to.eql(2);",
+									"    ",
+									"    var found = searchWithAggregate.aggregates.filter(x=>x.fieldName === \"FieldTwo\")[0];",
+									"    ",
+									"    var hasKaty = found.fieldAggregates.filter(fa=> fa.value === \"katy\");",
+									"    pm.expect(hasKaty.length).to.eql(1);",
+									"",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query {\r\n  searchWithAggregate(searchtext:{equal:\"orange\"},filters:[\r\n    {\r\n      fieldName:\"FieldTwo\"\r\n      fieldValue:\"katy\"\r\n      comparison:equal\r\n    }\r\n  ]){\r\n    results {\r\n      id\r\n      field\r\n    }\r\n    aggregates {\r\n      fieldName\r\n      fieldAggregates {\r\n        count\r\n        value\r\n      }\r\n    }\r\n  }\r\n}",
 								"variables": ""
 							}
 						},

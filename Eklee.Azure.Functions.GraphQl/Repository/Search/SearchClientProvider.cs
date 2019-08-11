@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
+using Eklee.Azure.Functions.GraphQl.Queries;
 using Eklee.Azure.Functions.GraphQl.Repository.DocumentDb;
 using FastMember;
 using Microsoft.Azure.Search;
@@ -73,12 +75,14 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 				var isSearchable = x.Type == typeof(string);
 				var isKey = x.GetAttribute(typeof(KeyAttribute), false) != null;
 				var isFacetable = x.GetAttribute(typeof(IsFacetableAttribute), false) != null;
+				var isFilterable = x.GetAttribute(typeof(IsFilterableAttribute), false) != null;
 
 				var field = new Field(x.Name, type)
 				{
 					IsKey = isKey,
 					IsSearchable = !isKey && isSearchable,
-					IsFacetable = isFacetable
+					IsFacetable = isFacetable,
+					IsFilterable = isFilterable
 				};
 
 				return field;
@@ -221,12 +225,52 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 
 			var searchTextParam = queryParameters.Single(x => x.MemberModel.Name == "searchtext");
 
+			if (enableAggregate)
+			{
+				searchParameters.Filter = FiltersIfAny(queryParameters, members);
+			}
+
 			var results = await client.Documents.SearchAsync((string)searchTextParam.ContextValue.GetFirstValue(), searchParameters);
 
 			searchResult.AddValues(accessor, results);
 			searchResult.AddFacets(results);
 
 			return searchResult;
+		}
+
+		private string FiltersIfAny(IEnumerable<QueryParameter> queryParameters, MemberSet members)
+		{
+			var filterQp = queryParameters.SingleOrDefault(x => x.MemberModel.Name == "filters");
+			if (filterQp != null && filterQp.ContextValue != null)
+			{
+				var sb = new StringBuilder();
+				filterQp.ContextValue.Values.ForEach(value =>
+				{
+					var searchFilterModel = (SearchFilterModel)value;
+
+					var member = members.Single(x => x.Name.ToLower() == searchFilterModel.FieldName.ToLower());
+					sb.Append($"{member.Name} {GetComparison(searchFilterModel.Comprison)} '{searchFilterModel.Value}' and ");
+				});
+
+				return sb.ToString().TrimEnd("and ".ToCharArray());
+			}
+
+			return null;
+		}
+
+		private string GetComparison(Comparisons comparison)
+		{
+			switch (comparison)
+			{
+				case Comparisons.Equal:
+					return Constants.ODataEqual;
+
+				case Comparisons.NotEqual:
+					return Constants.ODataNotEqual;
+
+				default:
+					throw new NotImplementedException($"Comparison {comparison} is not yet implemented.");
+			}
 		}
 
 		public async Task DeleteAllAsync<T>(IGraphRequestContext graphRequestContext) where T : class

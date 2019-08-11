@@ -13,23 +13,43 @@ namespace Eklee.Azure.Functions.GraphQl
 		private readonly List<Type> _searchTypes = new List<Type>();
 		private readonly QueryStepBuilder<TSource, SearchModel> _queryStepBuilder;
 
+		/// <summary>
+		/// Constructor for SearchQueryBuilder.
+		/// </summary>
+		/// <param name="queryStepBuilder">QueryStepBuilder.</param>
 		public SearchQueryBuilder(QueryStepBuilder<TSource, SearchModel> queryStepBuilder)
 		{
 			_queryStepBuilder = queryStepBuilder;
 		}
 
+		/// <summary>
+		/// Adds Search model.
+		/// </summary>
+		/// <typeparam name="TSearchModel">Search model.</typeparam>
+		/// <returns>SearchQueryBuilder.</returns>
 		public SearchQueryBuilder<TSource> Add<TSearchModel>()
 		{
 			_searchTypes.Add(typeof(TSearchModel));
 			return this;
 		}
 
+		/// <summary>
+		/// Builds the search query with search aggregations enabled.  
+		/// </summary>
+		/// <remarks>Indicates that we will return search aggregations when we perform searches.</remarks>
+		/// <returns>QueryStepBuilder.</returns>
 		public QueryStepBuilder<TSource, SearchModel> BuildWithAggregate()
 		{
-			_queryStepBuilder.AddStepBagItem(SearchConstants.EnableAggregate, "");
+			// We just need this key to indicate we are enabling aggregating, and do not need a value.
+			_queryStepBuilder.AddStepBagItem(SearchConstants.EnableAggregate, null);
+			_queryStepBuilder.WithProperty(x => x.Filters);
 			return Build();
 		}
 
+		/// <summary>
+		/// Builds the search query.
+		/// </summary>
+		/// <returns>QueryStepBuilder.</returns>
 		public QueryStepBuilder<TSource, SearchModel> Build()
 		{
 			_queryStepBuilder.AddStepBagItem(SearchConstants.QueryTypes, _searchTypes.ToArray());

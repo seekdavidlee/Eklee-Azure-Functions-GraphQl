@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 {
@@ -6,5 +7,8 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 	{
 		[Description("Search text.")]
 		public string SearchText { get; set; }
+
+		[Description("List of filters.")]
+		public List<SearchFilterModel> Filters { get; set; }
 	}
 }

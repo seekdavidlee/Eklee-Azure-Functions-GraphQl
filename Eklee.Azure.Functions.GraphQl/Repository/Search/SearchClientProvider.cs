@@ -197,67 +197,36 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 				new List<IndexAction<T>> { idx }));
 		}
 
-		public async Task<IEnumerable<T>> QueryAsync<T>(IEnumerable<QueryParameter> queryParameters, Type type, IGraphRequestContext graphRequestContext) where T : class
+		public async Task<SearchResult> QueryAsync<T>(IEnumerable<QueryParameter> queryParameters, Type type, bool enableAggregate, IGraphRequestContext graphRequestContext) where T : class
 		{
+			var searchResult = new SearchResult
+			{
+				Values = new List<SearchResultModel>(),
+				Aggregates = new List<SearchAggregateModel>()
+			};
+
 			var searchResultModels = new List<SearchResultModel>();
 
 			var client = InternalGetInfo(type.Name, graphRequestContext).SearchIndexClient;
 
 			var searchParameters = new SearchParameters();
 
+			TypeAccessor accessor = TypeAccessor.Create(type);
+			var members = accessor.GetMembers();
+
+			if (enableAggregate)
+			{
+				searchParameters.Facets = members.Where(x => x.GetAttribute(typeof(IsFacetableAttribute), false) != null).Select(x => x.Name).ToList();
+			}
+
 			var searchTextParam = queryParameters.Single(x => x.MemberModel.Name == "searchtext");
 
 			var results = await client.Documents.SearchAsync((string)searchTextParam.ContextValue.GetFirstValue(), searchParameters);
 
-			TypeAccessor accessor = TypeAccessor.Create(type);
-			var members = accessor.GetMembers();
-			results.Results.ToList().ForEach(r =>
-			{
-				var item = accessor.CreateNew();
+			searchResult.AddValues(accessor, results);
+			searchResult.AddFacets(results);
 
-				r.Document.ToList().ForEach(d =>
-				{
-					var field = members.Single(x => x.Name == d.Key);
-
-					object value = d.Value;
-
-					if (field.Type == typeof(Guid) && value is string strValue)
-					{
-						value = Guid.Parse(strValue);
-					}
-
-					if (field.Type == typeof(decimal) && value is double dobValue)
-					{
-						value = Convert.ToDecimal(dobValue);
-					}
-
-					if (field.Type == typeof(DateTime) && value is DateTimeOffset dtmValue)
-					{
-						value = dtmValue.DateTime;
-					}
-
-					if (field.Type == typeof(int))
-					{
-						value = Convert.ToInt32(value);
-					}
-
-					if (field.Type == typeof(long))
-					{
-						value = Convert.ToInt64(value);
-					}
-
-					accessor[item, d.Key] = value;
-				});
-
-				var searchResultModel = new SearchResultModel
-				{
-					Score = r.Score,
-					Value = item
-				};
-				searchResultModels.Add(searchResultModel);
-			});
-
-			return searchResultModels.Select(x => x as T).ToList();
+			return searchResult;
 		}
 
 		public async Task DeleteAllAsync<T>(IGraphRequestContext graphRequestContext) where T : class

@@ -13,7 +13,8 @@ namespace Eklee.Azure.Functions.GraphQl
 		public static QueryStep CloneQueryStep(this QueryStep queryStep)
 		{
 			var clone = queryStep.Clone();
-
+			clone.SkipConnectionEdgeCheck = queryStep.SkipConnectionEdgeCheck;
+			clone.OverrideRepositoryWithType = queryStep.OverrideRepositoryWithType;
 			clone.ContextAction = queryStep.ContextAction;
 			clone.Mapper = queryStep.Mapper;
 			clone.InMemoryFilterQueryParameters = queryStep.InMemoryFilterQueryParameters;

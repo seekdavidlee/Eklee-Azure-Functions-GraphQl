@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
-using Eklee.Azure.Functions.GraphQl.Repository.Search;
 using GraphQL.Types;
 using Eklee.Azure.Functions.GraphQl.Connections;
 using Eklee.Azure.Functions.GraphQl.Repository.InMemory;
@@ -26,6 +25,11 @@ namespace Eklee.Azure.Functions.GraphQl
 			{
 				ContextAction = ctx => ctx.SetResults(ctx.GetQueryResults<TSource>())
 			};
+		}
+
+		public string GetQueryBuilderQueryName()
+		{
+			return _queryBuilder.QueryName;
 		}
 
 		public QueryParameterBuilder(QueryBuilder<TSource> queryBuilder, IInMemoryComparerProvider inMemoryComparerProvider)
@@ -137,16 +141,6 @@ namespace Eklee.Azure.Functions.GraphQl
 			return new QueryStepBuilder<TSource, TProperty>(this);
 		}
 
-		public QueryStepBuilder<TSource, SearchModel> BeginSearch(params Type[] searchTypes)
-		{
-			var step = new QueryStepBuilder<TSource, SearchModel>(this);
-			step.WithProperty(x => x.SearchText);
-			step.AddStepBagItem(SearchConstants.QueryTypes, searchTypes);
-			step.AddStepBagItem(SearchConstants.QueryName, _queryBuilder.QueryName);
-			return step;
-		}
-
-
 		public QueryParameterBuilder<TSource> BeginWithProperty<TProperty>(Expression<Func<TProperty, object>> expression,
 			Action<QueryExecutionContext> contextAction)
 		{
@@ -171,19 +165,23 @@ namespace Eklee.Azure.Functions.GraphQl
 			Func<QueryExecutionContext, List<object>> mapper,
 			Action<QueryExecutionContext> contextAction)
 		{
-			Add(new List<Expression<Func<TProperty, object>>> { expression }, mapper, contextAction, null);
+			Add(new List<Expression<Func<TProperty, object>>> { expression }, mapper, contextAction, null, false, null);
 		}
 
 		internal void Add<TProperty>(
 			List<Expression<Func<TProperty, object>>> expressions,
 			Func<QueryExecutionContext, List<object>> mapper,
 			Action<QueryExecutionContext> contextAction,
-			Dictionary<string, object> stepBagItems)
+			Dictionary<string, object> stepBagItems,
+			bool skipConnectionEdgeCheck,
+			Type overrideRepositoryWithType)
 		{
 			var step = new QueryStep
 			{
 				ContextAction = contextAction,
-				Items = stepBagItems
+				Items = stepBagItems,
+				OverrideRepositoryWithType = overrideRepositoryWithType,
+				SkipConnectionEdgeCheck = skipConnectionEdgeCheck
 			};
 
 			if (mapper != null)

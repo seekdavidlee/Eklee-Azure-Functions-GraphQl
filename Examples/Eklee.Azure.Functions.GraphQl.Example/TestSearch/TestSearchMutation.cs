@@ -40,27 +40,27 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestSearch
 			var api = configuration["Search:ApiKey"];
 			var serviceName = configuration["Search:ServiceName"];
 
-			inputBuilderFactory.Create<MySearch>(this)
+			inputBuilderFactory.Create<MySearch1>(this)
 				.DeleteAll(() => new Status { Message = "All MySearch1 searches have been deleted." })
-				.ConfigureSearchWith<MySearch, Model1>()
+				.ConfigureSearchWith<MySearch1, Model1>()
 				.AddApiKey(api)
 				.AddServiceName(serviceName)
 				.AddPrefix("lcl1")
 				.BuildSearch()
 				.Build();
 
-			inputBuilderFactory.Create<MySearch>(this)
+			inputBuilderFactory.Create<MySearch2>(this)
 				.DeleteAll(() => new Status { Message = "All MySearch searches have been deleted." })
-				.ConfigureSearchWith<MySearch, Model2>()
+				.ConfigureSearchWith<MySearch2, Model2>()
 				.AddApiKey(api)
 				.AddServiceName(serviceName)
 				.AddPrefix("lcl1")
 				.BuildSearch()
 				.Build();
 
-			inputBuilderFactory.Create<MySearch>(this)
+			inputBuilderFactory.Create<MySearch3>(this)
 				.DeleteAll(() => new Status { Message = "All MySearch searches have been deleted." })
-				.ConfigureSearchWith<MySearch, Model3V2>()
+				.ConfigureSearchWith<MySearch3, Model3V2>()
 				.AddApiKey(api)
 				.AddServiceName(serviceName)
 				.AddPrefix("lcl1")

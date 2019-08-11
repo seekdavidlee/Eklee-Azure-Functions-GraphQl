@@ -44,11 +44,9 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			// ReSharper disable once PossibleNullReferenceException
 			var sourceType = list.First().MemberModel.SourceType;
 
-			// TODO: This technique is not maintainable in the long round. Let's find a better way.
-			if (sourceType == typeof(SearchModel))
-			{
-				sourceType = typeof(SearchResultModel);
-			}
+			if (queryStep.OverrideRepositoryWithType != null)
+				sourceType = queryStep.OverrideRepositoryWithType;
+
 			MethodInfo generic = method.MakeGenericMethod(sourceType);
 
 			var task = (Task)generic.Invoke(repo, new object[] { queryName, list, queryStep.Items, graphRequestContext });

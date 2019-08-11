@@ -119,7 +119,8 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.TableStorage
 
 		private TableStorageInfo InternalGet<T>(IGraphRequestContext graphRequestContext)
 		{
-			var infos = _tableStorageInfos.Where(x => x.Id == typeof(T).Name).ToList();
+			var name = typeof(T).Name;
+			var infos = _tableStorageInfos.Where(x => x.Id == name).ToList();
 			if (infos.Count == 1 && infos.Single().RequestContextSelector == null)
 				return infos.Single();
 

@@ -42,13 +42,13 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestSearch
 					var search2 = searches.GetTypeList<MySearch2>();
 					var search3 = searches.GetTypeList<MySearch3>();
 
-					ctx.Items["search1"] = search1;
+					//ctx.Items["search1"] = search1;
 					ctx.Items["search1IdList"] = search1.Select(x => (object)x.Id).ToList();
 
-					ctx.Items["search2"] = search1;
+					//ctx.Items["search2"] = search1;
 					ctx.Items["search2IdList"] = search2.Select(x => (object)x.Id).ToList();
 
-					ctx.Items["search3"] = search1;
+					//ctx.Items["search3"] = search1;
 					ctx.Items["search3IdList"] = search3.Select(x => (object)x.Id).ToList();
 				})
 				.ThenWithQuery<Model1>()
@@ -79,10 +79,10 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestSearch
 					currentResults.AddRange(x.GetResults<MySearchResult>());
 					x.SetResults(currentResults);
 				})
-				.ThenWithQuery<Model3>()
+				.ThenWithQuery<Model3V2>()
 				.WithPropertyFromSource(x => x.Id, ctx => (List<object>)ctx.Items["search3IdList"]).BuildQueryResult(x =>
 				{
-					var results = x.GetQueryResults<Model3>();
+					var results = x.GetQueryResults<Model3V2>();
 					var currentResults = results.Select(r => new MySearchResult
 					{
 						DateField = r.DateField,
@@ -95,6 +95,44 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestSearch
 					x.SetResults(currentResults);
 				})
 				.BuildQuery().BuildWithListResult();
+
+			queryBuilderFactory.Create<MySearchResult2>(this, "searchWithAggregate", "Searches across Models.")
+				.WithCache(TimeSpan.FromSeconds(10))
+				.WithParameterBuilder()
+				.BeginSearch()
+					.Add<MySearch3>()
+					.BuildWithAggregate()
+				.BuildQueryResult(ctx =>
+				{
+					var searches = ctx.GetSystemItems<SearchResult>();
+					var output = new MySearchResult2();
+
+					var idList = new List<string>();
+					searches.ForEach(search =>
+					{
+						idList.AddRange(search.Values.Select(y => ((MySearch3)y.Value).Id));
+						output.Aggregates.AddRange(search.Aggregates);
+					});
+
+					ctx.Items["Output"] = output;
+					ctx.Items["search3IdList"] = idList.Select(id => (object)id).ToList();
+				})
+				.ThenWithQuery<Model3V2>()
+				.WithPropertyFromSource(x => x.Id, ctx => (List<object>)ctx.Items["search3IdList"]).BuildQueryResult(ctx =>
+				{
+					var results = ctx.GetQueryResults<Model3V2>();
+					var output = (MySearchResult2)ctx.Items["Output"];
+					output.Results = results.Select(r => new MySearchResult
+					{
+						DateField = r.DateField,
+						DoubleField = r.DoubleField,
+						Field = r.Field,
+						Id = r.Id,
+						IntField = r.IntField
+					}).ToList();
+
+					ctx.SetResults(new List<MySearchResult2> { output });
+				}).BuildQuery().BuildWithSingleResult();
 		}
 	}
 }

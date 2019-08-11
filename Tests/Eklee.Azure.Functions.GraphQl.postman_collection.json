@@ -805,6 +805,78 @@
 					"response": []
 				},
 				{
+					"name": "SearchWithAggregate",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Found Model\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    var searchWithAggregate = jsonData.data.searchWithAggregate;",
+									"    ",
+									"    pm.expect(searchWithAggregate.results.length).to.eql(4);",
+									"    pm.expect(searchWithAggregate.aggregates.length).to.eql(3);",
+									"    ",
+									"    var found =searchWithAggregate.aggregates.filter(x=>x.fieldName === \"FieldTwo\")[0];",
+									"    ",
+									"    pm.expect(found.fieldAggregates.length).to.eql(1);",
+									"    ",
+									"    pm.expect(found.fieldAggregates[0].count).to.eql(4);",
+									"    pm.expect(found.fieldAggregates[0].value).to.eql(\"ryan\");",
+									"",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query {\r\n  searchWithAggregate(searchtext:{equal:\"ryan\"}){\r\n    results {\r\n      id\r\n      field\r\n    }\r\n    aggregates {\r\n      fieldName\r\n      fieldAggregates {\r\n        count\r\n        value\r\n      }\r\n    }\r\n  }\r\n}",
+								"variables": ""
+							}
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/testsearch/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"testsearch",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "CleanupModel1",
 					"event": [
 						{
@@ -917,7 +989,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "mutation {\r\n  deleteAllModel3{\r\n    message\r\n  }\r\n}"
+							"raw": "mutation {\r\n  deleteAllModel3V2{\r\n    message\r\n  }\r\n}"
 						},
 						"url": {
 							"raw": "{{endpoint}}/api/testsearch/graph",
@@ -928,6 +1000,49 @@
 								"api",
 								"testsearch",
 								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteSearchIndexes",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "799fd824-64d9-479e-8fa5-e310b87b1259",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "mutation {\r\n  deleteAllModel3{\r\n    message\r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/searchIndexes",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"searchIndexes"
 							]
 						}
 					},
@@ -6571,6 +6686,49 @@
 								"api",
 								"books",
 								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteSearchIndexesForBooks",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "799fd824-64d9-479e-8fa5-e310b87b1259",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "mutation {\r\n  deleteAllModel3{\r\n    message\r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/searchIndexes",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"searchIndexes"
 							]
 						}
 					},

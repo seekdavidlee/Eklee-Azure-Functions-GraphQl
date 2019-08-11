@@ -97,7 +97,6 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestSearch
 				.BuildQuery().BuildWithListResult();
 
 			queryBuilderFactory.Create<MySearchResult2>(this, "searchWithAggregate", "Searches across Models.")
-				.WithCache(TimeSpan.FromSeconds(10))
 				.WithParameterBuilder()
 				.BeginSearch()
 					.Add<MySearch3>()

@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Eklee.Azure.Functions.Http" Version="0.8.3" />
+    <PackageReference Include="Eklee.Azure.Functions.Http" Version="0.8.4" />
     <PackageReference Include="FastMember" Version="1.5.0" />
     <PackageReference Include="GraphQL" Version="2.4.0" />
     <PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.5.1" />

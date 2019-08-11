@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Eklee.Azure.Functions.GraphQl.Queries;
 using Eklee.Azure.Functions.GraphQl.Repository.DocumentDb;
+using Eklee.Azure.Functions.GraphQl.Repository.Search.Filters;
 using FastMember;
 using Microsoft.Azure.Search;
 using Microsoft.Azure.Search.Models;
@@ -25,11 +24,14 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 	public class SearchClientProvider
 	{
 		private readonly SearchServiceClient _searchServiceClient;
+		private readonly ISearchFilterProvider _searchFilterProvider;
 		private readonly ILogger _logger;
 		private readonly List<SearchClientProviderInfo> _searchClientProviderInfos = new List<SearchClientProviderInfo>();
 
-		public SearchClientProvider(ILogger logger, string serviceName, string key)
+		public SearchClientProvider(ISearchFilterProvider searchFilterProvider,
+			ILogger logger, string serviceName, string key)
 		{
+			_searchFilterProvider = searchFilterProvider;
 			_logger = logger;
 			var searchCredentials = new SearchCredentials(key);
 			_searchServiceClient = new SearchServiceClient(serviceName, searchCredentials);
@@ -227,7 +229,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 
 			if (enableAggregate)
 			{
-				searchParameters.Filter = FiltersIfAny(queryParameters, members);
+				searchParameters.Filter = _searchFilterProvider.GenerateStringFilter(queryParameters, members);
 			}
 
 			var results = await client.Documents.SearchAsync((string)searchTextParam.ContextValue.GetFirstValue(), searchParameters);
@@ -236,41 +238,6 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 			searchResult.AddFacets(results);
 
 			return searchResult;
-		}
-
-		private string FiltersIfAny(IEnumerable<QueryParameter> queryParameters, MemberSet members)
-		{
-			var filterQp = queryParameters.SingleOrDefault(x => x.MemberModel.Name == "filters");
-			if (filterQp != null && filterQp.ContextValue != null)
-			{
-				var sb = new StringBuilder();
-				filterQp.ContextValue.Values.ForEach(value =>
-				{
-					var searchFilterModel = (SearchFilterModel)value;
-
-					var member = members.Single(x => x.Name.ToLower() == searchFilterModel.FieldName.ToLower());
-					sb.Append($"{member.Name} {GetComparison(searchFilterModel.Comprison)} '{searchFilterModel.Value}' and ");
-				});
-
-				return sb.ToString().TrimEnd("and ".ToCharArray());
-			}
-
-			return null;
-		}
-
-		private string GetComparison(Comparisons comparison)
-		{
-			switch (comparison)
-			{
-				case Comparisons.Equal:
-					return Constants.ODataEqual;
-
-				case Comparisons.NotEqual:
-					return Constants.ODataNotEqual;
-
-				default:
-					throw new NotImplementedException($"Comparison {comparison} is not yet implemented.");
-			}
 		}
 
 		public async Task DeleteAllAsync<T>(IGraphRequestContext graphRequestContext) where T : class

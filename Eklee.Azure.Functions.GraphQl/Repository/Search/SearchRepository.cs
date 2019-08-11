@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Eklee.Azure.Functions.GraphQl.Repository.DocumentDb;
+using Eklee.Azure.Functions.GraphQl.Repository.Search.Filters;
 using Microsoft.Extensions.Logging;
 
 namespace Eklee.Azure.Functions.GraphQl.Repository.Search
@@ -10,11 +11,13 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 	public class SearchRepository : IGraphQlRepository
 	{
 		private readonly ILogger _logger;
+		private readonly ISearchFilterProvider _searchFilterProvider;
 		private readonly List<SearchClientProvider> _providers = new List<SearchClientProvider>();
 
-		public SearchRepository(ILogger logger)
+		public SearchRepository(ILogger logger, ISearchFilterProvider searchFilterProvider)
 		{
 			_logger = logger;
+			_searchFilterProvider = searchFilterProvider;
 		}
 
 		public void Configure(Type sourceType, Dictionary<string, object> configurations)
@@ -25,7 +28,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 
 			if (searchClientProvider == null)
 			{
-				searchClientProvider = new SearchClientProvider(_logger, serviceName, configurations.GetStringValue(SearchConstants.ApiKey, sourceType));
+				searchClientProvider = new SearchClientProvider(_searchFilterProvider, _logger, serviceName, configurations.GetStringValue(SearchConstants.ApiKey, sourceType));
 				_providers.Add(searchClientProvider);
 			}
 

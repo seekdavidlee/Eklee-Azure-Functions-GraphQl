@@ -135,12 +135,14 @@ param([switch]$testunit, [switch]$testint, [switch]$skippackage,
 		$func = Get-Process -Name func
 
 		$reportFileName = (Get-Date).ToString("yyyyMMddHHmmss") + ".json"
+		$reportFilePath = "$currentDir\.reports\$reportFileName"
+		New-Item -ItemType Directory -Force -Path "$currentDir\.reports"
 
 		Push-Location Examples\Eklee.Azure.Functions.GraphQl.Example\bin\$buildConfig\netstandard2.0
-		node_modules\.bin\newman run ..\..\..\..\..\tests\Eklee.Azure.Functions.GraphQl.postman_collection.json -e ..\..\..\..\..\tests\Eklee.Azure.Functions.GraphQl.Local.postman_environment.json --reporters cli,json --reporter-json-export "$currentDir\$reportFileName"
+		node_modules\.bin\newman run ..\..\..\..\..\tests\Eklee.Azure.Functions.GraphQl.postman_collection.json -e ..\..\..\..\..\tests\Eklee.Azure.Functions.GraphQl.Local.postman_environment.json --reporters cli,json --reporter-json-export $reportFilePath
 		Pop-Location
 
-		$report = (Get-Content "$currentDir\$reportFileName" | Out-String | ConvertFrom-Json)	
+		$report = (Get-Content $reportFilePath | Out-String | ConvertFrom-Json)	
 
 		$failures = $report.run.failures.length
 		Write-Host "Failures: $failures"
@@ -178,7 +180,7 @@ param([switch]$testunit, [switch]$testint, [switch]$skippackage,
 			Remove-Item $currentDir\LICENSE.txt
 
 			if ($reportFileName) {
-				Remove-Item $currentDir\$reportFileName
+				Remove-Item $reportFilePath
 			}
 		}
 	}

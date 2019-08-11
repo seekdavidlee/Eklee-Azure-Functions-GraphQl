@@ -8,5 +8,6 @@
 		public const string QueryName = "QueryName";
 		public const string Prefix = "Prefix";
 		public const string RequestContextSelector = "RequestContextSelector";
+		public const string EnableAggregate = "EnableAggregate";
 	}
 }

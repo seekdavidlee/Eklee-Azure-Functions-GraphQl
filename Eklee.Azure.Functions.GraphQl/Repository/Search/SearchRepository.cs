@@ -60,19 +60,23 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 		public async Task<IEnumerable<T>> QueryAsync<T>(string queryName, IEnumerable<QueryParameter> queryParameters,
 			Dictionary<string, object> stepBagItems, IGraphRequestContext graphRequestContext) where T : class
 		{
-			List<SearchResultModel> searchResultModels = new List<SearchResultModel>();
+			var searchResult = new List<SearchResult>();
 			var searchTypes = (Type[])stepBagItems[SearchConstants.QueryTypes];
 			var queryParametersList = queryParameters.ToList();
+
+			var enableAggregate = stepBagItems.ContainsKey(SearchConstants.EnableAggregate);
 
 			foreach (var searchType in searchTypes)
 			{
 				var provider = _providers.Single(x => x.CanHandle(searchType.Name, graphRequestContext));
-				var results = await provider.QueryAsync<SearchResultModel>(queryParametersList, searchType, graphRequestContext);
-				searchResultModels.AddRange(results);
+
+				var result = await provider.QueryAsync<SearchResultModel>(
+					queryParametersList, searchType, enableAggregate, graphRequestContext);
+
+				searchResult.Add(result);
 			}
 
-			var res = searchResultModels.Select(x => x as T).ToList();
-			return res;
+			return searchResult.Select(x => x as T).ToList();
 		}
 
 		public async Task DeleteAllAsync<T>(IGraphRequestContext graphRequestContext) where T : class

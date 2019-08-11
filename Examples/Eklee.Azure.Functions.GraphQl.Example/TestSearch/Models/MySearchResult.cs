@@ -16,10 +16,8 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestSearch.Models
 		[Description("DoubleField")]
 		public double DoubleField { get; set; }
 
-
 		[Description("DateField")]
 		public DateTime DateField { get; set; }
-
 
 		[Description("Field")]
 		public string Field { get; set; }

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Eklee.Azure.Functions.GraphQl.Connections;
 using Eklee.Azure.Functions.GraphQl.Repository;
-using Eklee.Azure.Functions.GraphQl.Repository.Search;
 using Microsoft.Extensions.Logging;
 
 namespace Eklee.Azure.Functions.GraphQl
@@ -87,13 +86,8 @@ namespace Eklee.Azure.Functions.GraphQl
 		{
 			var results = (await _graphQlRepositoryProvider.QueryAsync(queryName, queryStep, graphRequestContext)).ToList();
 
-			if (results.Count > 0)
+			if (!queryStep.SkipConnectionEdgeCheck && results.Count > 0)
 			{
-				if (results.First().GetType() == typeof(SearchResultModel))
-				{
-					return results;
-				}
-
 				await _connectionEdgeHandler.QueryAsync(results, queryStep, graphRequestContext);
 			}
 			return results;

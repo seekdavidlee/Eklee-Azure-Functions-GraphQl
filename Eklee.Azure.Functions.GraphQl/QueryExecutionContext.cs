@@ -18,7 +18,20 @@ namespace Eklee.Azure.Functions.GraphQl
 			return _queryResults.Select(x => (TItem)x).ToList();
 		}
 
+		/// <summary>
+		/// Consumers may use items to store their custom objects across each context processing steps.
+		/// </summary>
 		public Dictionary<string, object> Items = new Dictionary<string, object>();
+
+		/// <summary>
+		/// System items are specific entities created as a result of internal process.
+		/// </summary>
+		internal Dictionary<string, object> SystemItems = new Dictionary<string, object>();
+
+		public List<TItem> GetSystemItems<TItem>()
+		{
+			return (List<TItem>)SystemItems[typeof(TItem).FullName];
+		}
 
 		public List<TItem> GetItems<TItem>(string key)
 		{

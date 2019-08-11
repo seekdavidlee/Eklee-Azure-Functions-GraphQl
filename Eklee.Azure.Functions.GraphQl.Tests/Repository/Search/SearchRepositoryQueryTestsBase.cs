@@ -180,7 +180,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.Search
 			Thread.Sleep(1000);
 		}
 
-		protected async Task<IEnumerable<SearchResultModel>> SearchAsync(
+		protected async Task<IEnumerable<SearchResult>> SearchAsync(
 			string searchText, TimeSpan timeout, int expectedCount, params Type[] types)
 		{
 			var type = typeof(SearchModel);
@@ -193,12 +193,12 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.Search
 				[SearchConstants.QueryTypes] = types
 			};
 
-			List<SearchResultModel> results = new List<SearchResultModel>();
+			var results = new List<SearchResult>();
 			DateTime start = DateTime.UtcNow;
 
 			while (results.Count == 0)
 			{
-				results = (await SearchRepository.QueryAsync<SearchResultModel>("test1", new[]
+				results = (await SearchRepository.QueryAsync<SearchResult>("test1", new[]
 				{
 					new QueryParameter
 					{

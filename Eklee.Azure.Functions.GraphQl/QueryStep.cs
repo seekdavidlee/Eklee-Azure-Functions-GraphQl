@@ -13,6 +13,10 @@ namespace Eklee.Azure.Functions.GraphQl
 
 		public DateTime? Started { get; set; }
 
+		public bool SkipConnectionEdgeCheck { get; set; }
+
+		public Type OverrideRepositoryWithType { get; set; }
+
 		[JsonIgnore]
 		public Action<QueryExecutionContext> ContextAction { get; set; }
 

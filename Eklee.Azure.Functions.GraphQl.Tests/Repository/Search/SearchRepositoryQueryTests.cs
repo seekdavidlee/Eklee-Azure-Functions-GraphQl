@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using Eklee.Azure.Functions.GraphQl.Repository.Search;
 using Shouldly;
 using Xunit;
 
@@ -36,8 +38,11 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.Search
 		{
 			await SeedAsync();
 
-			var results = (await SearchAsync("American",
+			var searchResults = (await SearchAsync("American",
 				TimeSpan.FromSeconds(30), 3, typeof(SearchBook), typeof(SearchReviewer))).ToList();
+
+			var results = new List<SearchResultModel>();
+			searchResults.ForEach(sr => results.AddRange(sr.Values));
 
 			results.Count.ShouldBe(3);
 
@@ -57,8 +62,11 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.Search
 		{
 			await SeedAsync();
 
-			var results = (await SearchAsync("Art",
+			var searchResults = (await SearchAsync("Art",
 				TimeSpan.FromSeconds(30), 2, typeof(SearchBook), typeof(SearchReviewer))).ToList();
+
+			var results = new List<SearchResultModel>();
+			searchResults.ForEach(sr => results.AddRange(sr.Values));
 
 			results.Count.ShouldBe(2);
 
@@ -78,8 +86,11 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.Search
 		{
 			await SeedAsync();
 
-			var results = (await SearchAsync("World",
+			var searchResults = (await SearchAsync("World",
 				TimeSpan.FromSeconds(30), 2, typeof(SearchBook), typeof(SearchReviewer))).ToList();
+
+			var results = new List<SearchResultModel>();
+			searchResults.ForEach(sr => results.AddRange(sr.Values));
 
 			results.Count.ShouldBe(1);
 			var sb = (SearchBook)results[0].Value;

@@ -32,6 +32,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentat
 		Documentation\Mutations.md = Documentation\Mutations.md
 		Documentation\Nuget.md = Documentation\Nuget.md
 		Documentation\Queries.md = Documentation\Queries.md
+		Searches.md = Searches.md
 		Documentation\Tracing.md = Documentation\Tracing.md
 		Documentation\Validations.md = Documentation\Validations.md
 	EndProjectSection

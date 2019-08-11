@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
+using Eklee.Azure.Functions.GraphQl.Queries;
 using Eklee.Azure.Functions.GraphQl.Repository.DocumentDb;
 using FastMember;
 using Microsoft.Azure.Search;
@@ -72,11 +74,15 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 				DataType type = GetDataType(x.Type);
 				var isSearchable = x.Type == typeof(string);
 				var isKey = x.GetAttribute(typeof(KeyAttribute), false) != null;
+				var isFacetable = x.GetAttribute(typeof(IsFacetableAttribute), false) != null;
+				var isFilterable = x.GetAttribute(typeof(IsFilterableAttribute), false) != null;
 
 				var field = new Field(x.Name, type)
 				{
 					IsKey = isKey,
-					IsSearchable = !isKey && isSearchable
+					IsSearchable = !isKey && isSearchable,
+					IsFacetable = isFacetable,
+					IsFilterable = isFilterable
 				};
 
 				return field;
@@ -195,67 +201,76 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 				new List<IndexAction<T>> { idx }));
 		}
 
-		public async Task<IEnumerable<T>> QueryAsync<T>(IEnumerable<QueryParameter> queryParameters, Type type, IGraphRequestContext graphRequestContext) where T : class
+		public async Task<SearchResult> QueryAsync<T>(IEnumerable<QueryParameter> queryParameters, Type type, bool enableAggregate, IGraphRequestContext graphRequestContext) where T : class
 		{
+			var searchResult = new SearchResult
+			{
+				Values = new List<SearchResultModel>(),
+				Aggregates = new List<SearchAggregateModel>()
+			};
+
 			var searchResultModels = new List<SearchResultModel>();
 
 			var client = InternalGetInfo(type.Name, graphRequestContext).SearchIndexClient;
 
 			var searchParameters = new SearchParameters();
 
+			TypeAccessor accessor = TypeAccessor.Create(type);
+			var members = accessor.GetMembers();
+
+			if (enableAggregate)
+			{
+				searchParameters.Facets = members.Where(x => x.GetAttribute(typeof(IsFacetableAttribute), false) != null).Select(x => x.Name).ToList();
+			}
+
 			var searchTextParam = queryParameters.Single(x => x.MemberModel.Name == "searchtext");
+
+			if (enableAggregate)
+			{
+				searchParameters.Filter = FiltersIfAny(queryParameters, members);
+			}
 
 			var results = await client.Documents.SearchAsync((string)searchTextParam.ContextValue.GetFirstValue(), searchParameters);
 
-			TypeAccessor accessor = TypeAccessor.Create(type);
-			var members = accessor.GetMembers();
-			results.Results.ToList().ForEach(r =>
+			searchResult.AddValues(accessor, results);
+			searchResult.AddFacets(results);
+
+			return searchResult;
+		}
+
+		private string FiltersIfAny(IEnumerable<QueryParameter> queryParameters, MemberSet members)
+		{
+			var filterQp = queryParameters.SingleOrDefault(x => x.MemberModel.Name == "filters");
+			if (filterQp != null && filterQp.ContextValue != null)
 			{
-				var item = accessor.CreateNew();
-
-				r.Document.ToList().ForEach(d =>
+				var sb = new StringBuilder();
+				filterQp.ContextValue.Values.ForEach(value =>
 				{
-					var field = members.Single(x => x.Name == d.Key);
+					var searchFilterModel = (SearchFilterModel)value;
 
-					object value = d.Value;
-
-					if (field.Type == typeof(Guid) && value is string strValue)
-					{
-						value = Guid.Parse(strValue);
-					}
-
-					if (field.Type == typeof(decimal) && value is double dobValue)
-					{
-						value = Convert.ToDecimal(dobValue);
-					}
-
-					if (field.Type == typeof(DateTime) && value is DateTimeOffset dtmValue)
-					{
-						value = dtmValue.DateTime;
-					}
-
-					if (field.Type == typeof(int))
-					{
-						value = Convert.ToInt32(value);
-					}
-
-					if (field.Type == typeof(long))
-					{
-						value = Convert.ToInt64(value);
-					}
-
-					accessor[item, d.Key] = value;
+					var member = members.Single(x => x.Name.ToLower() == searchFilterModel.FieldName.ToLower());
+					sb.Append($"{member.Name} {GetComparison(searchFilterModel.Comprison)} '{searchFilterModel.Value}' and ");
 				});
 
-				var searchResultModel = new SearchResultModel
-				{
-					Score = r.Score,
-					Value = item
-				};
-				searchResultModels.Add(searchResultModel);
-			});
+				return sb.ToString().TrimEnd("and ".ToCharArray());
+			}
 
-			return searchResultModels.Select(x => x as T).ToList();
+			return null;
+		}
+
+		private string GetComparison(Comparisons comparison)
+		{
+			switch (comparison)
+			{
+				case Comparisons.Equal:
+					return Constants.ODataEqual;
+
+				case Comparisons.NotEqual:
+					return Constants.ODataNotEqual;
+
+				default:
+					throw new NotImplementedException($"Comparison {comparison} is not yet implemented.");
+			}
 		}
 
 		public async Task DeleteAllAsync<T>(IGraphRequestContext graphRequestContext) where T : class

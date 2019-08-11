@@ -99,6 +99,7 @@ Once we have completed these steps, we are ready to start running the Azure HTTP
 - [Query Caching](Documentation/Caching.md)
 - [Model Validation](Documentation/Validations.md)
 - [Connecting Models](Documentation/Connections.md)
+- [Search with Aggregations](Documentation/Searches.md)
 
 # Recommanded tools:
 

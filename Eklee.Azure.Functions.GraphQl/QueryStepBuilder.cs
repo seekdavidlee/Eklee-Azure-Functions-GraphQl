@@ -32,9 +32,25 @@ namespace Eklee.Azure.Functions.GraphQl
 			return this;
 		}
 
+		private Action<QueryExecutionContext> _contextAction;
+
+		/// <summary>
+		/// Add interceptor for when we fire off the QueryExecutionContext so we can first transform
+		/// the result before presenting to the consumer.
+		/// </summary>
+		/// <param name="contextAction">Context action to perform.</param>
+		internal void AddQueryExecutionContextInterceptor(Action<QueryExecutionContext> contextAction)
+		{
+			_contextAction = contextAction;
+		}
+
 		public QueryParameterBuilder<TSource> BuildQueryResult(Action<QueryExecutionContext> contextAction)
 		{
-			_builder.Add(_expressions, _mapper, contextAction, _stepBagItems);
+			_builder.Add(_expressions, _mapper, ctx =>
+			{
+				_contextAction?.Invoke(ctx);
+				contextAction(ctx);
+			}, _stepBagItems, _skipConnectionEdgeCheck, _overrideRepositoryWithType);
 
 			return _builder;
 		}
@@ -42,6 +58,23 @@ namespace Eklee.Azure.Functions.GraphQl
 		internal void AddStepBagItem(string key, object value)
 		{
 			_stepBagItems.Add(key, value);
+		}
+
+		private bool _skipConnectionEdgeCheck;
+		private Type _overrideRepositoryWithType;
+
+		/// <summary>
+		/// After a search is performed, we would also perform a check on the type for
+		/// connection edge settings so we can populate the appropriate fields.
+		/// </summary>
+		public void DisableConnectionEdgeCheck()
+		{
+			_skipConnectionEdgeCheck = true;
+		}
+
+		public void OverrideRepositoryTypeWith<TOverride>()
+		{
+			_overrideRepositoryWithType = typeof(TOverride);
 		}
 	}
 }

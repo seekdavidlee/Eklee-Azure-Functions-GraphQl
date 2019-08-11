@@ -1,5 +1,4 @@
-﻿using Eklee.Azure.Functions.GraphQl.Connections;
-using Eklee.Azure.Functions.GraphQl.Example.Models;
+﻿using Eklee.Azure.Functions.GraphQl.Example.Models;
 using Eklee.Azure.Functions.GraphQl.Example.TestSearch.Models;
 using GraphQL.Types;
 using Microsoft.Extensions.Configuration;
@@ -30,8 +29,8 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestSearch
 				.DeleteAll(() => new Status { Message = "All Model2 have been removed." })
 				.Build();
 
-			inputBuilderFactory.Create<Model3>(this)
-				.ConfigureTableStorage<Model3>()
+			inputBuilderFactory.Create<Model3V2>(this)
+				.ConfigureTableStorage<Model3V2>()
 				.AddConnectionString(conn)
 				.AddPartition(x => x.Field)
 				.BuildTableStorage()
@@ -41,27 +40,27 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestSearch
 			var api = configuration["Search:ApiKey"];
 			var serviceName = configuration["Search:ServiceName"];
 
-			inputBuilderFactory.Create<MySearch>(this)
+			inputBuilderFactory.Create<MySearch1>(this)
 				.DeleteAll(() => new Status { Message = "All MySearch1 searches have been deleted." })
-				.ConfigureSearchWith<MySearch, Model1>()
+				.ConfigureSearchWith<MySearch1, Model1>()
 				.AddApiKey(api)
 				.AddServiceName(serviceName)
 				.AddPrefix("lcl1")
 				.BuildSearch()
 				.Build();
 
-			inputBuilderFactory.Create<MySearch>(this)
-				.DeleteAll(() => new Status { Message = "All MySearch1 searches have been deleted." })
-				.ConfigureSearchWith<MySearch, Model2>()
+			inputBuilderFactory.Create<MySearch2>(this)
+				.DeleteAll(() => new Status { Message = "All MySearch searches have been deleted." })
+				.ConfigureSearchWith<MySearch2, Model2>()
 				.AddApiKey(api)
 				.AddServiceName(serviceName)
 				.AddPrefix("lcl1")
 				.BuildSearch()
 				.Build();
 
-			inputBuilderFactory.Create<MySearch>(this)
-				.DeleteAll(() => new Status { Message = "All MySearch1 searches have been deleted." })
-				.ConfigureSearchWith<MySearch, Model3>()
+			inputBuilderFactory.Create<MySearch3>(this)
+				.DeleteAll(() => new Status { Message = "All MySearch searches have been deleted." })
+				.ConfigureSearchWith<MySearch3, Model3V2>()
 				.AddApiKey(api)
 				.AddServiceName(serviceName)
 				.AddPrefix("lcl1")

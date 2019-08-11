@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
-using Eklee.Azure.Functions.GraphQl.Repository.Search;
 using GraphQL.Types;
 using Eklee.Azure.Functions.GraphQl.Connections;
 using Eklee.Azure.Functions.GraphQl.Repository.InMemory;
+using Eklee.Azure.Functions.GraphQl.Queries;
 
 namespace Eklee.Azure.Functions.GraphQl
 {
@@ -15,6 +15,7 @@ namespace Eklee.Azure.Functions.GraphQl
 	{
 		private readonly QueryBuilder<TSource> _queryBuilder;
 		private readonly IInMemoryComparerProvider _inMemoryComparerProvider;
+		private readonly IContextValueResolver _contextValueResolver;
 		private readonly ModelConvention<TSource> _modelConvention = new ModelConvention<TSource>();
 		private readonly List<ModelMember> _modelMemberList = new List<ModelMember>();
 		private readonly List<QueryStep> _querySteps = new List<QueryStep>();
@@ -28,10 +29,18 @@ namespace Eklee.Azure.Functions.GraphQl
 			};
 		}
 
-		public QueryParameterBuilder(QueryBuilder<TSource> queryBuilder, IInMemoryComparerProvider inMemoryComparerProvider)
+		public string GetQueryBuilderQueryName()
+		{
+			return _queryBuilder.QueryName;
+		}
+
+		public QueryParameterBuilder(QueryBuilder<TSource> queryBuilder,
+			IInMemoryComparerProvider inMemoryComparerProvider,
+			IContextValueResolver contextValueResolver)
 		{
 			_queryBuilder = queryBuilder;
 			_inMemoryComparerProvider = inMemoryComparerProvider;
+			_contextValueResolver = contextValueResolver;
 			_queryStep = NewQueryStep();
 		}
 
@@ -71,7 +80,8 @@ namespace Eklee.Azure.Functions.GraphQl
 
 				queryStep.QueryParameters.ForEach(qsqp =>
 				{
-					qsqp.ContextValue = context.GetContextValue(qsqp.MemberModel, qsqp.Rule);
+					qsqp.ContextValue = _contextValueResolver.GetContextValue(context,
+						qsqp.MemberModel, qsqp.Rule);
 				});
 				return new List<QueryStep> { queryStep };
 			}
@@ -90,23 +100,25 @@ namespace Eklee.Azure.Functions.GraphQl
 					else
 					{
 						if (queryParameter.ContextValue == null)
-							queryParameter.ContextValue = context.GetContextValue(queryParameter.MemberModel, queryParameter.Rule);
+							queryParameter.ContextValue = _contextValueResolver.GetContextValue(context,
+								queryParameter.MemberModel, queryParameter.Rule);
 					}
 				});
 
 				if (queryStep.InMemoryFilterQueryParameters != null)
 				{
 					queryStep.InMemoryFilterQueryParameters.ForEach(queryParameter =>
-						queryParameter.ContextValue = context.GetContextValue(queryParameter.MemberModel, queryParameter.Rule));
+						queryParameter.ContextValue = _contextValueResolver.GetContextValue(context,
+						queryParameter.MemberModel, queryParameter.Rule));
 				}
 			});
 
 			return clonedList;
 		}
 
-		public void ForEach(Action<ModelMember> action)
+		public List<ModelMember> Members
 		{
-			_modelMemberList.ForEach(action);
+			get { return _modelMemberList; }
 		}
 
 		public QueryParameterBuilder<TSource> WithProperty(Expression<Func<TSource, object>> expression, bool isOptional = false)
@@ -137,16 +149,6 @@ namespace Eklee.Azure.Functions.GraphQl
 			return new QueryStepBuilder<TSource, TProperty>(this);
 		}
 
-		public QueryStepBuilder<TSource, SearchModel> BeginSearch(params Type[] searchTypes)
-		{
-			var step = new QueryStepBuilder<TSource, SearchModel>(this);
-			step.WithProperty(x => x.SearchText);
-			step.AddStepBagItem(SearchConstants.QueryTypes, searchTypes);
-			step.AddStepBagItem(SearchConstants.QueryName, _queryBuilder.QueryName);
-			return step;
-		}
-
-
 		public QueryParameterBuilder<TSource> BeginWithProperty<TProperty>(Expression<Func<TProperty, object>> expression,
 			Action<QueryExecutionContext> contextAction)
 		{
@@ -171,19 +173,23 @@ namespace Eklee.Azure.Functions.GraphQl
 			Func<QueryExecutionContext, List<object>> mapper,
 			Action<QueryExecutionContext> contextAction)
 		{
-			Add(new List<Expression<Func<TProperty, object>>> { expression }, mapper, contextAction, null);
+			Add(new List<Expression<Func<TProperty, object>>> { expression }, mapper, contextAction, null, false, null);
 		}
 
 		internal void Add<TProperty>(
 			List<Expression<Func<TProperty, object>>> expressions,
 			Func<QueryExecutionContext, List<object>> mapper,
 			Action<QueryExecutionContext> contextAction,
-			Dictionary<string, object> stepBagItems)
+			Dictionary<string, object> stepBagItems,
+			bool skipConnectionEdgeCheck,
+			Type overrideRepositoryWithType)
 		{
 			var step = new QueryStep
 			{
 				ContextAction = contextAction,
-				Items = stepBagItems
+				Items = stepBagItems,
+				OverrideRepositoryWithType = overrideRepositoryWithType,
+				SkipConnectionEdgeCheck = skipConnectionEdgeCheck
 			};
 
 			if (mapper != null)

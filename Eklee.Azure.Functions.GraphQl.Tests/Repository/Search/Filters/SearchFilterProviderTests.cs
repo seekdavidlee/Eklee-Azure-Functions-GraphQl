@@ -9,11 +9,6 @@ using Xunit;
 
 namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.Search.Filters
 {
-	public class MockItem
-	{
-		public int IntValue { get; set; }
-		public string StringValue { get; set; }
-	}
 
 	[Trait(Constants.Category, Constants.UnitTests)]
 	public class SearchFilterProviderTests
@@ -101,8 +96,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.Search.Filters
 				}
 			});
 
-			var sp = GetSearchFilterProviderWithFilters();
-			sp.GenerateStringFilter(_queryParams, _members).ShouldNotBeNullOrEmpty();
+			var searchFilterProvider = GetSearchFilterProviderWithFilters();
+			searchFilterProvider.GenerateStringFilter(_queryParams, _members).ShouldNotBeNullOrEmpty();
 		}
 	}
 }

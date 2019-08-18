@@ -16,9 +16,20 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 					 new SearchAggregateModel
 					 {
 						 FieldName = f.Key,
-						 FieldAggregates = f.Value.Select(v => new FieldAggregateModel { Count = Convert.ToInt32(v.Count), Value = (string)v.Value }).ToList()
+						 FieldAggregates = f.Value.Select(v => new FieldAggregateModel { Count = Convert.ToInt32(v.Count), Value = GetFacetStringValue(v) }).ToList()
 					 }).ToList();
 			}
+		}
+
+		private static string GetFacetStringValue(FacetResult result)
+		{
+			if (result.Value is string strVal)
+				return strVal;
+
+			if (result.Value is DateTimeOffset dtoffVal)
+				return dtoffVal.ToString("yyyy-MM-dd");
+
+			return result.Value.ToString();
 		}
 
 		public static void AddValues(this SearchResult searchResult, TypeAccessor typeAccessor, DocumentSearchResult<Document> results)

@@ -826,12 +826,12 @@
 									"    pm.response.to.have.status(200);",
 									"});",
 									"",
+									"var jsonData = pm.response.json();",
+									"var searchWithAggregate = jsonData.data.searchWithAggregate;",
+									"",
 									"pm.test(\"Found Model\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    var searchWithAggregate = jsonData.data.searchWithAggregate;",
-									"    ",
 									"    pm.expect(searchWithAggregate.results.length).to.eql(4);",
-									"    pm.expect(searchWithAggregate.aggregates.length).to.eql(3);",
+									"    pm.expect(searchWithAggregate.aggregates.length).to.eql(6);",
 									"    ",
 									"    var found =searchWithAggregate.aggregates.filter(x=>x.fieldName === \"FieldTwo\")[0];",
 									"    ",
@@ -877,7 +877,7 @@
 					"response": []
 				},
 				{
-					"name": "SearchWithAggregateFilter_NotEqual",
+					"name": "SearchWithAggregateFilter_StringNotEqual",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -946,7 +946,7 @@
 					"response": []
 				},
 				{
-					"name": "SearchWithAggregateFilter_Equal",
+					"name": "SearchWithAggregateFilter_StringEqual",
 					"event": [
 						{
 							"listen": "prerequest",
@@ -997,6 +997,465 @@
 							"mode": "graphql",
 							"graphql": {
 								"query": "query {\r\n  searchWithAggregate(searchtext:{equal:\"orange\"},filters:[\r\n    {\r\n      fieldName:\"FieldTwo\"\r\n      fieldValue:\"katy\"\r\n      comparison:equal\r\n    }\r\n  ]){\r\n    results {\r\n      id\r\n      field\r\n    }\r\n    aggregates {\r\n      fieldName\r\n      fieldAggregates {\r\n        count\r\n        value\r\n      }\r\n    }\r\n  }\r\n}",
+								"variables": ""
+							}
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/testsearch/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"testsearch",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "SearchWithAggregateFilter_IntEqual",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"var searchWithAggregate = jsonData.data.searchWithAggregate;",
+									"",
+									"pm.test(\"Finds 1 search result.\", function () {",
+									"    pm.expect(searchWithAggregate.results.length).to.eql(1);",
+									"    var item = searchWithAggregate.results[0];",
+									"    pm.expect(item.id).to.eql(\"model3_5\");    ",
+									"});",
+									"",
+									"pm.test(\"IntField search aggregate is correct.\", function () {",
+									"    var found = searchWithAggregate.aggregates.filter(x=>x.fieldName === \"IntField\")[0];",
+									"    ",
+									"    pm.expect(found.fieldAggregates.length).to.eql(1);",
+									"    ",
+									"    var agg = found.fieldAggregates.filter(fa=> fa.value === \"88\");",
+									"    pm.expect(agg.length).to.eql(1);",
+									"",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query {\r\n  searchWithAggregate(searchtext:{equal:\"orange\"},filters:[\r\n    {\r\n      fieldName:\"intField\"\r\n      fieldValue:\"88\"\r\n      comparison:equal\r\n    }\r\n  ]){\r\n    results {\r\n      id\r\n      field\r\n    }\r\n    aggregates {\r\n      fieldName\r\n      fieldAggregates {\r\n        count\r\n        value\r\n      }\r\n    }\r\n  }\r\n}",
+								"variables": ""
+							}
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/testsearch/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"testsearch",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "SearchWithAggregateFilter_IntNotEqual",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"var searchWithAggregate = jsonData.data.searchWithAggregate;",
+									"",
+									"pm.test(\"Found Model\", function () {",
+									"",
+									"    pm.expect(searchWithAggregate.results.length).to.eql(3);",
+									"    ",
+									"    var item = searchWithAggregate.results.filter(x=>x.id === \"model3_6\");",
+									"    pm.expect(item.length).to.eql(1);",
+									"    ",
+									"    item = searchWithAggregate.results.filter(x=>x.id === \"model3_7\");",
+									"    pm.expect(item.length).to.eql(1);",
+									"    item = searchWithAggregate.results.filter(x=>x.id === \"model3_8\");",
+									"    pm.expect(item.length).to.eql(1);",
+									"    ",
+									"    var found = searchWithAggregate.aggregates.filter(x=>x.fieldName === \"IntField\")[0];",
+									"    ",
+									"    pm.expect(found.fieldAggregates.length).to.eql(3);",
+									"",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query {\r\n  searchWithAggregate(searchtext:{equal:\"orange\"},filters:[\r\n    {\r\n      fieldName:\"intField\"\r\n      fieldValue:\"88\"\r\n      comparison:notequal\r\n    }\r\n  ]){\r\n    results {\r\n      id\r\n      field\r\n    }\r\n    aggregates {\r\n      fieldName\r\n      fieldAggregates {\r\n        count\r\n        value\r\n      }\r\n    }\r\n  }\r\n}",
+								"variables": ""
+							}
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/testsearch/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"testsearch",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "SearchWithAggregateFilter_IntGreaterThan",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"var searchWithAggregate = jsonData.data.searchWithAggregate;",
+									"",
+									"pm.test(\"Finds 1 search result.\", function () {",
+									"    pm.expect(searchWithAggregate.results.length).to.eql(1);",
+									"    ",
+									"    var item = searchWithAggregate.results[0];",
+									"    pm.expect(item.id).to.eql(\"model3_5\");",
+									"});",
+									"",
+									"pm.test(\"IntField search aggregate is correct.\", function () {",
+									"    var found = searchWithAggregate.aggregates.filter(x=>x.fieldName === \"IntField\")[0];",
+									"    var agg = found.fieldAggregates.filter(fa=> fa.value === \"88\");",
+									"    pm.expect(agg.length).to.eql(1);    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query {\r\n  searchWithAggregate(searchtext:{equal:\"orange\"},filters:[\r\n    {\r\n      fieldName:\"intField\"\r\n      fieldValue:\"76\"\r\n      comparison:greaterthan\r\n    }\r\n  ]){\r\n    results {\r\n      id\r\n      field\r\n    }\r\n    aggregates {\r\n      fieldName\r\n      fieldAggregates {\r\n        count\r\n        value\r\n      }\r\n    }\r\n  }\r\n}",
+								"variables": ""
+							}
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/testsearch/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"testsearch",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "SearchWithAggregateFilter_IntGreaterEqualThan",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"var searchWithAggregate = jsonData.data.searchWithAggregate;",
+									"    ",
+									"pm.test(\"Finds 2 search results.\", function () {",
+									"",
+									"    pm.expect(searchWithAggregate.results.length).to.eql(2);",
+									"    ",
+									"    var item = searchWithAggregate.results.filter(x=>x.id === \"model3_5\");",
+									"    pm.expect(item.length).to.eql(1);",
+									"    item = searchWithAggregate.results.filter(x=>x.id === \"model3_6\");",
+									"    pm.expect(item.length).to.eql(1);",
+									"});",
+									"",
+									"pm.test(\"IntField search aggregate is correct.\", function () {",
+									"    var found = searchWithAggregate.aggregates.filter(x=>x.fieldName === \"IntField\")[0];",
+									"    pm.expect(found.fieldAggregates.length).to.eql(2);",
+									"    ",
+									"    var agg = found.fieldAggregates.filter(fa=> fa.value === \"88\");",
+									"    pm.expect(agg.length).to.eql(1);",
+									"    agg = found.fieldAggregates.filter(fa=> fa.value === \"76\");",
+									"    pm.expect(agg.length).to.eql(1);   ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query {\r\n  searchWithAggregate(searchtext:{equal:\"orange\"},filters:[\r\n    {\r\n      fieldName:\"intField\"\r\n      fieldValue:\"76\"\r\n      comparison:greaterequalthan\r\n    }\r\n  ]){\r\n    results {\r\n      id\r\n      field\r\n    }\r\n    aggregates {\r\n      fieldName\r\n      fieldAggregates {\r\n        count\r\n        value\r\n      }\r\n    }\r\n  }\r\n}",
+								"variables": ""
+							}
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/testsearch/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"testsearch",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "SearchWithAggregateFilter_IntLessThan",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"var searchWithAggregate = jsonData.data.searchWithAggregate;",
+									"    ",
+									"pm.test(\"Finds 1 search result.\", function () {",
+									"",
+									"    pm.expect(searchWithAggregate.results.length).to.eql(1);",
+									"    ",
+									"    var item = searchWithAggregate.results.filter(x=>x.id === \"model3_7\");",
+									"    pm.expect(item.length).to.eql(1);",
+									"});",
+									"",
+									"pm.test(\"IntField search aggregate is correct.\", function () {",
+									"    var found = searchWithAggregate.aggregates.filter(x=>x.fieldName === \"IntField\")[0];",
+									"    pm.expect(found.fieldAggregates.length).to.eql(1);",
+									"    ",
+									"    var agg = found.fieldAggregates.filter(fa=> fa.value === \"11\");",
+									"    pm.expect(agg.length).to.eql(1);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query {\r\n  searchWithAggregate(searchtext:{equal:\"orange\"},filters:[\r\n    {\r\n      fieldName:\"intField\"\r\n      fieldValue:\"43\"\r\n      comparison:lessthan\r\n    }\r\n  ]){\r\n    results {\r\n      id\r\n      field\r\n    }\r\n    aggregates {\r\n      fieldName\r\n      fieldAggregates {\r\n        count\r\n        value\r\n      }\r\n    }\r\n  }\r\n}",
+								"variables": ""
+							}
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/testsearch/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"testsearch",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "SearchWithAggregateFilter_IntLessEqualThan",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"var searchWithAggregate = jsonData.data.searchWithAggregate;",
+									"    ",
+									"pm.test(\"Finds 2 search results.\", function () {",
+									"",
+									"    pm.expect(searchWithAggregate.results.length).to.eql(2);",
+									"    ",
+									"    var item = searchWithAggregate.results.filter(x=>x.id === \"model3_7\");",
+									"    pm.expect(item.length).to.eql(1);",
+									"    item = searchWithAggregate.results.filter(x=>x.id === \"model3_8\");",
+									"    pm.expect(item.length).to.eql(1);    ",
+									"});",
+									"",
+									"pm.test(\"IntField search aggregate is correct.\", function () {",
+									"    var found = searchWithAggregate.aggregates.filter(x=>x.fieldName === \"IntField\")[0];",
+									"    pm.expect(found.fieldAggregates.length).to.eql(2);",
+									"    ",
+									"    var agg = found.fieldAggregates.filter(fa=> fa.value === \"11\" && fa.count === 1);",
+									"    pm.expect(agg.length).to.eql(1);",
+									"    agg = found.fieldAggregates.filter(fa=> fa.value === \"43\" && fa.count === 1);",
+									"    pm.expect(agg.length).to.eql(1);    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query {\r\n  searchWithAggregate(searchtext:{equal:\"orange\"},filters:[\r\n    {\r\n      fieldName:\"intField\"\r\n      fieldValue:\"43\"\r\n      comparison:lessequalthan\r\n    }\r\n  ]){\r\n    results {\r\n      id\r\n      field\r\n    }\r\n    aggregates {\r\n      fieldName\r\n      fieldAggregates {\r\n        count\r\n        value\r\n      }\r\n    }\r\n  }\r\n}",
 								"variables": ""
 							}
 						},

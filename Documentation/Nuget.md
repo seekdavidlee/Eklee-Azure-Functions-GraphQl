@@ -1,5 +1,5 @@
 # Introduction
-Eklee-Azure-Functions-GraphQl is a serverless (Azure Function) GraphQL solution using [graphql-dotnet](https://github.com/graphql-dotnet/graphql-dotnet). 
+Eklee-Azure-Functions-GraphQl is a serverless GraphQL implementation built on top of [graphql-dotnet](https://github.com/graphql-dotnet/graphql-dotnet), Azure Functions and several Azure specific services. 
 
 It includes resolvers for:
 

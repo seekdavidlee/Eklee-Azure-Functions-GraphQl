@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Eklee.Azure.Functions.GraphQl.Repository.DocumentDb;
 using Eklee.Azure.Functions.GraphQl.Repository.Search;
+using Eklee.Azure.Functions.GraphQl.Repository.Search.Filters;
 using FastMember;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -23,8 +24,9 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.Search
 		{
 			var searchConfig = LocalConfiguration.Get().GetSection("Search");
 			var logger = Substitute.For<ILogger>();
+			var filter = Substitute.For<ISearchFilterProvider>();
 
-			SearchRepository = new SearchRepository(logger);
+			SearchRepository = new SearchRepository(logger, filter);
 
 			SeedSearchBooks(searchConfig);
 

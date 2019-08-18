@@ -15,6 +15,7 @@ using Eklee.Azure.Functions.GraphQl.Repository.DocumentDb;
 using Eklee.Azure.Functions.GraphQl.Repository.Http;
 using Eklee.Azure.Functions.GraphQl.Repository.InMemory;
 using Eklee.Azure.Functions.GraphQl.Repository.Search;
+using Eklee.Azure.Functions.GraphQl.Repository.Search.Filters;
 using Eklee.Azure.Functions.GraphQl.Repository.TableStorage;
 using Eklee.Azure.Functions.GraphQl.Validations;
 using Eklee.Azure.Functions.Http;
@@ -73,6 +74,10 @@ namespace Eklee.Azure.Functions.GraphQl
 			builder.RegisterType<ModelMemberQueryArgumentProvider>().As<IModelMemberQueryArgumentProvider>().SingleInstance();
 
 			builder.RegisterType<ContextValueResolver>().As<IContextValueResolver>().SingleInstance();
+
+			builder.RegisterType<StringSearchFilter>().As<ISearchFilter>().SingleInstance();
+			builder.RegisterType<IntSearchFilter>().As<ISearchFilter>().SingleInstance();
+			builder.RegisterType<SearchFilterProvider>().As<ISearchFilterProvider>().SingleInstance();
 
 			builder.RegisterType<GraphDependencyResolver>().As<IDependencyResolver>();
 

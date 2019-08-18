@@ -19,5 +19,9 @@
 
 		public const string ODataEqual = "eq";
 		public const string ODataNotEqual = "ne";
+		public const string ODataGreaterThan = "gt";
+		public const string ODataLessThan = "lt";
+		public const string ODataGreaterEqualThan = "ge";
+		public const string ODataLessEqualThan = "le";
 	}
 }

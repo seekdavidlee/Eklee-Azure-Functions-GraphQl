@@ -12,6 +12,7 @@ You can find this library on nuget: [https://www.nuget.org/packages/Eklee.Azure.
 
 ## Example Project(s)
 
+- [Eklee-Azure-Functions-GraphQl-Examples](https://github.com/seekdavidlee/Eklee-Azure-Functions-GraphQl-Examples)
 - [Eklee-Exams-Api](https://github.com/seekdavidlee/Eklee-Exams-Api)
 
 # Getting started

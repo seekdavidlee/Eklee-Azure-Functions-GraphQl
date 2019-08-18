@@ -11,12 +11,18 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestSearch.Models
 		[Description("Id")]
 		public string Id { get; set; }
 
+		[IsFilterable]
+		[IsFacetable]
 		[Description("IntField")]
-		public string IntField { get; set; }
+		public int IntField { get; set; }
 
+		[IsFilterable]
+		[IsFacetable]
 		[Description("DoubleField")]
-		public string DoubleField { get; set; }
+		public double DoubleField { get; set; }
 
+		[IsFilterable]
+		[IsFacetable]
 		[Description("DateField")]
 		public DateTime DateField { get; set; }
 

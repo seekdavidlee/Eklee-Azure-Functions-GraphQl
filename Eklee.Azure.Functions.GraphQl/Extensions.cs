@@ -76,7 +76,7 @@ namespace Eklee.Azure.Functions.GraphQl
 			builder.RegisterType<ContextValueResolver>().As<IContextValueResolver>().SingleInstance();
 
 			builder.RegisterType<StringSearchFilter>().As<ISearchFilter>().SingleInstance();
-			builder.RegisterType<NumericSearchFilter>().As<ISearchFilter>().SingleInstance();
+			builder.RegisterType<IntSearchFilter>().As<ISearchFilter>().SingleInstance();
 			builder.RegisterType<SearchFilterProvider>().As<ISearchFilterProvider>().SingleInstance();
 
 			builder.RegisterType<GraphDependencyResolver>().As<IDependencyResolver>();

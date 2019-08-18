@@ -4,13 +4,11 @@ using System;
 
 namespace Eklee.Azure.Functions.GraphQl.Repository.Search.Filters
 {
-	public class NumericSearchFilter : ISearchFilter
+	public class IntSearchFilter : ISearchFilter
 	{
 		public bool CanHandle(Comparisons comparison, Member member)
 		{
-			return member.Type == typeof(int) || 
-				member.Type == typeof(double) || 
-				member.Type == typeof(DateTime);
+			return member.Type == typeof(int);
 		}
 
 		private string GetComparison(SearchFilterModel searchFilterModel)

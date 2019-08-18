@@ -4,6 +4,9 @@ using System;
 
 namespace Eklee.Azure.Functions.GraphQl.Repository.Search.Filters
 {
+	/// <summary>
+	/// NumericSearchFilter supports int, double and datetime types.
+	/// </summary>
 	public class NumericSearchFilter : ISearchFilter
 	{
 		public bool CanHandle(Comparisons comparison, Member member)

@@ -74,6 +74,5 @@ query {
 }
 ```
 
-## Other notes
-
-* Currently, only the comparison Equal and NotEqual are supported on the filter. We will be adding more shortly.
+## More on Search Filters
+We support the following filtering types: string, double, datetime and int.

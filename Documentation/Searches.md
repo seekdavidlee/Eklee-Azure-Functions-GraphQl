@@ -48,7 +48,14 @@ queryBuilderFactory.Create<MySearchResult2>(this, "searchWithAggregate", "Search
 	}).BuildQuery().BuildWithSingleResult();
 ```
 
-Finally, we will have the ability to show the search aggregates as well as the ability to filter based on the value from search aggregate so that the user can drill down on their search.
+## Search Aggregations Filtering
+
+We can also filter based on the value from search aggregate so that the user can drill down on their search. The following types are supported:
+
+* String (Note that Azure Search supports Equals and Not Equals comparisons. StartsWith, EndsWith and Contains are not supported.)
+* Double
+* Int
+* DateTime
 
 ```
 query {
@@ -73,7 +80,3 @@ query {
   }
 }
 ```
-
-## Other notes
-
-* Currently, only the comparison Equal and NotEqual are supported on the filter. We will be adding more shortly.

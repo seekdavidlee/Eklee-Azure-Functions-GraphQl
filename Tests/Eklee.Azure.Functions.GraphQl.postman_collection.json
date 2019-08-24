@@ -5768,6 +5768,446 @@
 					"response": []
 				},
 				{
+					"name": "QueryModel7UsingModel8Id_Expect1Found",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"var testName = pm.info.requestName + \": \";",
+									"",
+									"pm.test(testName + \"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(testName + \"Has no errors\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.eql(undefined);",
+									"});",
+									"",
+									"pm.test(testName + \"Contains correct JSON payload\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.getModel7WithModel8Id.length).to.eql(1);",
+									"    ",
+									"    var model = jsonData.data.getModel7WithModel8Id[0];",
+									"    pm.expect(model.id).to.eql(\"model7_1\");",
+									"    pm.expect(model.model7ToModel8.id).to.eql(\"model8_1\");",
+									"    pm.expect(model.model7ToModel8.fieldDescription).to.eql(\"model8_1_conn_to_model7_1\");",
+									"    pm.expect(model.model7ToModel8.theModel8.id).to.eql(\"model8_1\");",
+									"    pm.expect(model.model7ToModel8.theModel8.field).to.eql(\"model8_1\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/graphql"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "query{\r\n  getModel7WithModel8Id(destinationid:{ equal:\"model8_1\" }){\r\n  \tid\r\n    field\r\n    model7ToModel8 {\r\n      id\r\n      fieldDescription\r\n      theModel8 {\r\n    \tid\r\n    \tfield\r\n      }\r\n    }\r\n  }\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/teststorage/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"teststorage",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "QueryModel7UsingModel8Id_Expect2Found",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"var testName = pm.info.requestName + \": \";",
+									"",
+									"pm.test(testName + \"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(testName + \"Has no errors\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.eql(undefined);",
+									"});",
+									"",
+									"pm.test(testName + \"Contains correct JSON payload\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.getModel7WithModel8Id.length).to.eql(2);",
+									"    pm.expect(jsonData.data.getModel7WithModel8Id[0].id).to.eql(\"model7_2\");",
+									"    pm.expect(jsonData.data.getModel7WithModel8Id[0].model7ToModel8.id).to.eql(\"model8_2\");",
+									"    ",
+									"    pm.expect(jsonData.data.getModel7WithModel8Id[1].id).to.eql(\"model7_3\");",
+									"    pm.expect(jsonData.data.getModel7WithModel8Id[1].model7ToModel8.id).to.eql(\"model8_2\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/graphql"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "query{\r\n  getModel7WithModel8Id(destinationid:{ equal:\"model8_2\" }){\r\n  \tid\r\n    field\r\n    model7ToModel8 {\r\n      id\r\n    }\r\n  }\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/teststorage/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"teststorage",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "QueryModel7UsingModel8Id_ExpectNoneFound",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"var testName = pm.info.requestName + \": \";",
+									"",
+									"pm.test(testName + \"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(testName + \"Has no errors\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.eql(undefined);",
+									"});",
+									"",
+									"pm.test(testName + \"Contains correct JSON payload\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.getModel7WithModel8Id.length).to.eql(0);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/graphql"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "query{\r\n  getModel7WithModel8Id(destinationid:{ equal:\"model8_55\" }){\r\n  \tid\r\n    field\r\n    model7ToModel8 {\r\n      id\r\n    }\r\n  }\r\n}\r\n"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/teststorage/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"teststorage",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetModel7WithModel8FieldAndConnectionFieldDescription_Expect1Found",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"var testName = pm.info.requestName + \": \";",
+									"",
+									"pm.test(testName + \"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(testName + \"Has no errors\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.eql(undefined);",
+									"});",
+									"",
+									"pm.test(testName + \"Contains correct JSON payload\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.getModel7WithModel8FieldAndConnectionFieldDescription.length).to.eql(1);",
+									"    ",
+									"    var model7_3 = jsonData.data.getModel7WithModel8FieldAndConnectionFieldDescription.filter(function(item){ return item.id === \"model7_3\";  })[0];",
+									"    pm.expect(model7_3.id).to.eql(\"model7_3\");",
+									"    pm.expect(model7_3.field).to.eql(\"model7_3\");",
+									"    pm.expect(model7_3.model7ToModel8.id).to.eql(\"model8_2\");",
+									"    pm.expect(model7_3.model7ToModel8.fieldDescription).to.eql(\"model8_2_conn_to_model7_3\");",
+									"    pm.expect(model7_3.model7ToModel8.theModel8.id).to.eql(\"model8_2\");",
+									"    pm.expect(model7_3.model7ToModel8.theModel8.field).to.eql(\"model8_2\");",
+									"    ",
+									"",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/graphql"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "query {\r\n  getModel7WithModel8FieldAndConnectionFieldDescription(field: {equal:\"model8_2\"},\r\n  fielddescription : {equal:\"model8_2_conn_to_model7_3\"}){\r\n    id\r\n    field\r\n    model7ToModel8 {\r\n      id\r\n      fieldDescription\r\n      theModel8 {\r\n        id\r\n        field\r\n      }\r\n    }\r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/teststorage/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"teststorage",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetModel7WithModel8FieldAndConnectionFieldDescription_Expect1Found_Part2",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"var testName = pm.info.requestName + \": \";",
+									"",
+									"pm.test(testName + \"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(testName + \"Has no errors\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.eql(undefined);",
+									"});",
+									"",
+									"pm.test(testName + \"Contains correct JSON payload\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.getModel7WithModel8FieldAndConnectionFieldDescription.length).to.eql(1);",
+									"    ",
+									"    var model7_2 = jsonData.data.getModel7WithModel8FieldAndConnectionFieldDescription.filter(function(item){ return item.id === \"model7_2\";  })[0];",
+									"    pm.expect(model7_2.id).to.eql(\"model7_2\");",
+									"    pm.expect(model7_2.field).to.eql(\"model7_2\");",
+									"    pm.expect(model7_2.model7ToModel8.id).to.eql(\"model8_2\");",
+									"    pm.expect(model7_2.model7ToModel8.fieldDescription).to.eql(\"model8_2_conn_to_model7_2\");",
+									"    pm.expect(model7_2.model7ToModel8.theModel8.id).to.eql(\"model8_2\");",
+									"    pm.expect(model7_2.model7ToModel8.theModel8.field).to.eql(\"model8_2\");",
+									"    ",
+									"",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/graphql"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "query {\r\n  getModel7WithModel8FieldAndConnectionFieldDescription(field: {equal:\"model8_2\"},\r\n  fielddescription : {equal:\"model8_2_conn_to_model7_2\"}){\r\n    id\r\n    field\r\n    model7ToModel8 {\r\n      id\r\n      fieldDescription\r\n      theModel8 {\r\n        id\r\n        field\r\n      }\r\n    }\r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/teststorage/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"teststorage",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetModel7WithModel8FieldAndConnectionFieldDescription_Expect1Found_Part3",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"var testName = pm.info.requestName + \": \";",
+									"",
+									"pm.test(testName + \"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(testName + \"Has no errors\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.eql(undefined);",
+									"});",
+									"",
+									"pm.test(testName + \"Contains correct JSON payload\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.getModel7WithModel8FieldAndConnectionFieldDescription.length).to.eql(2);",
+									"    ",
+									"    var model7_2 = jsonData.data.getModel7WithModel8FieldAndConnectionFieldDescription.filter(function(item){ return item.id === \"model7_2\";  })[0];",
+									"    pm.expect(model7_2.id).to.eql(\"model7_2\");",
+									"    pm.expect(model7_2.field).to.eql(\"model7_2\");",
+									"    pm.expect(model7_2.model7ToModel8.id).to.eql(\"model8_2\");",
+									"    pm.expect(model7_2.model7ToModel8.fieldDescription).to.eql(\"model8_2_conn_to_model7_2\");",
+									"    pm.expect(model7_2.model7ToModel8.theModel8.id).to.eql(\"model8_2\");",
+									"    pm.expect(model7_2.model7ToModel8.theModel8.field).to.eql(\"model8_2\");",
+									"    ",
+									"    var model7_3 = jsonData.data.getModel7WithModel8FieldAndConnectionFieldDescription.filter(function(item){ return item.id === \"model7_3\";  })[0];",
+									"    pm.expect(model7_3.id).to.eql(\"model7_3\");",
+									"    pm.expect(model7_3.field).to.eql(\"model7_3\");",
+									"    pm.expect(model7_3.model7ToModel8.id).to.eql(\"model8_2\");",
+									"    pm.expect(model7_3.model7ToModel8.fieldDescription).to.eql(\"model8_2_conn_to_model7_3\");",
+									"    pm.expect(model7_3.model7ToModel8.theModel8.id).to.eql(\"model8_2\");",
+									"    pm.expect(model7_3.model7ToModel8.theModel8.field).to.eql(\"model8_2\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/graphql"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "query {\r\n  getModel7WithModel8FieldAndConnectionFieldDescription(field: {equal:\"model8_2\"},\r\n  fielddescription : {startsWith:\"model8_2_conn_to_model7_\"}){\r\n    id\r\n    field\r\n    model7ToModel8 {\r\n      id\r\n      fieldDescription\r\n      theModel8 {\r\n        id\r\n        field\r\n      }\r\n    }\r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/teststorage/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"teststorage",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "CleanupModel7",
 					"event": [
 						{

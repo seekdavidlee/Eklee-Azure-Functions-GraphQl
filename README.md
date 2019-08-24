@@ -107,3 +107,4 @@ Once we have completed these steps, we are ready to start running the Azure HTTP
 - [GraphQL Playground](https://github.com/prisma/graphql-playground/releases): GraphQL IDE that can consume local or remote schema, execute queries and mutations etc.
 - [GraphQL CLI tool](https://github.com/graphql-cli/graphql-cli): Generates a local GraphQL schema file for use with tools such as GraphQL Playground.
 - [Cosmos DB Emulator](https://docs.microsoft.com/en-us/azure/cosmos-db/local-emulator)
+- [Storage Emulator](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-emulator)

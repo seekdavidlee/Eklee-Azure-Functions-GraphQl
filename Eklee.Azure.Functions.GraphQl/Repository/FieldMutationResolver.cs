@@ -235,14 +235,14 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			var items = context.GetArgument<IEnumerable<TSource>>(sourceName).ToList();
 			var ctx = context.UserContext as IGraphRequestContext;
 
-			var batchItems = new Dictionary<Type, List<object>>();
+			var batchItems = new Dictionary<Type, BatchModelList>();
 
 			try
 			{
 				var edges = _connectionEdgeResolver.HandleConnectionEdges(items, (model) =>
 				{
 					var key = model.GetType();
-					List<object> itemsList;
+					BatchModelList itemsList;
 
 					if (batchItems.ContainsKey(key))
 					{
@@ -250,7 +250,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 					}
 					else
 					{
-						itemsList = new List<object>();
+						itemsList = new BatchModelList(key);
 						batchItems[key] = itemsList;
 					}
 
@@ -265,7 +265,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 
 						foreach (var batchItem in batchItems)
 						{
-							await _graphQlRepositoryProvider.GetRepository(batchItem.Key).BatchAddAsync(batchItem.Key, batchItem.Value, ctx);
+							await _graphQlRepositoryProvider.GetRepository(batchItem.Key).BatchAddAsync(batchItem.Key, batchItem.Value.Items, ctx);
 						}
 
 						break;
@@ -276,7 +276,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 
 						foreach (var batchItem in batchItems)
 						{
-							await _graphQlRepositoryProvider.GetRepository(batchItem.Key).BatchAddOrUpdateAsync(batchItem.Key, batchItem.Value, ctx);
+							await _graphQlRepositoryProvider.GetRepository(batchItem.Key).BatchAddOrUpdateAsync(batchItem.Key, batchItem.Value.Items, ctx);
 						}
 						break;
 

@@ -86,7 +86,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.TableStorage
 				if (insert)
 					batchOperations[partitionKey].Insert(Convert(item, partitionKey));
 				else
-					batchOperations[partitionKey].Merge(Convert(item, partitionKey));
+					batchOperations[partitionKey].InsertOrMerge(Convert(item, partitionKey));
 			});
 
 			_logger.LogInformation($"Generated {batchOperations.Count} batch operations for {info.Id}.");
@@ -142,7 +142,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.TableStorage
 		{
 			var info = Get<T>(graphRequestContext);
 
-			await info.Table.ExecuteAsync(TableOperation.Merge(Convert(item, info.PartitionKeyMemberName)));
+			await info.Table.ExecuteAsync(TableOperation.InsertOrMerge(Convert(item, info.PartitionKeyMemberName)));
 		}
 
 		public bool CanHandle<T>(IGraphRequestContext graphRequestContext)

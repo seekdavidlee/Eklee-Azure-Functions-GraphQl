@@ -2457,8 +2457,15 @@
 							"script": {
 								"id": "799fd824-64d9-479e-8fa5-e310b87b1259",
 								"exec": [
-									"pm.test(\"Status code is 200\", function () {",
+									"var testName = pm.info.requestName + \": \";",
+									"",
+									"pm.test(testName + \"Status code is 200\", function () {",
 									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(testName + \"No errors.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.eq(undefined);",
 									"});"
 								],
 								"type": "text/javascript"
@@ -2500,8 +2507,15 @@
 							"script": {
 								"id": "799fd824-64d9-479e-8fa5-e310b87b1259",
 								"exec": [
-									"pm.test(\"Status code is 200\", function () {",
+									"var testName = pm.info.requestName + \": \";",
+									"",
+									"pm.test(testName + \"Status code is 200\", function () {",
 									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(testName + \"No errors.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.eq(undefined);",
 									"});"
 								],
 								"type": "text/javascript"
@@ -2543,8 +2557,15 @@
 							"script": {
 								"id": "799fd824-64d9-479e-8fa5-e310b87b1259",
 								"exec": [
+									"var testName = pm.info.requestName + \": \";",
+									"",
 									"pm.test(\"Status code is 200\", function () {",
 									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(testName + \"No errors.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.eq(undefined);",
 									"});"
 								],
 								"type": "text/javascript"
@@ -4584,9 +4605,18 @@
 							"script": {
 								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
 								"exec": [
-									"pm.test(\"Status code is 200\", function () {",
+									"var testName = pm.info.requestName + \": \";",
+									"",
+									"pm.test(testName + \"Status code is 200\", function () {",
 									"    pm.response.to.have.status(200);",
-									"});"
+									"});",
+									"",
+									"pm.test(testName + \"No errors.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.eq(undefined);",
+									"});",
+									"",
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -4637,8 +4667,15 @@
 							"script": {
 								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
 								"exec": [
+									"var testName = pm.info.requestName + \": \";",
+									"",
 									"pm.test(\"Status code is 200\", function () {",
 									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(testName + \"No errors.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.eq(undefined);",
 									"});"
 								],
 								"type": "text/javascript"
@@ -4690,8 +4727,15 @@
 							"script": {
 								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
 								"exec": [
+									"var testName = pm.info.requestName + \": \";",
+									"",
 									"pm.test(\"Status code is 200\", function () {",
 									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(testName + \"No errors.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.eq(undefined);",
 									"});"
 								],
 								"type": "text/javascript"
@@ -4743,8 +4787,15 @@
 							"script": {
 								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
 								"exec": [
+									"var testName = pm.info.requestName + \": \";",
+									"",
 									"pm.test(\"Status code is 200\", function () {",
 									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(testName + \"No errors.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.eq(undefined);",
 									"});"
 								],
 								"type": "text/javascript"
@@ -4796,8 +4847,15 @@
 							"script": {
 								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
 								"exec": [
+									"var testName = pm.info.requestName + \": \";",
+									"",
 									"pm.test(\"Status code is 200\", function () {",
 									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(testName + \"No errors.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.eq(undefined);",
 									"});"
 								],
 								"type": "text/javascript"
@@ -4849,8 +4907,15 @@
 							"script": {
 								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
 								"exec": [
+									"var testName = pm.info.requestName + \": \";",
+									"",
 									"pm.test(\"Status code is 200\", function () {",
 									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(testName + \"No errors.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.eq(undefined);",
 									"});"
 								],
 								"type": "text/javascript"
@@ -4902,8 +4967,15 @@
 							"script": {
 								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
 								"exec": [
+									"var testName = pm.info.requestName + \": \";",
+									"",
 									"pm.test(\"Status code is 200\", function () {",
 									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(testName + \"No errors.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.eq(undefined);",
 									"});"
 								],
 								"type": "text/javascript"
@@ -4955,8 +5027,15 @@
 							"script": {
 								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
 								"exec": [
+									"var testName = pm.info.requestName + \": \";",
+									"",
 									"pm.test(\"Status code is 200\", function () {",
 									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(testName + \"No errors.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.eq(undefined);",
 									"});"
 								],
 								"type": "text/javascript"
@@ -5071,8 +5150,15 @@
 							"script": {
 								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
 								"exec": [
+									"var testName = pm.info.requestName + \": \";",
+									"",
 									"pm.test(\"Status code is 200\", function () {",
 									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(testName + \"No errors.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.eq(undefined);",
 									"});"
 								],
 								"type": "text/javascript"
@@ -6225,8 +6311,15 @@
 							"script": {
 								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
 								"exec": [
+									"var testName = pm.info.requestName + \": \";",
+									"",
 									"pm.test(\"Status code is 200\", function () {",
 									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(testName + \"No errors.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.eq(undefined);",
 									"});"
 								],
 								"type": "text/javascript"
@@ -6278,8 +6371,15 @@
 							"script": {
 								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
 								"exec": [
+									"var testName = pm.info.requestName + \": \";",
+									"",
 									"pm.test(\"Status code is 200\", function () {",
 									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(testName + \"No errors.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.eq(undefined);",
 									"});"
 								],
 								"type": "text/javascript"

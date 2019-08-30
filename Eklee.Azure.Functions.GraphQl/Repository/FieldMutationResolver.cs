@@ -1,5 +1,4 @@
 ﻿using Eklee.Azure.Functions.GraphQl.Connections;
-using Eklee.Azure.Functions.GraphQl.Repository.Search;
 using GraphQL;
 using GraphQL.Types;
 using Microsoft.Extensions.Logging;
@@ -15,22 +14,20 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 	public class FieldMutationResolver : IFieldMutationResolver
 	{
 		private readonly IGraphQlRepositoryProvider _graphQlRepositoryProvider;
-		private readonly ISearchMappedModels _searchMappedModels;
 		private readonly ILogger _logger;
 		private readonly IConnectionEdgeResolver _connectionEdgeResolver;
-		private readonly IConnectionEdgeHandler _connectionEdgeHandler;
+		private readonly IMutationActionsProvider _mutationActionsProvider;
+
 		public FieldMutationResolver(
 			IGraphQlRepositoryProvider graphQlRepositoryProvider,
-			ISearchMappedModels searchMappedModels,
 			ILogger logger,
 			IConnectionEdgeResolver connectionEdgeResolver,
-			IConnectionEdgeHandler connectionEdgeHandler)
+			IMutationActionsProvider mutationActionsProvider)
 		{
 			_graphQlRepositoryProvider = graphQlRepositoryProvider;
-			_searchMappedModels = searchMappedModels;
 			_logger = logger;
 			_connectionEdgeResolver = connectionEdgeResolver;
-			_connectionEdgeHandler = connectionEdgeHandler;
+			_mutationActionsProvider = mutationActionsProvider;
 		}
 
 		public async Task<List<TSource>> BatchAddAsync<TSource>(ResolveFieldContext<object> context, string sourceName, Func<ClaimsPrincipal, AssertAction, bool> claimsPrincipalAssertion) where TSource : class
@@ -58,27 +55,30 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			AssertWithClaimsPrincipal(AssertAction.Delete, context, claimsPrincipalAssertion);
 			var item = context.GetArgument<TSource>(sourceName);
 
-			await InternalDeleteAsync(context, item, claimsPrincipalAssertion);
+			await InternalDeleteAsync(context, item);
 
 			return item;
 		}
 
-		private async Task InternalDeleteAsync<TSource>(ResolveFieldContext<object> context, TSource item, Func<ClaimsPrincipal, AssertAction, bool> claimsPrincipalAssertion) where TSource : class
+		private async Task InternalDeleteAsync<TSource>(ResolveFieldContext<object> context, TSource item) where TSource : class
 		{
 			try
 			{
 				IGraphRequestContext ctx = context.UserContext as IGraphRequestContext;
 
-				await _connectionEdgeHandler.RemoveEdgeConnections(item, ctx);
+				var mutationActionItem = new MutationActionItem<TSource>
+				{
+					Action = MutationActions.Delete,
+					RequestContext = ctx,
+					Item = item,
+					RepositoryProvider = _graphQlRepositoryProvider
+				};
+
+				await _mutationActionsProvider.HandlePreActions(mutationActionItem);
 
 				await _graphQlRepositoryProvider.GetRepository<TSource>().DeleteAsync(item, ctx);
 
-				if (_searchMappedModels.TryGetMappedSearchType<TSource>(out var mappedSearchType))
-				{
-					var mappedInstance = _searchMappedModels.CreateInstanceFromMap(item);
-					await _graphQlRepositoryProvider.GetRepository(mappedSearchType)
-						.DeleteAsync(mappedSearchType, mappedInstance, ctx);
-				}
+				await _mutationActionsProvider.HandlePostActions(mutationActionItem);
 			}
 			catch (Exception e)
 			{
@@ -97,7 +97,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			var arg = context.GetArgument<TDeleteInput>(sourceName);
 			var item = mapDelete(arg);
 
-			await InternalDeleteAsync(context, item, claimsPrincipalAssertion);
+			await InternalDeleteAsync(context, item);
 
 			return transform(item);
 		}
@@ -111,15 +111,18 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			{
 				var ctx = context.UserContext as IGraphRequestContext;
 
-				await _connectionEdgeHandler.DeleteAllEdgeConnectionsOfType<TSource>(ctx);
+				var mutationActionItem = new MutationActionItem<TSource>
+				{
+					Action = MutationActions.DeleteAll,
+					RequestContext = ctx,
+					RepositoryProvider = _graphQlRepositoryProvider
+				};
+				await _mutationActionsProvider.HandlePreActions(mutationActionItem);
 
 				await _graphQlRepositoryProvider.GetRepository<TSource>().DeleteAllAsync<TSource>(ctx);
 
-				if (_searchMappedModels.TryGetMappedSearchType<TSource>(out var mappedSearchType))
-				{
-					await _graphQlRepositoryProvider.GetRepository(mappedSearchType)
-						.DeleteAllAsync(mappedSearchType, ctx);
-				}
+				await _mutationActionsProvider.HandlePostActions(mutationActionItem);
+
 			}
 			catch (Exception e)
 			{
@@ -137,23 +140,29 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			var item = context.GetArgument<TSource>(sourceName);
 
 			var ctx = context.UserContext as IGraphRequestContext;
+
 			try
 			{
 				var edges = _connectionEdgeResolver.HandleConnectionEdges(item, async (model) =>
 				{
+					var mutationActionItem = new MutationActionItem<TSource>
+					{
+						Action = MutationActions.Create,
+						RequestContext = ctx,
+						ObjectItem = model,
+						RepositoryProvider = _graphQlRepositoryProvider
+					};
+
+					await _mutationActionsProvider.HandlePreActions(mutationActionItem);
+
 					await _graphQlRepositoryProvider.GetRepository(model.GetType())
 						.AddAsync(model.GetType(), model, ctx);
+
+					await _mutationActionsProvider.HandlePostActions(mutationActionItem);
 				});
 
 				if (edges.Count > 0)
 					await _graphQlRepositoryProvider.GetRepository(typeof(ConnectionEdge)).BatchAddAsync(edges, ctx);
-
-				if (_searchMappedModels.TryGetMappedSearchType<TSource>(out var mappedSearchType))
-				{
-					var mappedInstance = _searchMappedModels.CreateInstanceFromMap(item);
-					await _graphQlRepositoryProvider.GetRepository(mappedSearchType)
-						.AddAsync(mappedSearchType, mappedInstance, ctx);
-				}
 			}
 			catch (Exception e)
 			{
@@ -172,20 +181,25 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			{
 				var edges = _connectionEdgeResolver.HandleConnectionEdges(item, async (model) =>
 				{
+					var mutationActionItem = new MutationActionItem<TSource>
+					{
+						Action = MutationActions.CreateOrUpdate,
+						RequestContext = ctx,
+						ObjectItem = model,
+						RepositoryProvider = _graphQlRepositoryProvider
+					};
+
+					await _mutationActionsProvider.HandlePreActions(mutationActionItem);
+
 					await _graphQlRepositoryProvider.GetRepository(model.GetType())
 						.AddOrUpdateAsync(model.GetType(), model, ctx);
+
+					await _mutationActionsProvider.HandlePostActions(mutationActionItem);
 				});
 
 				if (edges.Count > 0)
 					await _graphQlRepositoryProvider.GetRepository(typeof(ConnectionEdge))
 						.BatchAddOrUpdateAsync(edges, ctx);
-
-				if (_searchMappedModels.TryGetMappedSearchType<TSource>(out var mappedSearchType))
-				{
-					var mappedInstance = _searchMappedModels.CreateInstanceFromMap(item);
-					await _graphQlRepositoryProvider.GetRepository(mappedSearchType)
-						.AddAsync(mappedSearchType, mappedInstance, ctx);
-				}
 			}
 			catch (Exception e)
 			{
@@ -200,16 +214,23 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 		{
 			AssertWithClaimsPrincipal(AssertAction.Update, context, claimsPrincipalAssertion);
 			var item = context.GetArgument<TSource>(sourceName);
+			var ctx = context.UserContext as IGraphRequestContext;
+
 			try
 			{
+				var mutationActionItem = new MutationActionItem<TSource>
+				{
+					Action = MutationActions.Update,
+					RequestContext = ctx,
+					Item = item,
+					RepositoryProvider = _graphQlRepositoryProvider
+				};
+
+				await _mutationActionsProvider.HandlePreActions(mutationActionItem);
+
 				await _graphQlRepositoryProvider.GetRepository<TSource>().UpdateAsync(item, context.UserContext as IGraphRequestContext);
 
-				if (_searchMappedModels.TryGetMappedSearchType<TSource>(out var mappedSearchType))
-				{
-					var mappedInstance = _searchMappedModels.CreateInstanceFromMap(item);
-					await _graphQlRepositoryProvider.GetRepository(mappedSearchType)
-						.UpdateAsync(mappedSearchType, mappedInstance, context.UserContext as IGraphRequestContext);
-				}
+				await _mutationActionsProvider.HandlePostActions(mutationActionItem);
 			}
 			catch (Exception e)
 			{
@@ -265,7 +286,19 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 
 						foreach (var batchItem in batchItems)
 						{
+							var mutationActionItem = new MutationActionItem<TSource>
+							{
+								Action = MutationActions.BatchCreate,
+								RequestContext = ctx,
+								ObjectItems = batchItem.Value.Items,
+								RepositoryProvider = _graphQlRepositoryProvider
+							};
+
+							await _mutationActionsProvider.HandlePreActions(mutationActionItem);
+
 							await _graphQlRepositoryProvider.GetRepository(batchItem.Key).BatchAddAsync(batchItem.Key, batchItem.Value.Items, ctx);
+
+							await _mutationActionsProvider.HandlePostActions(mutationActionItem);
 						}
 
 						break;
@@ -276,20 +309,23 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 
 						foreach (var batchItem in batchItems)
 						{
+							var mutationActionItem = new MutationActionItem<TSource>
+							{
+								Action = MutationActions.BatchCreateOrUpdate,
+								RequestContext = ctx,
+								ObjectItems = batchItem.Value.Items,
+								RepositoryProvider = _graphQlRepositoryProvider
+							};
+							await _mutationActionsProvider.HandlePreActions(mutationActionItem);
+
 							await _graphQlRepositoryProvider.GetRepository(batchItem.Key).BatchAddOrUpdateAsync(batchItem.Key, batchItem.Value.Items, ctx);
+
+							await _mutationActionsProvider.HandlePostActions(mutationActionItem);
 						}
 						break;
 
 					default:
 						throw new InvalidOperationException("This internal method is only for batch operations.");
-				}
-
-				if (_searchMappedModels.TryGetMappedSearchType<TSource>(out var mappedSearchType))
-				{
-					var mappedInstances = items.Select(item => Convert.ChangeType(_searchMappedModels.CreateInstanceFromMap(item), mappedSearchType)).ToList();
-
-					await _graphQlRepositoryProvider.GetRepository(mappedSearchType)
-						.BatchAddAsync(mappedSearchType, mappedInstances, ctx);
 				}
 
 				return context.GetArgument<IEnumerable<TSource>>(sourceName).ToList();

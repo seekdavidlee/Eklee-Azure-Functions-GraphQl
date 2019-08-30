@@ -92,14 +92,23 @@ namespace Eklee.Azure.Functions.GraphQl
 
 			builder.RegisterType<FieldMutationResolver>().As<IFieldMutationResolver>();
 			builder.RegisterType<ConnectionEdgeResolver>().As<IConnectionEdgeResolver>();
-			builder.RegisterType<ConnectionEdgeHandler>().As<IConnectionEdgeHandler>();
+			builder.RegisterType<ConnectionEdgeHandler>()
+				.As<IConnectionEdgeHandler>()
+				.As<IMutationPreAction>();
 
 			builder.RegisterType<InMemoryRepository>().As<IGraphQlRepository>().SingleInstance();
 			builder.RegisterType<HttpRepository>().As<IGraphQlRepository>().SingleInstance();
 			builder.RegisterType<DocumentDbRepository>().As<IGraphQlRepository>().SingleInstance();
 			builder.RegisterType<SearchRepository>().As<IGraphQlRepository>().SingleInstance();
-			builder.RegisterType<SearchMappedModels>().As<ISearchMappedModels>().SingleInstance();
+			builder.RegisterType<SearchMappedModels>()
+				.As<ISearchMappedModels>()
+				.As<IMutationPostAction>()
+				.SingleInstance();
 			builder.RegisterType<TableStorageRepository>().As<IGraphQlRepository>().SingleInstance();
+
+			//builder.RegisterType<SearchMappedModels>().As<IMutationPostAction>().SingleInstance();
+			//builder.RegisterType<ConnectionEdgeHandler>().As<IMutationPreAction>().SingleInstance();
+			builder.RegisterType<MutationActionsProvider>().As<IMutationActionsProvider>().SingleInstance();
 
 			builder.RegisterType<GraphQlRepositoryProvider>().As<IGraphQlRepositoryProvider>().SingleInstance();
 			builder.RegisterType<GraphRequestContext>().As<IGraphRequestContext>().InstancePerLifetimeScope();

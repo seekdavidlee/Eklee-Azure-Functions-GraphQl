@@ -152,3 +152,7 @@ inputBuilderFactory.Create<ReviewerSearch>(this)
 ```
 
 The ConfigureSearchWith<TSearchModel,TModel> will allow you to associate a Search Model with an existing Model type.
+
+### Notes
+
+You may also be interested to perform custom actions before or after mutation. Use the (Mutation Actions interface)[MutationActions.md].

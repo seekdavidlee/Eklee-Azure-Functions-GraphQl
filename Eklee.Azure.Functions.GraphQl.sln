@@ -29,6 +29,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentat
 	ProjectSection(SolutionItems) = preProject
 		Documentation\Caching.md = Documentation\Caching.md
 		Documentation\Connections.md = Documentation\Connections.md
+		Documentation\MutationActions.md = Documentation\MutationActions.md
 		Documentation\Mutations.md = Documentation\Mutations.md
 		Documentation\Nuget.md = Documentation\Nuget.md
 		Documentation\Queries.md = Documentation\Queries.md

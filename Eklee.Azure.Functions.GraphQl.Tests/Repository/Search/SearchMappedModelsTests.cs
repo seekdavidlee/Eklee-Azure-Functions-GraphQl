@@ -91,7 +91,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.Search
 		{
 			_searchMappedModels.Map<MyTestFooSearch, MyTestFoo>();
 
-			var o = (MyTestFooSearch)_searchMappedModels.CreateInstanceFromMap(new MyTestFoo { Id = "foo", Name = "foo 1", Age = 33, Cost = 34.67M, Created = new DateTime(2014, 1, 13) });
+			var o = (MyTestFooSearch)_searchMappedModels.CreateInstanceFromMap(new MyTestFoo { Id = "foo", Name = "foo 1", Age = 33, Cost = 34.67M, Created = new DateTime(2014, 1, 13) },
+				typeof(MyTestFoo).Name);
 			o.Name.ShouldBe("foo 1");
 			o.Age.ShouldBe(33);
 			o.Cost.ShouldBe(34.67M);
@@ -105,7 +106,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.Search
 		{
 			_searchMappedModels.Map<Model1SearchWithLess, Model1WithMore>();
 
-			var o = (Model1SearchWithLess)_searchMappedModels.CreateInstanceFromMap(new Model1WithMore { Id = "foo 45", Name = "foo 3331", Counter = 33, Categories = new List<string> { "1", "2" } });
+			var o = (Model1SearchWithLess)_searchMappedModels.CreateInstanceFromMap(new Model1WithMore { Id = "foo 45", Name = "foo 3331", Counter = 33, Categories = new List<string> { "1", "2" } },
+				typeof(Model1WithMore).Name);
 			o.Id.ShouldBe("foo 45");
 			o.Name.ShouldBe("foo 3331");
 		}
@@ -115,7 +117,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.Search
 		{
 			_searchMappedModels.Map<Model2SearchWithOnlyStringFields, Model2WithNoneStringFields>();
 
-			var o = (Model2SearchWithOnlyStringFields)_searchMappedModels.CreateInstanceFromMap(new Model2WithNoneStringFields { Id = "foo5511", Name = "foo 41", Counter = 32423, Price = 3245.99 });
+			var o = (Model2SearchWithOnlyStringFields)_searchMappedModels.CreateInstanceFromMap(new Model2WithNoneStringFields { Id = "foo5511", Name = "foo 41", Counter = 32423, Price = 3245.99 },
+				typeof(Model2WithNoneStringFields).Name);
 			o.Id.ShouldBe("foo5511");
 			o.Name.ShouldBe("foo 41");
 			o.Counter.ShouldBe("32423");

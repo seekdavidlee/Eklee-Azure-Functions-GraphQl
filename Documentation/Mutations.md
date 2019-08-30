@@ -155,4 +155,4 @@ The ConfigureSearchWith<TSearchModel,TModel> will allow you to associate a Searc
 
 ### Notes
 
-You may also be interested to perform custom actions before or after mutation. Use the (Mutation Actions interface)[MutationActions.md].
+You may also be interested to perform custom actions before or after mutation. Use the [Mutation Actions interface](MutationActions.md).

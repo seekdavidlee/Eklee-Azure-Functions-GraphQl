@@ -101,6 +101,7 @@ Once we have completed these steps, we are ready to start running the Azure HTTP
 - [Model Validation](Documentation/Validations.md)
 - [Connecting Models](Documentation/Connections.md)
 - [Search with Aggregations](Documentation/Searches.md)
+- [Mutation lifecycle hooks](Documentation/MutationActions.md)
 
 # Recommanded tools:
 

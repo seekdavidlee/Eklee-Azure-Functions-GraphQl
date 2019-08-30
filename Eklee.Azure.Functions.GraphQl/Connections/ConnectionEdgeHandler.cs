@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Eklee.Azure.Functions.GraphQl.Connections
 {
-	public class ConnectionEdgeHandler : IConnectionEdgeHandler
+	public class ConnectionEdgeHandler : IConnectionEdgeHandler, IMutationPreAction
 	{
 		private readonly IGraphQlRepositoryProvider _graphQlRepositoryProvider;
 		private readonly IConnectionEdgeResolver _connectionEdgeResolver;
@@ -210,6 +210,24 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 				ContextValue = new ContextValue { Comparison = Comparisons.Equal, Values = new List<object> { typeof(T).AssemblyQualifiedName } },
 				MemberModel = new ModelMember(member.Type, accessor, member, false)
 			} };
+		}
+
+		public async Task TryHandlePreItem<TSource>(MutationActionItem<TSource> mutationActionItem)
+		{
+			switch (mutationActionItem.Action)
+			{
+				case MutationActions.Delete:
+					await RemoveEdgeConnections(mutationActionItem.Item, mutationActionItem.RequestContext);
+					break;
+
+				case MutationActions.DeleteAll:
+					await DeleteAllEdgeConnectionsOfType<TSource>(mutationActionItem.RequestContext);
+					break;
+
+				default:
+					// Do nothing. We are not handling.
+					break;
+			}
 		}
 	}
 }

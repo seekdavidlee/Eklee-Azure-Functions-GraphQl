@@ -134,15 +134,15 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.TableStorage
 		public async Task AddAsync<T>(T item, IGraphRequestContext graphRequestContext) where T : class
 		{
 			var info = Get<T>(graphRequestContext);
-
-			await info.Table.ExecuteAsync(TableOperation.Insert(Convert(item, info.PartitionKeyMemberName)));
+			var partitionKey = item.GetMemberStringValue(info.PartitionKeyMemberName);
+			await info.Table.ExecuteAsync(TableOperation.Insert(Convert(item, partitionKey)));
 		}
 
 		public async Task AddOrUpdateAsync<T>(T item, IGraphRequestContext graphRequestContext) where T : class
 		{
 			var info = Get<T>(graphRequestContext);
-
-			await info.Table.ExecuteAsync(TableOperation.InsertOrMerge(Convert(item, info.PartitionKeyMemberName)));
+			var partitionKey = item.GetMemberStringValue(info.PartitionKeyMemberName);
+			await info.Table.ExecuteAsync(TableOperation.InsertOrMerge(Convert(item, partitionKey)));
 		}
 
 		public bool CanHandle<T>(IGraphRequestContext graphRequestContext)
@@ -153,15 +153,15 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.TableStorage
 		public async Task UpdateAsync<T>(T item, IGraphRequestContext graphRequestContext) where T : class
 		{
 			var info = Get<T>(graphRequestContext);
-
-			await info.Table.ExecuteAsync(TableOperation.Replace(Convert(item, info.PartitionKeyMemberName)));
+			var partitionKey = item.GetMemberStringValue(info.PartitionKeyMemberName);
+			await info.Table.ExecuteAsync(TableOperation.Replace(Convert(item, partitionKey)));
 		}
 
 		public async Task DeleteAsync<T>(T item, IGraphRequestContext graphRequestContext) where T : class
 		{
 			var info = Get<T>(graphRequestContext);
-
-			await info.Table.ExecuteAsync(TableOperation.Delete(Convert(item, info.PartitionKeyMemberName)));
+			var partitionKey = item.GetMemberStringValue(info.PartitionKeyMemberName);
+			await info.Table.ExecuteAsync(TableOperation.Delete(Convert(item, partitionKey)));
 		}
 
 		public async Task DeleteAllAsync<T>(IGraphRequestContext graphRequestContext) where T : class

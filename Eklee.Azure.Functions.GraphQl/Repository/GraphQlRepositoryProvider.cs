@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using Eklee.Azure.Functions.GraphQl.Repository.Search;
 
 namespace Eklee.Azure.Functions.GraphQl.Repository
 {

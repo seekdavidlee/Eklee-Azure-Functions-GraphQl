@@ -52,6 +52,12 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestStorage.Core
 				.BuildQueryResult(ctx => { })
 				.BuildQuery()
 				.BuildWithListResult();
+
+			queryBuilderFactory.Create<Model9>(this, "GetModel9ById")
+				.WithParameterBuilder()
+				.WithKeys()
+				.BuildQuery()
+				.BuildWithListResult();
 		}
 	}
 }

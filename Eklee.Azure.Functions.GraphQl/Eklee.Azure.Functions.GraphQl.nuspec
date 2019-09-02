@@ -10,7 +10,7 @@
 		<projectUrl>https://github.com/seekdavidlee/Eklee-Azure-Functions-GraphQl</projectUrl>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<description>Implement one or more Serverless GraphQL API(s) using Azure Functions, Azure Cosmos DB, Azure Search, Azure Table Storage etc.</description>
-		<releaseNotes>Now, we can hook into the mutation lifecycle via IMutationPreAction and IMutationPostAction. We also fixed an issue related to Azure Storage repository where the wrong Partition Key was passed in.</releaseNotes>
+		<releaseNotes>Fixed mutation and query issues related to nested entities with connections.</releaseNotes>
 		<tags>GraphQL, Azure, Functions, Caching, .NET, Graph, Paging, Pagination, CosmosDB, DocumentDB, Search, Table</tags>
 		<dependencies>
 			<dependency id="Eklee.Azure.Functions.Http" version="0.8.4" />

@@ -5854,6 +5854,136 @@
 					"response": []
 				},
 				{
+					"name": "SeedModel9And10",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"var testName = pm.info.requestName + \": \";",
+									"pm.test(testName + \"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"pm.test(testName + \"Has no errors\", function () {",
+									"",
+									"    pm.expect(jsonData.errors).to.eql(undefined);",
+									"});",
+									"",
+									"function findEntity(items, id){",
+									"    var found = items.filter(x=> x.id === id);",
+									"    if (found.length === 1) return found[0];",
+									"    return null;",
+									"}",
+									"",
+									"var jsonData = pm.response.json();",
+									"var result = jsonData.data.batchCreateOrUpdateModel9;",
+									"",
+									"pm.test(testName + \"Contains correct JSON payload\", function () {",
+									"    pm.expect(result.length).to.eql(2);",
+									"    var model9_1 = findEntity(result, \"model9_1\");",
+									"    pm.expect(model9_1).to.not.eql(undefined);",
+									"    pm.expect(model9_1.id).to.eql(\"model9_1\");",
+									"    pm.expect(model9_1.field).to.eql(\"model9 1\");",
+									"    pm.expect(model9_1.eachModel10List).to.not.eql(null);",
+									"    pm.expect(model9_1.eachModel10List.length).to.eql(3);",
+									"    ",
+									"    var model10_1 = findEntity(model9_1.eachModel10List, \"model10_1\");",
+									"    pm.expect(model10_1).to.not.eql(undefined);",
+									"    pm.expect(model10_1.id).to.eql(\"model10_1\");    ",
+									"    pm.expect(model10_1.fieldDescription).to.eql(\"Rel model10_1 and model9_1\");  ",
+									"    pm.expect(model10_1.model10.field).to.eql(\"model10 1\");",
+									"    pm.expect(model10_1.model10.eachModel11List).to.not.eql(null);",
+									"    pm.expect(model10_1.model10.eachModel11List.length).to.eql(2);",
+									"    ",
+									"    var model11_1 = findEntity(model10_1.model10.eachModel11List, \"model11_1\");",
+									"    pm.expect(model11_1).to.not.eql(undefined);",
+									"    pm.expect(model11_1.id).to.eql(\"model11_1\");    ",
+									"    pm.expect(model11_1.fieldDescription).to.eql(\"Rel model10_1 and model11_1\");      ",
+									"    pm.expect(model11_1.model11.id).to.eql(\"model11_1\");       ",
+									"    pm.expect(model11_1.model11.field).to.eql(\"model11 1\");",
+									"",
+									"    var model11_2 = findEntity(model10_1.model10.eachModel11List, \"model11_2\");",
+									"    pm.expect(model11_2).to.not.eql(undefined);",
+									"    pm.expect(model11_2.id).to.eql(\"model11_2\");    ",
+									"    pm.expect(model11_2.fieldDescription).to.eql(\"Rel model10_1 and model11_2\");      ",
+									"    pm.expect(model11_2.model11.id).to.eql(\"model11_2\");       ",
+									"    pm.expect(model11_2.model11.field).to.eql(\"model11 2\");",
+									"    ",
+									"    var model10_2 = findEntity(model9_1.eachModel10List, \"model10_2\");",
+									"    pm.expect(model10_2).to.not.eql(undefined);",
+									"    pm.expect(model10_2.id).to.eql(\"model10_2\"); ",
+									"    pm.expect(model10_2.fieldDescription).to.eql(\"Rel model10_2 and model9_1\");  ",
+									"    pm.expect(model10_2.model10.field).to.eql(\"model10 2\");",
+									"    pm.expect(model10_2.model10.eachModel11List).to.not.eql(null);",
+									"    pm.expect(model10_2.model10.eachModel11List.length).to.eql(1);  ",
+									"    ",
+									"    var model11_3 = findEntity(model10_2.model10.eachModel11List, \"model11_3\");",
+									"    pm.expect(model11_3).to.not.eql(undefined);",
+									"    pm.expect(model11_3.id).to.eql(\"model11_3\");    ",
+									"    pm.expect(model11_3.fieldDescription).to.eql(\"Rel model10_2 and model11_3\");      ",
+									"    pm.expect(model11_3.model11.id).to.eql(\"model11_3\");       ",
+									"    pm.expect(model11_3.model11.field).to.eql(\"model11 3\");    ",
+									"    ",
+									"    var model10_3 = findEntity(model9_1.eachModel10List, \"model10_3\");",
+									"    pm.expect(model10_3).to.not.eql(undefined);",
+									"    pm.expect(model10_3.id).to.eql(\"model10_3\");",
+									"    pm.expect(model10_3.fieldDescription).to.eql(\"Rel model10_3 and model9_1\");  ",
+									"    pm.expect(model10_3.model10.field).to.eql(\"model10 3\");",
+									"    pm.expect(model10_3.model10.eachModel11List).to.eql(null);",
+									"    ",
+									"    var model9_2 = findEntity(result, \"model9_2\");",
+									"    pm.expect(model9_2).to.not.eql(undefined);",
+									"    pm.expect(model9_2.id).to.eql(\"model9_2\");",
+									"    pm.expect(model9_2.field).to.eql(\"model9 2\");",
+									"    pm.expect(model9_2.eachModel10List).to.eql(null);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/graphql"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "# Write your query or mutation here\r\nmutation {\r\n  batchCreateOrUpdateModel9(model9:[{\r\n    id:\"model9_1\"\r\n    field:\"model9 1\"\r\n    eachModel10List:[{\r\n      id:\"model10_1\"\r\n      fieldDescription:\"Rel model10_1 and model9_1\"\r\n      model10:{\r\n        id:\"model10_1\"\r\n        field:\"model10 1\"\r\n        eachModel11List:[\r\n          {\r\n            id:\"model11_1\"\r\n            fieldDescription: \"Rel model10_1 and model11_1\"\r\n            model11:{\r\n              id:\"model11_1\"\r\n              field:\"model11 1\"\r\n            }\r\n          }, {\r\n           id:\"model11_2\"\r\n            fieldDescription: \"Rel model10_1 and model11_2\"\r\n            model11:{\r\n              id:\"model11_2\"\r\n              field:\"model11 2\"\r\n            }            \r\n          }\r\n        ]\r\n      }\r\n    },\r\n    {\r\n      id:\"model10_2\"\r\n      fieldDescription:\"Rel model10_2 and model9_1\"\r\n      model10:{\r\n        id:\"model10_2\"\r\n        field:\"model10 2\",\r\n        eachModel11List:[          {\r\n            id:\"model11_3\"\r\n            fieldDescription: \"Rel model10_2 and model11_3\"\r\n            model11:{\r\n              id:\"model11_3\"\r\n              field:\"model11 3\"\r\n            }\r\n          }]\r\n      }\r\n    },\r\n    {\r\n      id:\"model10_3\"\r\n      fieldDescription:\"Rel model10_3 and model9_1\"\r\n      model10:{\r\n        id:\"model10_3\"\r\n        field:\"model10 3\"\r\n      }\r\n    }]\r\n  },{\r\n    id:\"model9_2\"\r\n    field:\"model9 2\"\r\n  }]){\r\n    id\r\n    field\r\n    eachModel10List {\r\n      id\r\n      fieldDescription\r\n      model10 {\r\n        id\r\n        field\r\n        eachModel11List {\r\n          id\r\n          fieldDescription\r\n          model11 {\r\n            id\r\n            field\r\n          }\r\n        }\r\n      }\r\n    }\r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/teststorage/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"teststorage",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "QueryModel7UsingModel8Id_Expect1Found",
 					"event": [
 						{
@@ -6294,6 +6424,130 @@
 					"response": []
 				},
 				{
+					"name": "GetModel9ById",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"var testName = pm.info.requestName + \": \";",
+									"",
+									"pm.test(testName + \"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(testName + \"Has no errors\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.eql(undefined);",
+									"});",
+									"",
+									"function findEntity(items, id){",
+									"    var found = items.filter(x=> x.id === id);",
+									"    if (found.length === 1) return found[0];",
+									"    return null;",
+									"}",
+									"",
+									"var jsonData = pm.response.json();",
+									"var result = jsonData.data.getModel9ById;",
+									"",
+									"pm.test(testName + \"Contains correct JSON payload\", function () {",
+									"    pm.expect(result.length).to.eql(1);",
+									"    var model9_1 = findEntity(result, \"model9_1\");",
+									"    pm.expect(model9_1).to.not.eql(undefined);",
+									"    pm.expect(model9_1.id).to.eql(\"model9_1\");",
+									"    pm.expect(model9_1.field).to.eql(\"model9 1\");",
+									"    pm.expect(model9_1.eachModel10List).to.not.eql(null);",
+									"    pm.expect(model9_1.eachModel10List.length).to.eql(3);",
+									"    ",
+									"    var model10_1 = findEntity(model9_1.eachModel10List, \"model10_1\");",
+									"    pm.expect(model10_1).to.not.eql(undefined);",
+									"    pm.expect(model10_1.id).to.eql(\"model10_1\");    ",
+									"    pm.expect(model10_1.fieldDescription).to.eql(\"Rel model10_1 and model9_1\");  ",
+									"    pm.expect(model10_1.model10.field).to.eql(\"model10 1\");",
+									"    pm.expect(model10_1.model10.eachModel11List).to.not.eql(null);",
+									"    pm.expect(model10_1.model10.eachModel11List.length).to.eql(2);",
+									"    ",
+									"    var model11_1 = findEntity(model10_1.model10.eachModel11List, \"model11_1\");",
+									"    pm.expect(model11_1).to.not.eql(undefined);",
+									"    pm.expect(model11_1.id).to.eql(\"model11_1\");    ",
+									"    pm.expect(model11_1.fieldDescription).to.eql(\"Rel model10_1 and model11_1\");      ",
+									"    pm.expect(model11_1.model11.id).to.eql(\"model11_1\");       ",
+									"    pm.expect(model11_1.model11.field).to.eql(\"model11 1\");",
+									"",
+									"    var model11_2 = findEntity(model10_1.model10.eachModel11List, \"model11_2\");",
+									"    pm.expect(model11_2).to.not.eql(undefined);",
+									"    pm.expect(model11_2.id).to.eql(\"model11_2\");    ",
+									"    pm.expect(model11_2.fieldDescription).to.eql(\"Rel model10_1 and model11_2\");      ",
+									"    pm.expect(model11_2.model11.id).to.eql(\"model11_2\");       ",
+									"    pm.expect(model11_2.model11.field).to.eql(\"model11 2\");",
+									"    ",
+									"    var model10_2 = findEntity(model9_1.eachModel10List, \"model10_2\");",
+									"    pm.expect(model10_2).to.not.eql(undefined);",
+									"    pm.expect(model10_2.id).to.eql(\"model10_2\"); ",
+									"    pm.expect(model10_2.fieldDescription).to.eql(\"Rel model10_2 and model9_1\");  ",
+									"    pm.expect(model10_2.model10.field).to.eql(\"model10 2\");",
+									"    pm.expect(model10_2.model10.eachModel11List).to.not.eql(null);",
+									"    pm.expect(model10_2.model10.eachModel11List.length).to.eql(1);  ",
+									"    ",
+									"    var model11_3 = findEntity(model10_2.model10.eachModel11List, \"model11_3\");",
+									"    pm.expect(model11_3).to.not.eql(undefined);",
+									"    pm.expect(model11_3.id).to.eql(\"model11_3\");    ",
+									"    pm.expect(model11_3.fieldDescription).to.eql(\"Rel model10_2 and model11_3\");      ",
+									"    pm.expect(model11_3.model11.id).to.eql(\"model11_3\");       ",
+									"    pm.expect(model11_3.model11.field).to.eql(\"model11 3\");    ",
+									"    ",
+									"    var model10_3 = findEntity(model9_1.eachModel10List, \"model10_3\");",
+									"    pm.expect(model10_3).to.not.eql(undefined);",
+									"    pm.expect(model10_3.id).to.eql(\"model10_3\");",
+									"    pm.expect(model10_3.fieldDescription).to.eql(\"Rel model10_3 and model9_1\");  ",
+									"    pm.expect(model10_3.model10.field).to.eql(\"model10 3\");",
+									"    pm.expect(model10_3.model10.eachModel11List).to.eql(null);",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/graphql"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "query {\r\n  getModel9ById(id:{equal:\"model9_1\"}){\r\n        id\r\n    field\r\n    eachModel10List {\r\n      id\r\n      fieldDescription\r\n      model10 {\r\n        id\r\n        field\r\n        eachModel11List {\r\n          id\r\n          fieldDescription\r\n          model11 {\r\n            id\r\n            field\r\n          }\r\n        }\r\n      }\r\n    }\r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/teststorage/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"teststorage",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "CleanupModel7",
 					"event": [
 						{
@@ -6398,6 +6652,126 @@
 						"body": {
 							"mode": "raw",
 							"raw": "mutation {\r\n  deleteAllModel8{\r\n    message\r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/teststorage/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"teststorage",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CleanupModel9",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"var testName = pm.info.requestName + \": \";",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(testName + \"No errors.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.eq(undefined);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/graphql"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "mutation {\r\n  deleteAllModel9{\r\n    message\r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/teststorage/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"teststorage",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CleanupModel10",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"var testName = pm.info.requestName + \": \";",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(testName + \"No errors.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.eq(undefined);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/graphql"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "mutation {\r\n  deleteAllModel10{\r\n    message\r\n  }\r\n}"
 						},
 						"url": {
 							"raw": "{{endpoint}}/api/teststorage/graph",

@@ -113,7 +113,17 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 
 							edgeObjectTypeAccessor[edgeObject, connectionEdge.MetaFieldName] = entity;
 
-							await QueryAndPopulateEdgeConnections(new List<SelectValue> { selection }, new List<object> { entity }, graphRequestContext);
+							var matchingFieldName = connectionEdge.MetaFieldName.ToLower();
+							var matchingSelections = selections.Where(x => x.SelectValues.Any(y => y.FieldName.ToLower() == matchingFieldName));
+
+							foreach (var matchingSelection in matchingSelections)
+							{
+								var selectionWithSelects = matchingSelection.SelectValues.Single(x => x.FieldName.ToLower() == matchingFieldName)
+									.SelectValues.Where(x => x.SelectValues.Count > 0).ToList();
+
+								if (selectionWithSelects.Count > 0)
+									await QueryAndPopulateEdgeConnections(selectionWithSelects, new List<object> { entity }, graphRequestContext);
+							}
 						}
 					}
 				}

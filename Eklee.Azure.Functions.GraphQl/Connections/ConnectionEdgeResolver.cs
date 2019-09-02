@@ -29,7 +29,7 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 			var srcTypeAccessor = TypeAccessor.Create(srcType);
 			var id = srcTypeAccessor.GetKey(item);
 
-			DiscoverConnectionEdges(srcTypeAccessor, id, srcType, item, connectionEdges, internalConnectionEdgeState, entityAction);
+			DiscoverConnectionEdges(id, item, connectionEdges, internalConnectionEdgeState, entityAction);
 
 			internalConnectionEdgeState.InvokeAction(item, id, srcType.Name);
 
@@ -71,13 +71,14 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 		}
 
 		private void DiscoverConnectionEdges(
-			TypeAccessor sourceTypeAccessor,
 			string sourceId,
-			Type sourceType,
 			object instance,
 			List<ConnectionEdge> connectionEdges,
 			InternalConnectionEdgeState internalConnectionEdgeState, Action<object> entityAction)
 		{
+			Type sourceType = instance.GetType();
+			var sourceTypeAccessor = TypeAccessor.Create(sourceType);
+
 			foreach (var member in sourceTypeAccessor.GetMembers())
 			{
 				if (GetConnectionAttribute(member) != null)
@@ -171,7 +172,7 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 			if (destObject != null)
 			{
 				var id = destId.ToString();
-				DiscoverConnectionEdges(edgeTypeAccessor, id, edgeType, destObject, connectionEdges, internalConnectionEdgeState, entityAction);
+				DiscoverConnectionEdges(id, destObject, connectionEdges, internalConnectionEdgeState, entityAction);
 				internalConnectionEdgeState.InvokeAction(destObject, id, destinationModel.Type.Name);
 				edgeTypeAccessor[edgeObjectInstance, destinationModel.Name] = null;
 			}

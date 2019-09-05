@@ -17,7 +17,6 @@ namespace Eklee.Azure.Functions.GraphQl
 		private readonly IInMemoryComparerProvider _inMemoryComparerProvider;
 		private readonly IContextValueResolver _contextValueResolver;
 		private readonly ModelConvention<TSource> _modelConvention = new ModelConvention<TSource>();
-		private readonly List<ModelMember> _modelMemberList = new List<ModelMember>();
 		private readonly List<QueryStep> _querySteps = new List<QueryStep>();
 		private readonly QueryStep _queryStep;
 
@@ -62,27 +61,45 @@ namespace Eklee.Azure.Functions.GraphQl
 			var modelMember = new ModelMember(typeof(TSource),
 				_modelConvention.ModelType.GetTypeAccessor(), member, isOptional);
 
-			_modelMemberList.Add(modelMember);
+			Members.Add(modelMember);
 			_queryStep.QueryParameters.Add(new QueryParameter { MemberModel = modelMember });
+		}
+
+		private void SetQueryParameterContextValue(QueryParameter queryParameter, ResolveFieldContext<object> context, IGraphRequestContext graphRequestContext)
+		{
+			if (queryParameter.PopulateWithRequestContext != null)
+			{
+				var p = queryParameter.PopulateWithRequestContext(graphRequestContext);
+
+				queryParameter.ContextValue = new ContextValue
+				{
+					Values = new List<object> { p.Value },
+					Comparison = p.Comparison
+				};
+
+				return;
+			}
+
+			queryParameter.ContextValue = _contextValueResolver.GetContextValue(context,
+						queryParameter.MemberModel, queryParameter.Rule);
 		}
 
 		/// <summary>
 		/// Returns a clone copy of the stored query steps. We have to return a new instance
 		/// given the QueryStep itself stored here is singleton.
 		/// </summary>
-		/// <param name="context"></param>
+		/// <param name="context">Context for getting parameter value(s).</param>
+		/// <param name="graphRequestContext">Graph request context.</param>
 		/// <returns></returns>
-		internal List<QueryStep> GetQuerySteps(ResolveFieldContext<object> context)
+		internal List<QueryStep> GetQuerySteps(ResolveFieldContext<object> context, IGraphRequestContext graphRequestContext)
 		{
 			if (_queryStep.QueryParameters.Count > 0)
 			{
 				var queryStep = _queryStep.CloneQueryStep();
 
-				queryStep.QueryParameters.ForEach(qsqp =>
-				{
-					qsqp.ContextValue = _contextValueResolver.GetContextValue(context,
-						qsqp.MemberModel, qsqp.Rule);
-				});
+				queryStep.QueryParameters.ForEach(qsqp => SetQueryParameterContextValue(
+					qsqp, context, graphRequestContext));
+
 				return new List<QueryStep> { queryStep };
 			}
 
@@ -100,26 +117,43 @@ namespace Eklee.Azure.Functions.GraphQl
 					else
 					{
 						if (queryParameter.ContextValue == null)
-							queryParameter.ContextValue = _contextValueResolver.GetContextValue(context,
-								queryParameter.MemberModel, queryParameter.Rule);
+							SetQueryParameterContextValue(queryParameter, context, graphRequestContext);
 					}
 				});
 
 				if (queryStep.InMemoryFilterQueryParameters != null)
 				{
 					queryStep.InMemoryFilterQueryParameters.ForEach(queryParameter =>
-						queryParameter.ContextValue = _contextValueResolver.GetContextValue(context,
-						queryParameter.MemberModel, queryParameter.Rule));
+						SetQueryParameterContextValue(queryParameter, context, graphRequestContext));
 				}
 			});
+
+			if (clonedList.Count == 0)
+			{
+				var qs = NewQueryStep();
+
+				var ctxValue = new ContextValue();
+				ctxValue.PopulateSelectValues(context);
+				Type t = typeof(TSource);
+				var ta = TypeAccessor.Create(t);
+
+				qs.QueryParameters = new List<QueryParameter>
+				{
+						new QueryParameter
+						{
+							MemberModel = new ModelMember(t, ta, null, true),
+							ContextValue = ctxValue
+						}
+				};
+
+				clonedList.Add(qs);
+
+			}
 
 			return clonedList;
 		}
 
-		public List<ModelMember> Members
-		{
-			get { return _modelMemberList; }
-		}
+		public List<ModelMember> Members { get; } = new List<ModelMember>();
 
 		public QueryParameterBuilder<TSource> WithProperty(Expression<Func<TSource, object>> expression, bool isOptional = false)
 		{
@@ -139,6 +173,38 @@ namespace Eklee.Azure.Functions.GraphQl
 				}
 
 				Add(isOptional, _modelConvention.ModelType.GetMember(memberExpression.Member.Name));
+			}
+
+			return this;
+		}
+
+		/// <summary>
+		/// The query parameter will use the transformation from IGraphRequestContext to populate the value. 
+		/// </summary>
+		/// <param name="expression">Expression for the property to compare with.</param>
+		/// <param name="populateWithRequestContext">Expression to get the value to set for comparison.</param>
+		/// <returns></returns>
+		public QueryParameterBuilder<TSource> WithPropertyFromContext(Expression<Func<TSource, object>> expression, Func<IGraphRequestContext, RequestContextParameter> populateWithRequestContext)
+		{
+			// The property access might be getting converted to object to match the func.
+			// If so, get the operand and see if that's a member expression.
+			MemberExpression memberExpression = expression.Body as MemberExpression ?? (expression.Body as UnaryExpression)?.Operand as MemberExpression;
+
+			if (memberExpression != null)
+			{
+				// Find the member.
+				var rawMemberExpression = memberExpression.ToString();
+				var depth = rawMemberExpression.Count(x => x == '.');
+
+				if (depth > 1)
+				{
+					throw new InvalidOperationException("WithPropertyFromContext is used directly on the type properties and cannot include hierarchy because it then needs mapping. Consider using BeginWithProperty.");
+				}
+
+				var modelMember = new ModelMember(typeof(TSource),
+					_modelConvention.ModelType.GetTypeAccessor(), _modelConvention.ModelType.GetMember(memberExpression.Member.Name), true);
+
+				_queryStep.QueryParameters.Add(new QueryParameter { MemberModel = modelMember, PopulateWithRequestContext = populateWithRequestContext });
 			}
 
 			return this;
@@ -224,7 +290,7 @@ namespace Eklee.Azure.Functions.GraphQl
 					}
 					else
 					{
-						_modelMemberList.Add(modelMember);
+						Members.Add(modelMember);
 					}
 
 					step.QueryParameters.Add(new QueryParameter
@@ -244,7 +310,7 @@ namespace Eklee.Azure.Functions.GraphQl
 
 		public ConnectionEdgeQueryBuilder<TSource, TConnectionType> WithConnectionEdgeBuilder<TConnectionType>()
 		{
-			return new ConnectionEdgeQueryBuilder<TSource, TConnectionType>(this, _querySteps, _modelMemberList, _inMemoryComparerProvider);
+			return new ConnectionEdgeQueryBuilder<TSource, TConnectionType>(this, _querySteps, Members, _inMemoryComparerProvider);
 		}
 
 		public QueryBuilder<TSource> BuildQuery()

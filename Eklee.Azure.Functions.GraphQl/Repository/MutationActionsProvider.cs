@@ -18,7 +18,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 		}
 		public async Task HandlePostActions<TSource>(MutationActionItem<TSource> mutationActionItem)
 		{
-			foreach (var action in _mutationPostActions)
+			foreach (var action in _mutationPostActions.OrderBy(x => x.ExecutionOrder))
 			{
 				await action.TryHandlePostItem(mutationActionItem);
 			}
@@ -26,7 +26,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 
 		public async Task HandlePreActions<TSource>(MutationActionItem<TSource> mutationActionItem)
 		{
-			foreach (var action in _mutationPreActions)
+			foreach (var action in _mutationPreActions.OrderBy(x => x.ExecutionOrder))
 			{
 				await action.TryHandlePreItem(mutationActionItem);
 			}

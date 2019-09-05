@@ -8,6 +8,9 @@ using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 using Autofac;
+using Eklee.Azure.Functions.GraphQl.Actions;
+using Eklee.Azure.Functions.GraphQl.Actions.AutoIdPatterns;
+using Eklee.Azure.Functions.GraphQl.Actions.RequestContextValueExtractors;
 using Eklee.Azure.Functions.GraphQl.Connections;
 using Eklee.Azure.Functions.GraphQl.Queries;
 using Eklee.Azure.Functions.GraphQl.Repository;
@@ -106,12 +109,32 @@ namespace Eklee.Azure.Functions.GraphQl
 				.SingleInstance();
 			builder.RegisterType<TableStorageRepository>().As<IGraphQlRepository>().SingleInstance();
 
-			//builder.RegisterType<SearchMappedModels>().As<IMutationPostAction>().SingleInstance();
-			//builder.RegisterType<ConnectionEdgeHandler>().As<IMutationPreAction>().SingleInstance();
 			builder.RegisterType<MutationActionsProvider>().As<IMutationActionsProvider>().SingleInstance();
 
 			builder.RegisterType<GraphQlRepositoryProvider>().As<IGraphQlRepositoryProvider>().SingleInstance();
 			builder.RegisterType<GraphRequestContext>().As<IGraphRequestContext>().InstancePerLifetimeScope();
+		}
+
+		public static void UseAutoIdGenerator(this ContainerBuilder builder)
+		{
+			builder.RegisterType<AutoIdGenerator>()
+				.As<IMutationPreAction>()
+				.SingleInstance();
+
+			builder.RegisterType<GuidAutoIdPattern>()
+				.As<IAutoIdPattern>()
+				.SingleInstance();
+		}
+
+		public static void UseValueFromRequestContextGenerator(this ContainerBuilder builder)
+		{
+			builder.RegisterType<ValueFromRequestContextGenerator>()
+				.As<IMutationPreAction>()
+				.SingleInstance();
+
+			builder.RegisterType<TrustFrameworkPolicyRequestContextValueExtractor>()
+				.As<IRequestContextValueExtractor>()
+				.SingleInstance();
 		}
 
 		public static async Task<IActionResult> ProcessGraphQlRequest(this ExecutionContext executionContext, HttpRequest httpRequest)

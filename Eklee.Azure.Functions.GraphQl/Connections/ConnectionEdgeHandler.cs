@@ -171,6 +171,8 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 				x.IsGenericMethod &&
 				x.GetParameters().Count() == 1);
 
+		public int ExecutionOrder => 0;
+
 		private static object DeserializeObject(string value, string typeName)
 		{
 			MethodInfo generic = _jsonConvertDeserializeObject.MakeGenericMethod(

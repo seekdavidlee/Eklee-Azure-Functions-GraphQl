@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using Eklee.Azure.Functions.GraphQl.Attributes;
@@ -14,34 +13,30 @@ namespace Eklee.Azure.Functions.GraphQl.Actions
 
 		public int ExecutionOrder => 0;
 
-		public Task<bool> Transform(ModelTransformArguments arguments)
+		public bool CanHandle(MutationActions action)
 		{
-			bool transformed = false;
-			if (arguments.Action != MutationActions.DeleteAll &&
-				arguments.Action != MutationActions.Delete &&
-				arguments.Action != MutationActions.Update &&
-				arguments.Models.Count > 0)
+			return action != MutationActions.DeleteAll &&
+				action != MutationActions.Delete &&
+				action != MutationActions.Update;
+		}
+
+		public Task TransformAsync(object item, TypeAccessor typeAccessor, IGraphRequestContext context)
+		{
+			var autoIdMembers = typeAccessor.GetMembers().Where(x => x.GetAttribute(typeof(AutoIdAttribute), false) != null).ToList();
+			if (autoIdMembers.Count > 0)
 			{
-				var typeAccessor = TypeAccessor.Create(arguments.Models.First().GetType());
-				var autoIdMembers = typeAccessor.GetMembers().Where(x => x.GetAttribute(typeof(AutoIdAttribute), false) != null).ToList();
-				if (autoIdMembers.Count > 0)
+				autoIdMembers.ForEach(member =>
 				{
-					foreach (var model in arguments.Models)
+					var value = typeAccessor[item, member.Name];
+					if (value is string key && key == Marker)
 					{
-						autoIdMembers.ForEach(member =>
-						{
-							var value = typeAccessor[model, member.Name];
-							if (value is string key && key == Marker)
-							{
-								typeAccessor[model, member.Name] = Guid.NewGuid().ToString("N");
-								transformed = true;
-							}
-						});
+						typeAccessor[item, member.Name] = Guid.NewGuid().ToString("N");
+
 					}
-				}
+				});
 			}
 
-			return Task.FromResult(transformed);
+			return Task.CompletedTask;
 		}
 	}
 }

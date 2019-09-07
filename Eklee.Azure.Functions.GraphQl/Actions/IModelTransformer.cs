@@ -1,4 +1,5 @@
 ﻿using Eklee.Azure.Functions.GraphQl.Repository;
+using FastMember;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -15,6 +16,8 @@ namespace Eklee.Azure.Functions.GraphQl.Actions
 	{
 		int ExecutionOrder { get; }
 
-		Task<bool> Transform(ModelTransformArguments arguments);
+		bool CanHandle(MutationActions action);
+
+		Task TransformAsync(object item, TypeAccessor typeAccessor, IGraphRequestContext context);
 	}
 }

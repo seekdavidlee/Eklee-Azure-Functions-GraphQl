@@ -19,20 +19,20 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 		private readonly ILogger _logger;
 		private readonly IConnectionEdgeResolver _connectionEdgeResolver;
 		private readonly IMutationActionsProvider _mutationActionsProvider;
-		private readonly List<IModelTransformer> _modelTransformers;
+		private readonly IModelTransformerProvider _modelTransformerProvider;
 
 		public FieldMutationResolver(
 			IGraphQlRepositoryProvider graphQlRepositoryProvider,
 			ILogger logger,
 			IConnectionEdgeResolver connectionEdgeResolver,
 			IMutationActionsProvider mutationActionsProvider,
-			IEnumerable<IModelTransformer> modelKeyTransformers)
+			IModelTransformerProvider modelTransformerProvider)
 		{
 			_graphQlRepositoryProvider = graphQlRepositoryProvider;
 			_logger = logger;
 			_connectionEdgeResolver = connectionEdgeResolver;
 			_mutationActionsProvider = mutationActionsProvider;
-			_modelTransformers = modelKeyTransformers.OrderBy(x => x.ExecutionOrder).ToList();
+			_modelTransformerProvider = modelTransformerProvider;
 		}
 
 		public async Task<List<TSource>> BatchAddAsync<TSource>(ResolveFieldContext<object> context, string sourceName, Func<ClaimsPrincipal, AssertAction, bool> claimsPrincipalAssertion) where TSource : class
@@ -150,15 +150,12 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 
 		private async Task TransformObjects(List<object> items, IGraphRequestContext context, MutationActions mutationAction)
 		{
-			foreach (var x in _modelTransformers)
+			await _modelTransformerProvider.TransformAsync(new ModelTransformArguments
 			{
-				await x.Transform(new ModelTransformArguments
-				{
-					Models = items,
-					Action = mutationAction,
-					RequestContext = context
-				});
-			}
+				Models = items,
+				Action = mutationAction,
+				RequestContext = context
+			});
 		}
 
 		public async Task<TSource> AddAsync<TSource>(ResolveFieldContext<object> context, string sourceName,

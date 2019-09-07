@@ -24,36 +24,29 @@ namespace Eklee.Azure.Functions.GraphQl.Actions
 		}
 		public int ExecutionOrder => 0;
 
-		public async Task<bool> Transform(ModelTransformArguments arguments)
+		public bool CanHandle(MutationActions action)
 		{
-			bool transformed = false;
-			if (arguments.Action != MutationActions.DeleteAll &&
-				arguments.Action != MutationActions.Delete &&
-				arguments.Action != MutationActions.Update &&
-				arguments.Models.Count > 0)
+			return action != MutationActions.DeleteAll &&
+				action != MutationActions.Delete &&
+				action != MutationActions.Update;
+		}
+
+		public async Task TransformAsync(object item, TypeAccessor typeAccessor, IGraphRequestContext context)
+		{
+			var keyMembers = typeAccessor.GetMembers().Where(x => x.GetAttribute(typeof(RequestContextValueAttribute), false) != null).ToList();
+			if (keyMembers.Count > 0)
 			{
-				var typeAccessor = TypeAccessor.Create(arguments.Models.First().GetType());
-				var keyMembers = typeAccessor.GetMembers().Where(x => x.GetAttribute(typeof(RequestContextValueAttribute), false) != null).ToList();
-				if (keyMembers.Count > 0)
+				foreach (var keyMember in keyMembers)
 				{
-					foreach (var model in arguments.Models)
+					var value = typeAccessor[item, keyMember.Name];
+					var attr = (RequestContextValueAttribute)keyMember.GetAttribute(typeof(RequestContextValueAttribute), false);
+					var gen = _requestContextValueExtractors.SingleOrDefault(x => x.GetType() == attr.Type);
+					if (gen != null)
 					{
-						foreach (var keyMember in keyMembers)
-						{
-							var value = typeAccessor[model, keyMember.Name];
-							var attr = (RequestContextValueAttribute)keyMember.GetAttribute(typeof(RequestContextValueAttribute), false);
-							var gen = _requestContextValueExtractors.SingleOrDefault(x => x.GetType() == attr.Type);
-							if (gen != null)
-							{
-								typeAccessor[model, keyMember.Name] = await gen.GetValueAsync(arguments.RequestContext, keyMember);
-								transformed = true;
-							}
-						}
+						typeAccessor[item, keyMember.Name] = await gen.GetValueAsync(context, keyMember);
 					}
 				}
 			}
-
-			return transformed;
 		}
 	}
 }

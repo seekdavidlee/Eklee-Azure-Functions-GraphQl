@@ -112,6 +112,10 @@ namespace Eklee.Azure.Functions.GraphQl
 
 			builder.RegisterType<GraphQlRepositoryProvider>().As<IGraphQlRepositoryProvider>().SingleInstance();
 			builder.RegisterType<GraphRequestContext>().As<IGraphRequestContext>().InstancePerLifetimeScope();
+
+			builder.RegisterType<ModelTransformerProvider>()
+				.As<IModelTransformerProvider>()
+				.SingleInstance();
 		}
 
 		public static void UseSystemModelTransformers(this ContainerBuilder builder)

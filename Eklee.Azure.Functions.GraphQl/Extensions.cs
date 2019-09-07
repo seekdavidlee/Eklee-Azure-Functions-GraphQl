@@ -9,7 +9,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Autofac;
 using Eklee.Azure.Functions.GraphQl.Actions;
-using Eklee.Azure.Functions.GraphQl.Actions.AutoIdPatterns;
 using Eklee.Azure.Functions.GraphQl.Actions.RequestContextValueExtractors;
 using Eklee.Azure.Functions.GraphQl.Connections;
 using Eklee.Azure.Functions.GraphQl.Queries;
@@ -118,18 +117,14 @@ namespace Eklee.Azure.Functions.GraphQl
 		public static void UseAutoIdGenerator(this ContainerBuilder builder)
 		{
 			builder.RegisterType<AutoIdGenerator>()
-				.As<IMutationPreAction>()
-				.SingleInstance();
-
-			builder.RegisterType<GuidAutoIdPattern>()
-				.As<IAutoIdPattern>()
+				.As<IModelTransformer>()
 				.SingleInstance();
 		}
 
 		public static void UseValueFromRequestContextGenerator(this ContainerBuilder builder)
 		{
 			builder.RegisterType<ValueFromRequestContextGenerator>()
-				.As<IMutationPreAction>()
+				.As<IModelTransformer>()
 				.SingleInstance();
 
 			builder.RegisterType<TrustFrameworkPolicyRequestContextValueExtractor>()

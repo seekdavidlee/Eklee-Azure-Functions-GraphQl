@@ -5984,6 +5984,84 @@
 					"response": []
 				},
 				{
+					"name": "SeedModel12WithAutoIdAndValueFromHeader",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"var testName = pm.info.requestName + \": \";",
+									"pm.test(testName + \"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"pm.test(testName + \"Has no errors\", function () {",
+									"",
+									"    pm.expect(jsonData.errors).to.eql(undefined);",
+									"});",
+									"",
+									"pm.test(testName + \"Contains correct JSON payload\", function () {",
+									"",
+									"    var batch = jsonData.data.batchCreateOrUpdateModel12;",
+									"    pm.expect(batch.length).to.eql(5);",
+									"    ",
+									"    for(var i = 0; i < batch.length; i++){",
+									"        var item = batch[i];    ",
+									"        pm.expect(item.id).to.not.eql(\"@autoId()\");",
+									"        pm.expect(item.fieldFromHeader).to.eql(\"FOOBAR\");",
+									"    }",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/graphql"
+							},
+							{
+								"key": "SomeThingFromHeader",
+								"value": "FOOBAR",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "mutation {\r\n  batchCreateOrUpdateModel12(model12:[{\r\n    id:\"@autoId()\"\r\n    field:\"model12 1\"\r\n  },\r\n  {\r\n    id:\"@autoId()\"\r\n    field:\"model12 2\"\r\n  },\r\n  {\r\n    id:\"@autoId()\"\r\n    field:\"model12 3\"\r\n  },\r\n  {\r\n    id:\"@autoId()\"\r\n    field:\"model12 4\"\r\n  },\r\n  {\r\n    id:\"@autoId()\"\r\n    field:\"model12 5\"\r\n  }\r\n  \r\n  ]){\r\n    id\r\n    field\r\n    fieldFromHeader\r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/teststorage/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"teststorage",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "QueryModel7UsingModel8Id_Expect1Found",
 					"event": [
 						{
@@ -8169,11 +8247,13 @@
 							"script": {
 								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
 								"exec": [
-									"pm.test(\"Status code is 200\", function () {",
+									"var testName = pm.info.requestName + \": \";",
+									"",
+									"pm.test(testName + \"Status code is 200\", function () {",
 									"    pm.response.to.have.status(200);",
 									"});",
 									"",
-									"pm.test(\"Created data contains 1 items\", function () {",
+									"pm.test(testName + \"Created data contains 1 items\", function () {",
 									"    var jsonData = pm.response.json();",
 									"    pm.expect(jsonData.data.createOrUpdateModel5.id).to.eql(\"model5_1\");",
 									"    pm.expect(jsonData.data.createOrUpdateModel5.dateField).to.eql(\"2019-01-01\");",
@@ -8232,11 +8312,13 @@
 							"script": {
 								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
 								"exec": [
-									"pm.test(\"Status code is 200\", function () {",
+									"var testName = pm.info.requestName + \": \";",
+									"",
+									"pm.test(testName + \"Status code is 200\", function () {",
 									"    pm.response.to.have.status(200);",
 									"});",
 									"",
-									"pm.test(\"Created data contains 1 items\", function () {",
+									"pm.test(testName + \"Created data contains 1 items\", function () {",
 									"    var jsonData = pm.response.json();",
 									"    pm.expect(jsonData.data.createOrUpdateModel5.id).to.eql(\"model5_1\");",
 									"});"

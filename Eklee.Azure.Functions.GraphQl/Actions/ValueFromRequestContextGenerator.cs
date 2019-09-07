@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Eklee.Azure.Functions.GraphQl.Actions.RequestContextValueExtractors;
@@ -15,7 +14,7 @@ namespace Eklee.Azure.Functions.GraphQl.Actions
 		public RequestContextValueAttribute Attribute { get; set; }
 	}
 
-	public class ValueFromRequestContextGenerator : IMutationPreAction
+	public class ValueFromRequestContextGenerator : IModelTransformer
 	{
 		private readonly IEnumerable<IRequestContextValueExtractor> _requestContextValueExtractors;
 
@@ -25,73 +24,36 @@ namespace Eklee.Azure.Functions.GraphQl.Actions
 		}
 		public int ExecutionOrder => 0;
 
-		public Task TryHandlePreItem<TSource>(MutationActionItem<TSource> mutationActionItem)
+		public async Task<bool> Transform(ModelTransformArguments arguments)
 		{
-			Type type = null;
-			List<object> items = null;
-
-			if (mutationActionItem.Action == MutationActions.BatchCreateOrUpdate ||
-				mutationActionItem.Action == MutationActions.BatchCreate)
+			bool transformed = false;
+			if (arguments.Action != MutationActions.DeleteAll &&
+				arguments.Action != MutationActions.Delete &&
+				arguments.Action != MutationActions.Update &&
+				arguments.Models.Count > 0)
 			{
-				if (mutationActionItem.Items != null)
+				var typeAccessor = TypeAccessor.Create(arguments.Models.First().GetType());
+				var keyMembers = typeAccessor.GetMembers().Where(x => x.GetAttribute(typeof(RequestContextValueAttribute), false) != null).ToList();
+				if (keyMembers.Count > 0)
 				{
-					type = mutationActionItem.Items.First().GetType();
-					items = mutationActionItem.Items.Select(x => (object)x).ToList();
-				}
-				else
-				{
-					type = mutationActionItem.ObjectItems.First().GetType();
-					items = mutationActionItem.ObjectItems;
-				}
-			}
-
-			if (mutationActionItem.Action == MutationActions.Create ||
-				mutationActionItem.Action == MutationActions.CreateOrUpdate)
-			{
-				items = new List<object>();
-				if (mutationActionItem.Item != null)
-				{
-					type = mutationActionItem.Item.GetType();
-					items.Add(mutationActionItem.Item);
-				}
-				else
-				{
-					type = mutationActionItem.ObjectItem.GetType();
-					items.Add(mutationActionItem.ObjectItem);
-				}
-			}
-
-			if (type != null && items != null && items.Count > 0)
-			{
-				var typeAccessor = TypeAccessor.Create(type);
-				var members = typeAccessor.GetMembers().Select(x =>
-				{
-					var attr = x.GetAttribute(typeof(RequestContextValueAttribute), false) as RequestContextValueAttribute;
-					if (attr != null)
+					foreach (var model in arguments.Models)
 					{
-						return new RequestContextValueSelection { Attribute = attr, Member = x };
-					}
-					return null;
-
-				}).Where(x => x != null).ToList();
-
-				if (members.Count > 0)
-				{
-					items.ForEach(item =>
-					{
-						members.ForEach(a =>
+						foreach (var keyMember in keyMembers)
 						{
-							var gen = _requestContextValueExtractors.SingleOrDefault(x => x.GetType() == a.Attribute.Type);
+							var value = typeAccessor[model, keyMember.Name];
+							var attr = (RequestContextValueAttribute)keyMember.GetAttribute(typeof(RequestContextValueAttribute), false);
+							var gen = _requestContextValueExtractors.SingleOrDefault(x => x.GetType() == attr.Type);
 							if (gen != null)
 							{
-								typeAccessor[item, a.Member.Name] = gen.GetValue(mutationActionItem.RequestContext, a.Member);
+								typeAccessor[model, keyMember.Name] = await gen.GetValueAsync(arguments.RequestContext, keyMember);
+								transformed = true;
 							}
-						});
-					});
+						}
+					}
 				}
 			}
 
-			return Task.CompletedTask;
+			return transformed;
 		}
 	}
 }

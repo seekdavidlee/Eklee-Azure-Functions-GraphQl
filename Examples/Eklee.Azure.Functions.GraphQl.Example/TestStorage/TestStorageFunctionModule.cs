@@ -1,4 +1,6 @@
 using Autofac;
+using Eklee.Azure.Functions.GraphQl.Actions.RequestContextValueExtractors;
+using Eklee.Azure.Functions.GraphQl.Example.Actions;
 using Eklee.Azure.Functions.Http;
 using Microsoft.Extensions.Caching.Distributed;
 
@@ -11,6 +13,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestStorage.Core
 			builder.UseDistributedCache<MemoryDistributedCache>();
 			builder.UseAutoIdGenerator();
 			builder.UseValueFromRequestContextGenerator();
+			builder.RegisterType<ValueFromRequestHeader>().As<IRequestContextValueExtractor>().SingleInstance();
 
 			builder.RegisterGraphQl<TestStorageSchemaConfig>();
 			builder.RegisterType<TestStorageQueryConfigObjectGraphType>();

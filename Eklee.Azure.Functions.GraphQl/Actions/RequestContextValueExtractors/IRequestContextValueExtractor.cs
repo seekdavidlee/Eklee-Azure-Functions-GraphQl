@@ -5,6 +5,6 @@ namespace Eklee.Azure.Functions.GraphQl.Actions.RequestContextValueExtractors
 {
 	public interface IRequestContextValueExtractor
 	{
-		Task<object> GetValue(IGraphRequestContext graphRequestContext, Member member);
+		Task<object> GetValueAsync(IGraphRequestContext graphRequestContext, Member member);
 	}
 }

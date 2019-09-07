@@ -1,7 +1,9 @@
-﻿using Eklee.Azure.Functions.GraphQl.Connections;
+﻿using Eklee.Azure.Functions.GraphQl.Actions;
+using Eklee.Azure.Functions.GraphQl.Connections;
 using GraphQL;
 using GraphQL.Types;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,17 +19,20 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 		private readonly ILogger _logger;
 		private readonly IConnectionEdgeResolver _connectionEdgeResolver;
 		private readonly IMutationActionsProvider _mutationActionsProvider;
+		private readonly List<IModelTransformer> _modelTransformers;
 
 		public FieldMutationResolver(
 			IGraphQlRepositoryProvider graphQlRepositoryProvider,
 			ILogger logger,
 			IConnectionEdgeResolver connectionEdgeResolver,
-			IMutationActionsProvider mutationActionsProvider)
+			IMutationActionsProvider mutationActionsProvider,
+			IEnumerable<IModelTransformer> modelKeyTransformers)
 		{
 			_graphQlRepositoryProvider = graphQlRepositoryProvider;
 			_logger = logger;
 			_connectionEdgeResolver = connectionEdgeResolver;
 			_mutationActionsProvider = mutationActionsProvider;
+			_modelTransformers = modelKeyTransformers.OrderBy(x => x.ExecutionOrder).ToList();
 		}
 
 		public async Task<List<TSource>> BatchAddAsync<TSource>(ResolveFieldContext<object> context, string sourceName, Func<ClaimsPrincipal, AssertAction, bool> claimsPrincipalAssertion) where TSource : class
@@ -53,18 +58,19 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 		public async Task<TSource> DeleteAsync<TSource>(ResolveFieldContext<object> context, string sourceName, Func<ClaimsPrincipal, AssertAction, bool> claimsPrincipalAssertion) where TSource : class
 		{
 			AssertWithClaimsPrincipal(AssertAction.Delete, context, claimsPrincipalAssertion);
+
 			var item = context.GetArgument<TSource>(sourceName);
 
-			await InternalDeleteAsync(context, item);
-
-			return item;
+			return await InternalDeleteAsync(context, item);
 		}
 
-		private async Task InternalDeleteAsync<TSource>(ResolveFieldContext<object> context, TSource item) where TSource : class
+		private async Task<TSource> InternalDeleteAsync<TSource>(ResolveFieldContext<object> context, TSource item) where TSource : class
 		{
 			try
 			{
 				IGraphRequestContext ctx = context.UserContext as IGraphRequestContext;
+
+				await TransformObject(item, ctx, MutationActions.Delete);
 
 				var mutationActionItem = new MutationActionItem<TSource>
 				{
@@ -74,11 +80,15 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 					RepositoryProvider = _graphQlRepositoryProvider
 				};
 
+				var cloned = item.Clone();
+
 				await _mutationActionsProvider.HandlePreActions(mutationActionItem);
 
 				await _graphQlRepositoryProvider.GetRepository<TSource>().DeleteAsync(item, ctx);
 
 				await _mutationActionsProvider.HandlePostActions(mutationActionItem);
+
+				return cloned;
 			}
 			catch (Exception e)
 			{
@@ -133,13 +143,36 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			return getOutput();
 		}
 
+		private async Task TransformObject(object item, IGraphRequestContext context, MutationActions mutationAction)
+		{
+			await TransformObjects(new List<object> { item }, context, mutationAction);
+		}
+
+		private async Task TransformObjects(List<object> items, IGraphRequestContext context, MutationActions mutationAction)
+		{
+			foreach (var x in _modelTransformers)
+			{
+				await x.Transform(new ModelTransformArguments
+				{
+					Models = items,
+					Action = mutationAction,
+					RequestContext = context
+				});
+			}
+		}
+
 		public async Task<TSource> AddAsync<TSource>(ResolveFieldContext<object> context, string sourceName,
 			Func<ClaimsPrincipal, AssertAction, bool> claimsPrincipalAssertion) where TSource : class
 		{
 			AssertWithClaimsPrincipal(AssertAction.Create, context, claimsPrincipalAssertion);
+
 			var item = context.GetArgument<TSource>(sourceName);
 
 			var ctx = context.UserContext as IGraphRequestContext;
+
+			await TransformObject(item, ctx, MutationActions.Create);
+
+			var cloned = item.Clone();
 
 			try
 			{
@@ -169,14 +202,19 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 				_logger.LogError(e, "An error has occured while performing an add operation.");
 				throw;
 			}
-			return context.GetArgument<TSource>(sourceName);
+			return cloned;
 		}
 
 		public async Task<TSource> AddOrUpdateAsync<TSource>(ResolveFieldContext<object> context, string sourceName, Func<ClaimsPrincipal, AssertAction, bool> claimsPrincipalAssertion) where TSource : class
 		{
-			AssertWithClaimsPrincipal(AssertAction.Create, context, claimsPrincipalAssertion);
+			AssertWithClaimsPrincipal(AssertAction.CreateOrUpdate, context, claimsPrincipalAssertion);
 			var item = context.GetArgument<TSource>(sourceName);
 			var ctx = context.UserContext as IGraphRequestContext;
+
+			await TransformObject(item, ctx, MutationActions.CreateOrUpdate);
+
+			var cloned = item.Clone();
+
 			try
 			{
 				var edges = _connectionEdgeResolver.HandleConnectionEdges(item, async (model) =>
@@ -206,7 +244,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 				_logger.LogError(e, "An error has occured while performing an add operation.");
 				throw;
 			}
-			return context.GetArgument<TSource>(sourceName);
+			return cloned;
 		}
 
 		public async Task<TSource> UpdateAsync<TSource>(ResolveFieldContext<object> context, string sourceName,
@@ -215,6 +253,10 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			AssertWithClaimsPrincipal(AssertAction.Update, context, claimsPrincipalAssertion);
 			var item = context.GetArgument<TSource>(sourceName);
 			var ctx = context.UserContext as IGraphRequestContext;
+
+			await TransformObject(item, ctx, MutationActions.Update);
+
+			var cloned = item.Clone();
 
 			try
 			{
@@ -237,7 +279,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 				_logger.LogError(e, "An error has occured while performing an update operation.");
 				throw;
 			}
-			return context.GetArgument<TSource>(sourceName);
+			return cloned;
 		}
 
 		public async Task<List<TSource>> BatchAddOrUpdateAsync<TSource>(ResolveFieldContext<object> context, string sourceName,
@@ -255,6 +297,18 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 
 			var items = context.GetArgument<IEnumerable<TSource>>(sourceName).ToList();
 			var ctx = context.UserContext as IGraphRequestContext;
+
+			if (assertAction == AssertAction.BatchCreate)
+			{
+				await TransformObjects(items.Select(x => (object)x).ToList(), ctx, MutationActions.BatchCreate);
+			}
+
+			if (assertAction == AssertAction.BatchCreateOrUpdate)
+			{
+				await TransformObjects(items.Select(x => (object)x).ToList(), ctx, MutationActions.BatchCreateOrUpdate);
+			}
+
+			var cloned = items.Clone();
 
 			var batchItems = new Dictionary<Type, BatchModelList>();
 
@@ -328,7 +382,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 						throw new InvalidOperationException("This internal method is only for batch operations.");
 				}
 
-				return context.GetArgument<IEnumerable<TSource>>(sourceName).ToList();
+				return cloned;
 			}
 			catch (Exception e)
 			{

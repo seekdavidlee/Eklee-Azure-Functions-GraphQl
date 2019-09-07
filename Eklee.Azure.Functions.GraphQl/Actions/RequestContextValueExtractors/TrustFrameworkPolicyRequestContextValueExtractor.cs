@@ -6,7 +6,7 @@ namespace Eklee.Azure.Functions.GraphQl.Actions.RequestContextValueExtractors
 {
 	public class TrustFrameworkPolicyRequestContextValueExtractor : IRequestContextValueExtractor
 	{
-		public Task<object> GetValue(IGraphRequestContext graphRequestContext, Member member)
+		public Task<object> GetValueAsync(IGraphRequestContext graphRequestContext, Member member)
 		{
 			if (graphRequestContext.HttpRequest.Security != null)
 			{

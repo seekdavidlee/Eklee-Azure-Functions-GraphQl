@@ -1,7 +1,7 @@
 [Main page](../README.md)
 
 # Validation introduction
-Model validation can be leverage by performing 2 simple steps. Create your Model and add a supported attribute from System.ComponentModel.DataAnnotations. Next, add the following in your AutoFac Module.
+Model validation can be leverage by performing two steps. Create your Model and add a supported attribute from System.ComponentModel.DataAnnotations. Next, add the following in your AutoFac Module.
 
 ```
 builder.UseDataAnnotationsValidation();

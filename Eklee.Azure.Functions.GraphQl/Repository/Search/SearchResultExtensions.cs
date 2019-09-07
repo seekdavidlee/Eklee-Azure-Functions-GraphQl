@@ -56,7 +56,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 						value = Convert.ToDecimal(dobValue);
 					}
 
-					if (field.Type == typeof(DateTime) && value is DateTimeOffset dtmValue)
+					if ((field.Type == typeof(DateTime) || field.Type == typeof(DateTimeOffset)) && value is DateTimeOffset dtmValue)
 					{
 						value = dtmValue.DateTime;
 					}

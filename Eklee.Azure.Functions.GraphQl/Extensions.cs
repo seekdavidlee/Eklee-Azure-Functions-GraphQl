@@ -114,9 +114,13 @@ namespace Eklee.Azure.Functions.GraphQl
 			builder.RegisterType<GraphRequestContext>().As<IGraphRequestContext>().InstancePerLifetimeScope();
 		}
 
-		public static void UseAutoIdGenerator(this ContainerBuilder builder)
+		public static void UseSystemModelTransformers(this ContainerBuilder builder)
 		{
 			builder.RegisterType<AutoIdGenerator>()
+				.As<IModelTransformer>()
+				.SingleInstance();
+
+			builder.RegisterType<AutoDateTimeGenerator>()
 				.As<IModelTransformer>()
 				.SingleInstance();
 		}
@@ -125,10 +129,6 @@ namespace Eklee.Azure.Functions.GraphQl
 		{
 			builder.RegisterType<ValueFromRequestContextGenerator>()
 				.As<IModelTransformer>()
-				.SingleInstance();
-
-			builder.RegisterType<TrustFrameworkPolicyRequestContextValueExtractor>()
-				.As<IRequestContextValueExtractor>()
 				.SingleInstance();
 		}
 

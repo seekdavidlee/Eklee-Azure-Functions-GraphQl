@@ -11,7 +11,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestStorage.Core
 		protected override void Load(ContainerBuilder builder)
 		{
 			builder.UseDistributedCache<MemoryDistributedCache>();
-			builder.UseAutoIdGenerator();
+			builder.UseSystemModelTransformers();
 			builder.UseValueFromRequestContextGenerator();
 			builder.RegisterType<ValueFromRequestHeader>().As<IRequestContextValueExtractor>().SingleInstance();
 

@@ -95,7 +95,21 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.TableStorage
 			{
 				_logger.LogInformation($"Processing batch operations for partition: {batchOperationKey}.");
 
-				await info.Table.ExecuteBatchAsync(batchOperations[batchOperationKey]);
+				try
+				{
+					await info.Table.ExecuteBatchAsync(batchOperations[batchOperationKey]);
+				}
+				catch (StorageException ex)
+				{
+					if (ex.RequestInformation != null &&
+						!string.IsNullOrEmpty(ex.RequestInformation.HttpStatusMessage))
+					{
+						_logger.LogError(ex.RequestInformation.HttpStatusMessage);
+					}
+
+					throw;
+				}
+
 			}
 		}
 

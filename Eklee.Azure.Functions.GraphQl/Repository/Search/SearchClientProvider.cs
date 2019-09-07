@@ -96,7 +96,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 			if (type == typeof(string))
 				return DataType.String;
 
-			if (type == typeof(DateTime))
+			if (type == typeof(DateTime) || type == typeof(DateTimeOffset))
 				return DataType.DateTimeOffset;
 
 			if (type == typeof(bool))

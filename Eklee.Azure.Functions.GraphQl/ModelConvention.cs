@@ -69,6 +69,7 @@ namespace Eklee.Azure.Functions.GraphQl
 					m.Type == typeof(bool) ||
 					m.Type == typeof(double) ||
 					m.Type == typeof(DateTime) ||
+					m.Type == typeof(DateTimeOffset) ||
 					m.Type == typeof(Guid) ||
 					m.Type == typeof(List<string>))
 				{

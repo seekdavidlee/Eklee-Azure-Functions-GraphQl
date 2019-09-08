@@ -1,5 +1,4 @@
 ﻿using Eklee.Azure.Functions.GraphQl.Repository.Search;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,23 +9,6 @@ namespace Eklee.Azure.Functions.GraphQl
 	/// </summary>
 	public static class QueryParameterBuilderSearchExtensions
 	{
-		/// <summary>
-		/// Begin Search Builder. 
-		/// </summary>
-		/// <typeparam name="TSource"></typeparam>
-		/// <param name="qb">QueryBuilder passed in.</param>
-		/// <param name="searchTypes">Array of types you would like to perform searches on.</param>
-		/// <returns>QueryStepBuilder.</returns>
-		[Obsolete("Method is deprecated in the next version, please use method which does not take in any types instead.")]
-		public static QueryStepBuilder<TSource, SearchModel> BeginSearch<TSource>(
-			this QueryParameterBuilder<TSource> qb,
-			params Type[] searchTypes)
-		{
-			var step = Create(qb);
-			step.AddStepBagItem(SearchConstants.QueryTypes, searchTypes);
-			return step;
-		}
-
 		/// <summary>
 		/// Begin Search Builder. 
 		/// </summary>

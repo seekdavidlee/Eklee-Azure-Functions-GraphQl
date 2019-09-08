@@ -18,7 +18,8 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search.Filters
 		public string GenerateStringFilter(IEnumerable<QueryParameter> queryParameters, MemberSet members)
 		{
 			var filterQp = queryParameters.SingleOrDefault(x => x.MemberModel.Name == "filters");
-			if (filterQp != null && filterQp.ContextValue != null)
+			if (filterQp != null && filterQp.ContextValue != null &&
+				filterQp.ContextValue.Values != null)
 			{
 				var sb = new StringBuilder();
 				filterQp.ContextValue.Values.ForEach(value =>

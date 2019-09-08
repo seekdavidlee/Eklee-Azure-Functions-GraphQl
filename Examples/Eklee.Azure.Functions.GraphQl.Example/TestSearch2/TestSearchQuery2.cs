@@ -2,6 +2,7 @@
 using Eklee.Azure.Functions.GraphQl.Repository.Search;
 using GraphQL.Types;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
 
 namespace Eklee.Azure.Functions.GraphQl.Example.TestSearch2
 {
@@ -13,16 +14,25 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestSearch2
 
 			Name = "query";
 
-			queryBuilderFactory.Create<MySearch4>(this, "searchModel4", "Search for all Model4")
+			queryBuilderFactory.Create<MySearch4Result>(this, "searchModel4", "Search for all Model4")
 				.WithParameterBuilder()
 				.BeginSearch()
-				.Add<MySearch4>()
+					.Add<MySearch4>()
 				.BuildWithAggregate()
 				.BuildQueryResult(ctx =>
 				{
 					var searches = ctx.GetQueryResults<SearchResultModel>();
-					ctx.SetResults(searches.GetTypeList<MySearch4>());
-				}).BuildQuery().BuildWithListResult();
+
+					var result = new MySearch4Result();
+					result.Results = searches.GetTypeList<MySearch4>();
+					result.Aggregates = new List<SearchAggregateModel>();
+
+					var agg = ctx.GetSystemItems<SearchResult>();
+					agg.ForEach(a => result.Aggregates.AddRange(a.Aggregates));
+
+					ctx.SetResults(new List<MySearch4Result> { result });
+
+				}).BuildQuery().BuildWithSingleResult();
 		}
 	}
 }

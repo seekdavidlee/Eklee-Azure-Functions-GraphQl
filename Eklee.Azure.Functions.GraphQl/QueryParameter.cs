@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System;
 
 namespace Eklee.Azure.Functions.GraphQl
 {
@@ -22,5 +23,27 @@ namespace Eklee.Azure.Functions.GraphQl
 		/// This property is used to provide support for behavioral settings for how we configure ContextValue.
 		/// </summary>
 		public ContextValueSetRule Rule { get; set; }
+
+		/// <summary>
+		/// If set, this allows us to set ContextValue using this func.
+		/// </summary>
+		[JsonIgnore]
+		public Func<IGraphRequestContext, RequestContextParameter> PopulateWithRequestContext { get; set; }
+	}
+
+	/// <summary>
+	/// This is derived from IGraphRequestContext.
+	/// </summary>
+	public class RequestContextParameter
+	{
+		/// <summary>
+		/// Comparison.
+		/// </summary>
+		public Comparisons Comparison { get; set; }
+
+		/// <summary>
+		/// Value to compare with.
+		/// </summary>
+		public object Value { get; set; }
 	}
 }

@@ -103,7 +103,8 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 			queryBuilderFactory.Create<BookReviewOutput>(booksQuery, "SearchBookReviews")
 				.WithCache(TimeSpan.FromSeconds(10))
 				.WithParameterBuilder()
-				.BeginSearch(typeof(BookSearch), typeof(ReviewerSearch))
+				.BeginSearch()
+					.Add<BookSearch>().Add<ReviewerSearch>().Build()
 					.BuildQueryResult(ctx =>
 					{
 						var searches = ctx.GetQueryResults<SearchResultModel>();

@@ -10,7 +10,8 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search.Filters
 		{
 			return member.Type == typeof(int) || 
 				member.Type == typeof(double) || 
-				member.Type == typeof(DateTime);
+				member.Type == typeof(DateTime) ||
+				member.Type == typeof(DateTimeOffset);
 		}
 
 		private string GetComparison(SearchFilterModel searchFilterModel)

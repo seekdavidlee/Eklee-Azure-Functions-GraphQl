@@ -2627,7 +2627,619 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "mutation {\r\n  deleteAllModel3{\r\n    message\r\n  }\r\n}"
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/searchIndexes",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"searchIndexes"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "TestSearch2",
+			"item": [
+				{
+					"name": "GetSchema",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f36930b9-39f7-43fd-b336-187ed3c67216",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Contains query\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.__schema.queryType.name).to.eql(\"query\");",
+									"});",
+									"",
+									"pm.test(\"Contains mutation\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.__schema.mutationType.name).to.eql(\"mutation\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\"operationName\":\"IntrospectionQuery\",\"variables\":{},\"query\":\"query IntrospectionQuery {\\n  __schema {\\n    queryType {\\n      name\\n    }\\n    mutationType {\\n      name\\n    }\\n    subscriptionType {\\n      name\\n    }\\n    types {\\n      ...FullType\\n    }\\n    directives {\\n      name\\n      description\\n      locations\\n      args {\\n        ...InputValue\\n      }\\n    }\\n  }\\n}\\n\\nfragment FullType on __Type {\\n  kind\\n  name\\n  description\\n  fields(includeDeprecated: true) {\\n    name\\n    description\\n    args {\\n      ...InputValue\\n    }\\n    type {\\n      ...TypeRef\\n    }\\n    isDeprecated\\n    deprecationReason\\n  }\\n  inputFields {\\n    ...InputValue\\n  }\\n  interfaces {\\n    ...TypeRef\\n  }\\n  enumValues(includeDeprecated: true) {\\n    name\\n    description\\n    isDeprecated\\n    deprecationReason\\n  }\\n  possibleTypes {\\n    ...TypeRef\\n  }\\n}\\n\\nfragment InputValue on __InputValue {\\n  name\\n  description\\n  type {\\n    ...TypeRef\\n  }\\n  defaultValue\\n}\\n\\nfragment TypeRef on __Type {\\n  kind\\n  name\\n  ofType {\\n    kind\\n    name\\n    ofType {\\n      kind\\n      name\\n      ofType {\\n        kind\\n        name\\n        ofType {\\n          kind\\n          name\\n          ofType {\\n            kind\\n            name\\n            ofType {\\n              kind\\n              name\\n              ofType {\\n                kind\\n                name\\n              }\\n            }\\n          }\\n        }\\n      }\\n    }\\n  }\\n}\\n\"}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/testsearch2/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"testsearch2",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "SeedModel4",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"var testName = pm.info.requestName + \": \";",
+									"",
+									"pm.test(testName + \"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"pm.test(testName + \"Created data is corect\", function () {",
+									"",
+									"    pm.expect(jsonData.data.batchCreateMySearch4.length).to.eql(5);",
+									"    var j = jsonData.data.batchCreateMySearch4[0];",
+									"    pm.expect(j.state).to.eql(\"foo\");",
+									"    pm.expect(j.field).to.eql(\"1245 Main St, Allen TX 75011\");",
+									"    ",
+									"    var j2 = jsonData.data.batchCreateMySearch4[1];",
+									"    pm.expect(j2.state).to.eql(\"bar\");",
+									"    pm.expect(j2.field).to.eql(\"31 Kan, Frisco TX 75011\");",
+									"    ",
+									"    var j3 = jsonData.data.batchCreateMySearch4[2];",
+									"    pm.expect(j3.state).to.eql(\"bar\");",
+									"    pm.expect(j3.field).to.eql(\"1245 Main St, Plano TX 75221\");",
+									"    ",
+									"    var j4 = jsonData.data.batchCreateMySearch4[3];",
+									"    pm.expect(j4.state).to.eql(\"bar\");",
+									"    pm.expect(j4.field).to.eql(\"56 Red St, Allen CA 15111\");    ",
+									"    ",
+									"    var j5 = jsonData.data.batchCreateMySearch4[4];",
+									"    pm.expect(j5.state).to.eql(\"one\");",
+									"    pm.expect(j5.field).to.eql(\"900 West Lake, Lorado TX 71234\");        ",
+									"});",
+									"",
+									"setTimeout(function(){",
+									"    console.log(\"Done!\");",
+									"}, 1000);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/graphql"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "mutation {\r\n  batchCreateMySearch4(mysearch4:[{\r\n    id:\"@\"\r\n    state: \"foo\"\r\n    field:\"1245 Main St, Allen TX 75011\"\r\n    list5:[ {\r\n       id:\"james bing\"\r\n       intField: 12340\r\n    },\r\n    {\r\n       id:\"mary johnson\"\r\n       intField: 12345\r\n    },\r\n    {\r\n       id:\"wayn rose\"\r\n       intField: 12344\r\n    }\r\n    ],\r\n    list6:[{\r\n      id: \"rose\"\r\n      mySearch8:{\r\n        id:\"aa\"\r\n        strField:\"aa bb cc\"\r\n      }\r\n      list7: [{\r\n        \tid: \"canada\"\r\n        \tdobField: 12567.99\r\n      \t}\r\n      ]\r\n      strField: \"jacksonville\"\r\n    }]\r\n  },\r\n  {\r\n    id:\"@\"\r\n    state: \"bar\"\r\n    field:\"31 Kan, Frisco TX 75011\"\r\n    list5:[{\r\n       id:\"han pong\"\r\n       intField: 98811\r\n    }]\r\n  },\r\n  {\r\n    id:\"@\"\r\n    state: \"bar\"\r\n    field:\"1245 Main St, Plano TX 75221\"\r\n  },\r\n  {\r\n    id:\"@\"\r\n    state: \"bar\"\r\n    field:\"56 Red St, Allen CA 15111\"\r\n  },\r\n  {\r\n    id:\"@\"\r\n    state: \"one\"\r\n    field:\"900 West Lake, Lorado TX 71234\"\r\n    list5:[{\r\n       id:\"jasmin wong\"\r\n       intField: 56781\r\n    },{\r\n       id:\"mike wong\"\r\n       intField: 12381\r\n    }]    \r\n  }  \r\n  ]){\r\n    id\r\n    field\r\n    state\r\n    list5 {\r\n      id\r\n      intField\r\n    }\r\n    list6 {\r\n      id\r\n      strField\r\n      mySearch8 {\r\n        id\r\n        strField\r\n      }\r\n    }    \r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/testsearch2/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"testsearch2",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "QueryModel4_FirstLevel",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"var testName = pm.info.requestName + \": \";",
+									"",
+									"pm.test(testName + \"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"var model = jsonData.data.searchModel4;",
+									"var results = model.results; ",
+									"pm.test(testName + \"Created results is corect\", function () {",
+									"",
+									"    pm.expect(results.length).to.eql(2);",
+									"    var j = model.results.filter(x=> x.state === \"foo\")[0];",
+									"    pm.expect(j.field).to.eql(\"1245 Main St, Allen TX 75011\");",
+									"    ",
+									"    var j2 = results.filter(x=> x.state === \"bar\")[0];",
+									"    pm.expect(j2.field).to.eql(\"56 Red St, Allen CA 15111\");    ",
+									"});",
+									"",
+									"var aggregates = model.aggregates;",
+									"pm.test(testName + \"Created aggregates is corect\", function () {",
+									"    pm.expect(aggregates.length).to.eql(1);",
+									"    pm.expect(aggregates[0].fieldName).to.eql(\"State\");",
+									"    pm.expect(aggregates[0].fieldAggregates.length).to.eql(2);",
+									"    ",
+									"    var a1 = aggregates[0].fieldAggregates.filter(x=>x.value === \"bar\")[0];",
+									"    pm.expect(a1.count).to.eql(1);",
+									"    ",
+									"    var a2 = aggregates[0].fieldAggregates.filter(x=>x.value === \"foo\")[0];",
+									"    pm.expect(a2.count).to.eql(1);    ",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/graphql"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "query{\r\n  searchModel4(searchtext:{equal:\"Allen\"}, filters:[]){\r\n\tresults {\r\n\t    id\r\n\t    field\r\n\t    state\r\n\t    list5 {\r\n\t      id\r\n\t      intField\r\n\t    }\r\n\t    list6 {\r\n\t      id\r\n\t      strField\r\n\t      mySearch8 {\r\n\t        id\r\n\t        strField\r\n\t      }\r\n\t    }\r\n\t  }\r\n   aggregates {\r\n    fieldName\r\n    fieldAggregates {\r\n      count\r\n      value\r\n    }\r\n  } \t  \r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/testsearch2/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"testsearch2",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "QueryModel4_FirstLevelWithFilter",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"var testName = pm.info.requestName + \": \";",
+									"",
+									"pm.test(testName + \"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"var model = jsonData.data.searchModel4;",
+									"var results = model.results; ",
+									"pm.test(testName + \"Created results is corect\", function () {",
+									"",
+									"    pm.expect(results.length).to.eql(1);",
+									"",
+									"    var j1 = results.filter(x=> x.state === \"bar\")[0];",
+									"    pm.expect(j1.field).to.eql(\"56 Red St, Allen CA 15111\");    ",
+									"});",
+									"",
+									"var aggregates = model.aggregates;",
+									"pm.test(testName + \"Created aggregates is corect\", function () {",
+									"    pm.expect(aggregates.length).to.eql(1);",
+									"    pm.expect(aggregates[0].fieldName).to.eql(\"State\");",
+									"    pm.expect(aggregates[0].fieldAggregates.length).to.eql(1);",
+									"    ",
+									"    var a1 = aggregates[0].fieldAggregates.filter(x=>x.value === \"bar\")[0];",
+									"    pm.expect(a1.count).to.eql(1);",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/graphql"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "query{\r\n  searchModel4(searchtext:{equal:\"Allen\"}, filters:[{\r\n    comparison:equal\r\n    fieldName:\"State\"\r\n    fieldValue:\"bar\"\r\n  }]){\r\n\tresults {\r\n    id\r\n    field\r\n    state\r\n    list5 {\r\n      id\r\n      intField\r\n    }\r\n    list6 {\r\n      id\r\n      strField\r\n      mySearch8 {\r\n        id\r\n        strField\r\n      }\r\n    }\r\n  }\r\n   aggregates {\r\n    fieldName\r\n    fieldAggregates {\r\n      count\r\n      value\r\n    }\r\n  } \r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/testsearch2/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"testsearch2",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "QueryModel4_FirstLevelNoFilter",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"var testName = pm.info.requestName + \": \";",
+									"",
+									"pm.test(testName + \"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"var model = jsonData.data.searchModel4;",
+									"var results = model.results; ",
+									"pm.test(testName + \"Created results is corect\", function () {",
+									"",
+									"    pm.expect(results.length).to.eql(2);",
+									"    var j = model.results.filter(x=> x.state === \"foo\")[0];",
+									"    pm.expect(j.field).to.eql(\"1245 Main St, Allen TX 75011\");",
+									"    ",
+									"    var j2 = results.filter(x=> x.state === \"bar\")[0];",
+									"    pm.expect(j2.field).to.eql(\"56 Red St, Allen CA 15111\");    ",
+									"});",
+									"",
+									"var aggregates = model.aggregates;",
+									"pm.test(testName + \"Created aggregates is corect\", function () {",
+									"    pm.expect(aggregates.length).to.eql(1);",
+									"    pm.expect(aggregates[0].fieldName).to.eql(\"State\");",
+									"    pm.expect(aggregates[0].fieldAggregates.length).to.eql(2);",
+									"    ",
+									"    var a1 = aggregates[0].fieldAggregates.filter(x=>x.value === \"bar\")[0];",
+									"    pm.expect(a1.count).to.eql(1);",
+									"    ",
+									"    var a2 = aggregates[0].fieldAggregates.filter(x=>x.value === \"foo\")[0];",
+									"    pm.expect(a2.count).to.eql(1);    ",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/graphql"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "query{\r\n  searchModel4(searchtext:{equal:\"Allen\"}){\r\n\tresults {\r\n\t    id\r\n\t    field\r\n\t    state\r\n\t    list5 {\r\n\t      id\r\n\t      intField\r\n\t    }\r\n\t    list6 {\r\n\t      id\r\n\t      strField\r\n\t      mySearch8 {\r\n\t        id\r\n\t        strField\r\n\t      }\r\n\t    }\r\n\t  }\r\n   aggregates {\r\n    fieldName\r\n    fieldAggregates {\r\n      count\r\n      value\r\n    }\r\n  } \t  \r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/testsearch2/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"testsearch2",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "QueryModel4_SecondLevel",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"var testName = pm.info.requestName + \": \";",
+									"",
+									"pm.test(testName + \"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"var model = jsonData.data.searchModel4;",
+									"var results = model.results; ",
+									"",
+									"pm.test(testName + \"Created data is corect\", function () {",
+									"",
+									"    pm.expect(results.length).to.eql(1);",
+									"    var j = results.filter(x=> x.state === \"bar\")[0];",
+									"    pm.expect(j.field).to.eql(\"31 Kan, Frisco TX 75011\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/graphql"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "query{\r\n  searchModel4(searchtext:{equal:\"han pong\"}, filters:[]){\r\n\tresults {\r\n\t    id\r\n\t    field\r\n\t    state\r\n\t    list5 {\r\n\t      id\r\n\t      intField\r\n\t    }\r\n\t    list6 {\r\n\t      id\r\n\t      strField\r\n\t      mySearch8 {\r\n\t        id\r\n\t        strField\r\n\t      }\r\n\t    }\r\n    }\r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/testsearch2/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"testsearch2",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "QueryModel4_LastLevel",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"var testName = pm.info.requestName + \": \";",
+									"",
+									"pm.test(testName + \"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"var model = jsonData.data.searchModel4;",
+									"var results = model.results; ",
+									"",
+									"pm.test(testName + \"Created data is corect\", function () {",
+									"",
+									"    pm.expect(results.length).to.eql(1);",
+									"    var j = results.filter(x=> x.state === \"foo\")[0];",
+									"    pm.expect(j.field).to.eql(\"1245 Main St, Allen TX 75011\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/graphql"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "query{\r\n  searchModel4(searchtext:{equal:\"canada\"}, filters:[]){\r\n\tresults {\r\n\t    id\r\n\t    field\r\n\t    state\r\n\t    list5 {\r\n\t      id\r\n\t      intField\r\n\t    }\r\n\t    list6 {\r\n\t      id\r\n\t      strField\r\n\t      mySearch8 {\r\n\t        id\r\n\t        strField\r\n\t      }\r\n\t    }\r\n    }\r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/testsearch2/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"testsearch2",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CleanupModel4",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "799fd824-64d9-479e-8fa5-e310b87b1259",
+								"exec": [
+									"var testName = pm.info.requestName + \": \";",
+									"",
+									"pm.test(testName + \"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(testName + \"No errors.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.eq(undefined);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/graphql"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "mutation {\r\n  deleteAllMySearch4{\r\n    message\r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/testsearch2/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"testsearch2",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DeleteSearchIndexes",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "799fd824-64d9-479e-8fa5-e310b87b1259",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
 						},
 						"url": {
 							"raw": "{{endpoint}}/api/searchIndexes",
@@ -5984,6 +6596,91 @@
 					"response": []
 				},
 				{
+					"name": "SeedModel12WithAutoIdAndValueFromHeader",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"var testName = pm.info.requestName + \": \";",
+									"pm.test(testName + \"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"pm.test(testName + \"Has no errors\", function () {",
+									"",
+									"    pm.expect(jsonData.errors).to.eql(undefined);",
+									"});",
+									"",
+									"pm.test(testName + \"Contains correct JSON payload\", function () {",
+									"",
+									"    var batch = jsonData.data.batchCreateOrUpdateModel12;",
+									"    pm.expect(batch.length).to.eql(5);",
+									"    ",
+									"    for(var i = 0; i < batch.length; i++){",
+									"        var item = batch[i];    ",
+									"        pm.expect(item.id).to.not.eql(\"@\");",
+									"        pm.expect(item.field.indexOf(\"model12 \") > -1).to.eql(true);",
+									"        pm.expect(item.id.length > 1).to.eql(true);",
+									"        pm.expect(item.fieldDateTime).to.eql(\"2019-01-01\");",
+									"        ",
+									"        pm.expect(item.fieldDateTimeToday.length).to.eql(10);",
+									"        pm.expect(item.fieldDateTimeNow.length > 10).to.eql(true);",
+									"        ",
+									"        pm.expect(item.fieldFromHeader).to.eql(\"FOOBAR\");",
+									"    }",
+									"    ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/graphql"
+							},
+							{
+								"key": "SomeThingFromHeader",
+								"value": "FOOBAR",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "mutation {\r\n  batchCreateOrUpdateModel12(model12:[{\r\n    id:\"@\"\r\n    field:\"model12 1\"\r\n    fieldDateTime: \"2019-01-01\"\r\n  },\r\n  {\r\n    id:\"@\"\r\n    field:\"model12 2\"\r\n    fieldDateTime: \"2019-01-01\"\r\n  },\r\n  {\r\n    id:\"@\"\r\n    field:\"model12 3\"\r\n    fieldDateTime: \"2019-01-01\"\r\n  },\r\n  {\r\n    id:\"@\"\r\n    field:\"model12 4\"\r\n    fieldDateTime: \"2019-01-01\"\r\n  },\r\n  {\r\n    id:\"@\"\r\n    field:\"model12 5\"\r\n    fieldDateTime: \"2019-01-01\"\r\n  }\r\n  \r\n  ]){\r\n    id\r\n    field\r\n    fieldFromHeader\r\n    fieldDateTime\r\n    fieldDateTimeToday\r\n    fieldDateTimeNow\r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/teststorage/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"teststorage",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "QueryModel7UsingModel8Id_Expect1Found",
 					"event": [
 						{
@@ -8169,11 +8866,13 @@
 							"script": {
 								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
 								"exec": [
-									"pm.test(\"Status code is 200\", function () {",
+									"var testName = pm.info.requestName + \": \";",
+									"",
+									"pm.test(testName + \"Status code is 200\", function () {",
 									"    pm.response.to.have.status(200);",
 									"});",
 									"",
-									"pm.test(\"Created data contains 1 items\", function () {",
+									"pm.test(testName + \"Created data contains 1 items\", function () {",
 									"    var jsonData = pm.response.json();",
 									"    pm.expect(jsonData.data.createOrUpdateModel5.id).to.eql(\"model5_1\");",
 									"    pm.expect(jsonData.data.createOrUpdateModel5.dateField).to.eql(\"2019-01-01\");",
@@ -8232,11 +8931,13 @@
 							"script": {
 								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
 								"exec": [
-									"pm.test(\"Status code is 200\", function () {",
+									"var testName = pm.info.requestName + \": \";",
+									"",
+									"pm.test(testName + \"Status code is 200\", function () {",
 									"    pm.response.to.have.status(200);",
 									"});",
 									"",
-									"pm.test(\"Created data contains 1 items\", function () {",
+									"pm.test(testName + \"Created data contains 1 items\", function () {",
 									"    var jsonData = pm.response.json();",
 									"    pm.expect(jsonData.data.createOrUpdateModel5.id).to.eql(\"model5_1\");",
 									"});"

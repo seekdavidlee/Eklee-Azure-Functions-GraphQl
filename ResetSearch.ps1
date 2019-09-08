@@ -17,7 +17,7 @@ $primaryKey = (Invoke-AzResourceAction `
 
 $headers = @{ "api-key" = $primaryKey}
 
-$url = "https://$ServiceName.search.windows.net/indexes?api-version=2017-11-11"
+$url = "https://$ServiceName.search.windows.net/indexes?api-version=2019-05-06"
 
 $response = Invoke-WebRequest -Method GET -Uri $url -ContentType "application/json" -Headers $headers | ConvertFrom-Json
 

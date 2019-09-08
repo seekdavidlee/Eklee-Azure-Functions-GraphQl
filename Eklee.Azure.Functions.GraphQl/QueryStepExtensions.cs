@@ -28,12 +28,18 @@ namespace Eklee.Azure.Functions.GraphQl
 				}
 			}
 
-
 			// Copy Member Models which are ignored via JsonIgnore.
 			for (var i = 0; i < queryStep.QueryParameters.Count; i++)
 			{
-				clone.QueryParameters[i].MemberModel =
-					queryStep.QueryParameters[i].MemberModel;
+				var qp = queryStep.QueryParameters[i];
+				var cqp = clone.QueryParameters[i];
+
+				cqp.MemberModel = qp.MemberModel;
+
+				if (qp.PopulateWithRequestContext != null)
+				{
+					cqp.PopulateWithRequestContext = qp.PopulateWithRequestContext;
+				}
 			}
 
 			return clone;

@@ -12,6 +12,9 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestDocumentDb.Events
 		{
 			_logger = logger;
 		}
+
+		public int ExecutionOrder => 1;
+
 		public Task TryHandlePostItem<TSource>(MutationActionItem<TSource> mutationActionItem)
 		{
 			_logger.LogInformation($"BarMutationPostAction {GetBody(mutationActionItem)}");

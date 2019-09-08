@@ -8,7 +8,6 @@ using Eklee.Azure.Functions.GraphQl.Connections;
 using Eklee.Azure.Functions.GraphQl.Queries;
 using Eklee.Azure.Functions.GraphQl.Repository;
 using Eklee.Azure.Functions.GraphQl.Repository.InMemory;
-using FastMember;
 using GraphQL;
 using GraphQL.Builders;
 using GraphQL.Types;
@@ -135,29 +134,7 @@ namespace Eklee.Azure.Functions.GraphQl
 				}
 			}
 
-			var steps = _queryParameterBuilder.GetQuerySteps(context).ToList();
-
-			if (steps.Count == 0)
-			{
-				var qs = _queryParameterBuilder.NewQueryStep();
-
-				var ctxValue = new ContextValue();
-				ctxValue.PopulateSelectValues(context);
-				Type t = typeof(TSource);
-				var ta = TypeAccessor.Create(t);
-
-				qs.QueryParameters = new List<QueryParameter>
-				{
-						new QueryParameter
-						{
-							MemberModel = new ModelMember(t, ta, null, true),
-							ContextValue = ctxValue
-						}
-				};
-
-				steps.Add(qs);
-
-			}
+			var steps = _queryParameterBuilder.GetQuerySteps(context, graphRequestContext).ToList();
 
 			if (_cacheInSeconds > 0)
 			{

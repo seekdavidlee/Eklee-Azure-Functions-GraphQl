@@ -1,6 +1,9 @@
-﻿using FastMember;
+﻿using Eklee.Azure.Functions.GraphQl.Connections;
+using FastMember;
 using Microsoft.Azure.Search.Models;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Eklee.Azure.Functions.GraphQl.Repository.Search
@@ -39,40 +42,10 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 			results.Results.ToList().ForEach(r =>
 			{
 				var item = typeAccessor.CreateNew();
-
-				r.Document.ToList().ForEach(d =>
+				foreach (var d in r.Document)
 				{
-					var field = members.Single(x => x.Name == d.Key);
-
-					object value = d.Value;
-
-					if (field.Type == typeof(Guid) && value is string strValue)
-					{
-						value = Guid.Parse(strValue);
-					}
-
-					if (field.Type == typeof(decimal) && value is double dobValue)
-					{
-						value = Convert.ToDecimal(dobValue);
-					}
-
-					if (field.Type == typeof(DateTime) && value is DateTimeOffset dtmValue)
-					{
-						value = dtmValue.DateTime;
-					}
-
-					if (field.Type == typeof(int))
-					{
-						value = Convert.ToInt32(value);
-					}
-
-					if (field.Type == typeof(long))
-					{
-						value = Convert.ToInt64(value);
-					}
-
-					typeAccessor[item, d.Key] = value;
-				});
+					PopulateField(typeAccessor, item, members, d);
+				}
 
 				searchResult.Values.Add(new SearchResultModel
 				{
@@ -80,6 +53,87 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 					Value = item
 				});
 			});
+		}
+
+		private static void PopulateField(
+			TypeAccessor typeAccessor,
+			object item,
+			MemberSet members,
+			KeyValuePair<string, object> d)
+		{
+			var field = members.Single(x => x.Name == d.Key);
+
+			object value = d.Value;
+
+			if (field.Type == typeof(Guid) && value is string strValue)
+			{
+				typeAccessor[item, d.Key] = Guid.Parse(strValue);
+				return;
+			}
+
+			if (field.Type == typeof(decimal) && value is double dobValue)
+			{
+				typeAccessor[item, d.Key] = Convert.ToDecimal(dobValue);
+				return;
+			}
+
+			if ((field.Type == typeof(DateTime) || field.Type == typeof(DateTimeOffset)) && value is DateTimeOffset dtmValue)
+			{
+				typeAccessor[item, d.Key] = dtmValue.DateTime;
+				return;
+			}
+
+			if (field.IsList())
+			{
+				if (value is Document[] doc1s)
+				{
+					typeAccessor[item, d.Key] = Populate(field, doc1s);
+					return;
+				}
+
+				return;
+			}
+
+			if (field.Type != typeof(string) && field.Type.IsClass)
+			{
+				var t = TypeAccessor.Create(field.Type);
+				var newItem = t.CreateNew();
+
+				foreach (var dItem in (Document)value)
+				{
+					PopulateField(t, newItem, t.GetMembers(), dItem);
+				}
+
+				typeAccessor[item, d.Key] = newItem;
+				return;
+			}
+
+			typeAccessor[item, d.Key] = Convert.ChangeType(value, field.Type);
+		}
+
+		private static object Populate(Member member, Document[] docs)
+		{
+			var listTypeAccessor = TypeAccessor.Create(member.Type);
+
+			var list = (IList)listTypeAccessor.CreateNew();
+
+			var type = member.Type.GetGenericArguments()[0];
+
+			var typeAccessor = TypeAccessor.Create(type);
+
+			var members = typeAccessor.GetMembers();
+
+			foreach (var doc in docs)
+			{
+				var item = typeAccessor.CreateNew();
+				list.Add(item);
+
+				foreach (var d in doc)
+				{
+					PopulateField(typeAccessor, item, members, d);
+				}
+			}
+			return list;
 		}
 	}
 }

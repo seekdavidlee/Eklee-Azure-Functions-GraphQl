@@ -8,6 +8,8 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestDocumentDb.Events
 	{
 		private readonly ILogger _logger;
 
+		public int ExecutionOrder => 1;
+
 		public BarMutationPreAction(ILogger logger)
 		{
 			_logger = logger;

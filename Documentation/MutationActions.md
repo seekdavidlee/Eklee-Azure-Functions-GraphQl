@@ -18,6 +18,10 @@ builder.RegisterType<MyPostAction>().As<IMutationPostAction>().SingleInstance();
 builder.RegisterType<MyPreAction>().As<IMutationPreAction>().SingleInstance();
 ```
 
+## ExecutionOrder
+
+All System Mutation Actions run with ExecutionOrder of 0. Some examples include the ConnectionEdgeHandler which is used to control and maintain Connection types of Models. You may wish to have a higher or lower ExecutionOrder value depending on your senario.
+
 ## What can I do?
 
 If you have a requirement to persist the same entity in other forms of data store, then Mutation Actions is a perfect way for you to orchestrate that. However, be aware that any exceptions in the IMutationPreAction will cause the mutation to NOT happen. Thus, it is important for you to consider error handling and retry logic, especially in the context of the Cloud.

@@ -10,6 +10,8 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 	{
 		private readonly Dictionary<string, SearchMappedModel> _mappedTypes = new Dictionary<string, SearchMappedModel>();
 
+		public int ExecutionOrder => 0;
+
 		public void Map<TSearchModel, TModel>()
 		{
 			var typeName = typeof(TModel).Name;

@@ -8,6 +8,7 @@
 		BatchCreateOrUpdate,
 		BatchCreate,
 		Create,
+		CreateOrUpdate,
 		Update,
 		Delete,
 		DeleteAll

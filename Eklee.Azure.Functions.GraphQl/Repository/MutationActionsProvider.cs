@@ -13,9 +13,10 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			IEnumerable<IMutationPostAction> mutationPostActions,
 			IEnumerable<IMutationPreAction> mutationPreActions)
 		{
-			_mutationPostActions = mutationPostActions.ToList();
-			_mutationPreActions = mutationPreActions.ToList();
+			_mutationPostActions = mutationPostActions.OrderBy(x => x.ExecutionOrder).ToList();
+			_mutationPreActions = mutationPreActions.OrderBy(x => x.ExecutionOrder).ToList();
 		}
+
 		public async Task HandlePostActions<TSource>(MutationActionItem<TSource> mutationActionItem)
 		{
 			foreach (var action in _mutationPostActions)

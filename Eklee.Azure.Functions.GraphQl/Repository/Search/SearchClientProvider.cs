@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using Eklee.Azure.Functions.GraphQl.Connections;
 using Eklee.Azure.Functions.GraphQl.Repository.DocumentDb;
 using Eklee.Azure.Functions.GraphQl.Repository.Search.Filters;
 using FastMember;
 using Microsoft.Azure.Search;
 using Microsoft.Azure.Search.Models;
 using Microsoft.Extensions.Logging;
+using Microsoft.Rest.Azure;
 using Newtonsoft.Json;
 using DataType = Microsoft.Azure.Search.Models.DataType;
 
@@ -51,7 +53,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 			var prefix = configurations.GetStringValue(SearchConstants.Prefix, sourceType) ?? "";
 			string indexName = prefix + id;
 
-			_searchServiceClient.Indexes.CreateOrUpdate(new Index(indexName, GetTypeFields(sourceType)));
+			_searchServiceClient.Indexes.CreateOrUpdate(new Index(indexName, GetTypeFields(sourceType, true)));
 
 			_searchClientProviderInfos.Add(new SearchClientProviderInfo
 			{
@@ -62,7 +64,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 			});
 		}
 
-		private List<Field> GetTypeFields(Type sourceType)
+		private List<Field> GetTypeFields(Type sourceType, bool isTop)
 		{
 			var source = TypeAccessor.Create(sourceType);
 
@@ -73,9 +75,33 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 					return null;
 				}
 
-				DataType type = GetDataType(x.Type);
+				if (x.IsList())
+				{
+					var argType = x.Type.GetGenericArguments()[0];
+					return new Field(x.Name, DataType.Collection(DataType.Complex), GetTypeFields(argType, false));
+				}
+
+				DataType type;
+
+				bool hasType = true;
+				if (!TryGetDataType(x.Type, out type))
+				{
+					if (x.Type.IsClass)
+					{
+						return new Field(x.Name, DataType.Complex, GetTypeFields(x.Type, false));
+					}
+
+					hasType = false;
+				}
+
+				if (!hasType)
+				{
+					throw new ArgumentException($"Type of {x.Type.FullName} cannot be translated to Search Data-type.");
+				}
+
 				var isSearchable = x.Type == typeof(string);
-				var isKey = x.GetAttribute(typeof(KeyAttribute), false) != null;
+
+				var isKey = isTop && x.GetAttribute(typeof(KeyAttribute), false) != null;
 				var isFacetable = x.GetAttribute(typeof(IsFacetableAttribute), false) != null;
 				var isFilterable = x.GetAttribute(typeof(IsFilterableAttribute), false) != null;
 
@@ -91,36 +117,63 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 			}).Where(field => field != null).ToList();
 		}
 
-		private DataType GetDataType(Type type)
+		private bool TryGetDataType(Type type, out DataType dt)
 		{
 			if (type == typeof(string))
-				return DataType.String;
+			{
+				dt = DataType.String;
+				return true;
+			}
 
 			if (type == typeof(DateTime) || type == typeof(DateTimeOffset))
-				return DataType.DateTimeOffset;
+			{
+				dt = DataType.DateTimeOffset;
+				return true;
+			}
 
 			if (type == typeof(bool))
-				return DataType.Boolean;
+			{
+				dt = DataType.Boolean;
+				return true;
+			}
 
 			if (type == typeof(int))
-				return DataType.Int32;
+			{
+				dt = DataType.Int32;
+				return true;
+			}
 
 			if (type == typeof(long))
-				return DataType.Int64;
+			{
+				dt = DataType.Int64;
+				return true;
+			}
 
 			if (type == typeof(decimal))
-				return DataType.Double;
+			{
+				dt = DataType.Double;
+				return true;
+			}
 
 			if (type == typeof(double))
-				return DataType.Double;
+			{
+				dt = DataType.Double;
+				return true;
+			}
 
 			if (type == typeof(float))
-				return DataType.Double;
+			{
+				dt = DataType.Double;
+				return true;
+			}
 
 			if (type == typeof(Guid))
-				return DataType.String;
+			{
+				dt = DataType.String;
+				return true;
+			}
 
-			throw new ArgumentException($"Type of {type.FullName} cannot be translated to Search Data-type.");
+			return false;
 		}
 
 		public bool CanHandle<T>(IGraphRequestContext graphRequestContext)
@@ -165,7 +218,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 		{
 			var client = Get<T>(graphRequestContext);
 			var list = items.Select(IndexAction.Upload).ToList();
-			await client.Documents.IndexAsync(new IndexBatch<T>(list));
+			await client.Documents.IndexAsync(IndexBatch.New(list));
 		}
 
 		public Task BatchCreateOrUpdateAsync<T>(IEnumerable<T> items, IGraphRequestContext graphRequestContext) where T : class
@@ -248,7 +301,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 
 			await _searchServiceClient.Indexes.DeleteAsync(client.IndexName);
 
-			var fields = GetTypeFields(typeof(T));
+			var fields = GetTypeFields(typeof(T), true);
 
 			await _searchServiceClient.Indexes.CreateAsync(new Index(client.IndexName, fields));
 		}

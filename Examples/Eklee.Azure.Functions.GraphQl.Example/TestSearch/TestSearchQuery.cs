@@ -34,7 +34,11 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestSearch
 			queryBuilderFactory.Create<MySearchResult>(this, "search1", "Searches across Models.")
 				.WithCache(TimeSpan.FromSeconds(10))
 				.WithParameterBuilder()
-				.BeginSearch(typeof(MySearch1), typeof(MySearch2), typeof(MySearch3))
+				.BeginSearch()
+					.Add<MySearch1>()
+					.Add<MySearch2>()
+					.Add<MySearch3>()
+				.Build()
 				.BuildQueryResult(ctx =>
 				{
 					var searches = ctx.GetQueryResults<SearchResultModel>();

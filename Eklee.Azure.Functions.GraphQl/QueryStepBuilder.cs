@@ -4,12 +4,17 @@ using System.Linq.Expressions;
 
 namespace Eklee.Azure.Functions.GraphQl
 {
+	public class QueryStepBuilderParameter<TProperty>
+	{
+		public Func<QueryExecutionContext, List<object>> Mapper;
+		public Expression<Func<TProperty, object>> Expression;
+	}
+
 	public class QueryStepBuilder<TSource, TProperty>
 	{
 		private readonly QueryParameterBuilder<TSource> _builder;
-		private Func<QueryExecutionContext, List<object>> _mapper;
-		private readonly List<Expression<Func<TProperty, object>>> _expressions =
-			new List<Expression<Func<TProperty, object>>>();
+		private readonly List<QueryStepBuilderParameter<TProperty>> _parameters =
+			new List<QueryStepBuilderParameter<TProperty>>();
 
 		private readonly Dictionary<string, object> _stepBagItems = new Dictionary<string, object>();
 
@@ -20,15 +25,21 @@ namespace Eklee.Azure.Functions.GraphQl
 
 		public QueryStepBuilder<TSource, TProperty> WithProperty(Expression<Func<TProperty, object>> expression)
 		{
-			_expressions.Add(expression);
+			_parameters.Add(new QueryStepBuilderParameter<TProperty>
+			{
+				Expression = expression
+			});
 			return this;
 		}
 
 		public QueryStepBuilder<TSource, TProperty> WithPropertyFromSource(Expression<Func<TProperty, object>> expression,
 			Func<QueryExecutionContext, List<object>> mapper)
 		{
-			_mapper = mapper;
-			_expressions.Insert(0, expression);
+			_parameters.Add(new QueryStepBuilderParameter<TProperty>
+			{
+				Expression = expression,
+				Mapper = mapper
+			});
 			return this;
 		}
 
@@ -46,7 +57,7 @@ namespace Eklee.Azure.Functions.GraphQl
 
 		public QueryParameterBuilder<TSource> BuildQueryResult(Action<QueryExecutionContext> contextAction)
 		{
-			_builder.Add(_expressions, _mapper, ctx =>
+			_builder.Add(_parameters, ctx =>
 			{
 				_contextAction?.Invoke(ctx);
 				contextAction(ctx);

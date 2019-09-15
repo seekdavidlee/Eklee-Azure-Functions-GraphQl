@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 
 namespace Eklee.Azure.Functions.GraphQl
 {
@@ -25,10 +26,10 @@ namespace Eklee.Azure.Functions.GraphQl
 		public ContextValueSetRule Rule { get; set; }
 
 		/// <summary>
-		/// If set, this allows us to set ContextValue using this func.
+		/// If set, this allows us to set ContextValue using this mapper func.
 		/// </summary>
 		[JsonIgnore]
-		public Func<IGraphRequestContext, RequestContextParameter> PopulateWithRequestContext { get; set; }
+		public Func<MapperQueryExecutionContext, List<object>> Mapper { get; set; }
 	}
 
 	/// <summary>

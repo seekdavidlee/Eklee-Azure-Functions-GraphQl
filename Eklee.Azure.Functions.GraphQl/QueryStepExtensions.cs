@@ -16,7 +16,7 @@ namespace Eklee.Azure.Functions.GraphQl
 			clone.SkipConnectionEdgeCheck = queryStep.SkipConnectionEdgeCheck;
 			clone.OverrideRepositoryWithType = queryStep.OverrideRepositoryWithType;
 			clone.ContextAction = queryStep.ContextAction;
-			clone.Mapper = queryStep.Mapper;
+			clone.StepMapper = queryStep.StepMapper;
 			clone.InMemoryFilterQueryParameters = queryStep.InMemoryFilterQueryParameters;
 
 			if (queryStep.Items != null && queryStep.Items.Count > 0)
@@ -36,9 +36,9 @@ namespace Eklee.Azure.Functions.GraphQl
 
 				cqp.MemberModel = qp.MemberModel;
 
-				if (qp.PopulateWithRequestContext != null)
+				if (qp.Mapper != null)
 				{
-					cqp.PopulateWithRequestContext = qp.PopulateWithRequestContext;
+					cqp.Mapper = qp.Mapper;
 				}
 			}
 

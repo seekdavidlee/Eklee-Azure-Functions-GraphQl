@@ -23,18 +23,34 @@ namespace Eklee.Azure.Functions.GraphQl
 
 		public async Task<IEnumerable<TSource>> ExecuteAsync(string queryName, IEnumerable<QueryStep> querySteps, IGraphRequestContext graphRequestContext)
 		{
-			var ctx = new QueryExecutionContext();
+			var ctx = new QueryExecutionContext(graphRequestContext);
 
 			foreach (var queryStep in querySteps)
 			{
 				queryStep.Started = DateTime.UtcNow;
 
-				if (queryStep.Mapper != null)
+				// If there are any runtime mappers, run them first.
+				queryStep.QueryParameters.ForEach(qp =>
 				{
-					// We may have to make several queries.
-					var nextQueryResults = new List<object>();
+					if (qp.Mapper != null)
+					{
+						var values = qp.Mapper(new MapperQueryExecutionContext(ctx, queryStep));
+						if (values.Count > 0)
+						{
+							qp.ContextValue = new ContextValue
+							{
+								Values = values,
+								Comparison = Comparisons.Equal
+							};
+						}
+					}
+				});
 
-					var queryValues = queryStep.Mapper(new MapperQueryExecutionContext(ctx, queryStep));
+				var nextQueryResults = new List<object>();
+
+				if (queryStep.StepMapper != null)
+				{
+					var queryValues = queryStep.StepMapper(new MapperQueryExecutionContext(ctx, queryStep));
 
 					if (queryValues.Count > 0)
 					{
@@ -53,8 +69,7 @@ namespace Eklee.Azure.Functions.GraphQl
 
 						try
 						{
-							var results = await QueryAsync(queryName, queryStep, graphRequestContext);
-							nextQueryResults.AddRange(results);
+							nextQueryResults.AddRange(await QueryAsync(queryName, queryStep, graphRequestContext));
 						}
 						catch (Exception e)
 						{
@@ -66,13 +81,20 @@ namespace Eklee.Azure.Functions.GraphQl
 					{
 						_logger.LogWarning($"No values detected for queryStep @ {queryName}");
 					}
-
-					ctx.SetQueryResult(nextQueryResults);
 				}
 				else
 				{
-					ctx.SetQueryResult(await QueryAsync(queryName, queryStep, graphRequestContext));
+					if (!IsInvalidForNextQuery(queryStep))
+					{
+						nextQueryResults.AddRange(await QueryAsync(queryName, queryStep, graphRequestContext));
+					}
+					else
+					{
+						_logger.LogWarning($"Invalid values detected for queryStep @ {queryName}");
+					}
 				}
+
+				ctx.SetQueryResult(nextQueryResults);
 
 				queryStep.ContextAction?.Invoke(ctx);
 
@@ -80,6 +102,19 @@ namespace Eklee.Azure.Functions.GraphQl
 			}
 
 			return ctx.GetResults<TSource>();
+		}
+
+		private static bool IsInvalidForNextQuery(QueryStep queryStep)
+		{
+			if (queryStep.QueryParameters.Count == 1 &&
+				queryStep.QueryParameters.Single().Mapper != null)
+			{
+				var qp = queryStep.QueryParameters.Single();
+
+				return qp.ContextValue == null || (qp.ContextValue.Values == null);
+			}
+
+			return false;
 		}
 
 		private async Task<List<object>> QueryAsync(string queryName, QueryStep queryStep, IGraphRequestContext graphRequestContext)

@@ -5,6 +5,11 @@ namespace Eklee.Azure.Functions.GraphQl
 {
 	public class QueryExecutionContext
 	{
+		public QueryExecutionContext(IGraphRequestContext graphRequestContext)
+		{
+			RequestContext = graphRequestContext;
+		}
+
 		private List<object> _queryResults;
 		private List<object> _results;
 
@@ -27,6 +32,11 @@ namespace Eklee.Azure.Functions.GraphQl
 		/// System items are specific entities created as a result of internal process.
 		/// </summary>
 		internal Dictionary<string, object> SystemItems = new Dictionary<string, object>();
+
+		/// <summary>
+		/// Current request context.
+		/// </summary>
+		public IGraphRequestContext RequestContext { get; }
 
 		public List<TItem> GetSystemItems<TItem>()
 		{

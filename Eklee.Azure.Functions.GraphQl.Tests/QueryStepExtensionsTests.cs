@@ -24,7 +24,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests
 			var queryStep = new QueryStep();
 			bool isContextCalled = false;
 			queryStep.ContextAction = (a) => { isContextCalled = true; };
-			queryStep.Mapper = (m) =>
+			queryStep.StepMapper = (m) =>
 			{
 				return new List<object> { "a", "b" };
 			};
@@ -37,6 +37,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests
 
 			queryStep.QueryParameters.Add(new QueryParameter
 			{
+				Mapper = (m) => new List<object> { "a", "b" },
 				ContextValue = new ContextValue
 				{
 					Comparison = Comparisons.Equal,
@@ -58,15 +59,20 @@ namespace Eklee.Azure.Functions.GraphQl.Tests
 
 			isContextCalled.ShouldBe(true);
 
-			var mapped = clone.Mapper(null);
-			mapped.Count.ShouldBe(2);
-			mapped[0].ShouldBe("a");
-			mapped[1].ShouldBe("b");
+			var cem = clone.StepMapper(null);
+			cem.Count.ShouldBe(2);
+			cem[0].ShouldBe("a");
+			cem[1].ShouldBe("b");
 
 			clone.Items.Count.ShouldBe(1);
 			clone.Items["foo"].ShouldBe("bar");
 
 			clone.QueryParameters.Count.ShouldBe(1);
+
+			var mapped = clone.QueryParameters[0].Mapper(null);
+			mapped.Count.ShouldBe(2);
+			mapped[0].ShouldBe("a");
+			mapped[1].ShouldBe("b");
 
 			clone.QueryParameters[0].Rule.ShouldNotBeNull();
 			clone.QueryParameters[0].Rule.DisableSetSelectValues.ShouldBe(false);

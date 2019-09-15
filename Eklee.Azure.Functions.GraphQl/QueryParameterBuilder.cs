@@ -67,21 +67,10 @@ namespace Eklee.Azure.Functions.GraphQl
 
 		private void SetQueryParameterContextValue(QueryParameter queryParameter, ResolveFieldContext<object> context, IGraphRequestContext graphRequestContext)
 		{
-			if (queryParameter.PopulateWithRequestContext != null)
-			{
-				var p = queryParameter.PopulateWithRequestContext(graphRequestContext);
+			if (queryParameter.Mapper != null) return;
 
-				queryParameter.ContextValue = new ContextValue
-				{
-					Values = new List<object> { p.Value },
-					Comparison = p.Comparison
-				};
-
-				return;
-			}
-
-			queryParameter.ContextValue = _contextValueResolver.GetContextValue(context,
-						queryParameter.MemberModel, queryParameter.Rule);
+			queryParameter.ContextValue = _contextValueResolver.GetContextValue(
+				context, queryParameter.MemberModel, queryParameter.Rule);
 		}
 
 		/// <summary>
@@ -107,7 +96,7 @@ namespace Eklee.Azure.Functions.GraphQl
 
 			clonedList.ToList().ForEach(queryStep =>
 			{
-				var first = queryStep.Mapper != null && !queryStep.ForceCreateContextValueIfNull;
+				var first = queryStep.StepMapper != null && !queryStep.ForceCreateContextValueIfNull;
 				queryStep.QueryParameters.ForEach(queryParameter =>
 				{
 					if (first)
@@ -178,38 +167,6 @@ namespace Eklee.Azure.Functions.GraphQl
 			return this;
 		}
 
-		/// <summary>
-		/// The query parameter will use the transformation from IGraphRequestContext to populate the value. 
-		/// </summary>
-		/// <param name="expression">Expression for the property to compare with.</param>
-		/// <param name="populateWithRequestContext">Expression to get the value to set for comparison.</param>
-		/// <returns></returns>
-		public QueryParameterBuilder<TSource> WithPropertyFromContext(Expression<Func<TSource, object>> expression, Func<IGraphRequestContext, RequestContextParameter> populateWithRequestContext)
-		{
-			// The property access might be getting converted to object to match the func.
-			// If so, get the operand and see if that's a member expression.
-			MemberExpression memberExpression = expression.Body as MemberExpression ?? (expression.Body as UnaryExpression)?.Operand as MemberExpression;
-
-			if (memberExpression != null)
-			{
-				// Find the member.
-				var rawMemberExpression = memberExpression.ToString();
-				var depth = rawMemberExpression.Count(x => x == '.');
-
-				if (depth > 1)
-				{
-					throw new InvalidOperationException("WithPropertyFromContext is used directly on the type properties and cannot include hierarchy because it then needs mapping. Consider using BeginWithProperty.");
-				}
-
-				var modelMember = new ModelMember(typeof(TSource),
-					_modelConvention.ModelType.GetTypeAccessor(), _modelConvention.ModelType.GetMember(memberExpression.Member.Name), true);
-
-				_queryStep.QueryParameters.Add(new QueryParameter { MemberModel = modelMember, PopulateWithRequestContext = populateWithRequestContext });
-			}
-
-			return this;
-		}
-
 		public QueryStepBuilder<TSource, TProperty> BeginQuery<TProperty>()
 		{
 			return new QueryStepBuilder<TSource, TProperty>(this);
@@ -229,7 +186,8 @@ namespace Eklee.Azure.Functions.GraphQl
 
 		public QueryParameterBuilder<TSource> ThenWithProperty<TProperty>(
 			Expression<Func<TProperty, object>> expression,
-			Func<QueryExecutionContext, List<object>> mapper, Action<QueryExecutionContext> contextAction)
+			Func<QueryExecutionContext, List<object>> mapper,
+			Action<QueryExecutionContext> contextAction)
 		{
 			Add(expression, mapper, contextAction);
 			return this;
@@ -239,12 +197,16 @@ namespace Eklee.Azure.Functions.GraphQl
 			Func<QueryExecutionContext, List<object>> mapper,
 			Action<QueryExecutionContext> contextAction)
 		{
-			Add(new List<Expression<Func<TProperty, object>>> { expression }, mapper, contextAction, null, false, null);
+			Add(new List<QueryStepBuilderParameter<TProperty>> {
+				new QueryStepBuilderParameter<TProperty>
+				{
+					Expression = expression,
+					Mapper = mapper
+				} }, contextAction, null, false, null);
 		}
 
 		internal void Add<TProperty>(
-			List<Expression<Func<TProperty, object>>> expressions,
-			Func<QueryExecutionContext, List<object>> mapper,
+			List<QueryStepBuilderParameter<TProperty>> parameters,
 			Action<QueryExecutionContext> contextAction,
 			Dictionary<string, object> stepBagItems,
 			bool skipConnectionEdgeCheck,
@@ -258,18 +220,11 @@ namespace Eklee.Azure.Functions.GraphQl
 				SkipConnectionEdgeCheck = skipConnectionEdgeCheck
 			};
 
-			if (mapper != null)
-			{
-				step.Mapper = ctx => mapper(ctx.Context);
-			}
-
-			bool first = mapper != null;
-
-			expressions.ForEach(expression =>
+			parameters.ForEach(parameter =>
 			{
 				// The property access might be getting converted to object to match the func.
 				// If so, get the operand and see if that's a member expression.
-				MemberExpression memberExpression = expression.Body as MemberExpression ?? (expression.Body as UnaryExpression)?.Operand as MemberExpression;
+				MemberExpression memberExpression = parameter.Expression.Body as MemberExpression ?? (parameter.Expression.Body as UnaryExpression)?.Operand as MemberExpression;
 
 				if (memberExpression != null)
 				{
@@ -284,19 +239,21 @@ namespace Eklee.Azure.Functions.GraphQl
 
 					var modelMember = new ModelMember(typeof(TProperty), accessor, member, false);
 
-					if (first)
+					var qp = new QueryParameter
 					{
-						first = false;
-					}
-					else
+						MemberModel = modelMember
+					};
+
+					if (parameter.Mapper == null)
 					{
 						Members.Add(modelMember);
 					}
-
-					step.QueryParameters.Add(new QueryParameter
+					else
 					{
-						MemberModel = modelMember
-					});
+						qp.Mapper = ctx => parameter.Mapper(ctx.Context);
+					}
+
+					step.QueryParameters.Add(qp);
 				}
 				else
 				{

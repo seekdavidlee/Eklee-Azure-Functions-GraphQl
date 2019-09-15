@@ -58,6 +58,24 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestStorage.Core
 				.WithKeys()
 				.BuildQuery()
 				.BuildWithListResult();
+
+			queryBuilderFactory.Create<Model9>(this, "GetModel9")
+				.WithParameterBuilder()
+				.BeginQuery<Model9>()
+					.WithPropertyFromSource(x => x.Id, ctx => new List<object> { "model9_2" })
+					.WithPropertyFromSource(x => x.Field, ctx => new List<object> { "model9 2" })
+				.BuildQueryResult(ctx => ctx.SetResults(ctx.GetQueryResults<Model9>()))
+				.BuildQuery()
+				.BuildWithListResult();
+
+			queryBuilderFactory.Create<Model9>(this, "GetModel9Foo")
+				.WithParameterBuilder()
+				.BeginQuery<Model9>()
+					.WithPropertyFromSource(x => x.Id, ctx => new List<object> { "model9_2_foo" })
+					.WithPropertyFromSource(x => x.Field, ctx => new List<object> { "model9 2" })
+				.BuildQueryResult(ctx => ctx.SetResults(ctx.GetQueryResults<Model9>()))
+				.BuildQuery()
+				.BuildWithListResult();
 		}
 	}
 }

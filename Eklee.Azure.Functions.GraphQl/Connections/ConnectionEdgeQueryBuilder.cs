@@ -117,7 +117,7 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 
 			queryStep.InMemoryFilterQueryParameters = GetInMemoryFilterQueryParameters();
 
-			queryStep.Mapper = (ctx) =>
+			queryStep.StepMapper = (ctx) =>
 			{
 				var connectionEdges = ctx.Context.GetQueryResults<ConnectionEdge>();
 
@@ -153,7 +153,7 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 
 			if (_mapper != null)
 			{
-				queryStep.Mapper = ctx => _mapper(ctx.Context);
+				queryStep.StepMapper = ctx => _mapper(ctx.Context);
 			}
 
 			var type = typeof(ConnectionEdge);

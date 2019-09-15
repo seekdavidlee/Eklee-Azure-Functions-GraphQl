@@ -21,7 +21,7 @@ namespace Eklee.Azure.Functions.GraphQl
 		public Action<QueryExecutionContext> ContextAction { get; set; }
 
 		[JsonIgnore]
-		public Func<MapperQueryExecutionContext, List<object>> Mapper { get; set; }
+		public Func<MapperQueryExecutionContext, List<object>> StepMapper { get; set; }
 
 		public List<QueryParameter> QueryParameters { get; set; }
 		public DateTime? Ended { get; set; }

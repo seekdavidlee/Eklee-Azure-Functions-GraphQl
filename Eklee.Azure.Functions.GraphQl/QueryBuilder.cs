@@ -134,7 +134,7 @@ namespace Eklee.Azure.Functions.GraphQl
 				}
 			}
 
-			var steps = _queryParameterBuilder.GetQuerySteps(context, graphRequestContext).ToList();
+			var steps = _queryParameterBuilder.GetQuerySteps(context).ToList();
 
 			if (_cacheInSeconds > 0)
 			{

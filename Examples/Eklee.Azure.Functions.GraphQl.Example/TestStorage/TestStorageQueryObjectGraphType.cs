@@ -1,5 +1,4 @@
 using GraphQL.Types;
-using Microsoft.Extensions.Logging;
 using Eklee.Azure.Functions.GraphQl.Example.Models;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,9 +7,17 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestStorage.Core
 {
 	public class TestStorageQueryConfigObjectGraphType : ObjectGraphType<object>
 	{
-		public TestStorageQueryConfigObjectGraphType(QueryBuilderFactory queryBuilderFactory, ILogger logger)
+		public TestStorageQueryConfigObjectGraphType(QueryBuilderFactory queryBuilderFactory)
 		{
 			Name = "query";
+
+			queryBuilderFactory.Create<Model7>(this, "GetModel7WithIdFromHeader", "Get Model7")
+				.WithParameterBuilder()
+					.WithConnectionEdgeBuilder<Model7ToModel8>()
+						.WithSourceIdFromSource<Model7>(ctx => new List<object> { (string)ctx.RequestContext.HttpRequest.Request.Headers["Model7IdKey"] })
+					.BuildConnectionEdgeParameters()
+				.BuildQuery()
+				.BuildWithListResult();
 
 			queryBuilderFactory.Create<Model7>(this, "GetModel7WithModel8Id", "Get Model7")
 				.WithParameterBuilder()

@@ -19,7 +19,7 @@ namespace Eklee.Azure.Functions.GraphQl.Actions
 
 		public Task TransformAsync(object item, TypeAccessor typeAccessor, IGraphRequestContext context)
 		{
-			var dateTimeMembers = typeAccessor.GetMembers().Where(x => x.GetAttribute(typeof(AutoDateTimeAttribute), false) != null).ToList();
+			var dateTimeMembers = typeAccessor.GetMembers().Where(x => x.GetAttribute(typeof(AutoDateTimeAttribute), true) != null).ToList();
 
 			dateTimeMembers.ForEach(member =>
 			{
@@ -36,7 +36,7 @@ namespace Eklee.Azure.Functions.GraphQl.Actions
 
 				if (process)
 				{
-					var att = (AutoDateTimeAttribute)member.GetAttribute(typeof(AutoDateTimeAttribute), false);
+					var att = (AutoDateTimeAttribute)member.GetAttribute(typeof(AutoDateTimeAttribute), true);
 
 					switch (att.AutoDateTimeTypes)
 					{

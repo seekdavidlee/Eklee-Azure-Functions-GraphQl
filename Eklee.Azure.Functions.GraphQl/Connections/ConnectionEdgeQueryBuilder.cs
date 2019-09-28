@@ -98,21 +98,21 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 			return modelMembers.Select(m => new QueryParameter { MemberModel = m }).ToList();
 		}
 
-		private QueryStep QuerySource(Action<QueryExecutionContext> mapper = null)
+		private QueryStep QuerySource(Action<QueryExecutionContext> mapper)
 		{
 			var queryStep = _source.NewQueryStep();
-
-			queryStep.ForceCreateContextValueIfNull = true;
 
 			var type = typeof(TSource);
 			var typeAccessor = TypeAccessor.Create(type);
 			var members = typeAccessor.GetMembers().ToList();
 
+			// TODO: Support multiple keys
 			var idMember = members.Single(x => x.GetAttribute(typeof(KeyAttribute), false) != null);
 
 			queryStep.QueryParameters.Add(new QueryParameter
 			{
-				MemberModel = new ModelMember(type, typeAccessor, idMember, false)
+				MemberModel = new ModelMember(type, typeAccessor, idMember, false),
+				Rule = new ContextValueSetRule { ForceCreateContextValueIfNull = true }
 			});
 
 			queryStep.InMemoryFilterQueryParameters = GetInMemoryFilterQueryParameters();

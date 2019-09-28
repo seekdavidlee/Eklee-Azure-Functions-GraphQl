@@ -15,5 +15,10 @@
 		/// The current behavior is to choose the first query parameter to populate context value with. This forces us to choose the specific query parameter when it is not the first parameter.
 		/// </summary>
 		public bool PopulateWithQueryValues { get; set; }
+
+		/// <summary>
+		/// Force an empty context value to be created.
+		/// </summary>
+		public bool ForceCreateContextValueIfNull { get; set; }
 	}
 }

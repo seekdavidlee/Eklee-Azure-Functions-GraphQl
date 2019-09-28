@@ -22,7 +22,7 @@ namespace Eklee.Azure.Functions.GraphQl.Actions
 
 		public Task TransformAsync(object item, TypeAccessor typeAccessor, IGraphRequestContext context)
 		{
-			var autoIdMembers = typeAccessor.GetMembers().Where(x => x.GetAttribute(typeof(AutoIdAttribute), false) != null).ToList();
+			var autoIdMembers = typeAccessor.GetMembers().Where(x => x.GetAttribute(typeof(AutoIdAttribute), true) != null).ToList();
 			if (autoIdMembers.Count > 0)
 			{
 				autoIdMembers.ForEach(member =>

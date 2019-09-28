@@ -33,13 +33,13 @@ namespace Eklee.Azure.Functions.GraphQl.Actions
 
 		public async Task TransformAsync(object item, TypeAccessor typeAccessor, IGraphRequestContext context)
 		{
-			var keyMembers = typeAccessor.GetMembers().Where(x => x.GetAttribute(typeof(RequestContextValueAttribute), false) != null).ToList();
+			var keyMembers = typeAccessor.GetMembers().Where(x => x.GetAttribute(typeof(RequestContextValueAttribute), true) != null).ToList();
 			if (keyMembers.Count > 0)
 			{
 				foreach (var keyMember in keyMembers)
 				{
 					var value = typeAccessor[item, keyMember.Name];
-					var attr = (RequestContextValueAttribute)keyMember.GetAttribute(typeof(RequestContextValueAttribute), false);
+					var attr = (RequestContextValueAttribute)keyMember.GetAttribute(typeof(RequestContextValueAttribute), true);
 					var gen = _requestContextValueExtractors.SingleOrDefault(x => x.GetType() == attr.Type);
 					if (gen != null)
 					{

@@ -125,7 +125,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Connections
 					{
 						Id = "other1edge",
 						Field1 = "SHARP"
-					}, "model5_a", "id", other1Id)
+					}, "model5_a", other1Id)
 			};
 
 			SetupConnectionEdgeRepository(new string[] { "model5_a", "model5_b" }, connectionEdges, other1Id,
@@ -164,12 +164,10 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Connections
 
 		private ConnectionEdge SetupConnectionEdge<TMeta, TSrc>(TMeta meta,
 			string srcId,
-			string destFieldName,
 			string destId)
 		{
 			return new ConnectionEdge
 			{
-				DestinationFieldName = destFieldName,
 				DestinationId = destId,
 				MetaFieldName = "Other",
 				MetaType = typeof(TMeta).AssemblyQualifiedName,

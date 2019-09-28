@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -137,7 +138,7 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 		{
 			var member = edgeObjectTypeAccessor.GetMembers().Single(x => x.Name == connectionEdge.MetaFieldName);
 			var destTypeAccessor = TypeAccessor.Create(member.Type);
-			var destQueryMember = destTypeAccessor.GetMembers().Single(m => m.Name.ToLower() == connectionEdge.DestinationFieldName.ToLower());
+			var destQueryMember = destTypeAccessor.GetMembers().Single(m => m.GetAttribute(typeof(KeyAttribute), true) != null);
 			var qp = new QueryStep();
 			qp.QueryParameters.Add(new QueryParameter
 			{

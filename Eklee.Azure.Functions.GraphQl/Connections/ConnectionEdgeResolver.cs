@@ -178,7 +178,6 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 			}
 
 			connectionEdge.DestinationId = destId.ToString();
-			connectionEdge.DestinationFieldName = destinationId.Name;
 
 			connectionEdge.Id = isListEdge ?
 				$"{connectionEdge.SourceFieldName}_src{connectionEdge.SourceId}_des{connectionEdge.DestinationId}" :

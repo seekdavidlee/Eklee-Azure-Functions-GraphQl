@@ -13,8 +13,6 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 
 		public string SourceId { get; set; }
 
-		public string DestinationFieldName { get; set; }
-
 		public string DestinationId { get; set; }
 
 		public string MetaValue { get; set; }

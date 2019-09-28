@@ -337,7 +337,7 @@ query {
 
 There may be instances where the user is performing a search (which doesn't use connection model). In this senario, you may want to query the connection edge yourself to figure out the child node hanging on the connection model. This is where ```WithSourceIdFromSource<T>``` may help you where T is the Source Model you are looking for using Source Id obtained from the search results.
 
-## Filtering
+## Filtering Child Models And Partitions
 
 There could be instances where we would have the same model key being used. For example, you may partition by Account Id but the key you are using is an email address where a customer may be on 2 different accounts. Let's consider the following example:
 
@@ -367,6 +367,10 @@ queryBuilderFactory.Create<Model13Parent>(this, "GetModel13Parent")
 * In this example, we aren't even letting the user input any value to query. We are controlling that by pulling Account Id from the header.
 * Because this is a Connection Model, there could be additional selects for child items. 
 * All child items must have the same Account Id. In particular, notice ```ForDestinationFilter```. This is used for filtering with, you guessed it, Account Id.
+
+### Partition Key
+
+When you are using batch mutation to ingest parent/child models, and child entities are sharing the same Id (but with different partition keys), you may need to apply the ```PartitionKeyAttribute```. This is because in order to prevent actual duplicates, we may filter out entities of the same Id during batch mutations. The attribute would help us generate the right key to compare so we can ingest the unique child entity.
 
 # Other notes
 

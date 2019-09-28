@@ -372,6 +372,22 @@ queryBuilderFactory.Create<Model13Parent>(this, "GetModel13Parent")
 
 When you are using batch mutation to ingest parent/child models, and child entities are sharing the same Id (but with different partition keys), you may need to apply the ```PartitionKeyAttribute```. This is because in order to prevent actual duplicates, we may filter out entities of the same Id during batch mutations. The attribute would help us generate the right key to compare so we can ingest the unique child entity.
 
+```
+public class Model13Child
+{
+	[Key]
+	[Description("Id of destination")]
+	public string ChildId { get; set; }
+
+	[Description("Field")]
+	public string Field { get; set; }
+
+	[PartitionKey]
+	[Description("AccountId")]
+	public string AccountId { get; set; }
+}
+```
+
 # Other notes
 
 * The Connection concept is currently ONLY supported with the use of CosmosDb. It is partially supported in Azure Table Storage and not available in other types of Data Sources. We will be adding the other Data Sources shortly.

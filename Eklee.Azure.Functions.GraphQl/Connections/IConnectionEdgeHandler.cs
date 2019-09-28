@@ -7,6 +7,9 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 	{
 		Task DeleteAllEdgeConnectionsOfType<T>(IGraphRequestContext graphRequestContext);
 		Task RemoveEdgeConnections(object item, IGraphRequestContext graphRequestContext);
-		Task QueryAsync(List<object> results, QueryStep queryStep, IGraphRequestContext graphRequestContext);
+		Task QueryAsync(List<object> results, QueryStep queryStep, 
+			IGraphRequestContext graphRequestContext, 
+			QueryExecutionContext queryExecutionContext,
+			List<ConnectionEdgeDestinationFilter> connectionEdgeDestinationFilters);
 	}
 }

@@ -6701,6 +6701,118 @@
 								}
 							},
 							"response": []
+						},
+						{
+							"name": "SeedModel13",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+										"exec": [
+											"var testName = pm.info.requestName + \": \";",
+											"pm.test(testName + \"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"var jsonData = pm.response.json();",
+											"pm.test(testName + \"Has no errors\", function () {",
+											"",
+											"    pm.expect(jsonData.errors).to.eql(undefined);",
+											"});",
+											"",
+											"var batch1 = null;",
+											"var batch2 = null;",
+											"",
+											"pm.test(testName + \"Contains correct JSON payload\", function () {",
+											"",
+											"    var batch = jsonData.data.batchCreateOrUpdateModel13Parent;",
+											"    pm.expect(batch.length).to.eql(2);",
+											"    ",
+											"    batch1 = batch[0];",
+											"    batch2 = batch[1];",
+											"});",
+											"",
+											"pm.test(testName + \"Batch Item 1\", function () {",
+											"    ",
+											"    var item = batch1;",
+											"    pm.expect(item.someKey).to.eql(\"model13_1\");",
+											"    pm.expect(item.accountId).to.eql(\"1234\");",
+											"    pm.expect(item.edges.length).to.eql(3);",
+											"    ",
+											"    pm.expect(item.edges[0].id).to.eql(\"model13child_1\");",
+											"    pm.expect(item.edges[1].id).to.eql(\"model13child_2\");",
+											"    pm.expect(item.edges[2].id).to.eql(\"model13child_3\");",
+											"    ",
+											"    pm.expect(item.edges[0].child.childId).to.eql(\"model13child_1\");",
+											"    pm.expect(item.edges[1].child.childId).to.eql(\"model13child_2\");",
+											"    pm.expect(item.edges[2].child.childId).to.eql(\"model13child_3\");",
+											"    ",
+											"    pm.expect(item.edges[0].child.accountId).to.eql(\"1234\");",
+											"    pm.expect(item.edges[1].child.accountId).to.eql(\"1234\");",
+											"    pm.expect(item.edges[2].child.accountId).to.eql(\"1234\");      ",
+											"});",
+											"",
+											"pm.test(testName + \"Batch Item 2\", function () {",
+											"    ",
+											"    var item = batch2;",
+											"    pm.expect(item.someKey).to.eql(\"model13_2\");",
+											"    pm.expect(item.accountId).to.eql(\"1235\");",
+											"    pm.expect(item.edges.length).to.eql(3);",
+											"    ",
+											"    pm.expect(item.edges[0].id).to.eql(\"model13child_1\");",
+											"    pm.expect(item.edges[1].id).to.eql(\"model13child_4\");",
+											"    pm.expect(item.edges[2].id).to.eql(\"model13child_3\");",
+											"    ",
+											"    pm.expect(item.edges[0].child.childId).to.eql(\"model13child_1\");",
+											"    pm.expect(item.edges[1].child.childId).to.eql(\"model13child_4\");",
+											"    pm.expect(item.edges[2].child.childId).to.eql(\"model13child_3\");",
+											"    ",
+											"    pm.expect(item.edges[0].child.accountId).to.eql(\"1235\");",
+											"    pm.expect(item.edges[1].child.accountId).to.eql(\"1235\");",
+											"    pm.expect(item.edges[2].child.accountId).to.eql(\"1235\");  ",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/graphql"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "mutation {\r\n  batchCreateOrUpdateModel13Parent(model13parent:[{\r\n    someKey:\"model13_1\"\r\n    descr:\"model13 1\"\r\n    accountId: \"1234\"\r\n    edges: [{\r\n    \tid: \"model13child_1\"\r\n    \tfield: \"model13 1 to child 1\"\r\n    \tchild: {\r\n    \t\tchildId: \"model13child_1\"\r\n    \t\tfield: \"foo\"\r\n    \t\taccountId: \"1234\"\r\n    \t}\r\n    }, {\r\n    \tid: \"model13child_2\"\r\n    \tfield: \"model13 1 to child 2\"\r\n    \tchild: {\r\n    \t\tchildId: \"model13child_2\"\r\n    \t\tfield: \"foo\"\r\n    \t\taccountId: \"1234\"\r\n    \t}\r\n    }, {\r\n    \tid: \"model13child_3\"\r\n    \tfield: \"model13 1 to child 3\"\r\n    \tchild: {\r\n    \t\tchildId: \"model13child_3\"\r\n    \t\tfield: \"foo\"\r\n    \t\taccountId: \"1234\"\r\n    \t}\r\n    }]\r\n  },\r\n{\r\n    someKey:\"model13_2\"\r\n    descr:\"model13 2\"\r\n    accountId: \"1235\"\r\n    edges: [{\r\n    \tid: \"model13child_1\"\r\n    \tfield: \"model13 2 to child 1\"\r\n    \tchild: {\r\n    \t\tchildId: \"model13child_1\"\r\n    \t\tfield: \"foo\"\r\n    \t\taccountId: \"1235\"\r\n    \t}\r\n    }, {\r\n    \tid: \"model13child_4\"\r\n    \tfield: \"model13 2 to child 4\"\r\n    \tchild: {\r\n    \t\tchildId: \"model13child_4\"\r\n    \t\tfield: \"foo\"\r\n    \t\taccountId: \"1235\"\r\n    \t}\r\n    }, {\r\n    \tid: \"model13child_3\"\r\n    \tfield: \"model13 2 to child 3\"\r\n    \tchild: {\r\n    \t\tchildId: \"model13child_3\"\r\n    \t\tfield: \"foo\"\r\n    \t\taccountId: \"1235\"\r\n    \t}\r\n    }]\r\n  }\r\n\r\n  \r\n  ]){\r\n    someKey\r\n    descr\r\n    accountId\r\n    edges {\r\n    \tid\r\n    \tfield\r\n    \tchild {\r\n    \t\tchildId\r\n    \t\tfield\r\n    \t\taccountId\r\n    \t}\r\n    }\r\n  }\r\n}"
+								},
+								"url": {
+									"raw": "{{endpoint}}/api/teststorage/graph",
+									"host": [
+										"{{endpoint}}"
+									],
+									"path": [
+										"api",
+										"teststorage",
+										"graph"
+									]
+								}
+							},
+							"response": []
 						}
 					],
 					"protocolProfileBehavior": {},
@@ -7343,6 +7455,199 @@
 						"body": {
 							"mode": "raw",
 							"raw": "query{\r\n  getModel9Foo{\r\n    id\r\n    field\r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/teststorage/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"teststorage",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetModel13Parent_AccountId1234",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"var testName = pm.info.requestName + \": \";",
+									"",
+									"pm.test(testName + \"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(testName + \"Has no errors\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.eql(undefined);",
+									"});",
+									"",
+									"var batch1 = null;",
+									"pm.test(testName + \"Contains correct JSON payload\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.getModel13Parent.length).to.eql(1);",
+									"    ",
+									"    batch1 = jsonData.data.getModel13Parent[0];",
+									"});",
+									"",
+									"pm.test(testName + \"Batch Item 1\", function () {",
+									"    ",
+									"    var item = batch1;",
+									"    pm.expect(item.someKey).to.eql(\"model13_1\");",
+									"    pm.expect(item.accountId).to.eql(\"1234\");",
+									"    pm.expect(item.edges.length).to.eql(3);",
+									"    ",
+									"    pm.expect(item.edges[0].id).to.eql(\"model13child_1\");",
+									"    pm.expect(item.edges[1].id).to.eql(\"model13child_2\");",
+									"    pm.expect(item.edges[2].id).to.eql(\"model13child_3\");",
+									"    ",
+									"    pm.expect(item.edges[0].child.childId).to.eql(\"model13child_1\");",
+									"    pm.expect(item.edges[1].child.childId).to.eql(\"model13child_2\");",
+									"    pm.expect(item.edges[2].child.childId).to.eql(\"model13child_3\");",
+									"    ",
+									"    pm.expect(item.edges[0].child.accountId).to.eql(\"1234\");",
+									"    pm.expect(item.edges[1].child.accountId).to.eql(\"1234\");",
+									"    pm.expect(item.edges[2].child.accountId).to.eql(\"1234\");      ",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/graphql"
+							},
+							{
+								"key": "AccountId",
+								"value": "1234",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "query{\r\n  getModel13Parent{\r\n    someKey\r\n    descr\r\n    accountId\r\n    edges {\r\n    \tid\r\n    \tfield\r\n    \tchild {\r\n    \t\tchildId\r\n    \t\tfield\r\n    \t\taccountId\r\n    \t}\r\n    }\r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/teststorage/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"teststorage",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetModel13Parent_AccountId1235",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"var testName = pm.info.requestName + \": \";",
+									"",
+									"pm.test(testName + \"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(testName + \"Has no errors\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.eql(undefined);",
+									"});",
+									"",
+									"var batch2 = null;",
+									"pm.test(testName + \"Contains correct JSON payload\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.getModel13Parent.length).to.eql(1);",
+									"    ",
+									"    batch2 = jsonData.data.getModel13Parent[0];",
+									"});",
+									"",
+									"pm.test(testName + \"Batch Item 2\", function () {",
+									"    ",
+									"    var item = batch2;",
+									"    pm.expect(item.someKey).to.eql(\"model13_2\");",
+									"    pm.expect(item.accountId).to.eql(\"1235\");",
+									"    pm.expect(item.edges.length).to.eql(3);",
+									"    ",
+									"    var edge = getChild(item.edges, \"model13child_1\");",
+									"    pm.expect(edge.id).to.eql(\"model13child_1\");",
+									"    pm.expect(edge.child.childId).to.eql(\"model13child_1\");",
+									"    pm.expect(edge.child.accountId).to.eql(\"1235\");",
+									"    ",
+									"    edge = getChild(item.edges, \"model13child_3\");",
+									"    pm.expect(edge.id).to.eql(\"model13child_3\");",
+									"    pm.expect(edge.child.childId).to.eql(\"model13child_3\");",
+									"    pm.expect(edge.child.accountId).to.eql(\"1235\");",
+									"",
+									"    edge = getChild(item.edges, \"model13child_4\");",
+									"    pm.expect(edge.id).to.eql(\"model13child_4\");",
+									"    pm.expect(edge.child.childId).to.eql(\"model13child_4\");",
+									"    pm.expect(edge.child.accountId).to.eql(\"1235\");    ",
+									"});",
+									"",
+									"function getChild(edges, id) { ",
+									" return edges.filter(x=>x.id === id)[0];   ",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/graphql"
+							},
+							{
+								"key": "AccountId",
+								"type": "text",
+								"value": "1235"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "query{\r\n  getModel13Parent{\r\n    someKey\r\n    descr\r\n    accountId\r\n    edges {\r\n    \tid\r\n    \tfield\r\n    \tchild {\r\n    \t\tchildId\r\n    \t\tfield\r\n    \t\taccountId\r\n    \t}\r\n    }\r\n  }\r\n}"
 						},
 						"url": {
 							"raw": "{{endpoint}}/api/teststorage/graph",

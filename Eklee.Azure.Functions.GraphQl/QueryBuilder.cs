@@ -142,7 +142,8 @@ namespace Eklee.Azure.Functions.GraphQl
 				_logger.LogInformation($"CacheKey: {key}");
 
 				return (await TryGetOrSetIfNotExistAsync(
-					() => _queryExecutor.ExecuteAsync(context.FieldName, steps, graphRequestContext).Result.ToList(), key,
+					() => _queryExecutor.ExecuteAsync(context.FieldName, steps, graphRequestContext,
+					_queryParameterBuilder.ConnectionEdgeDestinationFilters).Result.ToList(), key,
 					new DistributedCacheEntryOptions
 					{
 						// ReSharper disable once PossibleInvalidOperationException
@@ -150,7 +151,8 @@ namespace Eklee.Azure.Functions.GraphQl
 					})).Value;
 			}
 
-			return await _queryExecutor.ExecuteAsync(context.FieldName, steps, graphRequestContext);
+			return await _queryExecutor.ExecuteAsync(context.FieldName, steps,
+				graphRequestContext, _queryParameterBuilder.ConnectionEdgeDestinationFilters);
 		}
 
 		private void Build()

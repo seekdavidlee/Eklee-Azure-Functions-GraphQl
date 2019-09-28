@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Autofac;
 using Eklee.Azure.Functions.GraphQl.Actions;
 using Eklee.Azure.Functions.GraphQl.Actions.RequestContextValueExtractors;
+using Eklee.Azure.Functions.GraphQl.Attributes;
 using Eklee.Azure.Functions.GraphQl.Connections;
 using Eklee.Azure.Functions.GraphQl.Queries;
 using Eklee.Azure.Functions.GraphQl.Repository;
@@ -281,6 +282,24 @@ namespace Eklee.Azure.Functions.GraphQl
 				.Select(x => t[item, x.Name].ToString()));
 
 			if (string.IsNullOrEmpty(keys)) throw new InvalidOperationException("Missing Key Attribute");
+
+			return keys;
+		}
+
+		/// <summary>
+		/// Get the member values with KeyAttribute or PartitionKeyAttribute.
+		/// </summary>
+		/// <param name="t">Type Accessor.</param>
+		/// <param name="item">Object instance.</param>
+		/// <returns></returns>
+		public static string GetModelKey(this TypeAccessor t, object item)
+		{
+			var keys = string.Join("", t.GetMembers().Where(x =>
+			x.GetAttribute(typeof(KeyAttribute), false) != null ||
+			x.GetAttribute(typeof(PartitionKeyAttribute), false) != null)
+				.Select(x => t[item, x.Name].ToString()));
+
+			if (string.IsNullOrEmpty(keys)) throw new InvalidOperationException("Missing Key/PartitionKey Attribute");
 
 			return keys;
 		}

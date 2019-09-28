@@ -83,6 +83,26 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestStorage.Core
 				.BuildQueryResult(ctx => ctx.SetResults(ctx.GetQueryResults<Model9>()))
 				.BuildQuery()
 				.BuildWithListResult();
+
+			queryBuilderFactory.Create<Model13Parent>(this, "GetModel13Parent")
+				.WithParameterBuilder()
+				.BeginQuery<Model13Parent>()
+					.WithPropertyFromSource(x => x.AccountId, ctx =>
+					{
+						var accountId = ctx.RequestContext.HttpRequest.Request.Headers["AccountId"].Single();
+						ctx.Items["AccountIdList"] = new List<object> { accountId };
+						return new List<object> { accountId };
+					})
+				.BuildQueryResult(ctx =>
+				{
+					ctx.Items["IdList"] = ctx.GetQueryResults<Model13Parent>().Select(x => (object)x.SomeKey).ToList();
+				})
+				.WithConnectionEdgeBuilder<Model13Edge>()
+					.WithSourceIdFromSource<Model13Parent>(ctx => (List<object>)ctx.Items["IdList"])
+					.ForDestinationFilter<Model13Child>(x => x.AccountId, ctx => (List<object>)ctx.Items["AccountIdList"])
+				.BuildConnectionEdgeParameters()
+				.BuildQuery()
+				.BuildWithListResult();
 		}
 	}
 }

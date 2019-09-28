@@ -20,6 +20,8 @@ namespace Eklee.Azure.Functions.GraphQl
 		private readonly List<QueryStep> _querySteps = new List<QueryStep>();
 		private readonly QueryStep _queryStep;
 
+		public List<ConnectionEdgeDestinationFilter> ConnectionEdgeDestinationFilters { get; } = new List<ConnectionEdgeDestinationFilter>();
+
 		public QueryStep NewQueryStep()
 		{
 			return new QueryStep
@@ -94,7 +96,7 @@ namespace Eklee.Azure.Functions.GraphQl
 			var clonedList = _querySteps.Select(x => x.CloneQueryStep()).ToList();
 
 			clonedList.ToList().ForEach(queryStep =>
-			{				
+			{
 				queryStep.QueryParameters.ForEach(queryParameter =>
 				{
 					bool skipSetContextValue = queryStep.StepMapper != null && queryParameter.Rule != null && !queryParameter.Rule.ForceCreateContextValueIfNull;

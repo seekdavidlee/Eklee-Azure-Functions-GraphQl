@@ -74,7 +74,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Connections
 			var list = PrepData();
 			var qs = PrepQuery(new SelectValue());
 
-			await _connectionEdgeHandler.QueryAsync(list, qs, null);
+			await _connectionEdgeHandler.QueryAsync(list, qs, null, null, 
+				new List<ConnectionEdgeDestinationFilter>());
 
 			list.Count.ShouldBe(2);
 
@@ -134,7 +135,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Connections
 					Id = other1Id, Field1 = "testother"
 				} });
 
-			await _connectionEdgeHandler.QueryAsync(list, qs, null);
+			await _connectionEdgeHandler.QueryAsync(list, qs, null, null, 
+				new List<ConnectionEdgeDestinationFilter>());
 
 			list.Count.ShouldBe(2);
 

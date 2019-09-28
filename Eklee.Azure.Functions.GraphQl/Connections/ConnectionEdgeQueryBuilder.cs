@@ -216,8 +216,43 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 					}
 				});
 			}
-
 			return queryStep;
+		}
+
+
+		/// <summary>
+		/// In cases such as when the destination entity has a parition key, it is not enough to just use the Key to locate the right entity. We can use this function to filter down to the right entity.
+		/// </summary>
+		/// <typeparam name="TDestination">Destionation Type.</typeparam>
+		/// <param name="expression">Expression to set the property to compare on the destination.</param>
+		/// <param name="mapper">Value(s) to set on the property to compare on the destination.</param>
+		/// <returns></returns>
+		public ConnectionEdgeQueryBuilder<TSource, TConnectionType> ForDestinationFilter<TDestination>(
+			Expression<Func<TDestination, object>> expression,
+			Func<QueryExecutionContext, List<object>> mapper)
+		{
+			MemberExpression memberExpression = expression.Body as MemberExpression ?? (expression.Body as UnaryExpression)?.Operand as MemberExpression;
+
+			if (memberExpression != null)
+			{
+				// Find the member.
+				var rawMemberExpression = memberExpression.ToString();
+				var depth = rawMemberExpression.Count(x => x == '.');
+				string path = depth > 1 ? rawMemberExpression.Substring(rawMemberExpression.IndexOf('.') + 1) : memberExpression.Member.Name;
+				var type = typeof(TDestination);
+				var typeAccessor = TypeAccessor.Create(type);
+
+				var member = typeAccessor.GetMembers().ToList().Single(x =>
+					x.Name == (depth > 1 ? path.Substring(0, path.IndexOf('.')) : memberExpression.Member.Name));
+
+				_source.ConnectionEdgeDestinationFilters.Add(new ConnectionEdgeDestinationFilter
+				{
+					Mapper = mapper,
+					ModelMember = new ModelMember(type, typeAccessor, member, false),
+					Type = typeof(TDestination).AssemblyQualifiedName
+				});
+			}
+			return this;
 		}
 	}
 }

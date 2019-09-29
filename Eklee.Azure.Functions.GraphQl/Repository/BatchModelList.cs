@@ -25,7 +25,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 		/// <param name="model"></param>
 		public void Add(object model)
 		{
-			var key = _typeAccessor.GetKey(model);
+			var key = _typeAccessor.GetModelKey(model);
 
 			if (!_list.ContainsKey(key))
 			{

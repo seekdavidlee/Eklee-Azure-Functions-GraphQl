@@ -71,6 +71,24 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestStorage.Core
 				.DeleteAll(() => new Status { Message = "All Model11 have been removed." })
 				.DisableBatchCreate()   // Note it would be hard to use batch create in this context. Use batchCreateOrUpdate instead.
 				.Build();
+
+			inputBuilderFactory.Create<Model13Parent>(this)
+				.ConfigureTableStorage<Model13Parent>()
+				.AddConnectionString(configuration["TableStorage:ConnectionString"])
+				.AddPartition(x => x.AccountId)
+				.BuildTableStorage()
+				.DeleteAll(() => new Status { Message = "All Model13Parent have been removed." })
+				.DisableBatchCreate()   // Note it would be hard to use batch create in this context. Use batchCreateOrUpdate instead.
+				.Build();
+
+			inputBuilderFactory.Create<Model13Child>(this)
+				.ConfigureTableStorage<Model13Child>()
+				.AddConnectionString(configuration["TableStorage:ConnectionString"])
+				.AddPartition(x => x.AccountId)
+				.BuildTableStorage()
+				.DeleteAll(() => new Status { Message = "All Model13Child have been removed." })
+				.DisableBatchCreate()   // Note it would be hard to use batch create in this context. Use batchCreateOrUpdate instead.
+				.Build();
 		}
 	}
 }

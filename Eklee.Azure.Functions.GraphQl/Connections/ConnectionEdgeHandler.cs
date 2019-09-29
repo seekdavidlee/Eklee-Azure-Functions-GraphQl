@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -46,13 +47,15 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 			}
 		}
 
-		public async Task QueryAsync(List<object> results, QueryStep queryStep, IGraphRequestContext graphRequestContext)
+		public async Task QueryAsync(List<object> results, QueryStep queryStep, IGraphRequestContext graphRequestContext,
+			QueryExecutionContext queryExecutionContext,
+			List<ConnectionEdgeDestinationFilter> connectionEdgeDestinationFilters)
 		{
 			var selections = GetFirstComplexSelectValues(queryStep);
 
 			if (selections != null && selections.Count > 0)
 			{
-				await QueryAndPopulateEdgeConnections(selections, results, graphRequestContext);
+				await QueryAndPopulateEdgeConnections(selections, results, graphRequestContext, connectionEdgeDestinationFilters, queryExecutionContext);
 			}
 		}
 
@@ -62,7 +65,9 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 		private async Task QueryAndPopulateEdgeConnections(
 			List<SelectValue> selections,
 			List<object> results,
-			IGraphRequestContext graphRequestContext)
+			IGraphRequestContext graphRequestContext,
+			List<ConnectionEdgeDestinationFilter> connectionEdgeDestinationFilters,
+			QueryExecutionContext queryExecutionContext)
 		{
 			var edgeQueryParameters = _connectionEdgeResolver.ListConnectionEdgeQueryParameter(results)
 				.Where(x => selections.Any(y => y.FieldName.ToLower() == x.SourceFieldName.ToLower())).ToList();
@@ -102,8 +107,11 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 
 						if (selection != null)
 						{
-							var edgeObjectTypeAccessor = TypeAccessor.Create(edgeObject.GetType());
-							var entity = await GetValue(edgeObjectTypeAccessor, connectionEdge, graphRequestContext);
+							var edgeObjectType = edgeObject.GetType();
+							var edgeObjectTypeAccessor = TypeAccessor.Create(edgeObjectType);
+							var entity = await GetValue(edgeObjectTypeAccessor, connectionEdge, graphRequestContext,
+								connectionEdgeDestinationFilters,
+								queryExecutionContext);
 
 							if (entity == null)
 							{
@@ -122,7 +130,8 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 									.SelectValues.Where(x => x.SelectValues.Count > 0).ToList();
 
 								if (selectionWithSelects.Count > 0)
-									await QueryAndPopulateEdgeConnections(selectionWithSelects, new List<object> { entity }, graphRequestContext);
+									await QueryAndPopulateEdgeConnections(selectionWithSelects, new List<object> { entity }, graphRequestContext,
+										connectionEdgeDestinationFilters, queryExecutionContext);
 							}
 						}
 					}
@@ -130,14 +139,19 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 			}
 		}
 
+		private const string MultipleEntitiesDetectedError =
+			"Unable to determine the correct destination entity due to multiple entities sharing the same key value. This may be due to the use of partitioning. Please implement ForDestinationFilter<T>(expression) in the query builder to help filter down to a single result.";
+
 		private async Task<object> GetValue(
 			TypeAccessor edgeObjectTypeAccessor,
 			ConnectionEdge connectionEdge,
-			IGraphRequestContext graphRequestContext)
+			IGraphRequestContext graphRequestContext,
+			List<ConnectionEdgeDestinationFilter> connectionEdgeDestinationFilters,
+			QueryExecutionContext queryExecutionContext)
 		{
 			var member = edgeObjectTypeAccessor.GetMembers().Single(x => x.Name == connectionEdge.MetaFieldName);
 			var destTypeAccessor = TypeAccessor.Create(member.Type);
-			var destQueryMember = destTypeAccessor.GetMembers().Single(m => m.Name.ToLower() == connectionEdge.DestinationFieldName.ToLower());
+			var destQueryMember = destTypeAccessor.GetMembers().Single(m => m.GetAttribute(typeof(KeyAttribute), true) != null);
 			var qp = new QueryStep();
 			qp.QueryParameters.Add(new QueryParameter
 			{
@@ -145,7 +159,24 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 				MemberModel = new ModelMember(member.Type, destTypeAccessor, destQueryMember, false)
 			});
 
-			return (await _graphQlRepositoryProvider.QueryAsync(EntityQueryName, qp, graphRequestContext)).SingleOrDefault();
+			if (connectionEdgeDestinationFilters != null)
+			{
+				connectionEdgeDestinationFilters.Where(x => x.Type == member.Type.AssemblyQualifiedName)
+					.ToList().ForEach(connectionEdgeDestinationFilter =>
+					{
+						qp.QueryParameters.Add(new QueryParameter
+						{
+							ContextValue = new ContextValue { Comparison = Comparisons.Equal, Values = connectionEdgeDestinationFilter.Mapper(queryExecutionContext) },
+							MemberModel = connectionEdgeDestinationFilter.ModelMember
+						});
+					});
+			}
+
+			var entities = (await _graphQlRepositoryProvider.QueryAsync(EntityQueryName, qp, graphRequestContext)).ToList();
+
+			if (entities.Count > 1) throw new InvalidOperationException(MultipleEntitiesDetectedError);
+
+			return entities.SingleOrDefault();
 		}
 
 		private bool? _isRepositoryExist;

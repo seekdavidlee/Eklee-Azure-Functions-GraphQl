@@ -28,7 +28,6 @@ namespace Eklee.Azure.Functions.GraphQl
 
 		[JsonIgnore]
 		public Dictionary<string, object> Items { get; set; }
-		public bool ForceCreateContextValueIfNull { get; set; }
 
 		public List<QueryParameter> InMemoryFilterQueryParameters { get; set; }
 	}

@@ -1,5 +1,4 @@
 using GraphQL.Types;
-using Microsoft.Extensions.Logging;
 using Eklee.Azure.Functions.GraphQl.Example.Models;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,9 +7,17 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestStorage.Core
 {
 	public class TestStorageQueryConfigObjectGraphType : ObjectGraphType<object>
 	{
-		public TestStorageQueryConfigObjectGraphType(QueryBuilderFactory queryBuilderFactory, ILogger logger)
+		public TestStorageQueryConfigObjectGraphType(QueryBuilderFactory queryBuilderFactory)
 		{
 			Name = "query";
+
+			queryBuilderFactory.Create<Model7>(this, "GetModel7WithIdFromHeader", "Get Model7")
+				.WithParameterBuilder()
+					.WithConnectionEdgeBuilder<Model7ToModel8>()
+						.WithSourceIdFromSource<Model7>(ctx => new List<object> { (string)ctx.RequestContext.HttpRequest.Request.Headers["Model7IdKey"] })
+					.BuildConnectionEdgeParameters()
+				.BuildQuery()
+				.BuildWithListResult();
 
 			queryBuilderFactory.Create<Model7>(this, "GetModel7WithModel8Id", "Get Model7")
 				.WithParameterBuilder()
@@ -74,6 +81,26 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestStorage.Core
 					.WithPropertyFromSource(x => x.Id, ctx => new List<object> { "model9_2_foo" })
 					.WithPropertyFromSource(x => x.Field, ctx => new List<object> { "model9 2" })
 				.BuildQueryResult(ctx => ctx.SetResults(ctx.GetQueryResults<Model9>()))
+				.BuildQuery()
+				.BuildWithListResult();
+
+			queryBuilderFactory.Create<Model13Parent>(this, "GetModel13Parent")
+				.WithParameterBuilder()
+				.BeginQuery<Model13Parent>()
+					.WithPropertyFromSource(x => x.AccountId, ctx =>
+					{
+						var accountId = ctx.RequestContext.HttpRequest.Request.Headers["AccountId"].Single();
+						ctx.Items["AccountIdList"] = new List<object> { accountId };
+						return new List<object> { accountId };
+					})
+				.BuildQueryResult(ctx =>
+				{
+					ctx.Items["IdList"] = ctx.GetQueryResults<Model13Parent>().Select(x => (object)x.SomeKey).ToList();
+				})
+				.WithConnectionEdgeBuilder<Model13Edge>()
+					.WithSourceIdFromSource<Model13Parent>(ctx => (List<object>)ctx.Items["IdList"])
+					.ForDestinationFilter<Model13Child>(x => x.AccountId, ctx => (List<object>)ctx.Items["AccountIdList"])
+				.BuildConnectionEdgeParameters()
 				.BuildQuery()
 				.BuildWithListResult();
 		}

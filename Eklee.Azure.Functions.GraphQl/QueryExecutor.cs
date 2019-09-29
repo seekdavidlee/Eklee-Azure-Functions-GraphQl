@@ -21,7 +21,8 @@ namespace Eklee.Azure.Functions.GraphQl
 			_connectionEdgeHandler = connectionEdgeHandler;
 		}
 
-		public async Task<IEnumerable<TSource>> ExecuteAsync(string queryName, IEnumerable<QueryStep> querySteps, IGraphRequestContext graphRequestContext)
+		public async Task<IEnumerable<TSource>> ExecuteAsync(string queryName, IEnumerable<QueryStep> querySteps, IGraphRequestContext graphRequestContext,
+			List<ConnectionEdgeDestinationFilter> connectionEdgeDestinationFilters)
 		{
 			var ctx = new QueryExecutionContext(graphRequestContext);
 
@@ -69,7 +70,8 @@ namespace Eklee.Azure.Functions.GraphQl
 
 						try
 						{
-							nextQueryResults.AddRange(await QueryAsync(queryName, queryStep, graphRequestContext));
+							nextQueryResults.AddRange(await QueryAsync(queryName, queryStep, graphRequestContext, ctx,
+								connectionEdgeDestinationFilters));
 						}
 						catch (Exception e)
 						{
@@ -86,7 +88,8 @@ namespace Eklee.Azure.Functions.GraphQl
 				{
 					if (!IsInvalidForNextQuery(queryStep))
 					{
-						nextQueryResults.AddRange(await QueryAsync(queryName, queryStep, graphRequestContext));
+						nextQueryResults.AddRange(await QueryAsync(queryName, queryStep, graphRequestContext, ctx,
+							connectionEdgeDestinationFilters));
 					}
 					else
 					{
@@ -117,13 +120,16 @@ namespace Eklee.Azure.Functions.GraphQl
 			return false;
 		}
 
-		private async Task<List<object>> QueryAsync(string queryName, QueryStep queryStep, IGraphRequestContext graphRequestContext)
+		private async Task<List<object>> QueryAsync(string queryName, QueryStep queryStep, IGraphRequestContext graphRequestContext,
+			QueryExecutionContext queryExecutionContext,
+			List<ConnectionEdgeDestinationFilter> connectionEdgeDestinationFilters)
 		{
 			var results = (await _graphQlRepositoryProvider.QueryAsync(queryName, queryStep, graphRequestContext)).ToList();
 
 			if (!queryStep.SkipConnectionEdgeCheck && results.Count > 0)
 			{
-				await _connectionEdgeHandler.QueryAsync(results, queryStep, graphRequestContext);
+				await _connectionEdgeHandler.QueryAsync(results, queryStep, graphRequestContext, queryExecutionContext,
+					connectionEdgeDestinationFilters);
 			}
 			return results;
 		}

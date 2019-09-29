@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace Eklee.Azure.Functions.GraphQl.Connections
 {
@@ -13,9 +14,10 @@ namespace Eklee.Azure.Functions.GraphQl.Connections
 
 		public string SourceId { get; set; }
 
-		public string DestinationFieldName { get; set; }
-
 		public string DestinationId { get; set; }
+
+		[Obsolete("This is no longer required. It remains for backwards compatibility.")]
+		public string DestinationFieldName { get; set; }
 
 		public string MetaValue { get; set; }
 

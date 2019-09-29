@@ -17,6 +17,8 @@ namespace Eklee.Azure.Functions.GraphQl.Queries
 			if (rule == null || !rule.DisableSetSelectValues)
 				contextValue.PopulateSelectValues(context);
 
+			if (context.Arguments == null) return contextValue;
+
 			var args = context.Arguments;
 			if (args.ContainsKey(name))
 			{

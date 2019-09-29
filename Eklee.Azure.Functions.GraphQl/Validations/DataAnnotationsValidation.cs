@@ -19,7 +19,7 @@ namespace Eklee.Azure.Functions.GraphQl.Validations
 			_modelValidations = modelValidations;
 		}
 
-		private static readonly Dictionary<string, TypeAccessor> _typeAccessors = new Dictionary<string, TypeAccessor>();
+		private readonly Dictionary<string, TypeAccessor> _typeAccessors = new Dictionary<string, TypeAccessor>();
 		private TypeAccessor GetTypeAccessor(Type key)
 		{
 			if (_typeAccessors.ContainsKey(key.FullName)) return _typeAccessors[key.FullName];

@@ -20,6 +20,8 @@ namespace Eklee.Azure.Functions.GraphQl
 		private readonly List<QueryStep> _querySteps = new List<QueryStep>();
 		private readonly QueryStep _queryStep;
 
+		public List<ConnectionEdgeDestinationFilter> ConnectionEdgeDestinationFilters { get; } = new List<ConnectionEdgeDestinationFilter>();
+
 		public QueryStep NewQueryStep()
 		{
 			return new QueryStep
@@ -65,9 +67,10 @@ namespace Eklee.Azure.Functions.GraphQl
 			_queryStep.QueryParameters.Add(new QueryParameter { MemberModel = modelMember });
 		}
 
-		private void SetQueryParameterContextValue(QueryParameter queryParameter, ResolveFieldContext<object> context, IGraphRequestContext graphRequestContext)
+		private void SetQueryParameterContextValue(QueryParameter queryParameter, ResolveFieldContext<object> context)
 		{
-			if (queryParameter.Mapper != null) return;
+			if (queryParameter.Mapper != null ||
+				(queryParameter.Rule != null && queryParameter.Rule.PopulateWithQueryValues)) return;
 
 			queryParameter.ContextValue = _contextValueResolver.GetContextValue(
 				context, queryParameter.MemberModel, queryParameter.Rule);
@@ -78,16 +81,14 @@ namespace Eklee.Azure.Functions.GraphQl
 		/// given the QueryStep itself stored here is singleton.
 		/// </summary>
 		/// <param name="context">Context for getting parameter value(s).</param>
-		/// <param name="graphRequestContext">Graph request context.</param>
 		/// <returns></returns>
-		internal List<QueryStep> GetQuerySteps(ResolveFieldContext<object> context, IGraphRequestContext graphRequestContext)
+		internal List<QueryStep> GetQuerySteps(ResolveFieldContext<object> context)
 		{
 			if (_queryStep.QueryParameters.Count > 0)
 			{
 				var queryStep = _queryStep.CloneQueryStep();
 
-				queryStep.QueryParameters.ForEach(qsqp => SetQueryParameterContextValue(
-					qsqp, context, graphRequestContext));
+				queryStep.QueryParameters.ForEach(qsqp => SetQueryParameterContextValue(qsqp, context));
 
 				return new List<QueryStep> { queryStep };
 			}
@@ -96,24 +97,19 @@ namespace Eklee.Azure.Functions.GraphQl
 
 			clonedList.ToList().ForEach(queryStep =>
 			{
-				var first = queryStep.StepMapper != null && !queryStep.ForceCreateContextValueIfNull;
 				queryStep.QueryParameters.ForEach(queryParameter =>
 				{
-					if (first)
-					{
-						first = false;
-					}
-					else
-					{
-						if (queryParameter.ContextValue == null)
-							SetQueryParameterContextValue(queryParameter, context, graphRequestContext);
-					}
+					bool skipSetContextValue = queryStep.StepMapper != null && queryParameter.Rule != null && !queryParameter.Rule.ForceCreateContextValueIfNull;
+
+					if (!skipSetContextValue && queryParameter.ContextValue == null)
+						SetQueryParameterContextValue(queryParameter, context);
+
 				});
 
 				if (queryStep.InMemoryFilterQueryParameters != null)
 				{
 					queryStep.InMemoryFilterQueryParameters.ForEach(queryParameter =>
-						SetQueryParameterContextValue(queryParameter, context, graphRequestContext));
+						SetQueryParameterContextValue(queryParameter, context));
 				}
 			});
 

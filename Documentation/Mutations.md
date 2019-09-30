@@ -123,6 +123,20 @@ Next, we need to provide a partition key based on the Type.
 
 Finally, we can call the BuildDocumentDb extension method to close the document db build configuration.
 
+## Azure Table Storage based mutation
+
+In order to leverage Azure Table Storage, we will need to minimally provide a connection string, partition key. There's a option for a prefix ```AddPrefix``` to the table name in case we need to create a Staging table for the Staging environment etc.
+
+```
+inputBuilderFactory.Create<Model14>(this)
+	.ConfigureTableStorage<Model14>()
+	.AddPrefix("Stg")
+	.AddConnectionString(configuration["TableStorage:ConnectionString"])
+	.AddPartition(x => x.Descr)
+	.BuildTableStorage()
+	.Build();
+```
+
 ## Azure Search based mutation
 
 In order to leverage Azure Search, we will need to create an instance of Azure Search and provide the Service name and key. The following is an example. Note that the Model can be created (inhertied) from an existing type. In the example below, ConfigureSearch is used to configure Azure Search with the Service name and key.

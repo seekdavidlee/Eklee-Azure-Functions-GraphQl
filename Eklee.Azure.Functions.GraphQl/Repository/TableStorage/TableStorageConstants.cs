@@ -2,6 +2,7 @@
 {
 	public class TableStorageConstants
 	{
+		public const string Prefix = "Prefix";
 		public const string ConnectionString = "ConnectionString";
 		public const string PartitionMemberExpression = "PartitionMemberExpression";
 		public const string RequestContextSelector = "RequestContextSelector";

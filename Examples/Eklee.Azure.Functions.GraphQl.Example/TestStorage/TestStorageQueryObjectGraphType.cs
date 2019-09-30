@@ -103,6 +103,12 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestStorage.Core
 				.BuildConnectionEdgeParameters()
 				.BuildQuery()
 				.BuildWithListResult();
+
+			queryBuilderFactory.Create<Model14>(this, "GetModel14ById")
+				.WithParameterBuilder()
+				.WithKeys()
+				.BuildQuery()
+				.BuildWithListResult();
 		}
 	}
 }

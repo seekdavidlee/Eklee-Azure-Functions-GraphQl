@@ -137,6 +137,20 @@ inputBuilderFactory.Create<BookSearch>(this)
 	.Build();
 ```
 
+## Azure Table Storage based mutation
+
+In order to leverage Azure Table Storage, we will need to minimally provide a connection string, partition key. There's a option for a prefix ```AddPrefix``` to the table name in case we need to create a Staging table for the Staging environment etc.
+
+```
+inputBuilderFactory.Create<Model14>(this)
+	.ConfigureTableStorage<Model14>()
+	.AddPrefix("Stg")
+	.AddConnectionString(configuration["TableStorage:ConnectionString"])
+	.AddPartition(x => x.Descr)
+	.BuildTableStorage()
+	.Build();
+```
+
 ### Sync Azure Search with Model
 
 It is possible to perform a mutation with a Model and the corresponding Search Model will also be either created, updated or deleted. See the following example.

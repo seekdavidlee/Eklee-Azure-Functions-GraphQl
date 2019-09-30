@@ -6813,6 +6813,79 @@
 								}
 							},
 							"response": []
+						},
+						{
+							"name": "SeedModel14",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+										"exec": [
+											"var testName = pm.info.requestName + \": \";",
+											"pm.test(testName + \"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"var jsonData = pm.response.json();",
+											"pm.test(testName + \"Has no errors\", function () {",
+											"",
+											"    pm.expect(jsonData.errors).to.eql(undefined);",
+											"});",
+											"",
+											"pm.test(testName + \"Contains correct JSON payload\", function () {",
+											"",
+											"    var items = jsonData.data.batchCreateOrUpdateModel14;",
+											"    pm.expect(items.length).to.eql(4);",
+											"    ",
+											"    pm.expect(items[0].someKey).to.eql(\"model14_1\");",
+											"    pm.expect(items[1].someKey).to.eql(\"model14_2\");",
+											"    pm.expect(items[2].someKey).to.eql(\"model14_3\");",
+											"    pm.expect(items[3].someKey).to.eql(\"model14_4\");",
+											"    ",
+											"});",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/graphql"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "mutation {\r\n  batchCreateOrUpdateModel14(model14:[{\r\n    someKey:\"model14_1\"\r\n    descr:\"model14 1\"\r\n  }, {\r\n    someKey:\"model14_2\"\r\n    descr:\"model14 2\"  \r\n  }, {\r\n    someKey:\"model14_3\"\r\n    descr:\"model14 3\"  \r\n  }, {\r\n    someKey:\"model14_4\"\r\n    descr:\"model14 4\"  \r\n  }]){\r\n    someKey\r\n    descr\r\n  }\r\n}"
+								},
+								"url": {
+									"raw": "{{endpoint}}/api/teststorage/graph",
+									"host": [
+										"{{endpoint}}"
+									],
+									"path": [
+										"api",
+										"teststorage",
+										"graph"
+									]
+								}
+							},
+							"response": []
 						}
 					],
 					"protocolProfileBehavior": {},
@@ -7788,6 +7861,75 @@
 					"response": []
 				},
 				{
+					"name": "GetModel14ById",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"var testName = pm.info.requestName + \": \";",
+									"",
+									"pm.test(testName + \"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(testName + \"Has no errors\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.eql(undefined);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"var result = jsonData.data.getModel14ById;",
+									"",
+									"pm.test(testName + \"Contains correct JSON payload\", function () {",
+									"    pm.expect(result.length).to.eql(1);",
+									"    pm.expect(result[0].someKey).to.eql(\"model14_4\");",
+									"    pm.expect(result[0].descr).to.eql(\"model14 4\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/graphql"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "query {\r\n  getModel14ById(somekey:{equal:\"model14_4\"}){\r\n    someKey\r\n    descr\r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/teststorage/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"teststorage",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "CleanupModel7",
 					"event": [
 						{
@@ -8012,6 +8154,66 @@
 						"body": {
 							"mode": "raw",
 							"raw": "mutation {\r\n  deleteAllModel10{\r\n    message\r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/teststorage/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"teststorage",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CleanupModel14",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e8eb2c55-1b59-462c-85a3-6ca178f1fab4",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "ea05179b-5e82-450c-be1e-4776a9250b30",
+								"exec": [
+									"var testName = pm.info.requestName + \": \";",
+									"",
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(testName + \"No errors.\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.eq(undefined);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/graphql"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "mutation {\r\n  deleteAllModel14{\r\n    message\r\n  }\r\n}"
 						},
 						"url": {
 							"raw": "{{endpoint}}/api/teststorage/graph",

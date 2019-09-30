@@ -41,8 +41,11 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.TableStorage
 
 		public async Task ConfigureTable(Dictionary<string, object> configurations, Type sourceType)
 		{
+			var prefix = configurations.GetStringValue(TableStorageConstants.Prefix, sourceType);
+			if (prefix == null) prefix = "";
+
 			var tableClient = _storageAccount.CreateCloudTableClient();
-			var tableRef = tableClient.GetTableReference(sourceType.Name);
+			var tableRef = tableClient.GetTableReference($"{prefix}{sourceType.Name}");
 			await tableRef.CreateIfNotExistsAsync();
 
 			var info = new TableStorageInfo

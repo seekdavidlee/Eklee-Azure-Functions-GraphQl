@@ -21,6 +21,12 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.TableStorage
 			_typeSource = typeSource;
 		}
 
+		public TableStorageConfiguration<TSource> AddPrefix(string prefix)
+		{
+			_configurations.Add<TSource>(TableStorageConstants.Prefix, prefix);
+			return this;
+		}
+
 		public TableStorageConfiguration<TSource> AddConnectionString(string connectionString)
 		{
 			_configurations.Add<TSource>(TableStorageConstants.ConnectionString, connectionString);

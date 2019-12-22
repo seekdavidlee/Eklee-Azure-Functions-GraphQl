@@ -583,7 +583,9 @@
 											"pm.test(\"Created data contains 12 items\", function () {",
 											"    var jsonData = pm.response.json();",
 											"    pm.expect(jsonData.data.batchCreateModel3V2.length).to.eql(17);",
-											"});"
+											"});",
+											"",
+											"setTimeout(function(){}, 1000);"
 										],
 										"type": "text/javascript"
 									}
@@ -8573,7 +8575,9 @@
 									"pm.test(\"Created data contains 30 items\", function () {",
 									"    var jsonData = pm.response.json();",
 									"    pm.expect(jsonData.data.batchCreateBookSearch.length).to.eql(30);",
-									"});"
+									"});",
+									"",
+									"setTimeout(function(){}, 1000);"
 								],
 								"type": "text/javascript"
 							}

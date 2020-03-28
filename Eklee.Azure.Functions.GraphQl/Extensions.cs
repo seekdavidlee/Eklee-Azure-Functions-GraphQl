@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Security;
@@ -9,7 +10,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Autofac;
 using Eklee.Azure.Functions.GraphQl.Actions;
-using Eklee.Azure.Functions.GraphQl.Actions.RequestContextValueExtractors;
 using Eklee.Azure.Functions.GraphQl.Attributes;
 using Eklee.Azure.Functions.GraphQl.Connections;
 using Eklee.Azure.Functions.GraphQl.Queries;
@@ -34,7 +34,6 @@ using GraphQL.Validation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
@@ -165,17 +164,20 @@ namespace Eklee.Azure.Functions.GraphQl
 		{
 			var graphQlDomain = executionContext.Resolve<IGraphQlDomain>();
 
-			var requestBody = await httpRequest.ReadAsStringAsync();
+			using (var reader = new StreamReader(httpRequest.Body))
+			{
+				var requestBody = await reader.ReadToEndAsync();
 
-			logger.LogInformation($"Request-Body: {requestBody}");
+				logger.LogInformation($"Request-Body: {requestBody}");
 
-			var results = await graphQlDomain.ExecuteAsync(handler(requestBody));
+				var results = await graphQlDomain.ExecuteAsync(handler(requestBody));
 
-			if (results.Errors != null && results.Errors.Any(x =>
-					x.InnerException != null && x.InnerException.GetType() == typeof(SecurityException)))
-				return new UnauthorizedResult();
+				if (results.Errors != null && results.Errors.Any(x =>
+						x.InnerException != null && x.InnerException.GetType() == typeof(SecurityException)))
+					return new UnauthorizedResult();
 
-			return new OkObjectResult(results);
+				return new OkObjectResult(results);
+			}
 		}
 
 		/// <summary>

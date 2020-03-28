@@ -124,7 +124,7 @@ param([switch]$testunit, [switch]$testint, [switch]$skippackage,
 		Pop-Location
 
 		Push-Location Examples\Eklee.Azure.Functions.GraphQl.Example\bin\$buildConfig\netstandard2.0
-		npm install --save-dev azure-functions-core-tools
+		npm install --save-dev azure-functions-core-tools@3
 		npm install --save-dev newman
 		Pop-Location
 

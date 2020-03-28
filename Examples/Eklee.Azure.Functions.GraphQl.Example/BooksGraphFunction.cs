@@ -2,9 +2,9 @@ using System.Threading.Tasks;
 using Eklee.Azure.Functions.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Azure.WebJobs.Extensions.Http;
 
 namespace Eklee.Azure.Functions.GraphQl.Example
 {

@@ -144,14 +144,22 @@ namespace Eklee.Azure.Functions.GraphQl
 
 			var logger = executionContext.Resolve<ILogger>();
 
-			if (httpRequest.ContentType == "application/graphql")
+			if (string.IsNullOrEmpty(httpRequest.ContentType))
+			{
+				logger.LogWarning($"Content-type is required.");
+				return new BadRequestResult();
+			}
+
+			var contentTypes = httpRequest.ContentType.Split(';');
+
+			if (contentTypes.Contains("application/graphql"))
 			{
 				// https://graphql.org/learn/serving-over-http/
 				// If the "application/graphql" Content-Type header is present, treat the HTTP POST body contents as the GraphQL query string.
 				return await ProcessRequest(executionContext, httpRequest, logger, body => new GraphQlDomainRequest { Query = body });
 			}
 
-			if (httpRequest.ContentType == "application/json")
+			if (contentTypes.Contains("application/json"))
 			{
 				return await ProcessRequest(executionContext, httpRequest, logger, JsonConvert.DeserializeObject<GraphQlDomainRequest>);
 			}

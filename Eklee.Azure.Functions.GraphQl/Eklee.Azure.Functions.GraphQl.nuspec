@@ -10,7 +10,7 @@
 		<projectUrl>https://github.com/seekdavidlee/Eklee-Azure-Functions-GraphQl</projectUrl>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<description>Implement one or more Serverless GraphQL API(s) using Azure Functions, Azure Cosmos DB, Azure Search, Azure Table Storage etc.</description>
-		<releaseNotes>Use V3 of Azure Functions and update to latest packages.</releaseNotes>
+		<releaseNotes>Fix an issue related to content-type containing multiple values.</releaseNotes>
 		<tags>GraphQL, Azure, Functions, Caching, .NET, Graph, Paging, Pagination, CosmosDB, DocumentDB, Search, Table</tags>
 		<dependencies>
 			<dependency id="Eklee.Azure.Functions.Http" version="0.9.0" />

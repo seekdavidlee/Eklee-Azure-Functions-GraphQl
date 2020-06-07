@@ -6,10 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Eklee.Azure.Functions.Http" Version="0.9.0" />
+    <PackageReference Include="Eklee.Azure.Functions.Http" Version="0.10.1" />
     <PackageReference Include="FastMember" Version="1.5.0" />
     <PackageReference Include="GraphQL" Version="2.4.0" />
-    <PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.10.1" />
+    <PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.11.0" />
     <PackageReference Include="Microsoft.Azure.Search" Version="10.1.0" />
     <PackageReference Include="Microsoft.Azure.WebJobs" Version="3.0.16" />
     <PackageReference Include="WindowsAzure.Storage" Version="9.3.3" />

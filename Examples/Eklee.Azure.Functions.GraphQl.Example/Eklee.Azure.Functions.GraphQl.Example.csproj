@@ -5,8 +5,8 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Http" Version="3.0.2" />
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="3.1.3" />
-    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="3.1.4" />
+    <PackageReference Include="Microsoft.NET.Sdk.Functions" Version="3.0.7" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Eklee.Azure.Functions.GraphQl\Eklee.Azure.Functions.GraphQl.csproj" />

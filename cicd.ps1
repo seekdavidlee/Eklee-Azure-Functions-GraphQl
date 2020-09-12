@@ -18,6 +18,21 @@ param([switch]$testunit, [switch]$testint, [switch]$skippackage,
 		return;
 	}
 
+	if (!$SubscriptionId) {
+		Write-Host "SubscriptionId is required."
+		return
+	}
+
+	if (!$ResourceGroupName) {
+		Write-Host "ResourceGroupName is required."
+		return
+	}
+
+	if (!$Name) {
+		Write-Host "Name is required."
+		return
+	}
+
 	# Note: We are following: https://semver.org/
 	# Given a version number MAJOR.MINOR.PATCH, increment the:
 

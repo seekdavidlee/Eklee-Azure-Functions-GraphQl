@@ -29,11 +29,8 @@ steps:
     azurePowerShellVersion: 'latestVersion'
     scriptArguments: '-ResourceGroupName $(Global.ResourceGroupName) -ServiceName $(Global.Name)'
 
-- task: AzurePowerShell@4
-  displayName: 'Reset DoucmentDb'
+- task: PowerShell@2
+  displayName: 'Start Document Db'
   inputs:
-    azureSubscription: $(Global.ServiceConnectionName)
-    scriptType: 'FilePath'
-    scriptPath: 'ResetDocumentDb.ps1'
-    azurePowerShellVersion: 'latestVersion'
-    scriptArguments: '-ResourceGroupName $(Global.ResourceGroupName) -AccountName $(Global.Name)'
+    targetType: 'filePath'
+    filePath: 'StartDocumentDb.ps1'

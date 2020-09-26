@@ -3,19 +3,9 @@ param(
 	[Parameter(Mandatory=$True)][string]$Name,
 	[Parameter(Mandatory=$True)][string]$SourceRootDir)
 
-$documentDbUrl = "https://$Name.documents.azure.com/"
+$documentDbUrl = "https://localhost:8081"
 
-$resource = Get-AzResource `
-	-ResourceType "Microsoft.DocumentDb/databaseAccounts" `
-	-ResourceGroupName $ResourceGroupName `
-	-ResourceName $Name `
-	-ApiVersion 2015-04-08
-
-$primaryMasterKey = (Invoke-AzResourceAction `
-	-Action listKeys `
-	-ResourceId $resource.ResourceId `
-	-ApiVersion 2015-04-08 `
-	-Force).primaryMasterKey
+$primaryMasterKey = "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw=="
 
 $resource = Get-AzResource `
     -ResourceType "Microsoft.Search/searchServices" `
@@ -30,14 +20,7 @@ $primaryKey = (Invoke-AzResourceAction `
     -ApiVersion 2015-08-19 `
 	-Force).PrimaryKey
 
-$storageAccount = Get-AzStorageAccount `
-    -ResourceGroupName $ResourceGroupName `
-	-Name $Name
-
-$ctx = $storageAccount.Context
-
-$accountKey = (Get-AzStorageAccountKey -ResourceGroupName $ResourceGroupName -Name $Name).Value[0] 
-$connectionString = "DefaultEndpointsProtocol=https;AccountName=$Name;AccountKey=$accountKey;EndpointSuffix=core.windows.net"
+$connectionString = "UseDevelopmentStorage=true"
 
 $settings = @{ Search = @{ ServiceName="$Name"; ApiKey="$primaryKey" }; DocumentDb = @{ Key="$primaryMasterKey";Url="$documentDbUrl";RequestUnits="400" }; TableStorage=@{ConnectionString="$connectionString"} } | ConvertTo-Json -Depth 10
 $settings | Out-File $SourceRootDir\Eklee.Azure.Functions.GraphQl.Tests\local.settings.json -Encoding ASCII

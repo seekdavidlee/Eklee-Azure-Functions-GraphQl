@@ -4,7 +4,7 @@ pool:
 steps:
 
 - task: AzurePowerShell@4
-  displayName: 'Prepare local settings'
+  displayName: 'Prepare configuration values tests'
   inputs:
     azureSubscription: $(Global.ServiceConnectionName)
     scriptType: 'FilePath'
@@ -34,3 +34,11 @@ steps:
   inputs:
     targetType: 'filePath'
     filePath: 'InitLocalEmulators.ps1'
+
+- task: DotNetCoreCLI@2
+  displayName: 'Run integration tests'
+  inputs:
+    command: 'test'
+    configuration: '$(BuildConfiguration)'
+    projects: 'Eklee.Azure.Functions.GraphQl.Tests\Eklee.Azure.Functions.GraphQl.Tests.csproj'
+    arguments: '--filter Category=Integration'

@@ -30,7 +30,7 @@ steps:
     scriptArguments: '-ResourceGroupName $(Global.ResourceGroupName) -ServiceName $(Global.Name)'
 
 - task: PowerShell@2
-  displayName: 'Start Document Db'
+  displayName: 'Initialize Local Emulators'
   inputs:
     targetType: 'filePath'
-    filePath: 'StartDocumentDb.ps1'
+    filePath: 'InitLocalEmulators.ps1'

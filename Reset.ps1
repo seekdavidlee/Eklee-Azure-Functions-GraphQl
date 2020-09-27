@@ -23,5 +23,7 @@ if (!$context) {
 }
 
 .\ResetSearch.ps1 -ResourceGroupName $ResourceGroupName -ServiceName $Name
-.\ResetDocumentDb.ps1 -ResourceGroupName $ResourceGroupName -AccountName $Name
-.\ResetTableStorage -ResourceGroupName $ResourceGroupName -AccountName $Name
+Write-Host "Initializing local emulators"
+.\InitLocalEmulators.ps1
+#.\ResetDocumentDb.ps1 -ResourceGroupName $ResourceGroupName -AccountName $Name
+#.\ResetTableStorage -ResourceGroupName $ResourceGroupName -AccountName $Name

@@ -7,7 +7,7 @@ param([switch]$testunit, [switch]$testint, [switch]$skippackage,
 	[Parameter(Mandatory=$False)][string]$IncrementVersionType)
 
 	$ErrorActionPreference = "Stop"
-	
+
 	dotnet test .\Eklee.Azure.Functions.GraphQl.Tests\Eklee.Azure.Functions.GraphQl.Tests.csproj --filter Category=Unit
 	
 	if ($lastexitcode -ne 0){
@@ -115,7 +115,9 @@ param([switch]$testunit, [switch]$testint, [switch]$skippackage,
 			}
 		}
 	}
+	.\InitLocalEmulators.ps1
 	.\ConfigureTestLocalSettings.ps1 -SourceRootDir (Get-Location).Path -ResourceGroupName $ResourceGroupName -Name $Name
+
 	dotnet test .\Eklee.Azure.Functions.GraphQl.Tests\Eklee.Azure.Functions.GraphQl.Tests.csproj --filter Category=Integration
 	
 	if ($lastexitcode -ne 0){

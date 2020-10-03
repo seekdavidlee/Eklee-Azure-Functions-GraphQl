@@ -64,7 +64,7 @@ else {
     }
 }
 
+$version = "$major.$minor.$patch"
+
 Write-Host "##vso[task.setvariable variable=buildConfig]$buildConfig"
-Write-Host "##vso[task.setvariable variable=major]$major"
-Write-Host "##vso[task.setvariable variable=minor]$minor"
-Write-Host "##vso[task.setvariable variable=patch]$patch"
+Write-Host "##vso[task.setvariable variable=version]$version"

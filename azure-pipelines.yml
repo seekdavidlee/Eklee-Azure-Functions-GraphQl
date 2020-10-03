@@ -47,7 +47,16 @@ steps:
     scriptArguments: -ResourceGroupName $(Global.ResourceGroupName) -Name $(Global.Name)
 
 - task: PowerShell@2
+  name: config_version
   inputs:
     targetType: filePath
     filePath: 'ConfigureVersion.ps1'
     arguments: -BuildConfiguration Release -IncrementVersionType minor
+
+- task: DotNetCoreCLI@2
+  displayName: 'Build Example Solution'
+  inputs:
+    command: 'build'
+    configuration: '$(BuildConfiguration)'
+    projects: 'Examples\Eklee.Azure.Functions.GraphQl.Example\Examples\Eklee.Azure.Functions.GraphQl.Example.csproj'
+    arguments: --configuration=$(config_version.buildConfig) -p:Version=$(config_version.version)

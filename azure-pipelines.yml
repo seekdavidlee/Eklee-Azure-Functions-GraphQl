@@ -18,7 +18,7 @@ steps:
     scriptType: 'FilePath'
     scriptPath: 'Reset.ps1'
     azurePowerShellVersion: 'latestVersion'
-    scriptArguments: -ResourceGroupName $(Global.ResourceGroupName) -Name $(Global.Name) -SubscriptionId $(Global.SubscriptionId)
+    scriptArguments: -ResourceGroupName $(Global.ResourceGroupName) -Name $(Global.Name)
 
 - task: AzurePowerShell@4
   displayName: 'Prepare configuration values for integration tests'
@@ -44,4 +44,4 @@ steps:
     scriptType: 'FilePath'
     scriptPath: 'Reset.ps1'
     azurePowerShellVersion: 'latestVersion'
-    scriptArguments: -ResourceGroupName $(Global.ResourceGroupName) -Name $(Global.Name) -SubscriptionId $(Global.SubscriptionId)
+    scriptArguments: -ResourceGroupName $(Global.ResourceGroupName) -Name $(Global.Name)

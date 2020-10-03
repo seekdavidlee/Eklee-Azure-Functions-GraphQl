@@ -1,7 +1,6 @@
 param(
 	[Parameter(Mandatory = $True)][string]$ResourceGroupName, 
-	[Parameter(Mandatory = $True)][string]$Name,	
-	[Parameter(Mandatory = $True)][string]$SubscriptionId)
+	[Parameter(Mandatory = $True)][string]$Name)
 
 $ErrorActionPreference = "Stop"
 
@@ -9,6 +8,8 @@ function ResetSearch {
  param(
 		[Parameter(Mandatory = $True)][string]$ResourceGroupName, 
 		[Parameter(Mandatory = $True)][string]$ServiceName)
+
+	Write-Host "Resetting Search"
 
 	$resource = Get-AzResource `
 		-ResourceType "Microsoft.Search/searchServices" `
@@ -42,37 +43,39 @@ function ResetSearch {
 	}
 }
 
+function GenerateMasterKeyAuthorizationSignature {
+	[CmdletBinding()]
+	Param
+	(
+		[Parameter(Mandatory = $true)][String]$verb,
+		[Parameter(Mandatory = $true)][String]$resourceLink,
+		[Parameter(Mandatory = $true)][String]$resourceType,
+		[Parameter(Mandatory = $true)][String]$dateTime,
+		[Parameter(Mandatory = $true)][String]$key,
+		[Parameter(Mandatory = $true)][String]$keyType,
+		[Parameter(Mandatory = $true)][String]$tokenVersion
+	)
+
+	If ($resourceLink -eq $resourceType) { 
+		$resourceLink = "" 
+	}
+
+	$hmacSha256 = New-Object System.Security.Cryptography.HMACSHA256
+	$hmacSha256.Key = [System.Convert]::FromBase64String($key)
+ 
+	$payLoad = "$($verb.ToLowerInvariant())`n$($resourceType.ToLowerInvariant())`n$resourceLink`n$($dateTime.ToLowerInvariant())`n`n"
+	$hashPayLoad = $hmacSha256.ComputeHash([System.Text.Encoding]::UTF8.GetBytes($payLoad))
+	$signature = [System.Convert]::ToBase64String($hashPayLoad);
+ 
+	[System.Web.HttpUtility]::UrlEncode("type=$keyType&ver=$tokenVersion&sig=$signature")
+}
+
 function ResetDocumentDb {
+
+	Write-Host "Resetting Document DB"
+
 	Add-Type -AssemblyName System.Web
  
-	# generate authorization key
-	Function GenerateMasterKeyAuthorizationSignature {
-		[CmdletBinding()]
-		Param
-		(
-			[Parameter(Mandatory = $true)][String]$verb,
-			[Parameter(Mandatory = $true)][String]$resourceLink,
-			[Parameter(Mandatory = $true)][String]$resourceType,
-			[Parameter(Mandatory = $true)][String]$dateTime,
-			[Parameter(Mandatory = $true)][String]$key,
-			[Parameter(Mandatory = $true)][String]$keyType,
-			[Parameter(Mandatory = $true)][String]$tokenVersion
-		)
-	
-		If ($resourceLink -eq $resourceType) { 
-			$resourceLink = "" 
-		}
-	
-		$hmacSha256 = New-Object System.Security.Cryptography.HMACSHA256
-		$hmacSha256.Key = [System.Convert]::FromBase64String($key)
-	 
-		$payLoad = "$($verb.ToLowerInvariant())`n$($resourceType.ToLowerInvariant())`n$resourceLink`n$($dateTime.ToLowerInvariant())`n`n"
-		$hashPayLoad = $hmacSha256.ComputeHash([System.Text.Encoding]::UTF8.GetBytes($payLoad))
-		$signature = [System.Convert]::ToBase64String($hashPayLoad);
-	 
-		[System.Web.HttpUtility]::UrlEncode("type=$keyType&ver=$tokenVersion&sig=$signature")
-	}
-	
 	$resource = Get-AzResource `
 		-ResourceType "Microsoft.DocumentDb/databaseAccounts" `
 		-ResourceGroupName $ResourceGroupName `
@@ -121,22 +124,24 @@ function ResetDocumentDb {
 
 function ResetTableStorage {
 	param(
-		[Parameter(Mandatory=$True)][string]$ResourceGroupName, 
-		[Parameter(Mandatory=$True)][string]$AccountName)
+		[Parameter(Mandatory = $True)][string]$ResourceGroupName, 
+		[Parameter(Mandatory = $True)][string]$AccountName)
+
+	Write-Host "Resetting Table Storage"
 	
 	$storageAccount = Get-AzStorageAccount `
 		-ResourceGroupName $ResourceGroupName `
 		-Name $AccountName
 	
 	$ctx = $storageAccount.Context
-	$names = Get-AzStorageTable �Context $ctx | Select-Object Name
+	$names = Get-AzStorageTable -Context $ctx | Select-Object Name
 	
 	Write-Host "Removing tables..."
 	
 	$names | ForEach-Object {
 		$name = $_.Name
 		Write-Host "Removing $name"
-		Remove-AzStorageTable -Name $name �Context $ctx -Force
+		Remove-AzStorageTable -Name $name -Context $ctx -Force
 	}
 }
 

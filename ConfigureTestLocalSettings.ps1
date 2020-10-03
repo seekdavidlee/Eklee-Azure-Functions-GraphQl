@@ -5,24 +5,47 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-$documentDbUrl = "https://localhost:8081"
+function ConvertSecretToPlainText($Secret) {
 
-$primaryMasterKey = "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw=="
+	$bstr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($Secret)
+	return [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($bstr)
+}
+
+$documentDbUrl = "https://$Name.documents.azure.com/"
+
+$resource = Get-AzResource `
+	-ResourceType "Microsoft.DocumentDb/databaseAccounts" `
+	-ResourceGroupName $ResourceGroupName `
+	-ResourceName $Name `
+	-ApiVersion 2020-04-01
+
+$primaryMasterKey = (Invoke-AzResourceAction `
+	-Action listKeys `
+	-ResourceId $resource.ResourceId `
+	-ApiVersion 2020-04-01 `
+	-Force).primaryMasterKey
 
 $resource = Get-AzResource `
     -ResourceType "Microsoft.Search/searchServices" `
     -ResourceGroupName $ResourceGroupName `
     -ResourceName $Name `
-    -ApiVersion 2015-08-19
+    -ApiVersion 2020-04-01
 
 # Get the primary admin API key for search
 $primaryKey = (Invoke-AzResourceAction `
     -Action listAdminKeys `
     -ResourceId $resource.ResourceId `
-    -ApiVersion 2015-08-19 `
+    -ApiVersion 2020-08-01 `
 	-Force).PrimaryKey
 
-$connectionString = "UseDevelopmentStorage=true"
+$storageAccount = Get-AzStorageAccount `
+    -ResourceGroupName $ResourceGroupName `
+	-Name $Name
+
+$ctx = $storageAccount.Context
+
+$accountKey = (Get-AzStorageAccountKey -ResourceGroupName $ResourceGroupName -Name $Name).Value[0] 
+$connectionString = "DefaultEndpointsProtocol=https;AccountName=$Name;AccountKey=$accountKey;EndpointSuffix=core.windows.net"
 
 $outFile = "$SourceRootDir\Eklee.Azure.Functions.GraphQl.Tests\local.settings.json"
 
@@ -48,11 +71,85 @@ Get-AzKeyVaultSecret -VaultName $Name| ForEach-Object {
         if (!$secret){
             Write-Host "Unable to find $keyVaultKeyName in $Name"
         } else {
-            $environmentFile.values += @{ "key" = $keyVaultKeyName; "value" = $secret.SecretValueText; "enabled" = "true" }
-        }
-       
-        
+			$text = ConvertSecretToPlainText -Secret $secret.SecretValue
+            $environmentFile.values += @{ "key" = $keyVaultKeyName; "value" = $text; "enabled" = "true" }
+        }          
     }
 }
 
 $environmentFile | ConvertTo-Json | Out-File $SourceRootDir\Tests\Eklee.Azure.Functions.GraphQl.Local.postman_environment.json
+
+$localSettingsFileContent = '{
+	"IsEncrypted": false,
+	"Values": {
+		"AzureWebJobsStorage": "UseDevelopmentStorage=true",
+		"FUNCTIONS_WORKER_RUNTIME": "dotnet"
+	},
+	"GraphQl": {
+		"EnableMetrics": "true",
+		"ExposeExceptions":  "true" 
+	},
+	"DocumentDb": {
+		"Url": "%DocumentDbUrl%",
+		"Key": "%DocumentDbKey%",
+		"RequestUnits": "400"
+	},
+	"Search": {
+		"ServiceName": "%SearchServiceName%",
+		"ApiKey": "%SearchServiceKey%"
+	},
+	"TableStorage": {
+		"ConnectionString": "UseDevelopmentStorage=true"
+	},
+	"Security": {
+		"Audience": "%audienceId%",
+		"Issuers": "%issuer1% %issuer2%"
+	},
+	"Tenants": [
+		{
+			"Issuer": "%issuer1%",
+			"DocumentDb": {
+				"Key": "%DocumentDbKey%",
+				"Url": "%DocumentDbUrl%",
+				"RequestUnits": "400"
+			},
+			"Search": {
+				"ServiceName": "%SearchServiceName%",
+				"ApiKey": "%SearchServiceKey%"
+			},
+			"TableStorage": {
+				"ConnectionString": "%StorageConnection%"
+			}
+		},
+		{
+			"Issuer": "%issuer2%",
+			"DocumentDb": {
+				"Key": "%DocumentDbKey%",
+				"Url": "%DocumentDbUrl%",
+				"RequestUnits": "400"
+			},
+			"Search": {
+				"ServiceName": "%SearchServiceName%",
+				"ApiKey": "%SearchServiceKey%"
+			},
+			"TableStorage": {
+				"ConnectionString": "%StorageConnection%"
+			}
+		}
+	]
+}'
+
+$audienceId = ConvertSecretToPlainText -Secret (Get-AzKeyVaultSecret -VaultName $Name -Name "local-audienceId").SecretValue
+$issuer1 = ConvertSecretToPlainText -Secret (Get-AzKeyVaultSecret -VaultName $Name -Name "local-issuer1").SecretValue
+$issuer2 = ConvertSecretToPlainText -Secret (Get-AzKeyVaultSecret -VaultName $Name -Name "local-issuer2").SecretValue
+
+$localSettingsFileContent = $localSettingsFileContent.Replace("%audienceId%", $audienceId)
+$localSettingsFileContent = $localSettingsFileContent.Replace("%issuer1 %", $issuer1)
+$localSettingsFileContent = $localSettingsFileContent.Replace("%issuer2 %", $issuer2)
+$localSettingsFileContent = $localSettingsFileContent.Replace("%DocumentDbKey%", $primaryMasterKey)
+$localSettingsFileContent = $localSettingsFileContent.Replace("%DocumentDbUrl%", $documentDbUrl )
+$localSettingsFileContent = $localSettingsFileContent.Replace("%SearchServiceName%", $Name)
+$localSettingsFileContent = $localSettingsFileContent.Replace("%SearchServiceKey%", $primaryKey)
+$localSettingsFileContent = $localSettingsFileContent.Replace("%StorageConnection%", $connectionString)
+
+$localSettingsFileContent | Out-File $SourceRootDir\Examples\Eklee.Azure.Functions.GraphQl.Example\local.settings.json

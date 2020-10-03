@@ -115,7 +115,9 @@ param([switch]$testunit, [switch]$testint, [switch]$skippackage,
 			}
 		}
 	}
-	.\InitLocalEmulators.ps1
+
+	.\Reset.ps1 -ResourceGroupName $ResourceGroupName -Name $Name -SubscriptionId $SubscriptionId
+
 	.\ConfigureTestLocalSettings.ps1 -SourceRootDir (Get-Location).Path -ResourceGroupName $ResourceGroupName -Name $Name
 
 	dotnet test .\Eklee.Azure.Functions.GraphQl.Tests\Eklee.Azure.Functions.GraphQl.Tests.csproj --filter Category=Integration
@@ -124,12 +126,13 @@ param([switch]$testunit, [switch]$testint, [switch]$skippackage,
 		return;
 	}
 
+	.\Reset.ps1 -ResourceGroupName $ResourceGroupName -Name $Name -SubscriptionId $SubscriptionId
+
 	if ($testint) {
-		.\Reset.ps1 -ResourceGroupName $ResourceGroupName -Name $Name -SubscriptionId $SubscriptionId
 		return;
 	}
 
-	.\Reset.ps1 -ResourceGroupName $ResourceGroupName -Name $Name -SubscriptionId $SubscriptionId
+	return
 
 	$app = "Eklee.Azure.Functions.GraphQl"	
 

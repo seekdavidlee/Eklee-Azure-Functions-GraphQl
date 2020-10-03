@@ -18,7 +18,7 @@ steps:
     scriptType: 'FilePath'
     scriptPath: 'Reset.ps1'
     azurePowerShellVersion: 'latestVersion'
-    scriptArguments: '-ResourceGroupName $(Global.ResourceGroupName) -Name $(Global.Name)' -SubscriptionId $(Global.SubscriptionId)
+    scriptArguments: -ResourceGroupName $(Global.ResourceGroupName) -Name $(Global.Name) -SubscriptionId $(Global.SubscriptionId)
 
 - task: AzurePowerShell@4
   displayName: 'Prepare configuration values for integration tests'
@@ -27,7 +27,7 @@ steps:
     scriptType: 'FilePath'
     scriptPath: 'ConfigureTestLocalSettings.ps1'
     azurePowerShellVersion: 'latestVersion'
-    scriptArguments: '-ResourceGroupName $(Global.ResourceGroupName) -Name $(Global.Name) -SourceRootDir $(Build.Repository.LocalPath)'
+    scriptArguments: -ResourceGroupName $(Global.ResourceGroupName) -Name $(Global.Name) -SourceRootDir $(Build.Repository.LocalPath)
 
 - task: DotNetCoreCLI@2
   displayName: 'Run integration tests'
@@ -35,7 +35,7 @@ steps:
     command: 'test'
     configuration: '$(BuildConfiguration)'
     projects: 'Eklee.Azure.Functions.GraphQl.Tests\Eklee.Azure.Functions.GraphQl.Tests.csproj'
-    arguments: '--filter Category=Integration'
+    arguments: --filter Category=Integration
 
 - task: AzurePowerShell@4
   displayName: 'Reset Azure services for functional tests'
@@ -44,4 +44,4 @@ steps:
     scriptType: 'FilePath'
     scriptPath: 'Reset.ps1'
     azurePowerShellVersion: 'latestVersion'
-    scriptArguments: '-ResourceGroupName $(Global.ResourceGroupName) -Name $(Global.Name)' -SubscriptionId $(Global.SubscriptionId)
+    scriptArguments: -ResourceGroupName $(Global.ResourceGroupName) -Name $(Global.Name) -SubscriptionId $(Global.SubscriptionId)

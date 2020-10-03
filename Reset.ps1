@@ -71,7 +71,10 @@ function GenerateMasterKeyAuthorizationSignature {
 }
 
 function ResetDocumentDb {
-
+	param(
+		[Parameter(Mandatory = $True)][string]$ResourceGroupName, 
+		[Parameter(Mandatory = $True)][string]$AccountName)
+		
 	Write-Host "Resetting Document DB"
 
 	Add-Type -AssemblyName System.Web

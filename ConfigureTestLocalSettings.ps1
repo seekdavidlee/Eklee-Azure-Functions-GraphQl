@@ -77,7 +77,7 @@ Get-AzKeyVaultSecret -VaultName $Name| ForEach-Object {
     }
 }
 
-$environmentFile | ConvertTo-Json | Out-File $SourceRootDir\Tests\Eklee.Azure.Functions.GraphQl.Local.postman_environment.json
+$environmentFile | ConvertTo-Json | Out-File $SourceRootDir\Tests\Eklee.Azure.Functions.GraphQl.Local.postman_environment.json -Encoding ASCII
 
 $localSettingsFileContent = '{
 	"IsEncrypted": false,
@@ -152,4 +152,4 @@ $localSettingsFileContent = $localSettingsFileContent.Replace("%SearchServiceNam
 $localSettingsFileContent = $localSettingsFileContent.Replace("%SearchServiceKey%", $primaryKey)
 $localSettingsFileContent = $localSettingsFileContent.Replace("%StorageConnection%", $connectionString)
 
-$localSettingsFileContent | Out-File $SourceRootDir\Examples\Eklee.Azure.Functions.GraphQl.Example\local.settings.json
+$localSettingsFileContent | Out-File $SourceRootDir\Examples\Eklee.Azure.Functions.GraphQl.Example\local.settings.json -Encoding ASCII

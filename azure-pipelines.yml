@@ -45,3 +45,9 @@ steps:
     scriptPath: 'Reset.ps1'
     azurePowerShellVersion: 'latestVersion'
     scriptArguments: -ResourceGroupName $(Global.ResourceGroupName) -Name $(Global.Name)
+
+- task: PowerShell@2
+  inputs:
+    targetType: filePath
+    filePath: 'ConfigureVersion.ps1'
+    arguments: -BuildConfiguration Release -IncrementVersionType minor

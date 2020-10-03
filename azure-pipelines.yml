@@ -35,7 +35,7 @@ steps:
     command: 'test'
     configuration: '$(BuildConfiguration)'
     projects: 'Eklee.Azure.Functions.GraphQl.Tests\Eklee.Azure.Functions.GraphQl.Tests.csproj'
-    arguments: --blame --verbosity diagnostic --filter Category=Integration
+    arguments: --blame --filter Category=Integration
 
 - task: AzurePowerShell@4
   displayName: 'Reset Azure services for functional tests'

@@ -116,7 +116,7 @@ function ResetDocumentDb {
 		$ResourceLink = "dbs/$id"
 	
 		$dateTime = [DateTime]::UtcNow.ToString("r")
-		$authHeader = Generate-MasterKeyAuthorizationSignature -verb $Verb -resourceLink $ResourceLink -resourceType $ResourceType -key $primaryMasterKey -keyType "master" -tokenVersion "1.0" -dateTime $dateTime
+		$authHeader = GenerateMasterKeyAuthorizationSignature -verb $Verb -resourceLink $ResourceLink -resourceType $ResourceType -key $primaryMasterKey -keyType "master" -tokenVersion "1.0" -dateTime $dateTime
 		$headers = @{authorization = $authHeader; "x-ms-version" = "2015-08-06"; "x-ms-date" = $dateTime }
 		$url = "https://$AccountName.documents.azure.com/$ResourceLink"
 	

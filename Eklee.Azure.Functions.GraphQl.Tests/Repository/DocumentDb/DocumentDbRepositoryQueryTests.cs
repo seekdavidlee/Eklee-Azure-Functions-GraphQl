@@ -27,6 +27,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 			Console.WriteLine("Configuring DocumentDbRepository.");
 			DocumentDbRepository.Configure(typeof(DocumentDbFoo3), configurations);
 
+			Console.WriteLine("Creating DocumentDbRepositoryQueryTests accessor type.");
+
 			_accessor = TypeAccessor.Create(_type);
 			_members = _accessor.GetMembers();
 

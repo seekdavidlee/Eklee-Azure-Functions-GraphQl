@@ -62,7 +62,9 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 
 			if (_documentTypeInfos.Count(x => x.DatabaseId == databaseId) == 0)
 			{
-				await _documentClient.CreateDatabaseIfNotExistsWithRetryAsync(databaseId, requestUnit);
+				await _documentClient.CreateDatabaseIfNotExistsAsync(
+					new Database { Id = databaseId },
+					new RequestOptions { OfferThroughput = requestUnit });
 			}
 
 			var memberExpression = configurations.GetValue<MemberExpression>(

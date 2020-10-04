@@ -1,6 +1,7 @@
 param(
 	[Parameter(Mandatory = $True)][string]$ResourceGroupName, 
-	[Parameter(Mandatory = $True)][string]$Name)
+	[Parameter(Mandatory = $True)][string]$Name,
+	[Switch] $UseLocalEmulatorSettings)
 
 $ErrorActionPreference = "Stop"
 
@@ -149,5 +150,9 @@ function ResetTableStorage {
 }
 
 ResetSearch -ResourceGroupName $ResourceGroupName -ServiceName $Name
-ResetDocumentDb -ResourceGroupName $ResourceGroupName -AccountName $Name
+
+if (!$UseLocalEmulatorSettings) {
+	ResetDocumentDb -ResourceGroupName $ResourceGroupName -AccountName $Name
+}
+
 ResetTableStorage -ResourceGroupName $ResourceGroupName -AccountName $Name

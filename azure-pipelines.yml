@@ -18,7 +18,7 @@ steps:
     scriptType: 'FilePath'
     scriptPath: 'Reset.ps1'
     azurePowerShellVersion: 'latestVersion'
-    scriptArguments: -ResourceGroupName $(Global.ResourceGroupName) -Name $(Global.Name)
+    scriptArguments: -ResourceGroupName $(Global.ResourceGroupName) -Name $(Global.Name) -UseLocalEmulatorSettings
 
 - task: PowerShell@2
   displayName: 'Run Azure Cosmos DB Emulator'
@@ -51,7 +51,7 @@ steps:
     scriptType: 'FilePath'
     scriptPath: 'Reset.ps1'
     azurePowerShellVersion: 'latestVersion'
-    scriptArguments: -ResourceGroupName $(Global.ResourceGroupName) -Name $(Global.Name)
+    scriptArguments: -ResourceGroupName $(Global.ResourceGroupName) -Name $(Global.Name) -UseLocalEmulatorSettings
 
 - task: PowerShell@2
   name: config_version
@@ -59,12 +59,12 @@ steps:
   inputs:
     targetType: filePath
     filePath: 'ConfigureVersion.ps1'
-    arguments: -BuildConfiguration Release -IncrementVersionType minor
+    arguments: -BuildConfiguration $(BuildConfiguration) -IncrementVersionType minor
 
 - task: DotNetCoreCLI@2
   displayName: Build Example Solution
   inputs:
     command: build
     configuration: $(config_version.buildConfig)
-    projects: 'Examples\Eklee.Azure.Functions.GraphQl.Example\Examples\Eklee.Azure.Functions.GraphQl.Example.csproj'
+    projects: 'Examples\Eklee.Azure.Functions.GraphQl.Example\Eklee.Azure.Functions.GraphQl.Example.csproj'
     arguments: -p:Version=$(config_version.version)

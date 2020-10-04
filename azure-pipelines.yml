@@ -59,9 +59,8 @@ steps:
   displayName: Build Example Solution
   inputs:
     command: build
-    configuration: $(config_version.buildConfig)
     projects: 'Examples\Eklee.Azure.Functions.GraphQl.Example\Eklee.Azure.Functions.GraphQl.Example.csproj'
-    arguments: -p:Version=$(config_version.version)
+    arguments: --configuration=$(config_version.buildConfig) -p:Version=$(config_version.version)
 
 - task: PowerShell@2
   name: prep_example

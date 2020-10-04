@@ -156,6 +156,7 @@ if (!$UseLocalEmulatorSettings) {
 } else {
 	Write-Host "Starting Azure Cosmos DB Emulator"
 	Import-Module "$env:ProgramFiles\Azure Cosmos DB Emulator\PSModules\Microsoft.Azure.CosmosDB.Emulator" 
+	Get-CosmosDbEmulatorStatus
 	Start-CosmosDbEmulator
 }
 

@@ -153,8 +153,8 @@ $issuer1 = ConvertSecretToPlainText -Secret (Get-AzKeyVaultSecret -VaultName $Na
 $issuer2 = ConvertSecretToPlainText -Secret (Get-AzKeyVaultSecret -VaultName $Name -Name "local-issuer2").SecretValue
 
 $localSettingsFileContent = $localSettingsFileContent.Replace("%audienceId%", $audienceId)
-$localSettingsFileContent = $localSettingsFileContent.Replace("%issuer1 %", $issuer1)
-$localSettingsFileContent = $localSettingsFileContent.Replace("%issuer2 %", $issuer2)
+$localSettingsFileContent = $localSettingsFileContent.Replace("%issuer1%", $issuer1)
+$localSettingsFileContent = $localSettingsFileContent.Replace("%issuer2%", $issuer2)
 $localSettingsFileContent = $localSettingsFileContent.Replace("%DocumentDbKey%", $primaryMasterKey)
 $localSettingsFileContent = $localSettingsFileContent.Replace("%DocumentDbUrl%", $documentDbUrl )
 $localSettingsFileContent = $localSettingsFileContent.Replace("%SearchServiceName%", $Name)

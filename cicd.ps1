@@ -116,7 +116,7 @@ param([switch]$testunit, [switch]$testint, [switch]$skippackage,
 		}
 	}
 
-	.\Reset.ps1 -ResourceGroupName $ResourceGroupName -Name $Name -SubscriptionId $SubscriptionId
+	.\Reset.ps1 -ResourceGroupName $ResourceGroupName -Name $Name
 
 	.\ConfigureTestLocalSettings.ps1 -SourceRootDir (Get-Location).Path -ResourceGroupName $ResourceGroupName -Name $Name
 
@@ -126,7 +126,7 @@ param([switch]$testunit, [switch]$testint, [switch]$skippackage,
 		return;
 	}
 
-	.\Reset.ps1 -ResourceGroupName $ResourceGroupName -Name $Name -SubscriptionId $SubscriptionId
+	.\Reset.ps1 -ResourceGroupName $ResourceGroupName -Name $Name
 
 	if ($testint) {
 		return;

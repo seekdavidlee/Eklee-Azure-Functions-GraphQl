@@ -20,6 +20,9 @@ steps:
     azurePowerShellVersion: 'latestVersion'
     scriptArguments: -ResourceGroupName $(Global.ResourceGroupName) -Name $(Global.Name)
 
+- task: azure-cosmosdb.emulator-public-preview.run-cosmosdbemulatorcontainer.CosmosDbEmulator@2
+  displayName: 'Run Azure Cosmos DB Emulator'
+
 - task: AzurePowerShell@4
   displayName: 'Prepare configuration values for integration tests'
   inputs:
@@ -53,9 +56,6 @@ steps:
     targetType: filePath
     filePath: 'ConfigureVersion.ps1'
     arguments: -BuildConfiguration Release -IncrementVersionType minor
-
-- task: azure-cosmosdb.emulator-public-preview.run-cosmosdbemulatorcontainer.CosmosDbEmulator@2
-  displayName: 'Run Azure Cosmos DB Emulator'
 
 - task: DotNetCoreCLI@2
   displayName: Build Example Solution

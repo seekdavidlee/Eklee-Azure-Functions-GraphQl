@@ -21,6 +21,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 		public TableStorageRepositoryQueryTests()
 		{
 			Expression<Func<DocumentDbFoo3, string>> expression = x => x.Category;
+
+			Console.WriteLine("TableStorageRepositoryQueryTests instantiated and loading config.");
 			var configurations = GetBaseConfigurations<DocumentDbFoo3>((MemberExpression)expression.Body);
 			TableStorageRepository.Configure(typeof(DocumentDbFoo3), configurations);
 

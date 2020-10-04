@@ -23,6 +23,9 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.Search
 		protected SearchRepositoryQueryTestsBase()
 		{
 			var searchConfig = LocalConfiguration.Get().GetSection("Search");
+
+			Console.WriteLine("Search loaded.");
+
 			var logger = Substitute.For<ILogger>();
 			var filter = Substitute.For<ISearchFilterProvider>();
 

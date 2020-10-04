@@ -30,6 +30,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 
 			_accessor = TypeAccessor.Create(_type);
 			_members = _accessor.GetMembers();
+
+			Console.WriteLine("TableStorageRepositoryQueryTests constructor.");
 		}
 
 		private async Task Seed()

@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Eklee.Azure.Functions.GraphQl.Repository.DocumentDb;
 using FastMember;
+using System;
 
 namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 {
@@ -28,6 +29,9 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 		protected Dictionary<string, object> GetBaseConfigurations<TSource>(MemberExpression memberExpression)
 		{
 			var config = LocalConfiguration.Get().GetSection("TableStorage");
+
+			Console.WriteLine("TableStorage loaded.");
+
 			var configurations = new Dictionary<string, object>();
 
 			configurations.Add<TSource>(TableStorageConstants.ConnectionString, config["ConnectionString"]);

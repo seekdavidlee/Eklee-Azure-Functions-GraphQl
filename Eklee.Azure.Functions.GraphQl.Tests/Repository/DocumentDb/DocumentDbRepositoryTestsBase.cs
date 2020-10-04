@@ -33,6 +33,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 		{
 			var config = LocalConfiguration.Get().GetSection("DocumentDb");
 
+			Console.WriteLine("DocumentDb loaded.");
+
 			var configurations = new Dictionary<string, object>();
 
 			configurations.Add<TSource>(DocumentDbConstants.Database, DatabaseId);

@@ -24,6 +24,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 
 			Console.WriteLine("TableStorageRepositoryQueryTests instantiated and loading config.");
 			var configurations = GetBaseConfigurations<DocumentDbFoo3>((MemberExpression)expression.Body);
+
+			Console.WriteLine("Configuring TableStorageRepository.");
 			TableStorageRepository.Configure(typeof(DocumentDbFoo3), configurations);
 
 			_accessor = TypeAccessor.Create(_type);

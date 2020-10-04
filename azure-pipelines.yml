@@ -63,9 +63,14 @@ steps:
     arguments: --configuration=$(config_version.buildConfig) -p:Version=$(config_version.version)
 
 - task: PowerShell@2
-  name: prep_example
-  displayName: Prepare npm dependencies to run Example Solution
+  name: test_example
+  displayName: Run functional tests
   inputs:
     targetType: filePath
-    filePath: 'PrepExample.ps1'
-    arguments: -Path $(Build.SourcesDirectory) -BuildConfig $(config_version.buildConfig)
+    filePath: 'TestExample.ps1'
+    arguments: -Path $(Build.SourcesDirectory) -BuildConfig $(config_version.buildConfig) -ReportDir $(System.DefaultWorkingDirectory)
+
+- task: PublishTestResults@2
+  inputs:
+    testResultsFormat: 'JUnit'
+    testResultsFiles: $(System.DefaultWorkingDirectory)\*.xml

@@ -68,4 +68,4 @@ steps:
   inputs:
     targetType: filePath
     filePath: 'PrepExample.ps1'
-    arguments: -Path $(Build.SourcesDirectory) BuildConfig $(config_version.buildConfig)
+    arguments: -Path $(Build.SourcesDirectory) -BuildConfig $(config_version.buildConfig)

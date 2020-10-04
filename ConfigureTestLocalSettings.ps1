@@ -48,14 +48,13 @@ $primaryKey = (Invoke-AzResourceAction `
     -ApiVersion 2020-08-01 `
 	-Force).PrimaryKey
 
-$storageAccount = Get-AzStorageAccount `
-    -ResourceGroupName $ResourceGroupName `
-	-Name $Name
+if (!$UseLocalEmulatorSettings) {
 
-$ctx = $storageAccount.Context
-
-$accountKey = (Get-AzStorageAccountKey -ResourceGroupName $ResourceGroupName -Name $Name).Value[0] 
-$connectionString = "DefaultEndpointsProtocol=https;AccountName=$Name;AccountKey=$accountKey;EndpointSuffix=core.windows.net"
+	$accountKey = (Get-AzStorageAccountKey -ResourceGroupName $ResourceGroupName -Name $Name).Value[0] 
+	$connectionString = "DefaultEndpointsProtocol=https;AccountName=$Name;AccountKey=$accountKey;EndpointSuffix=core.windows.net"
+} else {
+	$connectionString = "UseDevelopmentStorage=true"
+}
 
 $outFile = "$SourceRootDir\Eklee.Azure.Functions.GraphQl.Tests\local.settings.json"
 

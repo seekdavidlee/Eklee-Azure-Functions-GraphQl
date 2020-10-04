@@ -68,3 +68,11 @@ steps:
     configuration: $(config_version.buildConfig)
     projects: 'Examples\Eklee.Azure.Functions.GraphQl.Example\Eklee.Azure.Functions.GraphQl.Example.csproj'
     arguments: -p:Version=$(config_version.version)
+
+- task: PowerShell@2
+  name: prep_example
+  displayName: Prepare npm dependencies to run Example Solution
+  inputs:
+    targetType: filePath
+    filePath: 'PrepExample.ps1'
+    arguments: -Path $(Build.SourcesDirectory) BuildConfig $(config_version.buildConfig)

@@ -30,7 +30,8 @@ steps:
     scriptArguments: -ResourceGroupName $(Global.ResourceGroupName) -Name $(Global.Name) -SourceRootDir $(Build.Repository.LocalPath) -UseLocalEmulatorSettings
 
 - task: DotNetCoreCLI@2
-  displayName: 'Run integration tests'
+  displayName: Run integration tests
+  timeoutInMinutes: 5
   inputs:
     command: 'test'
     configuration: '$(BuildConfiguration)'

@@ -1,7 +1,8 @@
 param(
 	[Parameter(Mandatory=$True)][string]$ResourceGroupName, 
 	[Parameter(Mandatory=$True)][string]$Name,
-	[Parameter(Mandatory=$True)][string]$SourceRootDir)
+	[Parameter(Mandatory=$True)][string]$SourceRootDir,
+	[Switch] $UseLocalEmulatorSettings)
 
 $ErrorActionPreference = "Stop"
 
@@ -11,19 +12,24 @@ function ConvertSecretToPlainText($Secret) {
 	return [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($bstr)
 }
 
-$documentDbUrl = "https://$Name.documents.azure.com/"
+if (!$IsAzureDevOps) {
+	$documentDbUrl = "https://$Name.documents.azure.com/"
 
-$resource = Get-AzResource `
-	-ResourceType "Microsoft.DocumentDb/databaseAccounts" `
-	-ResourceGroupName $ResourceGroupName `
-	-ResourceName $Name `
-	-ApiVersion 2020-04-01
+	$resource = Get-AzResource `
+		-ResourceType "Microsoft.DocumentDb/databaseAccounts" `
+		-ResourceGroupName $ResourceGroupName `
+		-ResourceName $Name `
+		-ApiVersion 2020-04-01
 
-$primaryMasterKey = (Invoke-AzResourceAction `
-	-Action listKeys `
-	-ResourceId $resource.ResourceId `
-	-ApiVersion 2020-04-01 `
-	-Force).primaryMasterKey
+	$primaryMasterKey = (Invoke-AzResourceAction `
+		-Action listKeys `
+		-ResourceId $resource.ResourceId `
+		-ApiVersion 2020-04-01 `
+		-Force).primaryMasterKey
+} else {
+	$documentDbUrl = "https://localhost:8081"
+	$primaryMasterKey = "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw=="
+}
 
 $resource = Get-AzResource `
     -ResourceType "Microsoft.Search/searchServices" `

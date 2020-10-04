@@ -68,10 +68,11 @@ steps:
   inputs:
     targetType: filePath
     filePath: 'TestExample.ps1'
-    arguments: -Path $(Build.SourcesDirectory) -BuildConfig $(config_version.buildConfig) -ReportDir $(System.DefaultWorkingDirectory)
+    arguments: -Path $(Build.SourcesDirectory) -BuildConfig $(config_version.buildConfig) -ReportDir $(System.DefaultWorkingDirectory) -EnvironmentPath $(Build.Repository.LocalPath)
 
 - task: PublishTestResults@2
   displayName: Publish test results
+  condition: or(succeeded(), failed())
   inputs:
     testResultsFormat: 'JUnit'
     testResultsFiles: $(System.DefaultWorkingDirectory)\*.xml

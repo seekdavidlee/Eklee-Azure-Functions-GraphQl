@@ -91,7 +91,7 @@ $environmentFile | ConvertTo-Json | Out-File $SourceRootDir\Tests\Eklee.Azure.Fu
 $localSettingsFileContent = '{
 	"IsEncrypted": false,
 	"Values": {
-		"AzureWebJobsStorage": "UseDevelopmentStorage=true",
+		"AzureWebJobsStorage": "%StorageConnection%",
 		"FUNCTIONS_WORKER_RUNTIME": "dotnet"
 	},
 	"GraphQl": {
@@ -108,7 +108,7 @@ $localSettingsFileContent = '{
 		"ApiKey": "%SearchServiceKey%"
 	},
 	"TableStorage": {
-		"ConnectionString": "UseDevelopmentStorage=true"
+		"ConnectionString": "%StorageConnection%"
 	},
 	"Security": {
 		"Audience": "%audienceId%",

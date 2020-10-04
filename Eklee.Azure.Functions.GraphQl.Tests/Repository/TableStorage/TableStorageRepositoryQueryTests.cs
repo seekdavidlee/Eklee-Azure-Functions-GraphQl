@@ -122,14 +122,14 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 				}
 			};
 
-			Trace.WriteLine("Seeding Table Storage.");
+			Console.WriteLine("Seeding Table Storage.");
 
 			foreach (var item in list)
 			{
 				await TableStorageRepository.AddAsync(item, null);
 			}
 
-			Trace.WriteLine("Table Storage has been seeded.");
+			Console.WriteLine("Table Storage has been seeded.");
 		}
 
 		[Fact]

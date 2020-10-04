@@ -154,10 +154,17 @@ ResetSearch -ResourceGroupName $ResourceGroupName -ServiceName $Name
 if (!$UseLocalEmulatorSettings) {
 	ResetDocumentDb -ResourceGroupName $ResourceGroupName -AccountName $Name
 } else {
-	Write-Host "Starting Azure Cosmos DB Emulator"
+
 	Import-Module "$env:ProgramFiles\Azure Cosmos DB Emulator\PSModules\Microsoft.Azure.CosmosDB.Emulator" 
-	Get-CosmosDbEmulatorStatus
-	Start-CosmosDbEmulator
+	
+	$status = Get-CosmosDbEmulatorStatus
+
+	if ($status -ne "Running") {
+		Write-Host "Starting Azure Cosmos DB Emulator"
+		Start-CosmosDbEmulator
+	} else {
+		Write-Host "Azure Cosmos DB Emulator is already running"
+	}
 }
 
 ResetTableStorage -ResourceGroupName $ResourceGroupName -AccountName $Name

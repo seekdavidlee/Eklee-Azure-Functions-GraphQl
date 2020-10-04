@@ -31,6 +31,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 			var config = LocalConfiguration.Get().GetSection("TableStorage");
 
 			Console.WriteLine("TableStorage loaded.");
+			Console.WriteLine($"Development = {config["ConnectionString"] == "UseDevelopmentStorage=true" }");
 
 			var configurations = new Dictionary<string, object>();
 

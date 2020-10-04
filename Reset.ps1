@@ -162,6 +162,7 @@ if (!$UseLocalEmulatorSettings) {
 	if ($status -ne "Running") {
 		Write-Host "Starting Azure Cosmos DB Emulator. Status = $status"
 		Start-CosmosDbEmulator
+		Get-CosmosDbEmulatorStatus
 	} else {
 		Write-Host "Azure Cosmos DB Emulator is already running"
 	}

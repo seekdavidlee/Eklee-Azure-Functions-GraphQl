@@ -71,6 +71,7 @@ steps:
     arguments: -Path $(Build.SourcesDirectory) -BuildConfig $(config_version.buildConfig) -ReportDir $(System.DefaultWorkingDirectory)
 
 - task: PublishTestResults@2
+  displayName: Publish test results
   inputs:
     testResultsFormat: 'JUnit'
     testResultsFiles: $(System.DefaultWorkingDirectory)\*.xml

@@ -20,13 +20,6 @@ steps:
     azurePowerShellVersion: 'latestVersion'
     scriptArguments: -ResourceGroupName $(Global.ResourceGroupName) -Name $(Global.Name) -UseLocalEmulatorSettings
 
-- task: PowerShell@2
-  displayName: 'Run Azure Cosmos DB Emulator'
-  inputs:
-    targetType: inline
-    script: 'Import-Module "$env:ProgramFiles\Azure Cosmos DB Emulator\PSModules\Microsoft.Azure.CosmosDB.Emulator"; Start-CosmosDbEmulator'
-    errorActionPreference: 'stop'
-
 - task: AzurePowerShell@4
   displayName: 'Prepare configuration values for integration tests'
   inputs:

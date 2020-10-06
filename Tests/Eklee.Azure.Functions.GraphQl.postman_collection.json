@@ -8244,14 +8244,12 @@
 							"script": {
 								"id": "90c54615-a264-46b5-8bc5-b77d09317f9b",
 								"exec": [
-									"var jsonData = pm.response.json();",
-									"console.log(\"Seed Books Response: \" + JSON.stringify(pm.response.json()))",
-									"",
 									"pm.test(\"Status code is 200\", function () {",
 									"    pm.response.to.have.status(200);",
 									"});",
 									"",
 									"pm.test(\"Created data contains 30 items\", function () {",
+									"    var jsonData = pm.response.json();",
 									"    pm.expect(jsonData.data.batchCreateBook.length).to.eql(30);",
 									"});"
 								],

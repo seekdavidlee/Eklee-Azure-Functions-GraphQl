@@ -9,11 +9,19 @@ npm install --save-dev azure-functions-core-tools@3
 npm install --save-dev newman
 Pop-Location
 
-Start-Process -WorkingDirectory $Path\Examples\Eklee.Azure.Functions.GraphQl.Example\bin\$BuildConfig\netstandard2.0 -FilePath node_modules\.bin\func -ArgumentList "host start"
+$p = Start-Process -WorkingDirectory $Path\Examples\Eklee.Azure.Functions.GraphQl.Example\bin\$BuildConfig\netstandard2.0 -FilePath node_modules\.bin\func -ArgumentList "host start"
 
 Start-Sleep -s 10
 
+$p | ConvertTo-Json
+
 $func = Get-Process -Name func
+
+if (!$func) {
+	Write-Host "func not found"
+} else {
+	Write-Host "func is found"
+}
 
 $reportFilePath = "$ReportDir/report.xml"
 Push-Location $Path\Examples\Eklee.Azure.Functions.GraphQl.Example\bin\$BuildConfig\netstandard2.0

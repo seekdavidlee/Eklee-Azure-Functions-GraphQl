@@ -1,6 +1,3 @@
 {
-    "version": "2.0",
-    "logging": {
-        "fileLoggingMode": "always"
-    }
+    "version": "2.0"
 }

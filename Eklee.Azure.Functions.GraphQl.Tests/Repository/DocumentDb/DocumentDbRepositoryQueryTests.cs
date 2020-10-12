@@ -21,18 +21,18 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 		{
 			Expression<Func<DocumentDbFoo3, string>> expression = x => x.Category;
 
-			Console.WriteLine("DocumentDbRepositoryQueryTests instantiated and loading config.");
+			"DocumentDbRepositoryQueryTests instantiated and loading config.".Log();
 			var configurations = GetBaseConfigurations<DocumentDbFoo3>((MemberExpression)expression.Body);
 
-			Console.WriteLine("Configuring DocumentDbRepository.");
+			"Configuring DocumentDbRepository.".Log();
 			DocumentDbRepository.Configure(typeof(DocumentDbFoo3), configurations);
 
-			Console.WriteLine("Creating DocumentDbRepositoryQueryTests accessor type.");
+			"Creating DocumentDbRepositoryQueryTests accessor type.".Log();
 
 			_accessor = TypeAccessor.Create(_type);
 			_members = _accessor.GetMembers();
 
-			Console.WriteLine("DocumentDbRepositoryQueryTests constructor.");
+			"DocumentDbRepositoryQueryTests constructor.".Log();
 		}
 
 		private async Task Seed()

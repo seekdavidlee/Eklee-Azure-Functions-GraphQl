@@ -9,7 +9,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests
 		public static IConfiguration Get()
 		{
 			string currentDir = Directory.GetCurrentDirectory();
-			Console.WriteLine($"LocalConfiguration: {currentDir}");
+			$"LocalConfiguration: {currentDir}".Log();
 
 			var builder = new ConfigurationBuilder();
 			builder.SetBasePath(currentDir);

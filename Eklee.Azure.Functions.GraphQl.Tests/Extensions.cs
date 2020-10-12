@@ -8,5 +8,10 @@ namespace Eklee.Azure.Functions.GraphQl.Tests
 		{
 			return new DateTime(date.Year, date.Month, date.Day, 0, 0, 0, 0, DateTimeKind.Utc);
 		}
+
+		public static void Log(this string message)
+		{
+			Console.WriteLine($"[{DateTime.Now}] {message}");
+		}
 	}
 }

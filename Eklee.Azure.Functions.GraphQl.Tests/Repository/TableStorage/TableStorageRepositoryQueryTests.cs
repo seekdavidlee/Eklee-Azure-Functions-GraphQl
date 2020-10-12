@@ -22,18 +22,18 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 		{
 			Expression<Func<DocumentDbFoo3, string>> expression = x => x.Category;
 
-			Console.WriteLine("TableStorageRepositoryQueryTests instantiated and loading config.");
+			"TableStorageRepositoryQueryTests instantiated and loading config.".Log();
 			var configurations = GetBaseConfigurations<DocumentDbFoo3>((MemberExpression)expression.Body);
 
-			Console.WriteLine("Configuring TableStorageRepository.");
+			"Configuring TableStorageRepository.".Log();
 			TableStorageRepository.Configure(typeof(DocumentDbFoo3), configurations);
 
-			Console.WriteLine("Creating TableStorageRepositoryQueryTests accessor type.");
+			"Creating TableStorageRepositoryQueryTests accessor type.".Log();
 
 			_accessor = TypeAccessor.Create(_type);
 			_members = _accessor.GetMembers();
 
-			Console.WriteLine("TableStorageRepositoryQueryTests constructor.");
+			"TableStorageRepositoryQueryTests constructor.".Log();
 		}
 
 		private async Task Seed()
@@ -130,14 +130,14 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 				}
 			};
 
-			Console.WriteLine("Seeding Table Storage.");
+			"Seeding Table Storage.".Log();
 
 			foreach (var item in list)
 			{
 				await TableStorageRepository.AddAsync(item, null);
 			}
 
-			Console.WriteLine("Table Storage has been seeded.");
+			"Table Storage has been seeded.".Log();
 		}
 
 		[Fact]

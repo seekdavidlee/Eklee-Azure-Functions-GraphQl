@@ -17,7 +17,12 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 
 		protected TableStorageRepositoryTestsBase()
 		{
-			TableStorageRepository = new TableStorageRepository(Substitute.For<ILogger>(), new List<ITableStorageComparison>
+			var logger = Substitute.For<ILogger>();
+
+			logger.When(c => c.LogInformation(Arg.Any<string>())).Do(cb => (" [Info] " + cb.Arg<string>()).Log());
+			logger.When(c => c.LogError(Arg.Any<string>())).Do(cb => (" [Error] " + cb.Arg<string>()).Log());
+
+			TableStorageRepository = new TableStorageRepository(logger, new List<ITableStorageComparison>
 			{
 				new TableStorageComparisonBool(),
 				new TableStorageComparisonInt(),
@@ -30,8 +35,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 		{
 			var config = LocalConfiguration.Get().GetSection("TableStorage");
 
-			Console.WriteLine("TableStorage loaded.");
-			Console.WriteLine($"Development = {config["ConnectionString"] == "UseDevelopmentStorage=true" }");
+			"TableStorage loaded.".Log();
+			$"Development = {config["ConnectionString"] == "UseDevelopmentStorage=true" }".Log();
 
 			var configurations = new Dictionary<string, object>();
 

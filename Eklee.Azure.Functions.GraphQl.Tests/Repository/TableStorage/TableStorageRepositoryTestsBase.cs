@@ -4,10 +4,8 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Eklee.Azure.Functions.GraphQl.Repository.TableStorage;
 using Microsoft.Extensions.Logging;
-using NSubstitute;
 using Eklee.Azure.Functions.GraphQl.Repository.DocumentDb;
 using FastMember;
-using System;
 
 namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 {
@@ -17,23 +15,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 
 		protected TableStorageRepositoryTestsBase()
 		{
-			var logger = Substitute.For<ILogger>();
-
-			logger.When(c => c.Log(Arg.Any<LogLevel>(), Arg.Any<EventId>(), Arg.Any<Exception>(), Arg.Any<string>()))
-				.Do(cb =>
-				{
-					var logLevel = cb.ArgAt<LogLevel>(0);
-					var eventId = cb.ArgAt<EventId>(1);
-					var ex = cb.ArgAt<Exception>(2);
-					var msg = cb.ArgAt<string>(3);
-
-					string logMsg = logLevel.ToString();
-					logMsg += eventId != null ? eventId.ToString() : "";
-					logMsg += ex != null ? ex.ToString() : "";
-					logMsg += msg;
-
-					logMsg.Log();
-				});
+			using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+			var logger = loggerFactory.CreateLogger<TableStorageRepository>();
 
 			TableStorageRepository = new TableStorageRepository(logger, new List<ITableStorageComparison>
 			{

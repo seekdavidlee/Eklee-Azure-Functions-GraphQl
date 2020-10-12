@@ -19,8 +19,21 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 		{
 			var logger = Substitute.For<ILogger>();
 
-			logger.When(c => c.LogInformation(Arg.Any<string>())).Do(cb => (" [Info] " + cb.Arg<string>()).Log());
-			logger.When(c => c.LogError(Arg.Any<string>())).Do(cb => (" [Error] " + cb.Arg<string>()).Log());
+			logger.When(c => c.Log(Arg.Any<LogLevel>(), Arg.Any<EventId>(), Arg.Any<Exception>(), Arg.Any<string>()))
+				.Do(cb =>
+				{
+					var logLevel = cb.ArgAt<LogLevel>(0);
+					var eventId = cb.ArgAt<EventId>(1);
+					var ex = cb.ArgAt<Exception>(2);
+					var msg = cb.ArgAt<string>(3);
+
+					string logMsg = logLevel.ToString();
+					logMsg += eventId != null ? eventId.ToString() : "";
+					logMsg += ex != null ? ex.ToString() : "";
+					logMsg += msg;
+
+					logMsg.Log();
+				});
 
 			TableStorageRepository = new TableStorageRepository(logger, new List<ITableStorageComparison>
 			{

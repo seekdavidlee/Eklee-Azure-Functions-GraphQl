@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Eklee.Azure.Functions.GraphQl.Repository.DocumentDb;
 using FastMember;
 using Microsoft.Extensions.Logging;
-using NSubstitute;
 
 namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 {
@@ -19,7 +18,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 
 		protected DocumentDbRepositoryTestsBase()
 		{
-			var logger = Substitute.For<ILogger>();
+			using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+			var logger = loggerFactory.CreateLogger<DocumentDbRepository>();
 
 			DocumentDbRepository = new DocumentDbRepository(logger, new List<IDocumentDbComparison>
 			{

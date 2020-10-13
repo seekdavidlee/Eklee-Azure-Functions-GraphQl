@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Castle.Core.Logging;
+using Microsoft.Extensions.Logging;
+using System;
 
 namespace Eklee.Azure.Functions.GraphQl.Tests
 {
@@ -12,6 +14,13 @@ namespace Eklee.Azure.Functions.GraphQl.Tests
 		public static void Log(this string message)
 		{
 			Console.WriteLine($"[{DateTime.Now}] {message}");
+		}
+
+		public static ILogger<T> GetLogger<T>()
+		{
+			using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+			var logger = loggerFactory.CreateLogger<T>();
+			return logger;
 		}
 	}
 }

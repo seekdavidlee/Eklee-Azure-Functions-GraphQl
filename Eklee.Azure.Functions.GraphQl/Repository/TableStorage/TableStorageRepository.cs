@@ -36,6 +36,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.TableStorage
 
 			try
 			{
+				_logger.LogInformation("Configuring table storage provider");
 				provider.ConfigureTable(configurations, sourceType).GetAwaiter().GetResult();
 			}
 			catch (Exception e)

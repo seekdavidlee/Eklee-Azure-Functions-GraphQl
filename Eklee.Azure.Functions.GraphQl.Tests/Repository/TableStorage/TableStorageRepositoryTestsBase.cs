@@ -15,10 +15,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 
 		protected TableStorageRepositoryTestsBase()
 		{
-			using var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
-			var logger = loggerFactory.CreateLogger<TableStorageRepository>();
-
-			TableStorageRepository = new TableStorageRepository(logger, new List<ITableStorageComparison>
+			TableStorageRepository = new TableStorageRepository(Extensions.GetLogger<TableStorageRepository>(), new List<ITableStorageComparison>
 			{
 				new TableStorageComparisonBool(),
 				new TableStorageComparisonInt(),

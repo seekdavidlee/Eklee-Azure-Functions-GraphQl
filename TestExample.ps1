@@ -9,7 +9,9 @@ npm install --save-dev azure-functions-core-tools@3
 npm install --save-dev newman
 Pop-Location
 
-Start-Process -WorkingDirectory $Path\Examples\Eklee.Azure.Functions.GraphQl.Example\bin\$BuildConfig\netstandard2.0 -FilePath node_modules\.bin\func -ArgumentList "host start" -RedirectStandardOutput $Path\output.txt -RedirectStandardError $Path\err.txt
+Write-Host "Path $Path"
+
+Start-Process -WorkingDirectory "$Path\Examples\Eklee.Azure.Functions.GraphQl.Example\bin\$BuildConfig\netstandard2.0" -FilePath node_modules\.bin\func -ArgumentList "host start" -RedirectStandardOutput "$Path\output.txt" -RedirectStandardError "$Path\err.txt"
 
 Start-Sleep -s 10
 

@@ -35,6 +35,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 			try
 			{
 				provider.ConfigureDatabaseAndCollection(configurations, sourceType).GetAwaiter().GetResult();
+				_logger.LogInformation($"Document client provider configured.");
 			}
 			catch (Exception e)
 			{

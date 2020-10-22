@@ -4,13 +4,15 @@ param(
 	[Parameter(Mandatory = $True)][string]$ReportDir,
 	[Parameter(Mandatory = $True)][string]$EnvironmentPath)
 
-Push-Location $Path\Examples\Eklee.Azure.Functions.GraphQl.Example\bin\$BuildConfig\netstandard2.0
+$WorkingDirectory = "$Path\Examples\Eklee.Azure.Functions.GraphQl.Example\bin\$BuildConfig\netstandard2.0"
+Write-Host "Working Directory $WorkingDirectory"
+
+Push-Location $WorkingDirectory
 npm install --save-dev azure-functions-core-tools@3
 npm install --save-dev newman
 Pop-Location
 
-$WorkingDirectory = "$Path\Examples\Eklee.Azure.Functions.GraphQl.Example\bin\$BuildConfig\netstandard2.0"
-Write-Host "Working Directory $WorkingDirectory"
+Get-ChildItem -Path $WorkingDirectory
 
 Start-Process -WorkingDirectory $WorkingDirectory -FilePath node_modules\.bin\func -ArgumentList "host start" -RedirectStandardOutput output.txt -RedirectStandardError err.txt
 

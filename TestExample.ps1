@@ -1,17 +1,18 @@
 param(
-	[Parameter(Mandatory=$True)][string]$Path,
-	[Parameter(Mandatory=$True)][string]$BuildConfig,
-	[Parameter(Mandatory=$True)][string]$ReportDir,
-	[Parameter(Mandatory=$True)][string]$EnvironmentPath)
+	[Parameter(Mandatory = $True)][string]$Path,
+	[Parameter(Mandatory = $True)][string]$BuildConfig,
+	[Parameter(Mandatory = $True)][string]$ReportDir,
+	[Parameter(Mandatory = $True)][string]$EnvironmentPath)
 
 Push-Location $Path\Examples\Eklee.Azure.Functions.GraphQl.Example\bin\$BuildConfig\netstandard2.0
 npm install --save-dev azure-functions-core-tools@3
 npm install --save-dev newman
 Pop-Location
 
-Write-Host "Path $Path"
+$WorkingDirectory = "$Path\Examples\Eklee.Azure.Functions.GraphQl.Example\bin\$BuildConfig\netstandard2.0"
+Write-Host "Working Directory $WorkingDirectory"
 
-Start-Process -WorkingDirectory $Path\Examples\Eklee.Azure.Functions.GraphQl.Example\bin\$BuildConfig\netstandard2.0 -FilePath node_modules\.bin\func -ArgumentList "host start" -RedirectStandardOutput output.txt -RedirectStandardError err.txt
+Start-Process -WorkingDirectory $WorkingDirectory -FilePath node_modules\.bin\func -ArgumentList "host start" -RedirectStandardOutput output.txt -RedirectStandardError err.txt
 
 Start-Sleep -s 10
 
@@ -20,7 +21,8 @@ $func = Get-Process -Name func
 if (!$func) {
 	Write-Host "func not found"
 	return
-} else {
+}
+else {
 	Write-Host "func is found"
 	Get-Content -Path $Path\output.txt
 	Get-Content -Path $Path\err.txt

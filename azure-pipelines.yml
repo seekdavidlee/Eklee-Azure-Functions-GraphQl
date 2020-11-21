@@ -31,7 +31,7 @@ steps:
 
 - task: DotNetCoreCLI@2
   displayName: Run integration tests
-  timeoutInMinutes: 5
+  timeoutInMinutes: 8
   inputs:
     command: 'test'
     configuration: '$(BuildConfiguration)'

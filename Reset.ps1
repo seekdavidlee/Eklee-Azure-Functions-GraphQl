@@ -166,9 +166,6 @@ if (!$UseLocalEmulatorSettings) {
 	} else {
 		Write-Host "Azure Cosmos DB Emulator is already running"
 	}
-
-	& "${env:ProgramFiles(x86)}\Microsoft SDKs\Azure\Storage Emulator\AzureStorageEmulator.exe" init /server "(localdb)\MsSqlLocalDb"
-	& "${env:ProgramFiles(x86)}\Microsoft SDKs\Azure\Storage Emulator\AzureStorageEmulator.exe" start
 }
 
 ResetTableStorage -ResourceGroupName $ResourceGroupName -AccountName $Name

@@ -40,9 +40,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.TableStorage
 			{
 				_logger.LogInformation("Configuring table storage provider");
 
-				// Deadlock occuring at unit test level. Using this technique as described in the article below.
-				// https://docs.microsoft.com/en-us/archive/msdn-magazine/2015/july/async-programming-brownfield-async-development#the-thread-pool-hack
-				Task.Run(() => provider.ConfigureTable(configurations, sourceType)).GetAwaiter().GetResult();
+				provider.ConfigureTable(configurations, sourceType).GetAwaiter().GetResult();
 
 				_logger.LogInformation("Table storage provider configured.");
 			}

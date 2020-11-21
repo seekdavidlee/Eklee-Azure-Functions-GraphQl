@@ -38,7 +38,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.TableStorage
 			return _url == storageAccount.TableEndpoint.ToString();
 		}
 
-		public async Task ConfigureTable(Dictionary<string, object> configurations, Type sourceType)
+		public Task ConfigureTable(Dictionary<string, object> configurations, Type sourceType)
 		{
 			var prefix = configurations.GetStringValue(TableStorageConstants.Prefix, sourceType);
 			if (prefix == null) prefix = "";
@@ -47,7 +47,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.TableStorage
 			var tableRef = tableClient.GetTableReference($"{prefix}{sourceType.Name}");
 
 			_logger.LogInformation($"Creating storage table {tableRef.Name} if it is missing.");
-			await tableRef.CreateIfNotExistsAsync();
+			tableRef.CreateIfNotExists();
 
 			_logger.LogInformation("Creating stroage table reference.");
 			var info = new TableStorageInfo
@@ -62,6 +62,8 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.TableStorage
 			};
 
 			_tableStorageInfos.Add(info);
+
+			return Task.CompletedTask;
 		}
 
 		public async Task BatchAddOrUpdateAsync<T>(IEnumerable<T> items, IGraphRequestContext graphRequestContext) where T : class

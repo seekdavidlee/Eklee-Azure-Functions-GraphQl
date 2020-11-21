@@ -14,7 +14,7 @@ Pop-Location
 
 Get-ChildItem -Path $WorkingDirectory
 
-Start-Process -WorkingDirectory $WorkingDirectory -FilePath .\node_modules\.bin\func -ArgumentList "host start" -RedirectStandardOutput output.txt -RedirectStandardError err.txt
+Start-Process -WorkingDirectory $WorkingDirectory -FilePath .\node_modules\.bin\func #-ArgumentList "host start" -RedirectStandardOutput output.txt -RedirectStandardError err.txt
 
 Start-Sleep -s 10
 

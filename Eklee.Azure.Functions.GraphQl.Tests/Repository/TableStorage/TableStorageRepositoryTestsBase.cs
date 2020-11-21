@@ -3,9 +3,9 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Eklee.Azure.Functions.GraphQl.Repository.TableStorage;
-using Microsoft.Extensions.Logging;
 using Eklee.Azure.Functions.GraphQl.Repository.DocumentDb;
 using FastMember;
+using System;
 
 namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 {
@@ -33,9 +33,9 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 
 			var configurations = new Dictionary<string, object>();
 
+			configurations.Add<TSource>(TableStorageConstants.Prefix, DateTime.UtcNow.ToString("ddHHmmss"));
 			configurations.Add<TSource>(TableStorageConstants.ConnectionString, config["ConnectionString"]);
 			configurations.Add<TSource>(TableStorageConstants.PartitionMemberExpression, memberExpression);
-
 
 			return configurations;
 		}

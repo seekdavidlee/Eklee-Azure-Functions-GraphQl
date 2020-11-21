@@ -28,11 +28,6 @@ if (!$func) {
 	Write-Host "func not found"
 	return
 }
-else {
-	Write-Host "func is found"
-	Get-Content -Path $Path\output.txt
-	Get-Content -Path $Path\err.txt
-}
 
 $reportFilePath = "$ReportDir/report.xml"
 Push-Location $Path\Examples\Eklee.Azure.Functions.GraphQl.Example\bin\$BuildConfig\netstandard2.0

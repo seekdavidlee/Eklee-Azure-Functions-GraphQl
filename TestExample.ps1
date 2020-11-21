@@ -12,9 +12,13 @@ npm install --save-dev azure-functions-core-tools@3
 npm install --save-dev newman
 Pop-Location
 
-Get-ChildItem -Path $WorkingDirectory
+$funcExist = [System.IO.File]::Exists("$WorkingDirectory\node_modules\.bin\func")
+if (!$funcExist) {
+	Write-Host "Func file is missing!"
+	return
+}
 
-Start-Process -WorkingDirectory $WorkingDirectory -FilePath node_modules\.bin\func -ArgumentList "host start" -RedirectStandardOutput output.txt -RedirectStandardError err.txt
+Start-Process -FilePath $WorkingDirectory\node_modules\.bin\func -ArgumentList "host start" -RedirectStandardOutput output.txt -RedirectStandardError err.txt
 
 Start-Sleep -s 10
 

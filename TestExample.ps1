@@ -12,7 +12,7 @@ npm install --save-dev azure-functions-core-tools@3
 npm install --save-dev newman
 Pop-Location
 
-Get-ChildItem -Path $WorkingDirectory
+Get-ChildItem -Path "$WorkingDirectory\node_modules\.bin\"
 
 Start-Process -WorkingDirectory $WorkingDirectory -FilePath node_modules\.bin\func -ArgumentList "host start" -RedirectStandardOutput output.txt -RedirectStandardError err.txt
 

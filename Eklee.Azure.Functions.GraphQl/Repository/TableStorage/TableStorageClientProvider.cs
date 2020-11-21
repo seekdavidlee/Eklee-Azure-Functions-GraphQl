@@ -46,8 +46,10 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.TableStorage
 			var tableClient = _storageAccount.CreateCloudTableClient();
 			var tableRef = tableClient.GetTableReference($"{prefix}{sourceType.Name}");
 
-			if (!await tableRef.ExistsAsync()) await tableRef.CreateAsync();
+			_logger.LogInformation($"Creating storage table {tableRef.Name} if it is missing.");
+			await tableRef.CreateIfNotExistsAsync();
 
+			_logger.LogInformation("Creating stroage table reference.");
 			var info = new TableStorageInfo
 			{
 				Id = sourceType.Name,

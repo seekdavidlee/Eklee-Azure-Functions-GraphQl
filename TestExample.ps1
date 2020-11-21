@@ -18,7 +18,7 @@ if (!$funcExist) {
 	return
 }
 
-Start-Process -FilePath $WorkingDirectory\node_modules\.bin\func -ArgumentList "host start" -RedirectStandardOutput output.txt -RedirectStandardError err.txt
+Start-Process -FilePath "$WorkingDirectory\node_modules\.bin\func" -ArgumentList "host start" -RedirectStandardOutput output.txt -RedirectStandardError err.txt
 
 Start-Sleep -s 10
 

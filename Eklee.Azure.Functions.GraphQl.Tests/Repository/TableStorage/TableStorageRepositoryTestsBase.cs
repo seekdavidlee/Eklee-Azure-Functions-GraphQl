@@ -33,6 +33,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 
 			var configurations = new Dictionary<string, object>();
 
+			configurations.Add<TSource>(TableStorageConstants.Prefix, "t" + DateTime.UtcNow.ToString("HHmmss"));
 			configurations.Add<TSource>(TableStorageConstants.ConnectionString, config["ConnectionString"]);
 			configurations.Add<TSource>(TableStorageConstants.PartitionMemberExpression, memberExpression);
 

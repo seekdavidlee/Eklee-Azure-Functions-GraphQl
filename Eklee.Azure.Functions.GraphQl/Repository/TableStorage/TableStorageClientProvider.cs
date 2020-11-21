@@ -47,7 +47,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.TableStorage
 			var tableRef = tableClient.GetTableReference($"{prefix}{sourceType.Name}");
 
 			_logger.LogInformation($"Creating storage table {tableRef.Name} if it is missing.");
-			await tableRef.CreateIfNotExistsAsync();
+			await tableRef.CreateIfNotExistsAsync(new TableRequestOptions { ServerTimeout = TimeSpan.FromMinutes(1) }, null);
 
 			_logger.LogInformation("Creating stroage table reference.");
 			var info = new TableStorageInfo

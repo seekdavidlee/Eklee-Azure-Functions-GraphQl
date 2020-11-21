@@ -1,7 +1,6 @@
 param(
 	[Parameter(Mandatory = $True)][string]$ResourceGroupName, 
-	[Parameter(Mandatory = $True)][string]$Name,
-	[Switch] $UseLocalEmulatorSettings)
+	[Parameter(Mandatory = $True)][string]$Name)
 
 $ErrorActionPreference = "Stop"
 
@@ -151,21 +150,6 @@ function ResetTableStorage {
 
 ResetSearch -ResourceGroupName $ResourceGroupName -ServiceName $Name
 
-if (!$UseLocalEmulatorSettings) {
-	ResetDocumentDb -ResourceGroupName $ResourceGroupName -AccountName $Name
-} else {
-
-	Import-Module "$env:ProgramFiles\Azure Cosmos DB Emulator\PSModules\Microsoft.Azure.CosmosDB.Emulator" 
-	
-	$status = Get-CosmosDbEmulatorStatus
-
-	if ($status -ne "Running") {
-		Write-Host "Starting Azure Cosmos DB Emulator. Status = $status"
-		Start-CosmosDbEmulator
-		Get-CosmosDbEmulatorStatus
-	} else {
-		Write-Host "Azure Cosmos DB Emulator is already running"
-	}
-}
+ResetDocumentDb -ResourceGroupName $ResourceGroupName -AccountName $Name
 
 ResetTableStorage -ResourceGroupName $ResourceGroupName -AccountName $Name

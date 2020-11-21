@@ -26,6 +26,8 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.TableStorage
 				CloudStorageAccount.Parse(configurations.GetStringValue(TableStorageConstants.ConnectionString,
 					sourceType));
 
+			_logger.LogInformation($"Configuring storage client provider with url: {storageAccount.TableStorageUri}");
+
 			var provider = _providers.SingleOrDefault(p => p.ContainsTableEndpoint(storageAccount));
 
 			if (provider == null)

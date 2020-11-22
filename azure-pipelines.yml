@@ -58,7 +58,7 @@ steps:
 - task: DotNetCoreCLI@2
   displayName: Build Example Solution
   inputs:
-    command: build
+    command: publish
     projects: 'Examples\Eklee.Azure.Functions.GraphQl.Example\Eklee.Azure.Functions.GraphQl.Example.csproj'
     arguments: --configuration=$(config_version.buildConfig) -p:Version=$(config_version.version)
 

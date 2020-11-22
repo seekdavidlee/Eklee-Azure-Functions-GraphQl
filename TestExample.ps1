@@ -4,7 +4,7 @@ param(
 	[Parameter(Mandatory = $True)][string]$ReportDir,
 	[Parameter(Mandatory = $True)][string]$EnvironmentPath)
 
-$WorkingDirectory = "$Path\Examples\Eklee.Azure.Functions.GraphQl.Example\bin\$BuildConfig\netstandard2.0\bin"
+$WorkingDirectory = "$Path\Examples\Eklee.Azure.Functions.GraphQl.Example\bin\$BuildConfig\netstandard2.0"
 Write-Host "Working Directory $WorkingDirectory"
 
 Push-Location $WorkingDirectory
@@ -14,7 +14,7 @@ Pop-Location
 
 Get-ChildItem -Path $WorkingDirectory
 
-Start-Process -WorkingDirectory $WorkingDirectory -FilePath .\node_modules\.bin\func #-ArgumentList "host start" -RedirectStandardOutput output.txt -RedirectStandardError err.txt
+Start-Process -WorkingDirectory $WorkingDirectory -FilePath .\node_modules\.bin\func -ArgumentList "host start" -RedirectStandardOutput output.txt -RedirectStandardError err.txt
 
 Start-Sleep -s 10
 

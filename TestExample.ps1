@@ -7,21 +7,25 @@ param(
 	[Parameter(Mandatory = $True)][string]$Location)
 
 $WorkingDirectory = "$Path\Examples\Eklee.Azure.Functions.GraphQl.Example\bin\$BuildConfig\netstandard2.0"
-Write-Host "Working Directory $WorkingDirectory"
+
 $StackName = ($Name + $env:Build_BuildNumber).Replace(".", "")
 $Tags = '"stackname=' + $StackName + '"'
-
-Write-Host "Stackname: $StackName"
 
 Compress-Archive -Path "$WorkingDirectory\*" -DestinationPath "$WorkingDirectory\Deploy.zip"
 
 az extension add -n application-insights
 
+az deployment group create `
+  --name $StackName `
+  --resource-group $Name `
+  --template-file Templates/plan.json `
+  --parameters plan_name=$StackName location=$Location 
+
 az monitor app-insights component create --app $StackName --location $Location --kind web -g $Name --application-type web --tags $Tags | Out-Null
 az storage account create --resource-group $Name --name $StackName --tags $Tags | Out-Null
-az functionapp create --consumption-plan-location $Location --name $StackName --os-type Windows --resource-group $Name --storage-account $StackName --app-insights $StackName --tags $Tags --functions-version 3 | Out-Null
+az functionapp create --plan $Location --name $StackName --os-type Windows --resource-group $Name --storage-account $StackName --app-insights $StackName --tags $Tags --functions-version 3 | Out-Null
 
-$content = (Get-Content -Path "$WorkingDirectory\local.settings.json" | ConvertFrom-Json).Values
+$content = (Get-Content -Path "$Path\Examples\Eklee.Azure.Functions.GraphQl.Example\local.settings.json" | ConvertFrom-Json).Values
 
 $documentUrl = $content.DocumentDb.Url
 $documentKey = $content.DocumentDb.Key
@@ -55,7 +59,7 @@ az functionapp config appsettings set -n $StackName -g $Name --settings "GraphQl
 	"Tenants:1:DocumentDb:RequestUnits=400" `
 	"Tenants:1:Search:ServiceName=$searchName" `
 	"Tenants:1:Search:ApiKey=$searchApiKey" `
-	"Tenants:1:TableStorage:ConnectionString=$tableStorageConnectionString"
+	"Tenants:1:TableStorage:ConnectionString=$tableStorageConnectionString" | Out-Null
 
 az functionapp deployment source config-zip -g $StackName -n $StackName --src "$WorkingDirectory\Deploy.zip"
 

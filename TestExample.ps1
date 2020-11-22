@@ -19,7 +19,7 @@ az extension add -n application-insights
 
 az monitor app-insights component create --app $StackName --location $Location --kind web -g $Name --application-type web --tags $Tags | Out-Null
 az storage account create --resource-group $Name --name $StackName --tags $Tags | Out-Null
-az functionapp create --consumption-plan-location $Location --name $StackName --os-type Windows --resource-group $Name --runtime dotnet --storage-account $StackName --app-insights $StackName --tags $Tags --functions-version 3 | Out-Null
+az functionapp create --consumption-plan-location $Location --name $StackName --os-type Windows --resource-group $Name --storage-account $StackName --app-insights $StackName --tags $Tags --functions-version 3 | Out-Null
 
 $content = (Get-Content -Path "$WorkingDirectory\local.settings.json" | ConvertFrom-Json).Values
 
@@ -30,8 +30,8 @@ $searchApiKey = $content.Search.ApiKey
 $tableStorageConnectionString = $content.TableStorage.ConnectionString
 $audience = $content.Security.Audience
 $issuers = $content.Security.Issuers
-$issuer1 = $content.Tenants[0].Issuer
-$issuer2 = $content.Tenants[0].Issuer
+$issuer1 = "" #$content.Tenants[0].Issuer
+$issuer2 = "" #$content.Tenants[1].Issuer
 
 az functionapp config appsettings set -n $StackName -g $StackName --settings "GraphQl:EnableMetrics=true" "GraphQl:ExposeExceptions=true" `
 	"DocumentDb:Url=$documentUrl" `
@@ -43,7 +43,19 @@ az functionapp config appsettings set -n $StackName -g $StackName --settings "Gr
 	"Security:Audience=$audience" `
 	"Security:Issuers=$issuers" `
 	"Tenants:0:Issuer=$issuer1" `
-	"Tenants:1:Issuer=$issuer2" 
+	"Tenants:0:DocumentDb:Url=$documentUrl" `
+	"Tenants:0:DocumentDb:Key=$documentKey" `
+	"Tenants:0:DocumentDb:RequestUnits=400" `
+	"Tenants:0:Search:ServiceName=$searchName" `
+	"Tenants:0:Search:ApiKey=$searchApiKey" `
+	"Tenants:0:TableStorage:ConnectionString=$tableStorageConnectionString" `
+	"Tenants:1:Issuer=$issuer2" `
+	"Tenants:1:DocumentDb:Url=$documentUrl" `
+	"Tenants:1:DocumentDb:Key=$documentKey" `
+	"Tenants:1:DocumentDb:RequestUnits=400" `
+	"Tenants:1:Search:ServiceName=$searchName" `
+	"Tenants:1:Search:ApiKey=$searchApiKey" `
+	"Tenants:1:TableStorage:ConnectionString=$tableStorageConnectionString"
 
 az functionapp deployment source config-zip -g $StackName -n $StackName --src "$WorkingDirectory\Deploy.zip"
 

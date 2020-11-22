@@ -4,13 +4,12 @@ param(
 	[Parameter(Mandatory = $True)][string]$ReportDir,
 	[Parameter(Mandatory = $True)][string]$EnvironmentPath,
 	[Parameter(Mandatory = $True)][string]$Name,
-	[Parameter(Mandatory = $True)][string]$ResourceGroupName,
 	[Parameter(Mandatory = $True)][string]$Location)
 
 $WorkingDirectory = "$Path\Examples\Eklee.Azure.Functions.GraphQl.Example\bin\$BuildConfig\netstandard2.0"
 Write-Host "Working Directory $WorkingDirectory"
 $StackName = ($Name + $env:Build_BuildNumber).Replace(".", "")
-$Tags = '"stackname=$StackName"'
+$Tags = '"stackname=' + $StackName + '"'
 
 Write-Host "Stackname: $StackName"
 
@@ -18,15 +17,26 @@ Compress-Archive -Path "$WorkingDirectory\*" -DestinationPath "$WorkingDirectory
 
 az extension add -n application-insights
 
-az monitor app-insights component create --app $StackName --location $Location --kind web -g $ResourceGroupName --application-type web --tags $Tags
-az storage account create --resource-group $ResourceGroupName --name $StackName --tags $Tags
-az functionapp create --consumption-plan-location $Location --name $StackName --os-type Windows --resource-group $ResourceGroupName --runtime dotnet --storage-account $StackName --app-insights $StackName --tags $Tags | Out-Null
+az group create --location $Location --name $StackName --tags $Tags | Out-Null
+az monitor app-insights component create --app $StackName --location $Location --kind web -g $StackName --application-type web --tags $Tags | Out-Null
+az storage account create --resource-group $StackName --name $StackName --tags $Tags | Out-Null
+az functionapp create --consumption-plan-location $Location --name $StackName --os-type Windows --resource-group $StackName --runtime dotnet --storage-account $StackName --app-insights $StackName --tags $Tags | Out-Null
 
 $content = (Get-Content -Path "$WorkingDirectory\local.settings.json" | ConvertFrom-Json).Values
 
-az functionapp config appsettings set -n $StackName -g $ResourceGroupName --settings "GraphQl:EnableMetrics=true" "GraphQl:ExposeExceptions=true"
+$documentUrl = $content.DocumentDb.Url
+$documentKey = $content.DocumentDb.Key
+$searchName = $content.Search.ServiceName
+$searchApiKey = $content.Search.ApiKey
 
-az functionapp deployment source config-zip -g $ResourceGroupName -n $StackName --src "$WorkingDirectory\Deploy.zip"
+az functionapp config appsettings set -n $StackName -g $StackName --settings "GraphQl:EnableMetrics=true" "GraphQl:ExposeExceptions=true" `
+	"DocumentDb:Url=$documentUrl" `
+	"DocumentDb:Key=$documentKey" `
+	"DocumentDb:RequestUnits=400" `
+	"Search:ServiceName=$searchName" `
+	"Search:ApiKey=$searchApiKey"
+
+az functionapp deployment source config-zip -g $StackName -n $StackName --src "$WorkingDirectory\Deploy.zip"
 
 Push-Location $WorkingDirectory
 #npm install --save-dev azure-functions-core-tools@3

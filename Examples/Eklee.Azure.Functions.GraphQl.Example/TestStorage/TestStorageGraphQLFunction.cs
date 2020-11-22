@@ -14,7 +14,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestStorage
 		[ExecutionContextDependencyInjection(typeof(TestStorageFunctionModule))]
 		[FunctionName("TestStorage")]
 		public static async Task<IActionResult> Run(
-			[HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = "teststorage/graph")] HttpRequest req,
+			[HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "teststorage/graph")] HttpRequest req,
 			ILogger log,
 			ExecutionContext executionContext)
 		{

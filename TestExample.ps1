@@ -19,7 +19,7 @@ az extension add -n application-insights
 
 az monitor app-insights component create --app $StackName --location $Location --kind web -g $Name --application-type web --tags $Tags | Out-Null
 az storage account create --resource-group $Name --name $StackName --tags $Tags | Out-Null
-az functionapp create --consumption-plan-location $Location --name $StackName --os-type Windows --resource-group $Name --runtime dotnet --storage-account $StackName --app-insights $StackName --tags $Tags | Out-Null
+az functionapp create --consumption-plan-location $Location --name $StackName --os-type Windows --resource-group $Name --runtime dotnet --storage-account $StackName --app-insights $StackName --tags $Tags --functions-version 3 | Out-Null
 
 $content = (Get-Content -Path "$WorkingDirectory\local.settings.json" | ConvertFrom-Json).Values
 
@@ -27,13 +27,23 @@ $documentUrl = $content.DocumentDb.Url
 $documentKey = $content.DocumentDb.Key
 $searchName = $content.Search.ServiceName
 $searchApiKey = $content.Search.ApiKey
+$tableStorageConnectionString = $content.TableStorage.ConnectionString
+$audience = $content.Security.Audience
+$issuers = $content.Security.Issuers
+$issuer1 = $content.Tenants[0].Issuer
+$issuer2 = $content.Tenants[0].Issuer
 
 az functionapp config appsettings set -n $StackName -g $StackName --settings "GraphQl:EnableMetrics=true" "GraphQl:ExposeExceptions=true" `
 	"DocumentDb:Url=$documentUrl" `
 	"DocumentDb:Key=$documentKey" `
 	"DocumentDb:RequestUnits=400" `
 	"Search:ServiceName=$searchName" `
-	"Search:ApiKey=$searchApiKey"
+	"Search:ApiKey=$searchApiKey" `
+	"TableStorage:ConnectionString=$tableStorageConnectionString" `
+	"Security:Audience=$audience" `
+	"Security:Issuers=$issuers" `
+	"Tenants:0:Issuer=$issuer1" `
+	"Tenants:1:Issuer=$issuer2" 
 
 az functionapp deployment source config-zip -g $StackName -n $StackName --src "$WorkingDirectory\Deploy.zip"
 

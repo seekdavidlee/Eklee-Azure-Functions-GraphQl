@@ -9,21 +9,16 @@ param(
 $WorkingDirectory = "$Path\Examples\Eklee.Azure.Functions.GraphQl.Example\bin\$BuildConfig\netstandard2.0"
 
 $StackName = ($Name + $env:Build_BuildNumber).Replace(".", "")
-$Tags = '"stackname=' + $StackName + '"'
 
 Compress-Archive -Path "$WorkingDirectory\*" -DestinationPath "$WorkingDirectory\Deploy.zip"
 
 az extension add -n application-insights
 
 az deployment group create `
-  --name $StackName `
-  --resource-group $Name `
-  --template-file Templates/app.json `
-  --parameters plan_name=$StackName location=$Location 
-
-#az monitor app-insights component create --app $StackName --location $Location --kind web -g $Name --application-type web --tags $Tags | Out-Null
-#az storage account create --resource-group $Name --name $StackName --tags $Tags | Out-Null
-#az functionapp create --plan $StackName --name $StackName --os-type Windows --resource-group $Name --storage-account $StackName --app-insights $StackName --tags $Tags --functions-version 3 | Out-Null
+	--name $StackName `
+	--resource-group $Name `
+	--template-file Templates/app.json `
+	--parameters plan_name=$StackName location=$Location 
 
 $content = Get-Content -Path "$Path\Examples\Eklee.Azure.Functions.GraphQl.Example\local.settings.json" | ConvertFrom-Json
 
@@ -64,30 +59,13 @@ az functionapp config appsettings set -n $StackName -g $Name --settings "GraphQl
 az functionapp deployment source config-zip -g $Name -n $StackName --src "$WorkingDirectory\Deploy.zip"
 
 Push-Location $WorkingDirectory
-#npm install --save-dev azure-functions-core-tools@3
 npm install --save-dev newman
 Pop-Location
 
-#Get-ChildItem -Path $WorkingDirectory
+$content = (Get-Content -Path "$Path\Tests\Eklee.Azure.Functions.GraphQl.Local.postman_environment.json").Replace("http://localhost:7071", "https://$StackName.azurewebsites.net")
+$content | Out-File "$Path\Tests\Eklee.Azure.Functions.GraphQl.Local.postman_environment.json" -Encoding ASCII
 
-#Start-Process -WorkingDirectory $WorkingDirectory -FilePath "$WorkingDirectory\node_modules\.bin\func" -ArgumentList @("start","--no-build") -RedirectStandardOutput output.txt -RedirectStandardError err.txt
-
-#Start-Sleep -s 10
-
-#$func = Get-Process -Name func
-
-#if (!$func) {
-#	Write-Host "func not found"
-#	Get-Content -Path $Path\err.txt
-#	return
-#}
-#else {
-#	Write-Host "func is found"
-#	Get-Content -Path $Path\output.txt
-#	Get-Content -Path $Path\err.txt
-#}
-
-#$reportFilePath = "$ReportDir/report.xml"
-#Push-Location $Path\Examples\Eklee.Azure.Functions.GraphQl.Example\bin\$BuildConfig\netstandard2.0
-#node_modules\.bin\newman run ..\..\..\..\..\tests\Eklee.Azure.Functions.GraphQl.postman_collection.json -e "$EnvironmentPath\Tests\Eklee.Azure.Functions.GraphQl.Local.postman_environment.json" --reporters 'cli,junit' --reporter-junit-export $reportFilePath
-#Pop-Location
+$reportFilePath = "$ReportDir/report.xml"
+Push-Location $Path\Examples\Eklee.Azure.Functions.GraphQl.Example\bin\$BuildConfig\netstandard2.0
+node_modules\.bin\newman run ..\..\..\..\..\tests\Eklee.Azure.Functions.GraphQl.postman_collection.json -e "$EnvironmentPath\Tests\Eklee.Azure.Functions.GraphQl.Local.postman_environment.json" --reporters 'cli,junit' --reporter-junit-export $reportFilePath
+Pop-Location

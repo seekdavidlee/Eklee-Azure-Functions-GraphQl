@@ -23,7 +23,7 @@ az deployment group create `
 
 az monitor app-insights component create --app $StackName --location $Location --kind web -g $Name --application-type web --tags $Tags | Out-Null
 az storage account create --resource-group $Name --name $StackName --tags $Tags | Out-Null
-az functionapp create --plan $StackName --name $StackName --os-type Windows --resource-group $Name --storage-account $StackName --app-insights $StackName --tags $Tags --functions-version 3 | Out-Null
+az functionapp create --plan $StackName --name $StackName --os-type Windows --resource-group $Name --storage-account $StackName --app-insights $StackName --tags $Tags --functions-version 3 --consumption-plan-location $Location | Out-Null
 
 $content = Get-Content -Path "$Path\Examples\Eklee.Azure.Functions.GraphQl.Example\local.settings.json" | ConvertFrom-Json
 

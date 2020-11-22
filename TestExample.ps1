@@ -14,22 +14,10 @@ Pop-Location
 
 Get-ChildItem -Path $WorkingDirectory
 
-Start-Process -WorkingDirectory $WorkingDirectory -FilePath "$WorkingDirectory\node_modules\.bin\func" -ArgumentList @("start") -RedirectStandardOutput output.txt -RedirectStandardError err.txt
+#Start-Process -WorkingDirectory $WorkingDirectory -FilePath "$WorkingDirectory\node_modules\.bin\func" -ArgumentList @("start") -RedirectStandardOutput output.txt -RedirectStandardError err.txt
+& "$WorkingDirectory\node_modules\.bin\func" start --no-build
 
 Start-Sleep -s 10
-
-$func = Get-Process -Name func
-
-if (!$func) {
-	Write-Host "func not found"
-	Get-Content -Path $Path\err.txt
-	return
-}
-else {
-	Write-Host "func is found"
-	Get-Content -Path $Path\output.txt
-	Get-Content -Path $Path\err.txt
-}
 
 $reportFilePath = "$ReportDir/report.xml"
 Push-Location $Path\Examples\Eklee.Azure.Functions.GraphQl.Example\bin\$BuildConfig\netstandard2.0

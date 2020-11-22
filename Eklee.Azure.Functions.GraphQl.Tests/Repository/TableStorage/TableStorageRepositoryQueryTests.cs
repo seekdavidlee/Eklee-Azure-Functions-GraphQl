@@ -10,7 +10,7 @@ using Xunit;
 
 namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 {
-	[Collection(Constants.TableStorageTests)]
+	[CollectionDefinition(Constants.TableStorageTests, DisableParallelization = true)]
 	[Trait(Constants.Category, Constants.IntegrationTests)]
 	public class TableStorageRepositoryQueryTests : TableStorageRepositoryTestsBase, IDisposable
 	{

@@ -19,7 +19,7 @@ az extension add -n application-insights
 
 az monitor app-insights component create --app $StackName --location $Location --kind web -g $Name --application-type web --tags $Tags | Out-Null
 az storage account create --resource-group $Name --name $StackName --tags $Tags | Out-Null
-az functionapp create --consumption-plan-location $Location --name $StackName --os-type Windows --resource-group $Name--runtime dotnet --storage-account $StackName --app-insights $StackName --tags $Tags | Out-Null
+az functionapp create --consumption-plan-location $Location --name $StackName --os-type Windows --resource-group $Name --runtime dotnet --storage-account $StackName --app-insights $StackName --tags $Tags | Out-Null
 
 $content = (Get-Content -Path "$WorkingDirectory\local.settings.json" | ConvertFrom-Json).Values
 

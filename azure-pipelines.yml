@@ -63,12 +63,14 @@ steps:
     publishWebProjects: false
     arguments: --configuration=$(config_version.buildConfig) -p:Version=$(config_version.version)
 
-- task: PowerShell@2
+- task: AzureCLI@2
   name: test_example
   displayName: Run functional tests
   inputs:
+    azureSubscription: $(Global.ServiceConnectionName)
+    scriptType: PowerShell
     targetType: filePath
-    filePath: 'TestExample.ps1'
+    scriptPath: 'TestExample.ps1'
     arguments: -Path $(Build.SourcesDirectory) -BuildConfig $(config_version.buildConfig) -ReportDir $(System.DefaultWorkingDirectory) -EnvironmentPath $(Build.Repository.LocalPath)
 
 - task: PublishTestResults@2

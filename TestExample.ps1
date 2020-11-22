@@ -33,7 +33,7 @@ $issuers = $content.Security.Issuers
 $issuer1 = "" #$content.Tenants[0].Issuer
 $issuer2 = "" #$content.Tenants[1].Issuer
 
-az functionapp config appsettings set -n $StackName -g $StackName --settings "GraphQl:EnableMetrics=true" "GraphQl:ExposeExceptions=true" `
+az functionapp config appsettings set -n $StackName -g $Name --settings "GraphQl:EnableMetrics=true" "GraphQl:ExposeExceptions=true" `
 	"DocumentDb:Url=$documentUrl" `
 	"DocumentDb:Key=$documentKey" `
 	"DocumentDb:RequestUnits=400" `

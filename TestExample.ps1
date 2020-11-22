@@ -18,12 +18,12 @@ az extension add -n application-insights
 az deployment group create `
   --name $StackName `
   --resource-group $Name `
-  --template-file Templates/plan.json `
+  --template-file Templates/app.json `
   --parameters plan_name=$StackName location=$Location 
 
-az monitor app-insights component create --app $StackName --location $Location --kind web -g $Name --application-type web --tags $Tags | Out-Null
-az storage account create --resource-group $Name --name $StackName --tags $Tags | Out-Null
-az functionapp create --plan $StackName --name $StackName --os-type Windows --resource-group $Name --storage-account $StackName --app-insights $StackName --tags $Tags --functions-version 3 | Out-Null
+#az monitor app-insights component create --app $StackName --location $Location --kind web -g $Name --application-type web --tags $Tags | Out-Null
+#az storage account create --resource-group $Name --name $StackName --tags $Tags | Out-Null
+#az functionapp create --plan $StackName --name $StackName --os-type Windows --resource-group $Name --storage-account $StackName --app-insights $StackName --tags $Tags --functions-version 3 | Out-Null
 
 $content = Get-Content -Path "$Path\Examples\Eklee.Azure.Functions.GraphQl.Example\local.settings.json" | ConvertFrom-Json
 

@@ -60,6 +60,7 @@ steps:
   inputs:
     command: publish
     projects: 'Examples\Eklee.Azure.Functions.GraphQl.Example\Eklee.Azure.Functions.GraphQl.Example.csproj'
+    publishWebProjects: false
     arguments: --configuration=$(config_version.buildConfig) -p:Version=$(config_version.version)
 
 - task: PowerShell@2

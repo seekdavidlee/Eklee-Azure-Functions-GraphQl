@@ -14,8 +14,7 @@ Pop-Location
 
 Get-ChildItem -Path $WorkingDirectory
 
-#Start-Process -WorkingDirectory $WorkingDirectory -FilePath "$WorkingDirectory\node_modules\.bin\func" -ArgumentList @("start") -RedirectStandardOutput output.txt -RedirectStandardError err.txt
-& "$WorkingDirectory\node_modules\.bin\func" start --no-build
+node_modules\.bin\func start --no-build
 
 Start-Sleep -s 10
 

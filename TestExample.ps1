@@ -61,7 +61,7 @@ az functionapp config appsettings set -n $StackName -g $Name --settings "GraphQl
 	"Tenants:1:Search:ApiKey=$searchApiKey" `
 	"Tenants:1:TableStorage:ConnectionString=$tableStorageConnectionString" | Out-Null
 
-az functionapp deployment source config-zip -g $StackName -n $StackName --src "$WorkingDirectory\Deploy.zip"
+az functionapp deployment source config-zip -g $Name -n $StackName --src "$WorkingDirectory\Deploy.zip"
 
 Push-Location $WorkingDirectory
 #npm install --save-dev azure-functions-core-tools@3

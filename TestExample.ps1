@@ -54,7 +54,8 @@ az functionapp config appsettings set -n $StackName -g $Name --settings "GraphQl
 	"Tenants:1:DocumentDb:RequestUnits=400" `
 	"Tenants:1:Search:ServiceName=$searchName" `
 	"Tenants:1:Search:ApiKey=$searchApiKey" `
-	"Tenants:1:TableStorage:ConnectionString=$tableStorageConnectionString" | Out-Null
+	"Tenants:1:TableStorage:ConnectionString=$tableStorageConnectionString" `
+	"ApiBaseUrl=https://$StackName.azurewebsites.net/api/" | Out-Null
 
 az functionapp deployment source config-zip -g $Name -n $StackName --src "$WorkingDirectory\Deploy.zip"
 

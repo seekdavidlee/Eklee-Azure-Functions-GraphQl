@@ -1,5 +1,4 @@
 ﻿using System;
-using Eklee.Azure.Functions.GraphQl.Repository;
 using Eklee.Azure.Functions.GraphQl.Repository.DocumentDb;
 using Eklee.Azure.Functions.GraphQl.Repository.Http;
 using Eklee.Azure.Functions.GraphQl.Repository.InMemory;

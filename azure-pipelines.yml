@@ -69,7 +69,7 @@ steps:
   inputs:
     azureSubscription: $(Global.ServiceConnectionName)
     scriptType: PowerShell
-    targetType: filePath
+    scriptLocation: scriptPath
     scriptPath: 'TestExample.ps1'
     arguments: -Path $(Build.SourcesDirectory) -BuildConfig $(config_version.buildConfig) -ReportDir $(System.DefaultWorkingDirectory) -EnvironmentPath $(Build.Repository.LocalPath)
 

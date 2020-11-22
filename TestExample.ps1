@@ -10,15 +10,21 @@ param(
 $WorkingDirectory = "$Path\Examples\Eklee.Azure.Functions.GraphQl.Example\bin\$BuildConfig\netstandard2.0"
 Write-Host "Working Directory $WorkingDirectory"
 $StackName = ($Name + $env:Build_BuildNumber).Replace(".","")
-$Tags = "stackname=$StackName"
+$Tags = '"stackname=$StackName"'
 
 Write-Host "Stackname: $StackName"
+
+Compress-Archive -Path "$WorkingDirectory\*" -DestinationPath "$WorkingDirectory\Deploy.zip"
 
 az extension add -n application-insights
 
 az monitor app-insights component create --app $StackName --location $Location --kind web -g $ResourceGroupName --application-type web --tags $Tags
 az storage account create --resource-group $ResourceGroupName --name $StackName --tags $Tags
-az functionapp create --consumption-plan-location $Location --name $StackName --os-type Windows --resource-group $ResourceGroupName --runtime dotnet --storage-account $StackName --tags $Tags
+az functionapp create --consumption-plan-location $Location --name $StackName --os-type Windows --resource-group $ResourceGroupName --runtime dotnet --storage-account $StackName --app-insights $StackName --tags $Tags
+
+az functionapp config appsettings set -n $StackName -g $ResourceGroupName --settings "MySetting1=Hello" "MySetting2=World"
+
+az functionapp deployment source config-zip -g $ResourceGroupName -n $StackName --src "$WorkingDirectory\Deploy.zip"
 
 Push-Location $WorkingDirectory
 #npm install --save-dev azure-functions-core-tools@3

@@ -9,7 +9,7 @@ param(
 
 $WorkingDirectory = "$Path\Examples\Eklee.Azure.Functions.GraphQl.Example\bin\$BuildConfig\netstandard2.0"
 Write-Host "Working Directory $WorkingDirectory"
-$StackName = ($Name + $env:Build_BuildNumber).Replace(".","")
+$StackName = ($Name + $env:Build_BuildNumber).Replace(".", "")
 $Tags = '"stackname=$StackName"'
 
 Write-Host "Stackname: $StackName"
@@ -20,9 +20,11 @@ az extension add -n application-insights
 
 az monitor app-insights component create --app $StackName --location $Location --kind web -g $ResourceGroupName --application-type web --tags $Tags
 az storage account create --resource-group $ResourceGroupName --name $StackName --tags $Tags
-az functionapp create --consumption-plan-location $Location --name $StackName --os-type Windows --resource-group $ResourceGroupName --runtime dotnet --storage-account $StackName --app-insights $StackName --tags $Tags
+az functionapp create --consumption-plan-location $Location --name $StackName --os-type Windows --resource-group $ResourceGroupName --runtime dotnet --storage-account $StackName --app-insights $StackName --tags $Tags | Out-Null
 
-az functionapp config appsettings set -n $StackName -g $ResourceGroupName --settings "MySetting1=Hello" "MySetting2=World"
+$content = (Get-Content -Path "$WorkingDirectory\local.settings.json" | ConvertFrom-Json).Values
+
+az functionapp config appsettings set -n $StackName -g $ResourceGroupName --settings "GraphQl:EnableMetrics=true" "GraphQl:ExposeExceptions=true"
 
 az functionapp deployment source config-zip -g $ResourceGroupName -n $StackName --src "$WorkingDirectory\Deploy.zip"
 

@@ -79,3 +79,13 @@ steps:
   inputs:
     testResultsFormat: 'JUnit'
     testResultsFiles: $(System.DefaultWorkingDirectory)\*.xml
+
+- task: AzurePowerShell@4
+  displayName: 'Cleanup after functional tests'
+  condition: or(succeeded(), failed())
+  inputs:
+    azureSubscription: $(Global.ServiceConnectionName)
+    scriptType: 'FilePath'
+    scriptPath: 'Reset.ps1'
+    azurePowerShellVersion: 'latestVersion'
+    scriptArguments: -ResourceGroupName $(Global.ResourceGroupName) -Name $(Global.Name)

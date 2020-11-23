@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Eklee.Azure.Functions.GraphQl.Repository.TableStorage;
 using Eklee.Azure.Functions.GraphQl.Repository.DocumentDb;
 using FastMember;
-using System;
 
 namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 {

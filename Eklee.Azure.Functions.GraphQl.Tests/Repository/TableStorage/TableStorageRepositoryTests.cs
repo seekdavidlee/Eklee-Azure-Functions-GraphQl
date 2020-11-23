@@ -43,7 +43,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 			}
 			finally
 			{
-				TableStorageRepository.DeleteAllAsync<DocumentDbFoo1>(null).GetAwaiter().GetResult();
+				await TableStorageRepository.DeleteAllAsync<DocumentDbFoo1>(null);
 			}
 		}
 	}

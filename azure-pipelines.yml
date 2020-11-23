@@ -107,6 +107,14 @@ steps:
     projects: 'Eklee.Azure.Functions.GraphQl\Eklee.Azure.Functions.GraphQl.csproj'
     arguments: --configuration=Release -p:Version=$(config_version.version)
 
+- task: PowerShell@2
+  name: prep_nuget_pack
+  displayName: Prepare for nuget package
+  inputs:
+    targetType: filePath
+    filePath: 'PrepNugetPack.ps1'
+    arguments: -Path $(Build.SourcesDirectory)
+
 - task: NuGetCommand@2
   displayName: Create nuget package
   inputs:
@@ -116,14 +124,6 @@ steps:
     includeReferencedProjects: true
     packDestination: '$(Build.ArtifactStagingDirectory)'
     arguments: -Version $(config_version.buildConfig)
-
-- task: PowerShell@2
-  name: prep_nuget_pack
-  displayName: Prepare for nuget package
-  inputs:
-    targetType: filePath
-    filePath: 'PrepNugetPack.ps1'
-    arguments: -Path $(Build.SourcesDirectory)
 
 - task: AzureFileCopy@4
   displayName: Upload nuget package

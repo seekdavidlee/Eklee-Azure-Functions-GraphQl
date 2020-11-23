@@ -18,7 +18,7 @@ az deployment group create `
 	--name $StackName `
 	--resource-group $Name `
 	--template-file Templates/app.json `
-	--parameters plan_name=$StackName location=$Location 
+	--parameters plan_name=$StackName location=$Location | Out-Null
 
 $content = Get-Content -Path "$Path\Examples\Eklee.Azure.Functions.GraphQl.Example\local.settings.json" | ConvertFrom-Json
 
@@ -57,7 +57,7 @@ az functionapp config appsettings set -n $StackName -g $Name --settings "GraphQl
 	"Tenants:1:TableStorage:ConnectionString=$tableStorageConnectionString" `
 	"ApiBaseUrl=https://$StackName.azurewebsites.net/api/" | Out-Null
 
-az functionapp deployment source config-zip -g $Name -n $StackName --src "$WorkingDirectory\Deploy.zip"
+az functionapp deployment source config-zip -g $Name -n $StackName --src "$WorkingDirectory\Deploy.zip" | Out-Null
 
 Push-Location $WorkingDirectory
 npm install --save-dev newman

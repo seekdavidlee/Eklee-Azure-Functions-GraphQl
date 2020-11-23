@@ -29,23 +29,23 @@ steps:
     azurePowerShellVersion: 'latestVersion'
     scriptArguments: -ResourceGroupName $(Global.ResourceGroupName) -Name $(Global.Name) -SourceRootDir $(Build.Repository.LocalPath)
 
-# - task: DotNetCoreCLI@2
-#   displayName: Run integration tests
-#   timeoutInMinutes: 5
-#   inputs:
-#     command: 'test'
-#     configuration: '$(BuildConfiguration)'
-#     projects: 'Eklee.Azure.Functions.GraphQl.Tests\Eklee.Azure.Functions.GraphQl.Tests.csproj'
-#     arguments: --blame --verbosity normal --filter Category=Integration
+- task: DotNetCoreCLI@2
+  displayName: Run integration tests
+  timeoutInMinutes: 5
+  inputs:
+    command: 'test'
+    configuration: '$(BuildConfiguration)'
+    projects: 'Eklee.Azure.Functions.GraphQl.Tests\Eklee.Azure.Functions.GraphQl.Tests.csproj'
+    arguments: --blame --verbosity normal --filter Category=Integration -p:BuildInParallel=false
 
-# - task: AzurePowerShell@4
-#   displayName: 'Reset Azure services for functional tests'
-#   inputs:
-#     azureSubscription: $(Global.ServiceConnectionName)
-#     scriptType: 'FilePath'
-#     scriptPath: 'Reset.ps1'
-#     azurePowerShellVersion: 'latestVersion'
-#     scriptArguments: -ResourceGroupName $(Global.ResourceGroupName) -Name $(Global.Name)
+- task: AzurePowerShell@4
+  displayName: 'Reset Azure services for functional tests'
+  inputs:
+    azureSubscription: $(Global.ServiceConnectionName)
+    scriptType: 'FilePath'
+    scriptPath: 'Reset.ps1'
+    azurePowerShellVersion: 'latestVersion'
+    scriptArguments: -ResourceGroupName $(Global.ResourceGroupName) -Name $(Global.Name)
 
 - task: PowerShell@2
   name: config_version

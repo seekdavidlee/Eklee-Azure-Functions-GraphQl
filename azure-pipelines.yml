@@ -89,3 +89,13 @@ steps:
     scriptPath: 'Reset.ps1'
     azurePowerShellVersion: 'latestVersion'
     scriptArguments: -ResourceGroupName $(Global.ResourceGroupName) -Name $(Global.Name)
+
+- task: AzureCLI@2
+  displayName: 'Cleanup stack if functional tests passed'
+  condition: succeeded()
+  inputs:
+    azureSubscription: $(Global.ServiceConnectionName)
+    scriptType: ps
+    scriptLocation: scriptPath
+    scriptPath: 'CleanupExample.ps1'
+    arguments: -Name $(Global.Name)

@@ -12,8 +12,6 @@ $StackName = ($Name + $env:Build_BuildNumber).Replace(".", "")
 
 Compress-Archive -Path "$WorkingDirectory\*" -DestinationPath "$WorkingDirectory\Deploy.zip"
 
-az extension add -n application-insights
-
 az deployment group create `
 	--name $StackName `
 	--resource-group $Name `

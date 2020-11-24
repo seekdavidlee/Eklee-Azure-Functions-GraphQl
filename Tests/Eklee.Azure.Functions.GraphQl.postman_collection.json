@@ -9629,7 +9629,11 @@
 									"    pm.expect(jsonData.data.createOrUpdateModel5.bestFriend.id).to.eql(\"model5_2\");",
 									"    pm.expect(jsonData.data.createOrUpdateModel5.closeFriend.id).to.eql(\"model5_4\");",
 									"    pm.expect(jsonData.data.createOrUpdateModel5.closeFriend.theFriend.id).to.eql(\"model5_4\");",
-									"});"
+									"});",
+									"",
+									"setTimeout(function() {",
+									"    console.log(\"Sleeping before next request.\");",
+									"}, 1000);"
 								],
 								"type": "text/javascript"
 							}
@@ -9689,7 +9693,11 @@
 									"pm.test(testName + \"Created data contains 1 items\", function () {",
 									"    var jsonData = pm.response.json();",
 									"    pm.expect(jsonData.data.createOrUpdateModel5.id).to.eql(\"model5_1\");",
-									"});"
+									"});",
+									"",
+									"setTimeout(function() {",
+									"    console.log(\"Sleeping before next request.\");",
+									"}, 1000);"
 								],
 								"type": "text/javascript"
 							}

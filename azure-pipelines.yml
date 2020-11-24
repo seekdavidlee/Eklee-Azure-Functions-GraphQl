@@ -123,10 +123,8 @@ steps:
     configuration: Release
     includeReferencedProjects: true
     packDestination: '$(Build.ArtifactStagingDirectory)'
-    versioningScheme: byPrereleaseNumber
-    majorVersion: $(config_version.major)
-    minorVersion: $(config_version.minor)
-    patchVersion: $(config_version.patch)    
+    versioningScheme: byEnvVar
+    versionEnvVar: config_version.version
 
 - task: AzureFileCopy@4
   displayName: Upload nuget package

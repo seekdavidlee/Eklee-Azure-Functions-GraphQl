@@ -197,7 +197,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 							new FeedOptions { EnableCrossPartitionQuery = true })
 						.AsDocumentQuery();
 
-					var results = (await query.ExecuteNextAsync<T>()).ToList();
+					var results = (await Query(query)).ToList();
 
 					if (results.Count > 1)
 					{
@@ -231,6 +231,19 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 			}
 
 			return null;
+		}
+
+		private async Task<List<T>> Query<T>(IDocumentQuery<T> query)
+		{
+			var list = new List<T>();
+
+			while (query.HasMoreResults)
+			{
+				var feed = await query.ExecuteNextAsync<T>();
+				list.AddRange(feed);
+			}
+
+			return list;
 		}
 
 		public async Task DeleteAsync<T>(T item, IGraphRequestContext graphRequestContext)

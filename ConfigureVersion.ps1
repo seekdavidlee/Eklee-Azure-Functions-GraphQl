@@ -68,3 +68,6 @@ $version = "$major.$minor.$patch"
 
 Write-Host "##vso[task.setvariable variable=buildConfig;isOutput=true]$buildConfig"
 Write-Host "##vso[task.setvariable variable=version;isOutput=true]$version"
+Write-Host "##vso[task.setvariable variable=major;isOutput=true]$major"
+Write-Host "##vso[task.setvariable variable=minor;isOutput=true]$minor"
+Write-Host "##vso[task.setvariable variable=patch;isOutput=true]$patch"

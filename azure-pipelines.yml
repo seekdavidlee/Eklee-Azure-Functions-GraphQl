@@ -53,7 +53,7 @@ steps:
   inputs:
     targetType: filePath
     filePath: 'ConfigureVersion.ps1'
-    arguments: -BuildConfiguration Release -IncrementVersionType minor
+    arguments: -RunId $(Rev:r)
 
 - task: DotNetCoreCLI@2
   displayName: Build Example Solution
@@ -101,6 +101,7 @@ steps:
     arguments: -Name $(Global.Name)
 
 - task: DotNetCoreCLI@2
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
   displayName: Build
   inputs:
     command: build
@@ -108,6 +109,7 @@ steps:
     arguments: --configuration=Release -p:Version=$(config_version.version)
 
 - task: PowerShell@2
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
   name: prep_nuget_pack
   displayName: Prepare for nuget package
   inputs:
@@ -116,6 +118,7 @@ steps:
     arguments: -Path $(Build.SourcesDirectory)
 
 - task: NuGetCommand@2
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
   displayName: Create nuget package
   inputs:
     command: pack
@@ -127,6 +130,7 @@ steps:
     versionEnvVar: config_version.version
 
 - task: AzureFileCopy@4
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
   displayName: Upload nuget package
   inputs:
     sourcePath: $(Build.ArtifactStagingDirectory)/*.nupkg

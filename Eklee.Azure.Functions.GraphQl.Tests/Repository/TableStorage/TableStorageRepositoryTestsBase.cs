@@ -3,8 +3,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Eklee.Azure.Functions.GraphQl.Repository.TableStorage;
-using Microsoft.Extensions.Logging;
-using NSubstitute;
 using Eklee.Azure.Functions.GraphQl.Repository.DocumentDb;
 using FastMember;
 
@@ -16,7 +14,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 
 		protected TableStorageRepositoryTestsBase()
 		{
-			TableStorageRepository = new TableStorageRepository(Substitute.For<ILogger>(), new List<ITableStorageComparison>
+			TableStorageRepository = new TableStorageRepository(Extensions.GetLogger<TableStorageRepository>(), new List<ITableStorageComparison>
 			{
 				new TableStorageComparisonBool(),
 				new TableStorageComparisonInt(),
@@ -28,11 +26,14 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 		protected Dictionary<string, object> GetBaseConfigurations<TSource>(MemberExpression memberExpression)
 		{
 			var config = LocalConfiguration.Get().GetSection("TableStorage");
+
+			"TableStorage loaded.".Log();
+			$"Development = {config["ConnectionString"] == "UseDevelopmentStorage=true" }".Log();
+
 			var configurations = new Dictionary<string, object>();
 
 			configurations.Add<TSource>(TableStorageConstants.ConnectionString, config["ConnectionString"]);
 			configurations.Add<TSource>(TableStorageConstants.PartitionMemberExpression, memberExpression);
-
 
 			return configurations;
 		}

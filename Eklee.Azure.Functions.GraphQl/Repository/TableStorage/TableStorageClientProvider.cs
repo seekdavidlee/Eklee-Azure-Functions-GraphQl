@@ -4,9 +4,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Eklee.Azure.Functions.GraphQl.Repository.DocumentDb;
+using Microsoft.Azure.Cosmos.Table;
 using Microsoft.Extensions.Logging;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Eklee.Azure.Functions.GraphQl.Repository.TableStorage
 {
@@ -39,15 +38,18 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.TableStorage
 			return _url == storageAccount.TableEndpoint.ToString();
 		}
 
-		public async Task ConfigureTable(Dictionary<string, object> configurations, Type sourceType)
+		public Task ConfigureTable(Dictionary<string, object> configurations, Type sourceType)
 		{
 			var prefix = configurations.GetStringValue(TableStorageConstants.Prefix, sourceType);
 			if (prefix == null) prefix = "";
 
 			var tableClient = _storageAccount.CreateCloudTableClient();
 			var tableRef = tableClient.GetTableReference($"{prefix}{sourceType.Name}");
-			await tableRef.CreateIfNotExistsAsync();
 
+			_logger.LogInformation($"Creating storage table {tableRef.Name} if it is missing.");
+			tableRef.CreateIfNotExists();
+
+			_logger.LogInformation("Creating stroage table reference.");
 			var info = new TableStorageInfo
 			{
 				Id = sourceType.Name,
@@ -60,6 +62,8 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.TableStorage
 			};
 
 			_tableStorageInfos.Add(info);
+
+			return Task.CompletedTask;
 		}
 
 		public async Task BatchAddOrUpdateAsync<T>(IEnumerable<T> items, IGraphRequestContext graphRequestContext) where T : class

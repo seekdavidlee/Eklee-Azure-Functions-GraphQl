@@ -22,6 +22,8 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 		{
 			var url = configurations.GetStringValue(DocumentDbConstants.Url, sourceType);
 
+			_logger.LogInformation($"Configuring document client provider with url: {url}");
+
 			DocumentClientProvider provider = _providers.SingleOrDefault(p => p.ContainsUrl(url));
 
 			if (provider == null)
@@ -33,6 +35,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 			try
 			{
 				provider.ConfigureDatabaseAndCollection(configurations, sourceType).GetAwaiter().GetResult();
+				_logger.LogInformation($"Document client provider configured.");
 			}
 			catch (Exception e)
 			{

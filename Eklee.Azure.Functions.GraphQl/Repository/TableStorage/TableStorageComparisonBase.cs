@@ -1,5 +1,5 @@
-﻿using System.Linq;
-using Microsoft.WindowsAzure.Storage.Table;
+﻿using Microsoft.Azure.Cosmos.Table;
+using System.Linq;
 
 namespace Eklee.Azure.Functions.GraphQl.Repository.TableStorage
 {

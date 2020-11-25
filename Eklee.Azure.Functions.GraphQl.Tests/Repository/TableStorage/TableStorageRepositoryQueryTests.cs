@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -11,7 +12,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 {
 	[Collection(Constants.TableStorageTests)]
 	[Trait(Constants.Category, Constants.IntegrationTests)]
-	public class TableStorageRepositoryQueryTests : TableStorageRepositoryTestsBase, IDisposable
+	public class TableStorageRepositoryQueryTests : TableStorageRepositoryTestsBase
 	{
 		private readonly Type _type = typeof(DocumentDbFoo3);
 		private readonly TypeAccessor _accessor;
@@ -20,11 +21,19 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 		public TableStorageRepositoryQueryTests()
 		{
 			Expression<Func<DocumentDbFoo3, string>> expression = x => x.Category;
+
+			"TableStorageRepositoryQueryTests instantiated and loading config.".Log();
 			var configurations = GetBaseConfigurations<DocumentDbFoo3>((MemberExpression)expression.Body);
+
+			"Configuring TableStorageRepository.".Log();
 			TableStorageRepository.Configure(typeof(DocumentDbFoo3), configurations);
+
+			"Creating TableStorageRepositoryQueryTests accessor type.".Log();
 
 			_accessor = TypeAccessor.Create(_type);
 			_members = _accessor.GetMembers();
+
+			"TableStorageRepositoryQueryTests constructor.".Log();
 		}
 
 		private async Task Seed()
@@ -121,10 +130,14 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 				}
 			};
 
+			"Seeding Table Storage.".Log();
+
 			foreach (var item in list)
 			{
 				await TableStorageRepository.AddAsync(item, null);
 			}
+
+			"Table Storage has been seeded.".Log();
 		}
 
 		[Fact]
@@ -160,6 +173,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 
 			results.Count.ShouldBe(1);
 			results[0].Id.ShouldBe("5");
+
+			await RemoveAll();
 		}
 
 		[Fact]
@@ -181,6 +196,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 
 			results.Count.ShouldBe(1);
 			results[0].Id.ShouldBe("5");
+
+			await RemoveAll();
 		}
 
 		[Fact]
@@ -202,6 +219,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 
 			results.Count.ShouldBe(1);
 			results[0].Id.ShouldBe("5");
+
+			await RemoveAll();
 		}
 
 		[Fact]
@@ -222,6 +241,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 			var results = (await TableStorageRepository.QueryAsync<DocumentDbFoo3>("test", args, null, null)).ToList();
 
 			results.Count.ShouldBe(0);
+
+			await RemoveAll();
 		}
 
 		[Fact]
@@ -244,6 +265,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 			results.Count.ShouldBe(2);
 			results.Any(x => x.Id == "7").ShouldBeTrue();
 			results.Any(x => x.Id == "8").ShouldBeTrue();
+
+			await RemoveAll();
 		}
 
 		[Fact]
@@ -267,6 +290,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 			results.Any(x => x.Id == "6").ShouldBeTrue();
 			results.Any(x => x.Id == "7").ShouldBeTrue();
 			results.Any(x => x.Id == "8").ShouldBeTrue();
+
+			await RemoveAll();
 		}
 
 		[Fact]
@@ -289,6 +314,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 			results.Count.ShouldBe(2);
 			results.Any(x => x.Id == "4").ShouldBe(true);
 			results.Any(x => x.Id == "2").ShouldBe(true);
+
+			await RemoveAll();
 		}
 
 		[Fact]
@@ -309,6 +336,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 			var results = (await TableStorageRepository.QueryAsync<DocumentDbFoo3>("test", args, null, null)).ToList();
 
 			results.Count.ShouldBe(0);
+
+			await RemoveAll();
 		}
 
 		[Fact]
@@ -337,6 +366,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 
 			results.Count.ShouldBe(1);
 			results[0].Id.ShouldBe("4");
+
+			await RemoveAll();
 		}
 
 		[Fact]
@@ -358,6 +389,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 
 			results.Count.ShouldBe(1);
 			results[0].Id.ShouldBe("1");
+
+			await RemoveAll();
 		}
 
 		[Fact]
@@ -380,6 +413,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 			results.Count.ShouldBe(2);
 			results.Any(x => x.Id == "7").ShouldBeTrue();
 			results.Any(x => x.Id == "8").ShouldBeTrue();
+
+			await RemoveAll();
 		}
 
 		[Fact]
@@ -403,6 +438,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 			results.Any(x => x.Id == "6").ShouldBeTrue();
 			results.Any(x => x.Id == "7").ShouldBeTrue();
 			results.Any(x => x.Id == "8").ShouldBeTrue();
+
+			await RemoveAll();
 		}
 
 		[Fact]
@@ -425,6 +462,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 			results.Count.ShouldBe(2);
 			results.Any(x => x.Id == "4").ShouldBe(true);
 			results.Any(x => x.Id == "5").ShouldBe(true);
+
+			await RemoveAll();
 		}
 
 		[Fact]
@@ -447,6 +486,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 			results.Count.ShouldBe(2);
 			results.Any(x => x.Id == "2").ShouldBe(true);
 			results.Any(x => x.Id == "5").ShouldBe(true);
+
+			await RemoveAll();
 		}
 
 		[Fact]
@@ -475,6 +516,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 			results.Any(x => x.Id == "8").ShouldBeTrue();
 			results.Any(x => x.Id == "6").ShouldBeTrue();
 			results.Any(x => x.Id == "3").ShouldBeTrue();
+
+			await RemoveAll();
 		}
 
 		[Fact]
@@ -498,6 +541,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 			results.Any(x => x.Id == "6").ShouldBeTrue();
 			results.Any(x => x.Id == "7").ShouldBeTrue();
 			results.Any(x => x.Id == "8").ShouldBeTrue();
+
+			await RemoveAll();
 		}
 
 		[Fact]
@@ -521,11 +566,13 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.TableStorage
 			results.Any(x => x.Id == "6").ShouldBeTrue();
 			results.Any(x => x.Id == "7").ShouldBeTrue();
 			results.Any(x => x.Id == "8").ShouldBeTrue();
+
+			await RemoveAll();
 		}
 
-		public void Dispose()
+		private async Task RemoveAll()
 		{
-			TableStorageRepository.DeleteAllAsync<DocumentDbFoo3>(null).GetAwaiter().GetResult();
+			await TableStorageRepository.DeleteAllAsync<DocumentDbFoo3>(null);
 		}
 	}
 }

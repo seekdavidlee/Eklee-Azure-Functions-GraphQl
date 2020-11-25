@@ -9689,7 +9689,8 @@
 									"pm.test(testName + \"Created data contains 1 items\", function () {",
 									"    var jsonData = pm.response.json();",
 									"    pm.expect(jsonData.data.createOrUpdateModel5.id).to.eql(\"model5_1\");",
-									"});"
+									"});",
+									""
 								],
 								"type": "text/javascript"
 							}
@@ -9707,59 +9708,6 @@
 						"body": {
 							"mode": "raw",
 							"raw": "mutation {\r\n  createOrUpdateModel5(model5:{\r\n    id:\"model5_1\"\r\n  \tdateField:\"2019-01-01\"\r\n    doubleField: 5.67\r\n    field:\"do\"\r\n    intField: 6\r\n    closeFriend: {\r\n      id: \"model5_4\"\r\n      field: \"df\"\r\n      theFriend: {\r\n        id:\"model5_4\"\r\n        field:\"sdqq\"\r\n        dateField:\"2011-01-05\"\r\n        doubleField: 56.89\r\n        intField:87\r\n      }\r\n    }\r\n    bestFriend:{\r\n      id:\"model5_2\"\r\n      field:\"ray\"\r\n      theFriend:{\r\n        id:\"model5_2\"\r\n        dateField:\"2019-01-01\"\r\n        doubleField: 5.67\r\n        field:\"do\"\r\n        intField: 6\r\n      }\r\n    }\r\n  }){\r\n    id\r\n    bestFriend{\r\n      id\r\n    }\r\n    closeFriend {\r\n      id\r\n    }\r\n  }\r\n}"
-						},
-						"url": {
-							"raw": "{{endpoint}}/api/testdocumentdb/graph",
-							"host": [
-								"{{endpoint}}"
-							],
-							"path": [
-								"api",
-								"testdocumentdb",
-								"graph"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "CreateOrUpdateModel5_2",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"id": "6c252576-63bc-435c-8fa6-a270e3373632",
-								"exec": [
-									"pm.test(\"Status code is 200\", function () {",
-									"    pm.response.to.have.status(200);",
-									"});",
-									"",
-									"pm.test(\"Created data contains 1 items\", function () {",
-									"    var jsonData = pm.response.json();",
-									"    pm.expect(jsonData.data.createOrUpdateModel5.id).to.eql(\"model5_2\");",
-									"});"
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"type": "text",
-								"value": "application/graphql"
-							},
-							{
-								"key": "Authorization",
-								"type": "text",
-								"value": "Bearer {{access_token}}"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "mutation {\r\n  createOrUpdateModel5(model5:{\r\n    id:\"model5_2\"\r\n  \tdateField:\"2019-01-01\"\r\n    doubleField: 15\r\n    field:\"do\"\r\n    intField: 7\r\n    bestFriend:{\r\n      id:\"model5_3\"\r\n      field:\"rzzzzzzzzz\"\r\n      theFriend:{\r\n        id:\"model5_3\"\r\n        dateField:\"2019-11-01\"\r\n        doubleField: 997\r\n        field:\"doNAHHS\"\r\n        intField: 61\r\n      }\r\n    }\r\n  }){\r\n    id\r\n    bestFriend{\r\n      id\r\n    }\r\n    closeFriend {\r\n      id\r\n    }\r\n  }\r\n}"
 						},
 						"url": {
 							"raw": "{{endpoint}}/api/testdocumentdb/graph",
@@ -9943,6 +9891,59 @@
 						"body": {
 							"mode": "raw",
 							"raw": "query{\r\n  searchModel5(id:{ equal: \"model5_1\" }){\r\n    id\r\n    field\r\n    intField\r\n    closeFriend {\r\n      id\r\n      theFriend {\r\n        id\r\n      }\r\n    }\r\n    bestFriend {\r\n      id\r\n      field \r\n      theFriend {\r\n        id\r\n        bestFriend {\r\n          id\r\n        }\r\n      }\r\n    }\r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/testdocumentdb/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"testdocumentdb",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CreateOrUpdateModel5_2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "6c252576-63bc-435c-8fa6-a270e3373632",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Created data contains 1 items\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.createOrUpdateModel5.id).to.eql(\"model5_2\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/graphql"
+							},
+							{
+								"key": "Authorization",
+								"type": "text",
+								"value": "Bearer {{access_token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "mutation {\r\n  createOrUpdateModel5(model5:{\r\n    id:\"model5_2\"\r\n  \tdateField:\"2019-01-01\"\r\n    doubleField: 15\r\n    field:\"do\"\r\n    intField: 7\r\n    bestFriend:{\r\n      id:\"model5_3\"\r\n      field:\"rzzzzzzzzz\"\r\n      theFriend:{\r\n        id:\"model5_3\"\r\n        dateField:\"2019-11-01\"\r\n        doubleField: 997\r\n        field:\"doNAHHS\"\r\n        intField: 61\r\n      }\r\n    }\r\n  }){\r\n    id\r\n    bestFriend{\r\n      id\r\n    }\r\n    closeFriend {\r\n      id\r\n    }\r\n  }\r\n}"
 						},
 						"url": {
 							"raw": "{{endpoint}}/api/testdocumentdb/graph",

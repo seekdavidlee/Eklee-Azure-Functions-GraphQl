@@ -7,7 +7,7 @@ param([switch]$testunit, [switch]$testint, [switch]$skippackage,
 	[Parameter(Mandatory=$False)][string]$IncrementVersionType)
 
 	$ErrorActionPreference = "Stop"
-	
+
 	dotnet test .\Eklee.Azure.Functions.GraphQl.Tests\Eklee.Azure.Functions.GraphQl.Tests.csproj --filter Category=Unit
 	
 	if ($lastexitcode -ne 0){
@@ -16,6 +16,21 @@ param([switch]$testunit, [switch]$testint, [switch]$skippackage,
 
 	if ($testunit) { 
 		return;
+	}
+
+	if (!$SubscriptionId) {
+		Write-Host "SubscriptionId is required."
+		return
+	}
+
+	if (!$ResourceGroupName) {
+		Write-Host "ResourceGroupName is required."
+		return
+	}
+
+	if (!$Name) {
+		Write-Host "Name is required."
+		return
 	}
 
 	# Note: We are following: https://semver.org/
@@ -100,19 +115,24 @@ param([switch]$testunit, [switch]$testint, [switch]$skippackage,
 			}
 		}
 	}
+
+	.\Reset.ps1 -ResourceGroupName $ResourceGroupName -Name $Name
+
 	.\ConfigureTestLocalSettings.ps1 -SourceRootDir (Get-Location).Path -ResourceGroupName $ResourceGroupName -Name $Name
+
 	dotnet test .\Eklee.Azure.Functions.GraphQl.Tests\Eklee.Azure.Functions.GraphQl.Tests.csproj --filter Category=Integration
 	
 	if ($lastexitcode -ne 0){
 		return;
 	}
 
+	.\Reset.ps1 -ResourceGroupName $ResourceGroupName -Name $Name
+
 	if ($testint) {
-		.\Reset.ps1 -ResourceGroupName $ResourceGroupName -Name $Name -SubscriptionId $SubscriptionId
 		return;
 	}
 
-	.\Reset.ps1 -ResourceGroupName $ResourceGroupName -Name $Name -SubscriptionId $SubscriptionId
+	return
 
 	$app = "Eklee.Azure.Functions.GraphQl"	
 

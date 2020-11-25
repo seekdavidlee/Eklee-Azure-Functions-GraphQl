@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Eklee.Azure.Functions.GraphQl.Repository.DocumentDb;
+using Microsoft.Azure.Cosmos.Table;
 using Microsoft.Extensions.Logging;
-using Microsoft.WindowsAzure.Storage;
 
 namespace Eklee.Azure.Functions.GraphQl.Repository.TableStorage
 {
@@ -26,6 +26,8 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.TableStorage
 				CloudStorageAccount.Parse(configurations.GetStringValue(TableStorageConstants.ConnectionString,
 					sourceType));
 
+			_logger.LogInformation($"Configuring storage client provider with url: {storageAccount.TableStorageUri}");
+
 			var provider = _providers.SingleOrDefault(p => p.ContainsTableEndpoint(storageAccount));
 
 			if (provider == null)
@@ -36,7 +38,11 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.TableStorage
 
 			try
 			{
+				_logger.LogInformation("Configuring table storage provider");
+
 				provider.ConfigureTable(configurations, sourceType).GetAwaiter().GetResult();
+
+				_logger.LogInformation("Table storage provider configured.");
 			}
 			catch (Exception e)
 			{

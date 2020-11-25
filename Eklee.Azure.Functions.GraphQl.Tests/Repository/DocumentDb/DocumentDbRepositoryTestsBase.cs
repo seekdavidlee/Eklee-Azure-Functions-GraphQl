@@ -5,8 +5,6 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Eklee.Azure.Functions.GraphQl.Repository.DocumentDb;
 using FastMember;
-using Microsoft.Extensions.Logging;
-using NSubstitute;
 
 namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 {
@@ -19,9 +17,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 
 		protected DocumentDbRepositoryTestsBase()
 		{
-			var logger = Substitute.For<ILogger>();
 
-			DocumentDbRepository = new DocumentDbRepository(logger, new List<IDocumentDbComparison>
+			DocumentDbRepository = new DocumentDbRepository(Extensions.GetLogger<DocumentDbRepository>(), new List<IDocumentDbComparison>
 			{
 				new DocumentDbComparisonInt(), new DocumentDbComparisonString(),
 				new DocumentDbComparisonGuid(), new DocumentDbComparisonBool(),
@@ -32,6 +29,9 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 		protected Dictionary<string, object> GetBaseConfigurations<TSource>(MemberExpression memberExpression)
 		{
 			var config = LocalConfiguration.Get().GetSection("DocumentDb");
+
+			"DocumentDb loaded.".Log();
+			$"DocumentDb: {config["Url"]}".Log();
 
 			var configurations = new Dictionary<string, object>();
 

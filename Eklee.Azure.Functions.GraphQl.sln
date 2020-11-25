@@ -13,13 +13,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		azure-pipelines.yml = azure-pipelines.yml
 		cicd.ps1 = cicd.ps1
+		CleanupExample.ps1 = CleanupExample.ps1
 		ConfigureTestLocalSettings.ps1 = ConfigureTestLocalSettings.ps1
+		ConfigureVersion.ps1 = ConfigureVersion.ps1
 		LICENSE = LICENSE
+		PrepNugetPack.ps1 = PrepNugetPack.ps1
 		README.md = README.md
 		Reset.ps1 = Reset.ps1
 		ResetDocumentDb.ps1 = ResetDocumentDb.ps1
 		ResetSearch.ps1 = ResetSearch.ps1
 		ResetTableStorage.ps1 = ResetTableStorage.ps1
+		TestExample.ps1 = TestExample.ps1
 		version.txt = version.txt
 	EndProjectSection
 EndProject

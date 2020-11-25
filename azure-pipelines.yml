@@ -3,37 +3,138 @@ pool:
 
 steps:
 
-- task: AzurePowerShell@4
-  displayName: 'Prepare local settings'
-  inputs:
-    azureSubscription: $(Global.ServiceConnectionName)
-    scriptType: 'FilePath'
-    scriptPath: 'ConfigureTestLocalSettings.ps1'
-    azurePowerShellVersion: 'latestVersion'
-    scriptArguments: '-ResourceGroupName $(Global.ResourceGroupName) -Name $(Global.Name) -SourceRootDir $(Build.Repository.LocalPath)'
-
 - task: DotNetCoreCLI@2
   displayName: 'Run unit tests'
   inputs:
     command: 'test'
     configuration: '$(BuildConfiguration)'
     projects: 'Eklee.Azure.Functions.GraphQl.Tests\Eklee.Azure.Functions.GraphQl.Tests.csproj'
-    arguments: '--filter Category=Unit'
+    arguments: --verbosity normal --filter Category=Unit
 
 - task: AzurePowerShell@4
-  displayName: 'Reset Search'
+  displayName: 'Reset Azure services for integration tests'
   inputs:
     azureSubscription: $(Global.ServiceConnectionName)
     scriptType: 'FilePath'
-    scriptPath: 'ResetSearch.ps1'
+    scriptPath: 'Reset.ps1'
     azurePowerShellVersion: 'latestVersion'
-    scriptArguments: '-ResourceGroupName $(Global.ResourceGroupName) -ServiceName $(Global.Name)'
+    scriptArguments: -ResourceGroupName $(Global.ResourceGroupName) -Name $(Global.Name)
 
 - task: AzurePowerShell@4
-  displayName: 'Reset DoucmentDb'
+  displayName: 'Prepare configuration values for integration tests'
   inputs:
     azureSubscription: $(Global.ServiceConnectionName)
     scriptType: 'FilePath'
-    scriptPath: 'ResetDocumentDb.ps1'
+    scriptPath: 'ConfigureTestLocalSettings.ps1'
     azurePowerShellVersion: 'latestVersion'
-    scriptArguments: '-ResourceGroupName $(Global.ResourceGroupName) -AccountName $(Global.Name)'
+    scriptArguments: -ResourceGroupName $(Global.ResourceGroupName) -Name $(Global.Name) -SourceRootDir $(Build.Repository.LocalPath)
+
+- task: DotNetCoreCLI@2
+  displayName: Run integration tests
+  timeoutInMinutes: 5
+  inputs:
+    command: 'test'
+    configuration: '$(BuildConfiguration)'
+    projects: 'Eklee.Azure.Functions.GraphQl.Tests\Eklee.Azure.Functions.GraphQl.Tests.csproj'
+    arguments: --blame --verbosity normal --filter Category=Integration -p:BuildInParallel=false
+
+- task: AzurePowerShell@4
+  displayName: 'Reset Azure services for functional tests'
+  inputs:
+    azureSubscription: $(Global.ServiceConnectionName)
+    scriptType: 'FilePath'
+    scriptPath: 'Reset.ps1'
+    azurePowerShellVersion: 'latestVersion'
+    scriptArguments: -ResourceGroupName $(Global.ResourceGroupName) -Name $(Global.Name)
+
+- task: PowerShell@2
+  name: config_version
+  displayName: Configure release version
+  inputs:
+    targetType: filePath
+    filePath: 'ConfigureVersion.ps1'
+    arguments: -BuildId $(Build.BuildNumber)
+
+- task: DotNetCoreCLI@2
+  displayName: Build Example Solution
+  inputs:
+    command: publish
+    projects: 'Examples\Eklee.Azure.Functions.GraphQl.Example\Eklee.Azure.Functions.GraphQl.Example.csproj'
+    publishWebProjects: false
+    arguments: --configuration=$(config_version.buildConfig) -p:Version=$(config_version.version)
+
+- task: AzureCLI@2
+  name: test_example
+  displayName: Run functional tests
+  inputs:
+    azureSubscription: $(Global.ServiceConnectionName)
+    scriptType: ps
+    scriptLocation: scriptPath
+    scriptPath: 'TestExample.ps1'
+    arguments: -Path $(Build.SourcesDirectory) -BuildConfig $(config_version.buildConfig) -ReportDir $(System.DefaultWorkingDirectory) -EnvironmentPath $(Build.Repository.LocalPath) -Name $(Global.Name) -Location $(Global.Location)
+
+- task: PublishTestResults@2
+  displayName: Publish test results
+  condition: or(succeeded(), failed())
+  inputs:
+    testResultsFormat: 'JUnit'
+    testResultsFiles: $(System.DefaultWorkingDirectory)\*.xml
+
+- task: AzurePowerShell@4
+  displayName: 'Cleanup after functional tests'
+  condition: or(succeeded(), failed())
+  inputs:
+    azureSubscription: $(Global.ServiceConnectionName)
+    scriptType: 'FilePath'
+    scriptPath: 'Reset.ps1'
+    azurePowerShellVersion: 'latestVersion'
+    scriptArguments: -ResourceGroupName $(Global.ResourceGroupName) -Name $(Global.Name)
+
+- task: AzureCLI@2
+  displayName: 'Cleanup stack if functional tests passed'
+  condition: succeeded()
+  inputs:
+    azureSubscription: $(Global.ServiceConnectionName)
+    scriptType: ps
+    scriptLocation: scriptPath
+    scriptPath: 'CleanupExample.ps1'
+    arguments: -Name $(Global.Name)
+
+- task: DotNetCoreCLI@2
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  displayName: Build
+  inputs:
+    command: build
+    projects: 'Eklee.Azure.Functions.GraphQl\Eklee.Azure.Functions.GraphQl.csproj'
+    arguments: --configuration=Release -p:Version=$(config_version.version)
+
+- task: PowerShell@2
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  name: prep_nuget_pack
+  displayName: Prepare for nuget package
+  inputs:
+    targetType: filePath
+    filePath: 'PrepNugetPack.ps1'
+    arguments: -Path $(Build.SourcesDirectory)
+
+- task: NuGetCommand@2
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  displayName: Create nuget package
+  inputs:
+    command: pack
+    packagesToPack: 'Eklee.Azure.Functions.GraphQl\Eklee.Azure.Functions.GraphQl.csproj'
+    configuration: Release
+    includeReferencedProjects: true
+    packDestination: '$(Build.ArtifactStagingDirectory)'
+    versioningScheme: byEnvVar
+    versionEnvVar: config_version.version
+
+- task: AzureFileCopy@4
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  displayName: Upload nuget package
+  inputs:
+    sourcePath: $(Build.ArtifactStagingDirectory)/*.nupkg
+    azureSubscription: $(Global.ServiceConnectionName)
+    destination: azureBlob
+    storage: $(Global.Name)
+    containerName: packages

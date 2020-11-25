@@ -1,5 +1,5 @@
 param(
-    [Parameter(Mandatory = $True)][string]$RunId)
+    [Parameter(Mandatory = $True)][string]$BuildId)
 
 # Note: We are following: https://semver.org/
 # Given a version number MAJOR.MINOR.PATCH, increment the:
@@ -10,7 +10,7 @@ param(
 $versions = (Get-Content version.txt).Split(".")
 $major = [int]$versions[0]
 $minor = [int]$versions[1]
-$patch = [int]$RunId
+$patch = [int]($BuildId.Split(".")[1])
 
 $version = "$major.$minor.$patch"
 

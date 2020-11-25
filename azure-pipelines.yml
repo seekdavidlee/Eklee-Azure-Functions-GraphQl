@@ -53,7 +53,7 @@ steps:
   inputs:
     targetType: filePath
     filePath: 'ConfigureVersion.ps1'
-    arguments: -RunId $(Rev:r)
+    arguments: -BuildId $(Build.BuildNumber)
 
 - task: DotNetCoreCLI@2
   displayName: Build Example Solution

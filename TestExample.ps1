@@ -6,7 +6,7 @@ param(
 	[Parameter(Mandatory = $True)][string]$Name,
 	[Parameter(Mandatory = $True)][string]$Location)
 
-$WorkingDirectory = "$Path\Examples\Eklee.Azure.Functions.GraphQl.Example\bin\$BuildConfig\netstandard2.0"
+$WorkingDirectory = "$Path\Examples\Eklee.Azure.Functions.GraphQl.Example\bin\$BuildConfig\netstandard2.1"
 
 $StackName = ($Name + $env:Build_BuildNumber).Replace(".", "")
 
@@ -65,6 +65,6 @@ $content = (Get-Content -Path "$Path\Tests\Eklee.Azure.Functions.GraphQl.Local.p
 $content | Out-File "$Path\Tests\Eklee.Azure.Functions.GraphQl.Local.postman_environment.json" -Encoding ASCII
 
 $reportFilePath = "$ReportDir/report.xml"
-Push-Location $Path\Examples\Eklee.Azure.Functions.GraphQl.Example\bin\$BuildConfig\netstandard2.0
+Push-Location $Path\Examples\Eklee.Azure.Functions.GraphQl.Example\bin\$BuildConfig\netstandard2.1
 node_modules\.bin\newman run ..\..\..\..\..\tests\Eklee.Azure.Functions.GraphQl.postman_collection.json -e "$EnvironmentPath\Tests\Eklee.Azure.Functions.GraphQl.Local.postman_environment.json" --reporters 'cli,junit' --reporter-junit-export $reportFilePath --delay-request 100
 Pop-Location

@@ -53,7 +53,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 			var prefix = configurations.GetStringValue(SearchConstants.Prefix, sourceType) ?? "";
 			string indexName = prefix + id;
 
-			_searchServiceClient.Indexes.CreateOrUpdate(new Index(indexName, GetTypeFields(sourceType, true)));
+			_searchServiceClient.Indexes.CreateOrUpdate(new Microsoft.Azure.Search.Models.Index(indexName, GetTypeFields(sourceType, true)));
 
 			_searchClientProviderInfos.Add(new SearchClientProviderInfo
 			{
@@ -303,7 +303,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 
 			var fields = GetTypeFields(typeof(T), true);
 
-			await _searchServiceClient.Indexes.CreateAsync(new Index(client.IndexName, fields));
+			await _searchServiceClient.Indexes.CreateAsync(new Microsoft.Azure.Search.Models.Index(client.IndexName, fields));
 		}
 	}
 }

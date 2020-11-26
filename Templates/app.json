@@ -49,7 +49,8 @@
             "kind": "functionapp",
             "dependsOn": [
                 "[resourceId('Microsoft.Web/serverfarms', parameters('plan_name'))]",
-                "[resourceId('Microsoft.Storage/storageAccounts', parameters('plan_name'))]"
+                "[resourceId('Microsoft.Storage/storageAccounts', parameters('plan_name'))]",
+                "[resourceId('Microsoft.Insights/components', parameters('plan_name'))]"
             ],
             "tags": "[variables('tags')]",
             "properties": {

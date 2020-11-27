@@ -38,9 +38,22 @@ $primaryKey = (Invoke-AzResourceAction `
     -ApiVersion 2020-08-01 `
 	-Force).PrimaryKey
 
+# Create a test specific storage account
+
+Write-Host "Creating a test specific storage account"
+$StackName = ($Name + $env:Build_BuildNumber).Replace(".", "")
+$TestStorageName = $StackName + "test"
+
+New-AzStorageAccount -ResourceGroupName $ResourceGroupName `
+  -Name $TestStorageName `
+  -Location (Get-AzResourceGroup -Name $ResourceGroupName).Location `
+  -SkuName Standard_LRS `
+  -Kind StorageV2 `
+  -Tag @{ "stackName" = $StackName; }
+
 # Get storage key.
-$accountKey = (Get-AzStorageAccountKey -ResourceGroupName $ResourceGroupName -Name $Name).Value[0] 
-$connectionString = "DefaultEndpointsProtocol=https;AccountName=$Name;AccountKey=$accountKey;EndpointSuffix=core.windows.net"
+$accountKey = (Get-AzStorageAccountKey -ResourceGroupName $ResourceGroupName -Name $TestStorageName).Value[0] 
+$connectionString = "DefaultEndpointsProtocol=https;AccountName=$TestStorageName;AccountKey=$accountKey;EndpointSuffix=core.windows.net"
 
 $outFile = "$SourceRootDir\Eklee.Azure.Functions.GraphQl.Tests\local.settings.json"
 

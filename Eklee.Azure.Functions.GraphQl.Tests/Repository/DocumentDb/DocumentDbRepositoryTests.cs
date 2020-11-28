@@ -39,7 +39,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 
 			item.Name.ShouldBe("Foo 1 v2");
 
-			DocumentDbRepository.DeleteAllAsync<DocumentDbFoo1>(null).GetAwaiter().GetResult();
+			await DocumentDbRepository.DeleteAllAsync<DocumentDbFoo1>(null);
 		}
 
 		[Fact]
@@ -168,6 +168,7 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 			DocumentDbRepository.Configure(typeof(DocumentDbFoo1), configurations);
 
 			string id = Guid.NewGuid().ToString("N");
+
 			await DocumentDbRepository.AddAsync(new DocumentDbFoo1
 			{
 				Id = id,
@@ -181,6 +182,8 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.DocumentDb
 				MyStringCategory = "foo",
 				Name = "foo 12 v2"
 			}, null);
+
+			await DocumentDbRepository.DeleteAllAsync<DocumentDbFoo1>(null);
 		}
 	}
 }

@@ -1,5 +1,5 @@
 ﻿using Eklee.Azure.Functions.GraphQl.Repository.Search;
-using GraphQL.Types;
+using GraphQL;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +8,7 @@ namespace Eklee.Azure.Functions.GraphQl.Queries
 {
 	public class ContextValueResolver : IContextValueResolver
 	{
-		public ContextValue GetContextValue(ResolveFieldContext<object> context, ModelMember modelMember, ContextValueSetRule rule)
+		public ContextValue GetContextValue(IResolveFieldContext<object> context, ModelMember modelMember, ContextValueSetRule rule)
 		{
 			var name = modelMember.Name;
 

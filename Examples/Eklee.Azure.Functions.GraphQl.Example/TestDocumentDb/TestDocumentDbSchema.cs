@@ -1,11 +1,11 @@
-﻿using GraphQL;
-using GraphQL.Types;
+﻿using GraphQL.Types;
+using System;
 
 namespace Eklee.Azure.Functions.GraphQl.Example.TestDocumentDb
 {
 	public class TestDocumentDbSchema : Schema
 	{
-		public TestDocumentDbSchema(IDependencyResolver resolver, TestDocumentDbQuery query, TestDocumentDbMutation mutation) :
+		public TestDocumentDbSchema(IServiceProvider resolver, TestDocumentDbQuery query, TestDocumentDbMutation mutation) :
 			base(resolver)
 		{
 			Query = query;

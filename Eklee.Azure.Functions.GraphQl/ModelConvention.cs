@@ -57,7 +57,7 @@ namespace Eklee.Azure.Functions.GraphQl
 			return enumType;
 		}
 
-		public void ForEachWithField(Action<Type, string, string, Func<ResolveFieldContext<TSourceType>, object>> addFieldAction, bool isInput)
+		public void ForEachWithField(Action<Type, string, string, Func<IResolveFieldContext<TSourceType>, object>> addFieldAction, bool isInput)
 		{
 			ModelType.ForEach(m =>
 			{

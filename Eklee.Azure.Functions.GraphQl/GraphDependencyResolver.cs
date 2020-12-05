@@ -1,10 +1,9 @@
 ﻿using System;
 using Autofac;
-using GraphQL;
 
 namespace Eklee.Azure.Functions.GraphQl
 {
-    public class GraphDependencyResolver : IDependencyResolver
+	public class GraphDependencyResolver : IServiceProvider
     {
         private readonly IComponentContext _componentContext;
 
@@ -13,14 +12,9 @@ namespace Eklee.Azure.Functions.GraphQl
             _componentContext = componentContext;
         }
 
-        public T Resolve<T>()
-        {
-            return _componentContext.Resolve<T>();
-        }
-
-        public object Resolve(Type type)
-        {
-            return _componentContext.Resolve(type);
-        }
-    }
+		public object GetService(Type serviceType)
+		{
+			return _componentContext.Resolve(serviceType);
+		}
+	}
 }

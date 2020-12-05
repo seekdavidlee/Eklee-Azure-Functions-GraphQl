@@ -1,9 +1,9 @@
-﻿using GraphQL.Types;
+﻿using GraphQL;
 
 namespace Eklee.Azure.Functions.GraphQl.Queries
 {
 	public interface IContextValueResolver
 	{
-		ContextValue GetContextValue(ResolveFieldContext<object> context, ModelMember modelMember, ContextValueSetRule rule);
+		ContextValue GetContextValue(IResolveFieldContext<object> context, ModelMember modelMember, ContextValueSetRule rule);
 	}
 }

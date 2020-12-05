@@ -25,8 +25,8 @@ using Eklee.Azure.Functions.Http;
 using FastMember;
 using GraphQL;
 using GraphQL.Builders;
-using GraphQL.Http;
 using GraphQL.Language.AST;
+using GraphQL.NewtonsoftJson;
 using GraphQL.Types;
 using GraphQL.Types.Relay;
 using GraphQL.Types.Relay.DataObjects;
@@ -81,7 +81,7 @@ namespace Eklee.Azure.Functions.GraphQl
 			builder.RegisterType<NumericSearchFilter>().As<ISearchFilter>().SingleInstance();
 			builder.RegisterType<SearchFilterProvider>().As<ISearchFilterProvider>().SingleInstance();
 
-			builder.RegisterType<GraphDependencyResolver>().As<IDependencyResolver>();
+			builder.RegisterType<GraphDependencyResolver>().As<IServiceProvider>();
 
 			builder.RegisterType<QueryBuilderFactory>();
 			builder.RegisterType<InputBuilderFactory>();
@@ -196,7 +196,7 @@ namespace Eklee.Azure.Functions.GraphQl
 		/// <param name="enumerable">An IEnumerable of T items.</param>
 		/// <param name="defaultPageLimit">Default page limit.</param>
 		/// <returns></returns>
-		public static async Task<Connection<T>> GetConnectionAsync<T>(this ResolveConnectionContext<object> context, IEnumerable<T> enumerable, int defaultPageLimit = 10)
+		public static async Task<Connection<T>> GetConnectionAsync<T>(this IResolveConnectionContext<object> context, IEnumerable<T> enumerable, int defaultPageLimit = 10)
 		{
 			// Ref: https://graphql.org/learn/pagination/
 
@@ -274,7 +274,7 @@ namespace Eklee.Azure.Functions.GraphQl
 			return value;
 		}
 
-		public static void PopulateSelectValues(this ContextValue contextValue, ResolveFieldContext<object> context)
+		public static void PopulateSelectValues(this ContextValue contextValue, IResolveFieldContext<object> context)
 		{
 			contextValue.SelectValues = context.SubFields.Select(x => CreateSelectValue(x.Value)).ToList();
 		}
@@ -360,6 +360,20 @@ namespace Eklee.Azure.Functions.GraphQl
 		{
 			var serialized = JsonConvert.SerializeObject(source);
 			return JsonConvert.DeserializeObject<T>(serialized);
+		}
+
+		private const string UserContextKey = "UserContextKey";
+
+		public static Dictionary<string, object> ToUserContext(this IGraphRequestContext graphRequestContext)
+		{
+			var userContext = new Dictionary<string, object>();
+			userContext.Add(UserContextKey, graphRequestContext);
+			return userContext;
+		}
+
+		public static IGraphRequestContext GetGraphRequestContext(this IResolveFieldContext<object> resolveFieldContext)
+		{
+			return resolveFieldContext.UserContext[UserContextKey] as IGraphRequestContext;
 		}
 	}
 }

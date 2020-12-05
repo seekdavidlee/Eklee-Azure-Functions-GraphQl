@@ -1,11 +1,11 @@
-﻿using GraphQL;
-using GraphQL.Types;
+﻿using GraphQL.Types;
+using System;
 
 namespace Eklee.Azure.Functions.GraphQl.Example.TestSearch
 {
 	public class TestSearchSchema : Schema
 	{
-		public TestSearchSchema(IDependencyResolver resolver, TestSearchQuery query, TestSearchMutation mutation) :
+		public TestSearchSchema(IServiceProvider resolver, TestSearchQuery query, TestSearchMutation mutation) :
 			base(resolver)
 		{
 			Query = query;

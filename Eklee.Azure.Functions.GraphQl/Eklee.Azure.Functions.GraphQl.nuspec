@@ -10,7 +10,7 @@
 		<projectUrl>https://github.com/seekdavidlee/Eklee-Azure-Functions-GraphQl</projectUrl>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<description>Implement one or more Serverless GraphQL API(s) using Azure Functions, Azure Cosmos DB, Azure Search, Azure Table Storage etc.</description>
-		<releaseNotes>Upgrade to 3.x of GraphQL.NET. Paging has been disable due to a incompatibility.</releaseNotes>
+		<releaseNotes>Upgrade to 3.x of GraphQL.NET. Paging has been disable due to a incompatibility. DateTime is now returning ISO 8601 format.</releaseNotes>
 		<tags>GraphQL, Azure, Functions, Caching, .NET, Graph, CosmosDB, DocumentDB, Search, Table</tags>
 		<dependencies>
 			<dependency id="Eklee.Azure.Functions.Http" version="0.12.19" />

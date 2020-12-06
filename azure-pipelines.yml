@@ -55,50 +55,50 @@ steps:
     filePath: 'ConfigureVersion.ps1'
     arguments: -BuildId $(Build.BuildNumber)
 
-# - task: DotNetCoreCLI@2
-#   displayName: Build Example Solution
-#   inputs:
-#     command: publish
-#     projects: 'Examples\Eklee.Azure.Functions.GraphQl.Example\Eklee.Azure.Functions.GraphQl.Example.csproj'
-#     publishWebProjects: false
-#     arguments: --configuration=$(config_version.buildConfig) -p:Version=$(config_version.version)
+- task: DotNetCoreCLI@2
+  displayName: Build Example Solution
+  inputs:
+    command: publish
+    projects: 'Examples\Eklee.Azure.Functions.GraphQl.Example\Eklee.Azure.Functions.GraphQl.Example.csproj'
+    publishWebProjects: false
+    arguments: --configuration=$(config_version.buildConfig) -p:Version=$(config_version.version)
 
-# - task: AzureCLI@2
-#   name: test_example
-#   displayName: Run functional tests
-#   inputs:
-#     azureSubscription: $(Global.ServiceConnectionName)
-#     scriptType: ps
-#     scriptLocation: scriptPath
-#     scriptPath: 'TestExample.ps1'
-#     arguments: -Path $(Build.SourcesDirectory) -BuildConfig $(config_version.buildConfig) -ReportDir $(System.DefaultWorkingDirectory) -EnvironmentPath $(Build.Repository.LocalPath) -Name $(Global.Name) -Location $(Global.Location)
+- task: AzureCLI@2
+  name: test_example
+  displayName: Run functional tests
+  inputs:
+    azureSubscription: $(Global.ServiceConnectionName)
+    scriptType: ps
+    scriptLocation: scriptPath
+    scriptPath: 'TestExample.ps1'
+    arguments: -Path $(Build.SourcesDirectory) -BuildConfig $(config_version.buildConfig) -ReportDir $(System.DefaultWorkingDirectory) -EnvironmentPath $(Build.Repository.LocalPath) -Name $(Global.Name) -Location $(Global.Location)
 
-# - task: PublishTestResults@2
-#   displayName: Publish test results
-#   condition: or(succeeded(), failed())
-#   inputs:
-#     testResultsFormat: 'JUnit'
-#     testResultsFiles: $(System.DefaultWorkingDirectory)\*.xml
+- task: PublishTestResults@2
+  displayName: Publish test results
+  condition: or(succeeded(), failed())
+  inputs:
+    testResultsFormat: 'JUnit'
+    testResultsFiles: $(System.DefaultWorkingDirectory)\*.xml
 
-# - task: AzurePowerShell@4
-#   displayName: 'Cleanup after functional tests'
-#   condition: or(succeeded(), failed())
-#   inputs:
-#     azureSubscription: $(Global.ServiceConnectionName)
-#     scriptType: 'FilePath'
-#     scriptPath: 'Reset.ps1'
-#     azurePowerShellVersion: 'latestVersion'
-#     scriptArguments: -ResourceGroupName $(Global.ResourceGroupName) -Name $(Global.Name)
+- task: AzurePowerShell@4
+  displayName: 'Cleanup after functional tests'
+  condition: or(succeeded(), failed())
+  inputs:
+    azureSubscription: $(Global.ServiceConnectionName)
+    scriptType: 'FilePath'
+    scriptPath: 'Reset.ps1'
+    azurePowerShellVersion: 'latestVersion'
+    scriptArguments: -ResourceGroupName $(Global.ResourceGroupName) -Name $(Global.Name)
 
-# - task: AzureCLI@2
-#   displayName: 'Cleanup stack if functional tests passed'
-#   condition: succeeded()
-#   inputs:
-#     azureSubscription: $(Global.ServiceConnectionName)
-#     scriptType: ps
-#     scriptLocation: scriptPath
-#     scriptPath: 'CleanupExample.ps1'
-#     arguments: -Name $(Global.Name)
+- task: AzureCLI@2
+  displayName: 'Cleanup stack if functional tests passed'
+  condition: succeeded()
+  inputs:
+    azureSubscription: $(Global.ServiceConnectionName)
+    scriptType: ps
+    scriptLocation: scriptPath
+    scriptPath: 'CleanupExample.ps1'
+    arguments: -Name $(Global.Name)
 
 - task: DotNetCoreCLI@2
   condition: and(succeeded(), or(eq(variables['Build.SourceBranch'], 'refs/heads/master'), eq(variables['Global.DebugNuget'], 'true')))

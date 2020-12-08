@@ -37,7 +37,7 @@ namespace Eklee.Azure.Functions.GraphQl
 			_validationRules = validationRules;
 		}
 
-		public async Task<ExecutionResult> ExecuteAsync(GraphQlDomainRequest graphQlDomainRequest)
+		public async Task<ExecutionResultResponse> ExecuteAsync(GraphQlDomainRequest graphQlDomainRequest)
 		{
 			bool.TryParse(_configuration["GraphQl:EnableMetrics"], out var enableMetrics);
 			bool.TryParse(_configuration["GraphQl:ExposeExceptions"], out var exposeExceptions);
@@ -52,14 +52,14 @@ namespace Eklee.Azure.Functions.GraphQl
 				Schema = _schema,
 				Query = graphQlDomainRequest.Query,
 				EnableMetrics = enableMetrics,
-				UserContext = _graphRequestContext,
-				ExposeExceptions = exposeExceptions,
-				ValidationRules = DocumentValidator.CoreRules().Concat(_validationRules)
+				UserContext = _graphRequestContext.ToUserContext(),
+				ThrowOnUnhandledException = !exposeExceptions,
+				ValidationRules = DocumentValidator.CoreRules.Concat(_validationRules)
 			};
 
 			if (graphQlDomainRequest.Variables != null)
 			{
-				options.Inputs = JsonConvert.SerializeObject(graphQlDomainRequest.Variables).ToInputs();
+				options.Inputs = JsonConvert.DeserializeObject<Inputs>(graphQlDomainRequest.Variables.ToString());
 			}
 
 			var results = await _documentExecuter.ExecuteAsync(options);
@@ -75,7 +75,8 @@ namespace Eklee.Azure.Functions.GraphQl
 			if (enableMetrics)
 				results.EnrichWithApolloTracing(start);
 
-			return results;
+			// Using the default ExecutionResult would return a large amount of data back. Hence, we are controlling it with our own wrapper.
+			return results.ToExecutionResultResponse();
 		}
 	}
 }

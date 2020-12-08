@@ -1,9 +1,7 @@
 ﻿using Eklee.Azure.Functions.GraphQl.Actions;
 using Eklee.Azure.Functions.GraphQl.Connections;
 using GraphQL;
-using GraphQL.Types;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,16 +33,16 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			_modelTransformerProvider = modelTransformerProvider;
 		}
 
-		public async Task<List<TSource>> BatchAddAsync<TSource>(ResolveFieldContext<object> context, string sourceName, Func<ClaimsPrincipal, AssertAction, bool> claimsPrincipalAssertion) where TSource : class
+		public async Task<List<TSource>> BatchAddAsync<TSource>(IResolveFieldContext<object> context, string sourceName, Func<ClaimsPrincipal, AssertAction, bool> claimsPrincipalAssertion) where TSource : class
 		{
 			return await InternalBatchAsync<TSource>(context, sourceName, AssertAction.BatchCreate, claimsPrincipalAssertion);
 		}
 
-		private void AssertWithClaimsPrincipal(AssertAction assertAction, ResolveFieldContext<object> context, Func<ClaimsPrincipal, AssertAction, bool> claimsPrincipalAssertion)
+		private void AssertWithClaimsPrincipal(AssertAction assertAction, IResolveFieldContext<object> context, Func<ClaimsPrincipal, AssertAction, bool> claimsPrincipalAssertion)
 		{
 			if (claimsPrincipalAssertion != null)
 			{
-				var graphRequestContext = context.UserContext as IGraphRequestContext;
+				var graphRequestContext = context.GetGraphRequestContext();
 				if (graphRequestContext == null ||
 					graphRequestContext.HttpRequest.Security.ClaimsPrincipal == null ||
 					!claimsPrincipalAssertion(graphRequestContext.HttpRequest.Security.ClaimsPrincipal, assertAction))
@@ -55,7 +53,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			}
 		}
 
-		public async Task<TSource> DeleteAsync<TSource>(ResolveFieldContext<object> context, string sourceName, Func<ClaimsPrincipal, AssertAction, bool> claimsPrincipalAssertion) where TSource : class
+		public async Task<TSource> DeleteAsync<TSource>(IResolveFieldContext<object> context, string sourceName, Func<ClaimsPrincipal, AssertAction, bool> claimsPrincipalAssertion) where TSource : class
 		{
 			AssertWithClaimsPrincipal(AssertAction.Delete, context, claimsPrincipalAssertion);
 
@@ -64,11 +62,11 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			return await InternalDeleteAsync(context, item);
 		}
 
-		private async Task<TSource> InternalDeleteAsync<TSource>(ResolveFieldContext<object> context, TSource item) where TSource : class
+		private async Task<TSource> InternalDeleteAsync<TSource>(IResolveFieldContext<object> context, TSource item) where TSource : class
 		{
 			try
 			{
-				IGraphRequestContext ctx = context.UserContext as IGraphRequestContext;
+				IGraphRequestContext ctx = context.GetGraphRequestContext();
 
 				await TransformObject(item, ctx, MutationActions.Delete);
 
@@ -97,7 +95,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			}
 		}
 
-		public async Task<TDeleteOutput> DeleteAsync<TSource, TDeleteInput, TDeleteOutput>(ResolveFieldContext<object> context, string sourceName,
+		public async Task<TDeleteOutput> DeleteAsync<TSource, TDeleteInput, TDeleteOutput>(IResolveFieldContext<object> context, string sourceName,
 		Func<TDeleteInput, TSource> mapDelete,
 		Func<TSource, TDeleteOutput> transform,
 		Func<ClaimsPrincipal, AssertAction, bool> claimsPrincipalAssertion) where TSource : class
@@ -112,14 +110,14 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			return transform(item);
 		}
 
-		public async Task<TDeleteOutput> DeleteAllAsync<TSource, TDeleteOutput>(ResolveFieldContext<object> context, string sourceName,
+		public async Task<TDeleteOutput> DeleteAllAsync<TSource, TDeleteOutput>(IResolveFieldContext<object> context, string sourceName,
 			Func<TDeleteOutput> getOutput,
 			Func<ClaimsPrincipal, AssertAction, bool> claimsPrincipalAssertion) where TSource : class
 		{
 			AssertWithClaimsPrincipal(AssertAction.DeleteAll, context, claimsPrincipalAssertion);
 			try
 			{
-				var ctx = context.UserContext as IGraphRequestContext;
+				var ctx = context.GetGraphRequestContext();
 
 				var mutationActionItem = new MutationActionItem<TSource>
 				{
@@ -158,14 +156,14 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			});
 		}
 
-		public async Task<TSource> AddAsync<TSource>(ResolveFieldContext<object> context, string sourceName,
+		public async Task<TSource> AddAsync<TSource>(IResolveFieldContext<object> context, string sourceName,
 			Func<ClaimsPrincipal, AssertAction, bool> claimsPrincipalAssertion) where TSource : class
 		{
 			AssertWithClaimsPrincipal(AssertAction.Create, context, claimsPrincipalAssertion);
 
 			var item = context.GetArgument<TSource>(sourceName);
 
-			var ctx = context.UserContext as IGraphRequestContext;
+			var ctx = context.GetGraphRequestContext();
 
 			await TransformObject(item, ctx, MutationActions.Create);
 
@@ -202,11 +200,11 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			return cloned;
 		}
 
-		public async Task<TSource> AddOrUpdateAsync<TSource>(ResolveFieldContext<object> context, string sourceName, Func<ClaimsPrincipal, AssertAction, bool> claimsPrincipalAssertion) where TSource : class
+		public async Task<TSource> AddOrUpdateAsync<TSource>(IResolveFieldContext<object> context, string sourceName, Func<ClaimsPrincipal, AssertAction, bool> claimsPrincipalAssertion) where TSource : class
 		{
 			AssertWithClaimsPrincipal(AssertAction.CreateOrUpdate, context, claimsPrincipalAssertion);
 			var item = context.GetArgument<TSource>(sourceName);
-			var ctx = context.UserContext as IGraphRequestContext;
+			var ctx = context.GetGraphRequestContext();
 
 			await TransformObject(item, ctx, MutationActions.CreateOrUpdate);
 
@@ -244,12 +242,12 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			return cloned;
 		}
 
-		public async Task<TSource> UpdateAsync<TSource>(ResolveFieldContext<object> context, string sourceName,
+		public async Task<TSource> UpdateAsync<TSource>(IResolveFieldContext<object> context, string sourceName,
 			Func<ClaimsPrincipal, AssertAction, bool> claimsPrincipalAssertion) where TSource : class
 		{
 			AssertWithClaimsPrincipal(AssertAction.Update, context, claimsPrincipalAssertion);
 			var item = context.GetArgument<TSource>(sourceName);
-			var ctx = context.UserContext as IGraphRequestContext;
+			var ctx = context.GetGraphRequestContext();
 
 			await TransformObject(item, ctx, MutationActions.Update);
 
@@ -267,7 +265,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 
 				await _mutationActionsProvider.HandlePreActions(mutationActionItem);
 
-				await _graphQlRepositoryProvider.GetRepository<TSource>().UpdateAsync(item, context.UserContext as IGraphRequestContext);
+				await _graphQlRepositoryProvider.GetRepository<TSource>().UpdateAsync(item, context.GetGraphRequestContext());
 
 				await _mutationActionsProvider.HandlePostActions(mutationActionItem);
 			}
@@ -279,21 +277,21 @@ namespace Eklee.Azure.Functions.GraphQl.Repository
 			return cloned;
 		}
 
-		public async Task<List<TSource>> BatchAddOrUpdateAsync<TSource>(ResolveFieldContext<object> context, string sourceName,
+		public async Task<List<TSource>> BatchAddOrUpdateAsync<TSource>(IResolveFieldContext<object> context, string sourceName,
 			Func<ClaimsPrincipal, AssertAction, bool> claimsPrincipalAssertion) where TSource : class
 		{
 			return await InternalBatchAsync<TSource>(context, sourceName, AssertAction.BatchCreateOrUpdate, claimsPrincipalAssertion);
 		}
 
 		private async Task<List<TSource>> InternalBatchAsync<TSource>(
-			ResolveFieldContext<object> context, string sourceName,
+			IResolveFieldContext<object> context, string sourceName,
 			AssertAction assertAction,
 			Func<ClaimsPrincipal, AssertAction, bool> claimsPrincipalAssertion) where TSource : class
 		{
 			AssertWithClaimsPrincipal(assertAction, context, claimsPrincipalAssertion);
 
 			var items = context.GetArgument<IEnumerable<TSource>>(sourceName).ToList();
-			var ctx = context.UserContext as IGraphRequestContext;
+			var ctx = context.GetGraphRequestContext();
 
 			if (assertAction == AssertAction.BatchCreate)
 			{

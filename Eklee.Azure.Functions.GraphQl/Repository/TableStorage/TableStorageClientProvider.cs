@@ -221,9 +221,21 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.TableStorage
 		{
 			var info = Get<T>(graphRequestContext);
 
-			var results = await info.Table.ExecuteQuerySegmentedAsync(GenerateTableQuery(queryParameters.ToList()), null);
+			var list = new List<T>();
 
-			return results.Results.Select(x => EntityPropertyConverter.ConvertBack<T>(x.Properties, new OperationContext())).ToList();
+			var continuationToken = default(TableContinuationToken);
+
+			do
+			{
+				var results = await info.Table.ExecuteQuerySegmentedAsync(GenerateTableQuery(queryParameters.ToList()), continuationToken);
+
+				list.AddRange(results.Results.Select(x => EntityPropertyConverter.ConvertBack<T>(x.Properties, new OperationContext())).ToList());
+
+				continuationToken = results.ContinuationToken;
+			}
+			while (continuationToken != null);
+
+			return list;
 		}
 
 		private TableQuery GenerateTableQuery(List<QueryParameter> queryParameters)

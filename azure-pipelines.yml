@@ -36,7 +36,7 @@ steps:
     command: 'test'
     configuration: '$(BuildConfiguration)'
     projects: 'Eklee.Azure.Functions.GraphQl.Tests\Eklee.Azure.Functions.GraphQl.Tests.csproj'
-    arguments: --blame --verbosity normal --filter Category=Integration -p:BuildInParallel=false
+    arguments: --blame --verbosity normal --filter Category=Integration
 
 - task: AzurePowerShell@4
   displayName: 'Reset Azure services for functional tests'
@@ -101,7 +101,7 @@ steps:
     arguments: -Name $(Global.Name)
 
 - task: DotNetCoreCLI@2
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  condition: and(succeeded(), or(eq(variables['Build.SourceBranch'], 'refs/heads/master'), eq(variables['Global.DebugNuget'], 'true')))
   displayName: Build
   inputs:
     command: build
@@ -109,7 +109,7 @@ steps:
     arguments: --configuration=Release -p:Version=$(config_version.version)
 
 - task: PowerShell@2
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  condition: and(succeeded(), or(eq(variables['Build.SourceBranch'], 'refs/heads/master'), eq(variables['Global.DebugNuget'], 'true')))
   name: prep_nuget_pack
   displayName: Prepare for nuget package
   inputs:
@@ -118,7 +118,7 @@ steps:
     arguments: -Path $(Build.SourcesDirectory)
 
 - task: NuGetCommand@2
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  condition: and(succeeded(), or(eq(variables['Build.SourceBranch'], 'refs/heads/master'), eq(variables['Global.DebugNuget'], 'true')))
   displayName: Create nuget package
   inputs:
     command: pack
@@ -130,7 +130,7 @@ steps:
     versionEnvVar: config_version.version
 
 - task: AzureFileCopy@4
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  condition: and(succeeded(), or(eq(variables['Build.SourceBranch'], 'refs/heads/master'), eq(variables['Global.DebugNuget'], 'true')))
   displayName: Upload nuget package
   inputs:
     sourcePath: $(Build.ArtifactStagingDirectory)/*.nupkg

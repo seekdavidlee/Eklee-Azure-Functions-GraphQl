@@ -7,6 +7,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Eklee.Azure.Functions.GraphQl.Validations
 {
@@ -56,9 +57,9 @@ namespace Eklee.Azure.Functions.GraphQl.Validations
 			return type;
 		}
 
-		public INodeVisitor Validate(ValidationContext context)
+		public Task<INodeVisitor> ValidateAsync(ValidationContext context)
 		{
-			return new EnterLeaveListener(cfg =>
+			return Task.FromResult<INodeVisitor>(new EnterLeaveListener(cfg =>
 			{
 				cfg.Match<Argument>(arg =>
 				{
@@ -100,7 +101,7 @@ namespace Eklee.Azure.Functions.GraphQl.Validations
 						}
 					}
 				});
-			});
+			}));
 		}
 
 		private static void Validate(Dictionary<string, object> items,
@@ -125,20 +126,6 @@ namespace Eklee.Azure.Functions.GraphQl.Validations
 					});
 				}
 			}
-		}
-
-		private static string GetValue(Inputs input, string argumentName, string fieldTypeName)
-		{
-			if (input.ContainsKey(argumentName))
-			{
-				var model = (Dictionary<string, object>)input[argumentName];
-				if (model != null && model.ContainsKey(fieldTypeName))
-				{
-					return model[fieldTypeName]?.ToString();
-				}
-			}
-
-			return null;
 		}
 	}
 }

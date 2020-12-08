@@ -14,7 +14,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 
 			this.AddBooksQueries(queryBuilderFactory);
 
-			this.AddBookAuthorsOutputQueries(queryBuilderFactory);
+			//this.AddBookAuthorsOutputQueries(queryBuilderFactory);
 
 			this.AddPublisherQueries(queryBuilderFactory);
 

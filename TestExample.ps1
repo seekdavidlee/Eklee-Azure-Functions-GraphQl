@@ -6,17 +6,23 @@ param(
 	[Parameter(Mandatory = $True)][string]$Name,
 	[Parameter(Mandatory = $True)][string]$Location)
 
-$WorkingDirectory = "$Path\Examples\Eklee.Azure.Functions.GraphQl.Example\bin\$BuildConfig\netstandard2.0"
+$WorkingDirectory = "$Path\Examples\Eklee.Azure.Functions.GraphQl.Example\bin\$BuildConfig\netstandard2.1"
 
 $StackName = ($Name + $env:Build_BuildNumber).Replace(".", "")
 
 Compress-Archive -Path "$WorkingDirectory\*" -DestinationPath "$WorkingDirectory\Deploy.zip"
 
+Write-Host "Running deployment $StackName"
+
+$ResourceGroupName = "$Name-graphql"
+
 az deployment group create `
 	--name $StackName `
-	--resource-group $Name `
+	--resource-group $ResourceGroupName `
 	--template-file Templates/app.json `
 	--parameters plan_name=$StackName location=$Location | Out-Null
+
+Write-Host "Configure app settings"
 
 $content = Get-Content -Path "$Path\Examples\Eklee.Azure.Functions.GraphQl.Example\local.settings.json" | ConvertFrom-Json
 
@@ -30,7 +36,7 @@ $issuers = $content.Security.Issuers
 $issuer1 = $content.Tenants[0].Issuer
 $issuer2 = $content.Tenants[1].Issuer
 
-az functionapp config appsettings set -n $StackName -g $Name --settings "GraphQl:EnableMetrics=true" "GraphQl:ExposeExceptions=true" `
+az functionapp config appsettings set -n $StackName -g $ResourceGroupName --settings "GraphQl:EnableMetrics=true" "GraphQl:ExposeExceptions=true" `
 	"DocumentDb:Url=$documentUrl" `
 	"DocumentDb:Key=$documentKey" `
 	"DocumentDb:RequestUnits=400" `
@@ -55,7 +61,11 @@ az functionapp config appsettings set -n $StackName -g $Name --settings "GraphQl
 	"Tenants:1:TableStorage:ConnectionString=$tableStorageConnectionString" `
 	"ApiBaseUrl=https://$StackName.azurewebsites.net/api/" | Out-Null
 
-az functionapp deployment source config-zip -g $Name -n $StackName --src "$WorkingDirectory\Deploy.zip" | Out-Null
+Write-Host "Deploying code"
+
+az functionapp deployment source config-zip -g $ResourceGroupName -n $StackName --src "$WorkingDirectory\Deploy.zip" | Out-Null
+
+Write-Host "Installing newman"
 
 Push-Location $WorkingDirectory
 npm install --save-dev newman
@@ -64,7 +74,9 @@ Pop-Location
 $content = (Get-Content -Path "$Path\Tests\Eklee.Azure.Functions.GraphQl.Local.postman_environment.json").Replace("http://localhost:7071", "https://$StackName.azurewebsites.net")
 $content | Out-File "$Path\Tests\Eklee.Azure.Functions.GraphQl.Local.postman_environment.json" -Encoding ASCII
 
+Write-Host "Running postman"
+
 $reportFilePath = "$ReportDir/report.xml"
-Push-Location $Path\Examples\Eklee.Azure.Functions.GraphQl.Example\bin\$BuildConfig\netstandard2.0
+Push-Location $Path\Examples\Eklee.Azure.Functions.GraphQl.Example\bin\$BuildConfig\netstandard2.1
 node_modules\.bin\newman run ..\..\..\..\..\tests\Eklee.Azure.Functions.GraphQl.postman_collection.json -e "$EnvironmentPath\Tests\Eklee.Azure.Functions.GraphQl.Local.postman_environment.json" --reporters 'cli,junit' --reporter-junit-export $reportFilePath --delay-request 100
 Pop-Location

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security;
 using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
 using Eklee.Azure.Functions.GraphQl.Connections;
 using Eklee.Azure.Functions.GraphQl.Queries;
@@ -63,11 +64,13 @@ namespace Eklee.Azure.Functions.GraphQl
 			return _queryParameterBuilder;
 		}
 
+		/*
 		public QueryBuilder<TSource> WithPaging(int pageLimit = 10)
 		{
 			_pageLimit = pageLimit;
 			return this;
 		}
+		*/
 
 		public void BuildWithListResult()
 		{
@@ -88,7 +91,7 @@ namespace Eklee.Azure.Functions.GraphQl
 			return this;
 		}
 
-		private async Task<object> QueryResolver(ResolveFieldContext<object> context)
+		private async Task<object> QueryResolver(IResolveFieldContext<object> context)
 		{
 			IEnumerable<TSource> list;
 			try
@@ -114,7 +117,7 @@ namespace Eklee.Azure.Functions.GraphQl
 			}
 		}
 
-		private async Task<object> ConnectionResolver(ResolveConnectionContext<object> connectionContext)
+		private async Task<object> ConnectionResolver(IResolveConnectionContext<object> connectionContext)
 		{
 			IEnumerable<TSource> list = await QueryAsync(connectionContext);
 
@@ -122,9 +125,9 @@ namespace Eklee.Azure.Functions.GraphQl
 			return await connectionContext.GetConnectionAsync(list, _pageLimit.Value);
 		}
 
-		private async Task<IEnumerable<TSource>> QueryAsync(ResolveFieldContext<object> context)
+		private async Task<IEnumerable<TSource>> QueryAsync(IResolveFieldContext<object> context)
 		{
-			var graphRequestContext = context.UserContext as IGraphRequestContext;
+			var graphRequestContext = context.GetGraphRequestContext();
 
 			if (_claimsPrincipalAssertion != null)
 			{
@@ -169,15 +172,19 @@ namespace Eklee.Azure.Functions.GraphQl
 				case QueryOutput.List:
 					if (_pageLimit > 0)
 					{
-						var cb = _objectGraphType.Connection<ModelConventionType<TSource>>().Name(_queryName);
-						if (!string.IsNullOrEmpty(_description))
-						{
-							cb.Description(_description);
-						}
+						// TODO: This currently has an error: the name 'ModelConventionConnection' is already registered to 'GraphQL						
+						//var cb = _objectGraphType.Connection<ModelConventionType<TSource>>().Name(_queryName);
 
-						_modelMemberQueryArgumentProvider.PopulateConnectionBuilder(cb,
-							_queryParameterBuilder.Members);
-						cb.ResolveAsync(ConnectionResolver);
+						//if (!string.IsNullOrEmpty(_description))
+						//{
+						//	cb.Description(_description);
+						//}
+
+						// TODO: This does not compile. Need to resolve it. 
+						//_modelMemberQueryArgumentProvider.PopulateConnectionBuilder(cb,
+						//	_queryParameterBuilder.Members);
+						//cb.ResolveAsync(ConnectionResolver);
+						throw new NotImplementedException();
 					}
 					else
 					{

@@ -34,7 +34,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 					.WithProperty(x => x.Category)
 					.BuildQuery()
 				.BuildWithListResult();
-
+			/*
 			// Example 4: We are getting a list of paged Books. Technically, you are able to get all books by using TotalCount, although there's already a default page limit of 10 items per page if you don't specify.
 			//            There's no caching support.
 
@@ -59,6 +59,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 					.WithProperty(x => x.Category)
 					.BuildQuery()
 				.BuildWithListResult();
+			*/
 		}
 	}
 }

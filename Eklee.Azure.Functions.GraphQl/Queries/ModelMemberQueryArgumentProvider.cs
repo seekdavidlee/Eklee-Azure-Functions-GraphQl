@@ -33,7 +33,7 @@ namespace Eklee.Azure.Functions.GraphQl.Queries
 		}
 
 		public void PopulateConnectionBuilder<TSource>(
-			ConnectionBuilder<ModelConventionType<TSource>, object> connectionBuilder,
+			ConnectionBuilder<ModelConventionType<TSource>> connectionBuilder,
 			IEnumerable<ModelMember> modelMembers)
 		{
 			modelMembers.ToList().ForEach(m =>

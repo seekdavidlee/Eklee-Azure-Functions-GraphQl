@@ -8,6 +8,7 @@ using GraphQL.Types;
 using Eklee.Azure.Functions.GraphQl.Connections;
 using Eklee.Azure.Functions.GraphQl.Repository.InMemory;
 using Eklee.Azure.Functions.GraphQl.Queries;
+using GraphQL;
 
 namespace Eklee.Azure.Functions.GraphQl
 {
@@ -67,7 +68,7 @@ namespace Eklee.Azure.Functions.GraphQl
 			_queryStep.QueryParameters.Add(new QueryParameter { MemberModel = modelMember });
 		}
 
-		private void SetQueryParameterContextValue(QueryParameter queryParameter, ResolveFieldContext<object> context)
+		private void SetQueryParameterContextValue(QueryParameter queryParameter, IResolveFieldContext<object> context)
 		{
 			if (queryParameter.Mapper != null ||
 				(queryParameter.Rule != null && queryParameter.Rule.PopulateWithQueryValues)) return;
@@ -82,7 +83,7 @@ namespace Eklee.Azure.Functions.GraphQl
 		/// </summary>
 		/// <param name="context">Context for getting parameter value(s).</param>
 		/// <returns></returns>
-		internal List<QueryStep> GetQuerySteps(ResolveFieldContext<object> context)
+		internal List<QueryStep> GetQuerySteps(IResolveFieldContext<object> context)
 		{
 			if (_queryStep.QueryParameters.Count > 0)
 			{

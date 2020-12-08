@@ -1,10 +1,9 @@
 ﻿using System.Threading.Tasks;
-using GraphQL;
 
 namespace Eklee.Azure.Functions.GraphQl
 {
-    public interface IGraphQlDomain
+	public interface IGraphQlDomain
     {
-        Task<ExecutionResult> ExecuteAsync(GraphQlDomainRequest graphQlDomainRequest);
+        Task<ExecutionResultResponse> ExecuteAsync(GraphQlDomainRequest graphQlDomainRequest);
     }
 }

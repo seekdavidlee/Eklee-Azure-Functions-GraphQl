@@ -9,6 +9,5 @@ if (![System.IO.File]::Exists($filePath)){
     Get-ChildItem -Path "$Path\$app\bin\Release\netstandard2.1\bin"
 }
 
-Move-Item -Path $filePath -Destination "$Path\$app\bin\Release\netstandard2.1\$app.dll"
-Remove-Item -Path "$Path\$app\bin\Release\netstandard2.1\bin" -Recurse
+Remove-Item -Path "$Path\$app\bin\Release\netstandard2.1\bin" -Recurse -Force
 Copy-Item "$Path\LICENSE" "$Path\LICENSE.txt"

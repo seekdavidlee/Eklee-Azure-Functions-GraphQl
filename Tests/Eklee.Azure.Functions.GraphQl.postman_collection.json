@@ -3912,6 +3912,173 @@
 					"response": []
 				},
 				{
+					"name": "QueryAllModel6_WithOptionalParamWithField",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e57a5857-c4b6-4091-9795-8ccff383f95b",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "3a0f19e4-53df-45b9-acb4-f57e298dd48b",
+								"exec": [
+									"var testName = pm.info.requestName + \": \";",
+									"",
+									"function findItem(list, id) {",
+									"        return list.filter(function(item){",
+									"           return item.id === id; ",
+									"        })[0];",
+									"}",
+									"",
+									"pm.test(testName + \"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(testName + \"Has no errors\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.eql(null);",
+									"});",
+									"",
+									"pm.test(testName + \"Contains correct JSON payload\", function () {",
+									"    ",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.searchAllModel6ByOptionalField.length).to.eql(1);",
+									"    ",
+									"    var model1 = findItem(jsonData.data.searchAllModel6ByOptionalField, \"model6_4\");",
+									"    pm.expect(model1.id).to.eql(\"model6_4\");",
+									"    pm.expect(model1.bestFriends).eql(null);",
+									"",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/graphql"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "query{\r\n  searchAllModel6ByOptionalField (field: { equal: \"model6_4\" }) {\r\n    id\r\n    field\r\n    intField\r\n    bestFriends {\r\n      id\r\n      field\r\n      theFriend{\r\n        id\r\n        intField\r\n      }\r\n    }\r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/testdocumentdb/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"testdocumentdb",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "QueryAllModel6_WithoutOptionalParamWithField",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "427aef18-0849-4157-8459-589fea91bc6b",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"id": "128ecea1-8941-4ca0-b6ef-f70c2d793e4d",
+								"exec": [
+									"var testName = pm.info.requestName + \": \";",
+									"",
+									"function findItem(list, id) {",
+									"        return list.filter(function(item){",
+									"           return item.id === id; ",
+									"        })[0];",
+									"}",
+									"",
+									"pm.test(testName + \"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(testName + \"Has no errors\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.eql(null);",
+									"});",
+									"",
+									"pm.test(testName + \"Contains correct JSON payload\", function () {",
+									"    ",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.searchAllModel6ByOptionalField.length).to.eql(4);",
+									"    ",
+									"    var model1 = findItem(jsonData.data.searchAllModel6ByOptionalField, \"model6_1\");",
+									"    pm.expect(model1.id).to.eql(\"model6_1\");",
+									"    pm.expect(model1.bestFriends).not.eql(null);",
+									"    pm.expect(model1.bestFriends.length).to.eql(3);",
+									"    ",
+									"    pm.expect(model1.bestFriends[0].id).to.eql(\"model6_2\");",
+									"    pm.expect(model1.bestFriends[1].id).to.eql(\"model6_3\");",
+									"    pm.expect(model1.bestFriends[2].id).to.eql(\"model6_4\");",
+									"    ",
+									"    var model2 = findItem(jsonData.data.searchAllModel6ByOptionalField, \"model6_2\");",
+									"    pm.expect(model2.id).to.eql(\"model6_2\");",
+									"    ",
+									"    var model3 = findItem(jsonData.data.searchAllModel6ByOptionalField, \"model6_3\");",
+									"    pm.expect(model3.id).to.eql(\"model6_3\");",
+									"    ",
+									"    var model4 = findItem(jsonData.data.searchAllModel6ByOptionalField, \"model6_4\");",
+									"    pm.expect(model4.id).to.eql(\"model6_4\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/graphql"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "query{\r\n  searchAllModel6ByOptionalField {\r\n    id\r\n    field\r\n    intField\r\n    bestFriends {\r\n      id\r\n      field\r\n      theFriend{\r\n        id\r\n        intField\r\n      }\r\n    }\r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/testdocumentdb/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"testdocumentdb",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "SeedModelTestPermissionModel1",
 					"event": [
 						{

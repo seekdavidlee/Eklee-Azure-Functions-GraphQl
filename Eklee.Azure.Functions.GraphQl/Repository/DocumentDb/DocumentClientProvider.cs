@@ -271,19 +271,21 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 				sql = $"SELECT {All} FROM x WHERE ";
 				const string and = " AND ";
 
-                queryParametersList.ForEach(x =>
-                {
-                    if (x.ContextValue.Values == null && x.MemberModel.IsOptional)
-                    {
-                        _logger.LogInformation($"Passing Optional SQL Parameters {x.MemberModel.Name}");
-                    }
-                    else
-                    {
-                        var documentDbSqlParameter = TranslateQueryParameter(x);
-                        documentDbSqlParameter.SqlParameters.ToList().ForEach(collection.Add);
-                        sql += documentDbSqlParameter.Comparison + and;
-                    }
-                });
+				queryParametersList.ForEach(x =>
+				{
+					if (x.ContextValue.Values == null && x.MemberModel.IsOptional)
+					{
+						_logger.LogInformation($"Passing Optional SQL Parameters {x.MemberModel.Name}");
+					}
+					else
+					{
+						var documentDbSqlParameter = TranslateQueryParameter(x);
+						documentDbSqlParameter.SqlParameters.ToList().ForEach(collection.Add);
+						sql += documentDbSqlParameter.Comparison + and;
+					}
+				});
+
+				if (sql.EndsWith("WHERE ")) sql = $"SELECT {All} FROM x";
 
 				if (sql.EndsWith(and))
 					sql = sql.Substring(0, sql.LastIndexOf("AND ", StringComparison.Ordinal));

@@ -50,6 +50,8 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestDocumentDb
 			queryBuilderFactory.Create<Model6>(this, "searchAllModel6ByOptionalField", "Get all Model 6")
 				.WithParameterBuilder()
 				.WithProperty(x => x.Field, true)
+				.WithProperty(x => x.Field2, true)
+				.WithProperty(x => x.Field3, true)
 				.BuildQuery()
 				.BuildWithListResult();
 

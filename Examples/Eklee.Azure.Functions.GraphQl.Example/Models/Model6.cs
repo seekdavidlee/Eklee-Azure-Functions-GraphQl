@@ -1,4 +1,5 @@
-﻿using Eklee.Azure.Functions.GraphQl.Connections;
+﻿using Eklee.Azure.Functions.GraphQl.Attributes;
+using Eklee.Azure.Functions.GraphQl.Connections;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -23,6 +24,14 @@ namespace Eklee.Azure.Functions.GraphQl.Example.Models
 
 		[Description("Field")]
 		public string Field { get; set; }
+		
+		[ModelField(false)]
+		[Description("Field2")]
+		public string Field2 { get; set; }
+
+		[ModelField(false)]
+		[Description("Field3")]
+		public string Field3 { get; set; }
 
 		[Connection]
 		[Description("List of Best Friends")]

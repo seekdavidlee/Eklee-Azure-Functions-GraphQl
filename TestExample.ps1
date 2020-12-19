@@ -4,6 +4,7 @@ param(
 	[Parameter(Mandatory = $True)][string]$ReportDir,
 	[Parameter(Mandatory = $True)][string]$EnvironmentPath,
 	[Parameter(Mandatory = $True)][string]$Name,
+	[Parameter(Mandatory = $True)][string]$ResourceGroupName,
 	[Parameter(Mandatory = $True)][string]$Location)
 
 $WorkingDirectory = "$Path\Examples\Eklee.Azure.Functions.GraphQl.Example\bin\$BuildConfig\netstandard2.1"
@@ -13,8 +14,6 @@ $StackName = ($Name + $env:Build_BuildNumber).Replace(".", "")
 Compress-Archive -Path "$WorkingDirectory\*" -DestinationPath "$WorkingDirectory\Deploy.zip"
 
 Write-Host "Running deployment $StackName"
-
-$ResourceGroupName = "$Name-graphql"
 
 az deployment group create `
 	--name $StackName `

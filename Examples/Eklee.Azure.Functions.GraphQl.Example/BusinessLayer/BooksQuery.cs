@@ -14,7 +14,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 
 			this.AddBooksQueries(queryBuilderFactory);
 
-			this.AddBookAuthorsOutputQueries(queryBuilderFactory);
+			//this.AddBookAuthorsOutputQueries(queryBuilderFactory);
 
 			this.AddPublisherQueries(queryBuilderFactory);
 
@@ -25,6 +25,18 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 				.WithProperty(x => x.HomeCity)
 				.BuildQuery()
 				.BuildWithListResult();
+		}
+	}
+
+	public class PagingBooksQuery : ObjectGraphType<object>
+	{
+		public PagingBooksQuery(QueryBuilderFactory queryBuilderFactory, ILogger logger)
+		{
+			logger.LogInformation("Creating queries.");
+
+			Name = "query";
+
+			this.AddBookAuthorsOutputQueries(queryBuilderFactory);
 		}
 	}
 }

@@ -20,4 +20,17 @@ namespace Eklee.Azure.Functions.GraphQl.Example
             return await executionContext.ProcessGraphQlRequest(req);
         }
     }
+
+    public static class PagingBooksGraphFunction
+    {
+        [ExecutionContextDependencyInjection(typeof(MyPagingBooksModule))]
+        [FunctionName("paginggraph")]
+        public static async Task<IActionResult> Run(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "pagingbooks/graph")] HttpRequest req,
+            ILogger log,
+            ExecutionContext executionContext)
+        {
+            return await executionContext.ProcessGraphQlRequest(req);
+        }
+    }
 }

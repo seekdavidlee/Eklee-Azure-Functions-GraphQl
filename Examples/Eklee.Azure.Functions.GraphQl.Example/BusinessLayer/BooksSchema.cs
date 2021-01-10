@@ -11,4 +11,13 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 			Mutation = booksMutation;
 		}
 	}
+
+	public class PagingBooksSchema : Schema
+	{
+		public PagingBooksSchema(IServiceProvider resolver, PagingBooksQuery booksQuery, PagingBooksMutation booksMutation) : base(resolver)
+		{
+			Query = booksQuery;
+			Mutation = booksMutation;
+		}
+	}
 }

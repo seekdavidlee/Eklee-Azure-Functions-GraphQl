@@ -8710,13 +8710,13 @@
 							"raw": "{\"operationName\":null,\"variables\":{},\"query\":\"{\\n  getBookAuthorsByCategory(category: {equal: \\\"Technolog\\\"}) {\\n    items {\\n      id\\n      book {\\n        name\\n        category\\n      }\\n    }\\n  }\\n}\\n\"}"
 						},
 						"url": {
-							"raw": "{{endpoint}}/api/books/graph",
+							"raw": "{{endpoint}}/api/pagingbooks/graph",
 							"host": [
 								"{{endpoint}}"
 							],
 							"path": [
 								"api",
-								"books",
+								"pagingbooks",
 								"graph"
 							]
 						}

@@ -153,4 +153,14 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 				.Build();
 		}
 	}
+
+	public class PagingBooksMutation : ObjectGraphType
+	{
+		public PagingBooksMutation(InputBuilderFactory inputBuilderFactory, IConfiguration configuration)
+		{
+			Name = "mutations";
+
+			inputBuilderFactory.Create<Book>(this).ConfigureInMemory<Book>().BuildInMemory().Build();
+		}
+	}
 }

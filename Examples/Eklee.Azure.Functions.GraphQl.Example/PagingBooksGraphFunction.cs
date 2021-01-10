@@ -1,4 +1,4 @@
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using Eklee.Azure.Functions.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
@@ -8,12 +8,12 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 
 namespace Eklee.Azure.Functions.GraphQl.Example
 {
-	public static class BooksGraphFunction
+	public static class PagingBooksGraphFunction
     {
-        [ExecutionContextDependencyInjection(typeof(MyModule))]
-        [FunctionName("graph")]
+        [ExecutionContextDependencyInjection(typeof(MyPagingBooksModule))]
+        [FunctionName("paginggraph")]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "books/graph")] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "pagingbooks/graph")] HttpRequest req,
             ILogger log,
             ExecutionContext executionContext)
         {

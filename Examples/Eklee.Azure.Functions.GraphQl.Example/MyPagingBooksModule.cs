@@ -5,15 +5,15 @@ using Microsoft.Extensions.Caching.Distributed;
 
 namespace Eklee.Azure.Functions.GraphQl.Example
 {
-	public class MyModule : Module
+	public class MyPagingBooksModule : Module
 	{
 		protected override void Load(ContainerBuilder builder)
 		{
 			builder.UseDistributedCache<MemoryDistributedCache>();
 			builder.UseJwtAuthorization<JwtConfigParameters>();
-			builder.RegisterGraphQl<BooksSchema>();
-			builder.RegisterType<BooksQuery>();
-			builder.RegisterType<BooksMutation>();
+			builder.RegisterGraphQl<PagingBooksSchema>();
+			builder.RegisterType<PagingBooksQuery>();
+			builder.RegisterType<PagingBooksMutation>();
 		}
 	}
 }

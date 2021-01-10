@@ -1,5 +1,4 @@
-﻿/*
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Eklee.Azure.Functions.GraphQl.Example.Models;
@@ -116,4 +115,3 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 		}
 	}
 }
-*/

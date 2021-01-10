@@ -25,7 +25,7 @@ namespace Eklee.Azure.Functions.GraphQl.Queries
 			};
 		}
 
-		public IEnumerable<ConnectionBuilder<ModelConventionType<TSource>>> GetConnectionBuilderArguments<TSource>(ModelMember modelMember, ConnectionBuilder<ModelConventionType<TSource>> connectionBuilder)
+		public IEnumerable<ConnectionBuilder<object>> GetConnectionBuilderArguments(ModelMember modelMember, ConnectionBuilder<object> connectionBuilder)
 		{
 			throw new System.NotImplementedException();
 		}

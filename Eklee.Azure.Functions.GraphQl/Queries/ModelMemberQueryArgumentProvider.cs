@@ -32,8 +32,8 @@ namespace Eklee.Azure.Functions.GraphQl.Queries
 			return new QueryArguments(list);
 		}
 
-		public void PopulateConnectionBuilder<TSource>(
-			ConnectionBuilder<ModelConventionType<TSource>> connectionBuilder,
+		public void PopulateConnectionBuilder(
+			ConnectionBuilder<object> connectionBuilder,
 			IEnumerable<ModelMember> modelMembers)
 		{
 			modelMembers.ToList().ForEach(m =>

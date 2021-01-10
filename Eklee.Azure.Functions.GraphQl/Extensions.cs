@@ -252,9 +252,11 @@ namespace Eklee.Azure.Functions.GraphQl
 			return new Edge<T> { Cursor = cursor, Node = item };
 		}
 
+		private const string CURSOR_NULL = "null";
+
 		private static int GetIndex(string cursor)
 		{
-			return !string.IsNullOrEmpty(cursor) ? Convert.ToInt32(Encoding.UTF8.GetString(Convert.FromBase64String(cursor))) : -1;
+			return !string.IsNullOrEmpty(cursor) && cursor != CURSOR_NULL ? Convert.ToInt32(Encoding.UTF8.GetString(Convert.FromBase64String(cursor))) : -1;
 		}
 
 		public static string GetDescription(this Member member)

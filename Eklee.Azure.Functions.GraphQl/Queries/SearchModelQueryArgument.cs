@@ -35,20 +35,20 @@ namespace Eklee.Azure.Functions.GraphQl.Queries
 			return new List<QueryArgument> { GetArgument(modelMember) };
 		}
 
-		public ConnectionBuilder<ModelConventionType<TSource>> GetConnectionBuilderArgument<TSource>(
+		public ConnectionBuilder<object> GetConnectionBuilderArgument(
 			ModelMember modelMember,
-			ConnectionBuilder<ModelConventionType<TSource>> connectionBuilder)
+			ConnectionBuilder<object> connectionBuilder)
 		{
 			return modelMember.IsOptional ?
 						connectionBuilder.Argument<ModelConventionInputType<StringEqualFilter>>(modelMember.Name, modelMember.Description) :
 						connectionBuilder.Argument<NonNullGraphType<ModelConventionInputType<StringEqualFilter>>>(modelMember.Name, modelMember.Description);
 		}
 
-		public IEnumerable<ConnectionBuilder<ModelConventionType<TSource>>> GetConnectionBuilderArguments<TSource>(
+		public IEnumerable<ConnectionBuilder<object>> GetConnectionBuilderArguments(
 			ModelMember modelMember,
-			ConnectionBuilder<ModelConventionType<TSource>> connectionBuilder)
+			ConnectionBuilder<object> connectionBuilder)
 		{
-			return new List<ConnectionBuilder<ModelConventionType<TSource>>> { GetConnectionBuilderArgument(modelMember, connectionBuilder) };
+			return new List<ConnectionBuilder<object>> { GetConnectionBuilderArgument(modelMember, connectionBuilder) };
 		}
 	}
 }

@@ -2,13 +2,11 @@
 
 The purpose of this library is to help developers with implementing their API on a GraphQL Server running on top of Azure HTTP Function. The library will have resolver support for different Azure-specific repositories like Azure Cosmos DB. If you are not sure what GraphQL is, the best resource would be to review the documentation on [https://graphql.org/](https://graphql.org/).
 
-**Breaking Changes Notice, PLEASE READ**
+## Breaking Changes from 0.30 and above
 
-**Starting from version 0.30, we have started using version 3.x of GraphQL.NET. GraphQL.NET has a new implementation for Connections which broke the ability to use a generic Typed class to wrap around a Model. Paging has been disabled because this incompatibility.**
-
-**DateTime is now returning ISO 8601 format.**
-
-**We are now on .NET Standard 2.1.**
+* It is recommanded to use 0.32 and higher given 0.31 does not support paging and this is resolved in 0.32.
+* DateTime is now returning ISO 8601 format.
+* We are now on .NET Standard 2.1.
 
 ## Nuget
 

@@ -74,8 +74,6 @@ queryBuilderFactory.Create<Book>(booksQuery, "getBook")
 
 ## Query with Paging enabled
 
-**Starting from version 0.30, we have started using version 3.x of GraphQL.NET. GraphQL.NET has a new implementation for Connections which broke the ability to use a generic Typed class to wrap around a Model. Paging has been disabled because this incompatibility. The documentation below is for pre 0.30 versions.**
-
 In this example, we use a WithPaging extension method. As part of the query on the client side, you will see paging specific paging parameters. Note that by default, the paging limit is 10. We can pass in a different paging limit into WithPaging to change that.
 ```
 queryBuilderFactory.Create<Book>(booksQuery, "getPagedBooksByCategory")
@@ -166,6 +164,12 @@ query {
   }
 }
 ```
+
+### Paging Implementation
+
+If you experience the following error message:
+
+"Unable to register GraphType 'GraphQL.Types.Relay.ConnectionType ... the name 'ModelConventionConnection' is already registered to 'GraphQL.Types.Relay.ConnectionType", please create a seperate endpoint to host your paging implementation. This is due to a new behvaior in 3.x of GraphQL which prevents a Generic class like ModelConventionConnection to wrap around your class. 
 
 ## Query associated model types
 Now, we are ready to show where GraphQL really shines. The following is an example of a BookReviewOutput model type with Book and Reviewer as properties. Both Book and Review are also classes of their own. Thus we are dealing with associations/relationships between model types.

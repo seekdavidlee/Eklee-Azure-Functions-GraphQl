@@ -27,7 +27,7 @@ namespace Eklee.Azure.Functions.GraphQl.Queries
 				};
 		}
 
-		private ConnectionBuilder<ModelConventionType<TSource>> GetConnectionBuilderArgument<TSource>(ModelMember modelMember, ConnectionBuilder<ModelConventionType<TSource>> connectionBuilder)
+		private ConnectionBuilder<object> GetConnectionBuilderArgument(ModelMember modelMember, ConnectionBuilder<object> connectionBuilder)
 		{
 			return modelMember.IsOptional ?
 						connectionBuilder.Argument<ModelConventionInputType<GuidFilter>>(modelMember.Name, modelMember.Description) :
@@ -39,11 +39,11 @@ namespace Eklee.Azure.Functions.GraphQl.Queries
 			return new List<QueryArgument> { GetArgument(modelMember) };
 		}
 
-		public IEnumerable<ConnectionBuilder<ModelConventionType<TSource>>> GetConnectionBuilderArguments<TSource>(
+		public IEnumerable<ConnectionBuilder<object>> GetConnectionBuilderArguments(
 			ModelMember modelMember,
-			ConnectionBuilder<ModelConventionType<TSource>> connectionBuilder)
+			ConnectionBuilder<object> connectionBuilder)
 		{
-			return new List<ConnectionBuilder<ModelConventionType<TSource>>> { GetConnectionBuilderArgument(modelMember, connectionBuilder) };
+			return new List<ConnectionBuilder<object>> { GetConnectionBuilderArgument(modelMember, connectionBuilder) };
 		}
 	}
 }

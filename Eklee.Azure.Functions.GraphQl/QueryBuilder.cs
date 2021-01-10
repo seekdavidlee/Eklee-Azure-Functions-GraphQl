@@ -64,13 +64,13 @@ namespace Eklee.Azure.Functions.GraphQl
 			return _queryParameterBuilder;
 		}
 
-		/*
+
 		public QueryBuilder<TSource> WithPaging(int pageLimit = 10)
 		{
 			_pageLimit = pageLimit;
 			return this;
 		}
-		*/
+
 
 		public void BuildWithListResult()
 		{
@@ -172,19 +172,16 @@ namespace Eklee.Azure.Functions.GraphQl
 				case QueryOutput.List:
 					if (_pageLimit > 0)
 					{
-						// TODO: This currently has an error: the name 'ModelConventionConnection' is already registered to 'GraphQL						
-						//var cb = _objectGraphType.Connection<ModelConventionType<TSource>>().Name(_queryName);
+						var cb = _objectGraphType.Connection<ModelConventionType<TSource>>().Name(_queryName);
 
-						//if (!string.IsNullOrEmpty(_description))
-						//{
-						//	cb.Description(_description);
-						//}
-
-						// TODO: This does not compile. Need to resolve it. 
-						//_modelMemberQueryArgumentProvider.PopulateConnectionBuilder(cb,
-						//	_queryParameterBuilder.Members);
-						//cb.ResolveAsync(ConnectionResolver);
-						throw new NotImplementedException();
+						if (!string.IsNullOrEmpty(_description))
+						{
+							cb.Description(_description);
+						}
+					
+						_modelMemberQueryArgumentProvider.PopulateConnectionBuilder(cb,
+							_queryParameterBuilder.Members);
+						cb.ResolveAsync(ConnectionResolver);
 					}
 					else
 					{

@@ -1,5 +1,4 @@
-﻿/*
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Eklee.Azure.Functions.GraphQl.Example.Models;
@@ -8,7 +7,7 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 {
 	public static class BookAuthorsOutputExtensions
 	{
-		public static void AddBookAuthorsOutputQueries(this BooksQuery booksQuery, QueryBuilderFactory queryBuilderFactory)
+		public static void AddBookAuthorsOutputQueries(this PagingBooksQuery booksQuery, QueryBuilderFactory queryBuilderFactory)
 		{
 			queryBuilderFactory.Create<BookAuthorsOutput>(booksQuery, "getBookAuthorsByCategory")
 				.WithPaging()
@@ -116,4 +115,3 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 		}
 	}
 }
-*/

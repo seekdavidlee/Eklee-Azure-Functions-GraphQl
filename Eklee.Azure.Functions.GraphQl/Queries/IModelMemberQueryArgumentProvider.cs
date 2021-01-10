@@ -8,8 +8,8 @@ namespace Eklee.Azure.Functions.GraphQl.Queries
 	{
 		QueryArguments GetQueryArguments(IEnumerable<ModelMember> modelMembers);
 
-		void PopulateConnectionBuilder<TSource>(
-			ConnectionBuilder<ModelConventionType<TSource>> connectionBuilder,
+		void PopulateConnectionBuilder(
+			ConnectionBuilder<object> connectionBuilder,
 			IEnumerable<ModelMember> modelMembers);
 	}
 }

@@ -34,21 +34,21 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 					.WithProperty(x => x.Category)
 					.BuildQuery()
 				.BuildWithListResult();
-			/*
+			
 			// Example 4: We are getting a list of paged Books. Technically, you are able to get all books by using TotalCount, although there's already a default page limit of 10 items per page if you don't specify.
 			//            There's no caching support.
 
 			queryBuilderFactory.Create<Book>(booksQuery, "getPagedBooks")
 				.WithPaging()
 				.BuildWithListResult();
-
+			
 			queryBuilderFactory.Create<Book>(booksQuery, "getPagedBooksByCategory")
 				.WithPaging()
 				.WithParameterBuilder()
 					.WithProperty(x => x.Category, true)
 					.BuildQuery()
 				.BuildWithListResult();
-
+		
 			// Example 6: We are getting a list of paged Books with a argument to be passed in. You are defining the key to pass into the repository without having to use context directly.
 			//            The cache repository which will cache the book result for a specific time you have defined. You will get paged results with a default page limit of 10 items per page if you don't specify.
 
@@ -59,7 +59,6 @@ namespace Eklee.Azure.Functions.GraphQl.Example.BusinessLayer
 					.WithProperty(x => x.Category)
 					.BuildQuery()
 				.BuildWithListResult();
-			*/
 		}
 	}
 }

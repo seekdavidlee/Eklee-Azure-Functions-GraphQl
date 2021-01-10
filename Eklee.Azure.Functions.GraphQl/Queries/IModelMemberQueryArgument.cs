@@ -10,8 +10,8 @@ namespace Eklee.Azure.Functions.GraphQl.Queries
 
 		IEnumerable<QueryArgument> GetArguments(ModelMember modelMember);
 
-		IEnumerable<ConnectionBuilder<ModelConventionType<TSource>>> GetConnectionBuilderArguments<TSource>(
+		IEnumerable<ConnectionBuilder<object>> GetConnectionBuilderArguments(
 			ModelMember modelMember,
-			ConnectionBuilder<ModelConventionType<TSource>> connectionBuilder);
+			ConnectionBuilder<object> connectionBuilder);
 	}
 }

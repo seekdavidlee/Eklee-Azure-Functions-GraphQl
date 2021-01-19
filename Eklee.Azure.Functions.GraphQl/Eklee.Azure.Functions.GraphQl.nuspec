@@ -13,7 +13,7 @@
 		<releaseNotes>Use latest nuget packages.</releaseNotes>
 		<tags>GraphQL, Azure, Functions, Caching, .NET, Graph, CosmosDB, DocumentDB, Search, Table, Paging</tags>
 		<dependencies>
-			<dependency id="Eklee.Azure.Functions.Http" version="0.12.19" />
+			<dependency id="Eklee.Azure.Functions.Http" version="0.14.2" />
 			<dependency id="FastMember" version="1.5.0" />
 			<dependency id="GraphQL" version="3.3.1" />
 			<dependency id="GraphQL.NewtonsoftJson" version="3.3.1" />

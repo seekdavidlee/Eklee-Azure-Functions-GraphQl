@@ -126,6 +126,8 @@ namespace Eklee.Azure.Functions.GraphQl.Queries
 					return contextValue;
 				}
 
+				if (args[name] is null) return contextValue;
+
 				throw new NotImplementedException($"{name} type not supported.");
 			}
 

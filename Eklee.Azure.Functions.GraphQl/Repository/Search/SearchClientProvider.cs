@@ -305,7 +305,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 				searchOptions.Filter = _searchFilterProvider.GenerateStringFilter(queryParameters, members);
 			}
 
-			var results = await client.SearchAsync<T>((string)searchTextParam.ContextValue.GetFirstValue(), searchOptions);
+			var results = await client.SearchAsync<SearchDocument>((string)searchTextParam.ContextValue.GetFirstValue(), searchOptions);
 
 			searchResult.AddValues(accessor, results);
 			searchResult.AddFacets(results);

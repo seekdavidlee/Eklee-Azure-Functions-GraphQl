@@ -6,7 +6,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 	{
 		public static Uri GetSearchServiceUri(this string serviceName)
 		{
-			return new Uri($"https://{serviceName}.search.windows.net.");
+			return new Uri($"https://{serviceName}.search.windows.net/");
 		}
 	}
 }

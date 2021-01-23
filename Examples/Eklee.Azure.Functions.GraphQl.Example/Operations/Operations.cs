@@ -22,15 +22,12 @@ namespace Eklee.Azure.Functions.GraphQl.Example.Operations
 			var searchCredentials = new AzureKeyCredential(key);
 			var searchServiceClient = new SearchIndexClient(serviceName.GetSearchServiceUri(), searchCredentials);
 
-			var result = searchServiceClient.GetIndexNamesAsync().AsPages();
+			// Unable to use GetIndexNamesAsync due to the following: https://github.com/Azure/azure-sdk-for-net/issues/15590
+			var result = searchServiceClient.GetIndexesAsync();
 
-			await foreach (var names in result)
+			await foreach (var index in result)
 			{
-				foreach (var name in names.Values)
-				{
-					await searchServiceClient.DeleteIndexAsync(name);
-				}
-
+				await searchServiceClient.DeleteIndexAsync(index.Name);
 			}
 		}
 	}

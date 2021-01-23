@@ -2,6 +2,7 @@
 using Eklee.Azure.Functions.GraphQl.Repository.Search.Filters;
 using FastMember;
 using Shouldly;
+using System;
 using System.Linq;
 using Xunit;
 
@@ -101,5 +102,45 @@ namespace Eklee.Azure.Functions.GraphQl.Tests.Repository.Search.Filters
 				Value = "6"
 			}, _members.Single(m => m.Name == "IntValue")).ShouldNotBeNullOrEmpty();
 		}
+
+		[Fact]
+		public void DateTimeStringIsODataCompliant()
+		{
+			var filter = new NumericSearchFilter();
+
+			TypeAccessor ta = TypeAccessor.Create(typeof(TestNumericSearchFilter));
+			var m = ta.GetMembers().Single(x => x.Name == "MyDateTime");
+			var result = filter.GetFilter(new SearchFilterModel
+			{
+				Comprison = Comparisons.Equal,
+				FieldName = "MyDateTime",
+				Value = "2019-08-02"
+			}, m);
+
+			result.ShouldBe("MyDateTime eq 2019-08-02T00:00:00Z");
+		}
+
+		[Fact]
+		public void DateTimeOffsetStringIsODataCompliant()
+		{
+			var filter = new NumericSearchFilter();
+
+			TypeAccessor ta = TypeAccessor.Create(typeof(TestNumericSearchFilter));
+			var m = ta.GetMembers().Single(x => x.Name == "MyDateTimeOffset");
+			var result = filter.GetFilter(new SearchFilterModel
+			{
+				Comprison = Comparisons.Equal,
+				FieldName = "MyDateTimeOffset",
+				Value = "2017-01-12"
+			}, m);
+
+			result.ShouldBe("MyDateTimeOffset eq 2017-01-12T00:00:00Z");
+		}
+	}
+
+	public class TestNumericSearchFilter
+	{
+		public DateTime MyDateTime { get; set; }
+		public DateTime MyDateTimeOffset { get; set; }
 	}
 }

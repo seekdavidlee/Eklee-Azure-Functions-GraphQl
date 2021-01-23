@@ -1,4 +1,4 @@
-﻿using Microsoft.Azure.Search;
+﻿using Eklee.Azure.Functions.GraphQl.Repository.Search;
 using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;

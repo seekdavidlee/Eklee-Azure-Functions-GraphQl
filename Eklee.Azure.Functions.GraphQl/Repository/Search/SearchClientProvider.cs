@@ -3,16 +3,17 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using Azure;
+using Azure.Search.Documents;
+using Azure.Search.Documents.Indexes;
+using Azure.Search.Documents.Indexes.Models;
+using Azure.Search.Documents.Models;
 using Eklee.Azure.Functions.GraphQl.Connections;
 using Eklee.Azure.Functions.GraphQl.Repository.DocumentDb;
 using Eklee.Azure.Functions.GraphQl.Repository.Search.Filters;
 using FastMember;
-using Microsoft.Azure.Search;
-using Microsoft.Azure.Search.Models;
 using Microsoft.Extensions.Logging;
-using Microsoft.Rest.Azure;
 using Newtonsoft.Json;
-using DataType = Microsoft.Azure.Search.Models.DataType;
 
 namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 {
@@ -20,28 +21,42 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 	{
 		public string Id { get; set; }
 		public Func<IGraphRequestContext, bool> RequestContextSelector { get; set; }
-		public SearchIndexClient SearchIndexClient { get; set; }
+		public SearchClient SearchIndexClient { get; set; }
+	}
+
+	public class IsFacetableAttribute : Attribute
+	{
+
+	}
+
+	public class IsFilterableAttribute : Attribute
+	{
+
 	}
 
 	public class SearchClientProvider
 	{
-		private readonly SearchServiceClient _searchServiceClient;
+		private readonly SearchIndexClient _searchServiceClient;
 		private readonly ISearchFilterProvider _searchFilterProvider;
 		private readonly ILogger _logger;
 		private readonly List<SearchClientProviderInfo> _searchClientProviderInfos = new List<SearchClientProviderInfo>();
+		private readonly string _serviceName;
+		private readonly AzureKeyCredential _azureKeyCredential;
 
 		public SearchClientProvider(ISearchFilterProvider searchFilterProvider,
 			ILogger logger, string serviceName, string key)
 		{
+			_serviceName = serviceName;
 			_searchFilterProvider = searchFilterProvider;
 			_logger = logger;
-			var searchCredentials = new SearchCredentials(key);
-			_searchServiceClient = new SearchServiceClient(serviceName, searchCredentials);
+			_azureKeyCredential = new AzureKeyCredential(key);
+			_searchServiceClient = new SearchIndexClient(_serviceName.GetSearchServiceUri(), _azureKeyCredential);
+
 		}
 
 		public bool ContainsServiceName(string serviceName)
 		{
-			return _searchServiceClient.SearchServiceName == serviceName;
+			return _serviceName == serviceName;
 		}
 
 		public void ConfigureSearchService(Dictionary<string, object> configurations, Type sourceType)
@@ -53,18 +68,18 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 			var prefix = configurations.GetStringValue(SearchConstants.Prefix, sourceType) ?? "";
 			string indexName = prefix + id;
 
-			_searchServiceClient.Indexes.CreateOrUpdate(new Microsoft.Azure.Search.Models.Index(indexName, GetTypeFields(sourceType, true)));
+			_searchServiceClient.CreateOrUpdateIndex(new SearchIndex(indexName, GetTypeFields(sourceType, true)));
 
 			_searchClientProviderInfos.Add(new SearchClientProviderInfo
 			{
 				Id = id,
 				RequestContextSelector = configurations.ContainsKey(DocumentDbConfigurationExtensions.GetKey(SearchConstants.RequestContextSelector, sourceType)) ?
 					configurations.GetValue<Func<IGraphRequestContext, bool>>(SearchConstants.RequestContextSelector, sourceType) : null,
-				SearchIndexClient = new SearchIndexClient(_searchServiceClient.SearchServiceName, indexName, _searchServiceClient.SearchCredentials)
+				SearchIndexClient = new SearchClient(_serviceName.GetSearchServiceUri(), indexName, _azureKeyCredential)
 			});
 		}
 
-		private List<Field> GetTypeFields(Type sourceType, bool isTop)
+		private List<SearchField> GetTypeFields(Type sourceType, bool isTop)
 		{
 			var source = TypeAccessor.Create(sourceType);
 
@@ -77,18 +92,24 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 
 				if (x.IsList())
 				{
+
 					var argType = x.Type.GetGenericArguments()[0];
-					return new Field(x.Name, DataType.Collection(DataType.Complex), GetTypeFields(argType, false));
+
+					var complexCollection = new SearchField(x.Name, SearchFieldDataType.Collection(SearchFieldDataType.Complex));
+					GetTypeFields(argType, false).ForEach(complexCollection.Fields.Add);
+					return complexCollection;
 				}
 
-				DataType type;
+				SearchFieldDataType type;
 
 				bool hasType = true;
 				if (!TryGetDataType(x.Type, out type))
 				{
 					if (x.Type.IsClass)
 					{
-						return new Field(x.Name, DataType.Complex, GetTypeFields(x.Type, false));
+						var complex = new SearchField(x.Name, SearchFieldDataType.Complex);
+						GetTypeFields(x.Type, false).ForEach(complex.Fields.Add);
+						return complex;
 					}
 
 					hasType = false;
@@ -105,7 +126,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 				var isFacetable = x.GetAttribute(typeof(IsFacetableAttribute), false) != null;
 				var isFilterable = x.GetAttribute(typeof(IsFilterableAttribute), false) != null;
 
-				var field = new Field(x.Name, type)
+				var field = new SearchField(x.Name, type)
 				{
 					IsKey = isKey,
 					IsSearchable = !isKey && isSearchable,
@@ -117,59 +138,59 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 			}).Where(field => field != null).ToList();
 		}
 
-		private bool TryGetDataType(Type type, out DataType dt)
+		private bool TryGetDataType(Type type, out SearchFieldDataType dt)
 		{
 			if (type == typeof(string))
 			{
-				dt = DataType.String;
+				dt = SearchFieldDataType.String;
 				return true;
 			}
 
 			if (type == typeof(DateTime) || type == typeof(DateTimeOffset))
 			{
-				dt = DataType.DateTimeOffset;
+				dt = SearchFieldDataType.DateTimeOffset;
 				return true;
 			}
 
 			if (type == typeof(bool))
 			{
-				dt = DataType.Boolean;
+				dt = SearchFieldDataType.Boolean;
 				return true;
 			}
 
 			if (type == typeof(int))
 			{
-				dt = DataType.Int32;
+				dt = SearchFieldDataType.Int32;
 				return true;
 			}
 
 			if (type == typeof(long))
 			{
-				dt = DataType.Int64;
+				dt = SearchFieldDataType.Int64;
 				return true;
 			}
 
 			if (type == typeof(decimal))
 			{
-				dt = DataType.Double;
+				dt = SearchFieldDataType.Double;
 				return true;
 			}
 
 			if (type == typeof(double))
 			{
-				dt = DataType.Double;
+				dt = SearchFieldDataType.Double;
 				return true;
 			}
 
 			if (type == typeof(float))
 			{
-				dt = DataType.Double;
+				dt = SearchFieldDataType.Double;
 				return true;
 			}
 
 			if (type == typeof(Guid))
 			{
-				dt = DataType.String;
+				dt = SearchFieldDataType.String;
 				return true;
 			}
 
@@ -186,7 +207,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 			return InternalGetInfo(typeName.ToLower(), graphRequestContext) != null;
 		}
 
-		private SearchIndexClient Get<T>(IGraphRequestContext graphRequestContext)
+		private SearchClient Get<T>(IGraphRequestContext graphRequestContext)
 		{
 			var info = GetInfo<T>(graphRequestContext);
 
@@ -217,8 +238,9 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 		public async Task BatchCreateAsync<T>(IEnumerable<T> items, IGraphRequestContext graphRequestContext) where T : class
 		{
 			var client = Get<T>(graphRequestContext);
-			var list = items.Select(IndexAction.Upload).ToList();
-			await client.Documents.IndexAsync(IndexBatch.New(list));
+
+			var list = items.Select(IndexDocumentsAction.Upload).ToArray();
+			await client.IndexDocumentsAsync(IndexDocumentsBatch.Create(list));
 		}
 
 		public Task BatchCreateOrUpdateAsync<T>(IEnumerable<T> items, IGraphRequestContext graphRequestContext) where T : class
@@ -233,27 +255,23 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 
 		public async Task CreateAsync<T>(T item, IGraphRequestContext graphRequestContext) where T : class
 		{
-			var client = Get<T>(graphRequestContext);
-			var idx = IndexAction.Upload(item);
-			await client.Documents.IndexAsync(new IndexBatch<T>(
-				new List<IndexAction<T>> { idx }));
+			await BatchCreateAsync(new List<T> { item }, graphRequestContext);
 		}
 
 		public async Task UpdateAsync<T>(T item, IGraphRequestContext graphRequestContext) where T : class
 		{
 			var client = Get<T>(graphRequestContext);
-			var idx = IndexAction.Merge(item);
-			await client.Documents.IndexAsync(new IndexBatch<T>(
-				new List<IndexAction<T>> { idx }));
 
+			var batch = IndexDocumentsBatch.Create(IndexDocumentsAction.Merge(item));
+			await client.IndexDocumentsAsync(batch);
 		}
 
 		public async Task DeleteAsync<T>(T item, IGraphRequestContext graphRequestContext) where T : class
 		{
 			var client = Get<T>(graphRequestContext);
-			var idx = IndexAction.Delete(item);
-			await client.Documents.IndexAsync(new IndexBatch<T>(
-				new List<IndexAction<T>> { idx }));
+
+			var batch = IndexDocumentsBatch.Create(IndexDocumentsAction.Delete(item));
+			await client.IndexDocumentsAsync(batch);
 		}
 
 		public async Task<SearchResult> QueryAsync<T>(IEnumerable<QueryParameter> queryParameters, Type type, bool enableAggregate, IGraphRequestContext graphRequestContext) where T : class
@@ -268,24 +286,26 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 
 			var client = InternalGetInfo(type.Name, graphRequestContext).SearchIndexClient;
 
-			var searchParameters = new SearchParameters();
+			var searchOptions = new SearchOptions();
 
 			TypeAccessor accessor = TypeAccessor.Create(type);
 			var members = accessor.GetMembers();
 
 			if (enableAggregate)
 			{
-				searchParameters.Facets = members.Where(x => x.GetAttribute(typeof(IsFacetableAttribute), false) != null).Select(x => x.Name).ToList();
+				members.Where(x => x.GetAttribute(typeof(IsFacetableAttribute), false) != null).Select(x => x.Name)
+				   .ToList()
+				   .ForEach(searchOptions.Facets.Add);
 			}
 
 			var searchTextParam = queryParameters.Single(x => x.MemberModel.Name == "searchtext");
 
 			if (enableAggregate)
 			{
-				searchParameters.Filter = _searchFilterProvider.GenerateStringFilter(queryParameters, members);
+				searchOptions.Filter = _searchFilterProvider.GenerateStringFilter(queryParameters, members);
 			}
 
-			var results = await client.Documents.SearchAsync((string)searchTextParam.ContextValue.GetFirstValue(), searchParameters);
+			var results = await client.SearchAsync<T>((string)searchTextParam.ContextValue.GetFirstValue(), searchOptions);
 
 			searchResult.AddValues(accessor, results);
 			searchResult.AddFacets(results);
@@ -299,11 +319,11 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 
 			_logger.LogInformation($"Removing search index: {client.IndexName}");
 
-			await _searchServiceClient.Indexes.DeleteAsync(client.IndexName);
+			await _searchServiceClient.DeleteIndexAsync(client.IndexName);
 
 			var fields = GetTypeFields(typeof(T), true);
 
-			await _searchServiceClient.Indexes.CreateAsync(new Microsoft.Azure.Search.Models.Index(client.IndexName, fields));
+			await _searchServiceClient.CreateIndexAsync(new SearchIndex(client.IndexName, fields));
 		}
 	}
 }

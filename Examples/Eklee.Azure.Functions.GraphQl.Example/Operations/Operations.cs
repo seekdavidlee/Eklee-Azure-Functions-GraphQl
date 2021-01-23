@@ -1,4 +1,6 @@
-﻿using Microsoft.Azure.Search;
+﻿using Azure;
+using Azure.Search.Documents.Indexes;
+using Eklee.Azure.Functions.GraphQl.Repository.Search;
 using Microsoft.Extensions.Configuration;
 using System.Threading.Tasks;
 
@@ -17,14 +19,18 @@ namespace Eklee.Azure.Functions.GraphQl.Example.Operations
 			var key = _configuration["Search:ApiKey"];
 			var serviceName = _configuration["Search:ServiceName"];
 
-			var searchCredentials = new SearchCredentials(key);
-			var searchServiceClient = new SearchServiceClient(serviceName, searchCredentials);
+			var searchCredentials = new AzureKeyCredential(key);
+			var searchServiceClient = new SearchIndexClient(serviceName.GetSearchServiceUri(), searchCredentials);
 
-			var result = await searchServiceClient.Indexes.ListNamesAsync();
+			var result = searchServiceClient.GetIndexNamesAsync().AsPages();
 
-			foreach (var name in result)
+			await foreach (var names in result)
 			{
-				await searchServiceClient.Indexes.DeleteAsync(name);
+				foreach (var name in names.Values)
+				{
+					await searchServiceClient.DeleteIndexAsync(name);
+				}
+
 			}
 		}
 	}

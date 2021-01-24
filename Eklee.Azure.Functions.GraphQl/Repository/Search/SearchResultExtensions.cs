@@ -1,20 +1,21 @@
-﻿using Eklee.Azure.Functions.GraphQl.Connections;
+﻿using Azure;
+using Azure.Search.Documents.Models;
 using FastMember;
-using Microsoft.Azure.Search.Models;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Eklee.Azure.Functions.GraphQl.Connections;
+using System.Collections;
 
 namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 {
 	public static class SearchResultExtensions
 	{
-		public static void AddFacets(this SearchResult searchResult, DocumentSearchResult<Document> results)
+		public static void AddFacets(this SearchResult searchResult, Response<SearchResults<SearchDocument>> response)
 		{
-			if (results.Facets != null)
+			if (response.Value.Facets != null)
 			{
-				searchResult.Aggregates = results.Facets.Select(f =>
+				searchResult.Aggregates = response.Value.Facets.Select(f =>
 
 					 new SearchAggregateModel
 					 {
@@ -35,11 +36,11 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 			return result.Value.ToString();
 		}
 
-		public static void AddValues(this SearchResult searchResult, TypeAccessor typeAccessor, DocumentSearchResult<Document> results)
+		public static void AddValues(this SearchResult searchResult, TypeAccessor typeAccessor, Response<SearchResults<SearchDocument>> response)
 		{
 			var members = typeAccessor.GetMembers();
 
-			results.Results.ToList().ForEach(r =>
+			response.Value.GetResults().ToList().ForEach(r =>
 			{
 				var item = typeAccessor.CreateNew();
 				foreach (var d in r.Document)
@@ -49,7 +50,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 
 				searchResult.Values.Add(new SearchResultModel
 				{
-					Score = r.Score,
+					Score = r.Score ?? 0,
 					Value = item
 				});
 			});
@@ -85,7 +86,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 
 			if (field.IsList())
 			{
-				if (value is Document[] doc1s)
+				if (value is SearchDocument[] doc1s)
 				{
 					typeAccessor[item, d.Key] = Populate(field, doc1s);
 					return;
@@ -99,7 +100,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 				var t = TypeAccessor.Create(field.Type);
 				var newItem = t.CreateNew();
 
-				foreach (var dItem in (Document)value)
+				foreach (var dItem in (SearchDocument)value)
 				{
 					PopulateField(t, newItem, t.GetMembers(), dItem);
 				}
@@ -111,7 +112,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 			typeAccessor[item, d.Key] = Convert.ChangeType(value, field.Type);
 		}
 
-		private static object Populate(Member member, Document[] docs)
+		private static object Populate(Member member, SearchDocument[] docs)
 		{
 			var listTypeAccessor = TypeAccessor.Create(member.Type);
 

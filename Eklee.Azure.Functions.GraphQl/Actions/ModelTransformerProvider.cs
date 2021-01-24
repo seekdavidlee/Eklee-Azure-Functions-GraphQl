@@ -51,7 +51,8 @@ namespace Eklee.Azure.Functions.GraphQl.Actions
 									memberItems.Add(item1);
 								}
 
-								await ProcessListAsync(memberItems, action, context, true);
+								if (memberItems.Count > 0)
+									await ProcessListAsync(memberItems, action, context, true);
 							}
 						}
 

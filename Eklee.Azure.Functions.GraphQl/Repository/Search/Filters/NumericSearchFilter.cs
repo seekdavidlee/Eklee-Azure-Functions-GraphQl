@@ -8,8 +8,8 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search.Filters
 	{
 		public bool CanHandle(Comparisons comparison, Member member)
 		{
-			return member.Type == typeof(int) || 
-				member.Type == typeof(double) || 
+			return member.Type == typeof(int) ||
+				member.Type == typeof(double) ||
 				member.Type == typeof(DateTime) ||
 				member.Type == typeof(DateTimeOffset);
 		}
@@ -43,7 +43,30 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search.Filters
 
 		public string GetFilter(SearchFilterModel searchFilterModel, Member member)
 		{
-			return $"{member.Name} {GetComparison(searchFilterModel)} {searchFilterModel.Value}";
+			string value;
+
+			if (!TryGetDateTimeValueString(searchFilterModel, member, out value))
+			{
+				value = searchFilterModel.Value;
+			}
+
+			return $"{member.Name} {GetComparison(searchFilterModel)} {value}";
+		}
+
+		private bool TryGetDateTimeValueString(SearchFilterModel searchFilterModel, Member member, out string dateTimeString)
+		{
+			dateTimeString = null;
+
+			if (member.Type == typeof(DateTime))
+			{
+				dateTimeString = DateTime.Parse(searchFilterModel.Value).ToString("s") + "Z";
+			}
+			else if (member.Type == typeof(DateTimeOffset))
+			{
+				dateTimeString = DateTimeOffset.Parse(searchFilterModel.Value).ToString("s") + "Z";
+			}
+
+			return dateTimeString != null;
 		}
 	}
 }

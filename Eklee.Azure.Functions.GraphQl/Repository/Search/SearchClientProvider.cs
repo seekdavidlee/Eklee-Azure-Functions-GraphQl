@@ -238,7 +238,6 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.Search
 		public async Task BatchCreateAsync<T>(IEnumerable<T> items, IGraphRequestContext graphRequestContext) where T : class
 		{
 			var client = Get<T>(graphRequestContext);
-
 			var list = items.Select(IndexDocumentsAction.Upload).ToArray();
 			await client.IndexDocumentsAsync(IndexDocumentsBatch.Create(list));
 		}

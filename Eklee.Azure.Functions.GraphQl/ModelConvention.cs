@@ -94,6 +94,13 @@ namespace Eklee.Azure.Functions.GraphQl
 							addFieldAction(GetEnumGraphType(m, nullableType), m.Name, m.GetDescription(), null);
 							return;
 						}
+
+						if (nullableType == typeof(DateTimeOffset))
+						{
+							addFieldAction(nullableType.GetGraphTypeFromType(true),
+								m.Name, m.GetDescription(), null);
+							return;
+						}
 					}
 
 					// See: https://docs.microsoft.com/en-us/dotnet/framework/reflection-and-codedom/how-to-examine-and-instantiate-generic-types-with-reflection

@@ -141,6 +141,18 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestDocumentDb
 				.DeleteAll(() => new Status { Message = "All Model8 have been removed." })
 				.DisableBatchCreate()   // Note it would be hard to use batch create in this context. Use batchCreateOrUpdate instead.
 				.Build();
+
+			inputBuilderFactory.Create<Model15>(this)
+				.ConfigureDocumentDb<Model15>()
+				.AddKey(key)
+				.AddUrl(url)
+				.AddRequestUnit(requestUnits)
+				.AddDatabase(db)
+				.AddPartition(x => x.Field)
+				.BuildDocumentDb()
+				.DeleteAll(() => new Status { Message = "All Model8 have been removed." })
+				.DisableBatchCreate()   // Note it would be hard to use batch create in this context. Use batchCreateOrUpdate instead.
+				.Build();
 		}
 	}
 }

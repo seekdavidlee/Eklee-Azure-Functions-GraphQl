@@ -3710,6 +3710,71 @@
 								}
 							},
 							"response": []
+						},
+						{
+							"name": "SeedModel15",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Has no errors\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.errors).to.eql(null);",
+											"});",
+											"",
+											"pm.test(\"Contains correct JSON payload\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.data.batchCreateOrUpdateModel15.length).to.eql(2);",
+											"    ",
+											"    pm.expect(jsonData.data.batchCreateOrUpdateModel15[0].id).to.eql(\"model15_12\");",
+											"    pm.expect(jsonData.data.batchCreateOrUpdateModel15[1].id).to.eql(\"model15_13\");",
+											"",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/graphql"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "mutation {\r\n  batchCreateOrUpdateModel15(model15:[{\r\n    id:\"model15_12\"\r\n    field:\"model15_12\"\r\n    dateTimeOffsetField: \"2019-01-20\"\r\n    dateTimeOffsetField2: \"2016-04-21\"\r\n  },{\r\n    id:\"model15_13\"\r\n    field:\"model15_13\"\r\n    dateTimeOffsetField: \"2012-01-12\"\r\n    dateTimeOffsetField2: null\r\n  }]){\r\n    id\r\n    field\r\n  }\r\n}"
+								},
+								"url": {
+									"raw": "{{endpoint}}/api/testdocumentdb/graph",
+									"host": [
+										"{{endpoint}}"
+									],
+									"path": [
+										"api",
+										"testdocumentdb",
+										"graph"
+									]
+								}
+							},
+							"response": []
 						}
 					]
 				},

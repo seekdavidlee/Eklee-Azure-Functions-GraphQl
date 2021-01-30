@@ -228,7 +228,7 @@ namespace Eklee.Azure.Functions.GraphQl
 					// Find the member.
 					var rawMemberExpression = memberExpression.ToString();
 					var depth = rawMemberExpression.Count(x => x == '.');
-					string path = depth > 1 ? rawMemberExpression.Substring(rawMemberExpression.IndexOf('.') + 1) : memberExpression.Member.Name;
+					string path = depth > 1 ? rawMemberExpression[(rawMemberExpression.IndexOf('.') + 1)..] : memberExpression.Member.Name;
 
 					var accessor = TypeAccessor.Create(typeof(TProperty));
 					var member = accessor.GetMembers().ToList().Single(x =>

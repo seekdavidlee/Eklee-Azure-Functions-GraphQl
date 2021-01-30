@@ -36,6 +36,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.WebJobs;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Eklee.Azure.Functions.GraphQl
 {
@@ -156,7 +157,35 @@ namespace Eklee.Azure.Functions.GraphQl
 			{
 				// https://graphql.org/learn/serving-over-http/
 				// If the "application/graphql" Content-Type header is present, treat the HTTP POST body contents as the GraphQL query string.
-				return await ProcessRequest(executionContext, httpRequest, logger, body => new GraphQlDomainRequest { Query = body });
+				return await ProcessRequest(executionContext, httpRequest, logger, body =>
+				{
+					JObject o;
+					try
+					{
+						o = JObject.Parse(body);
+					}
+					catch
+					{
+						return new GraphQlDomainRequest { Query = body };
+					}
+
+					if (o.ContainsKey("query"))
+					{
+						var request = new GraphQlDomainRequest
+						{
+							Query = o["query"].ToString()
+						};
+
+						if (o.ContainsKey("variables"))
+						{
+							request.Variables = o["variables"].ToString();
+						}
+
+						return request;
+					}
+
+					return new GraphQlDomainRequest { Query = body };
+				});
 			}
 
 			if (contentTypes.Contains("application/json"))
@@ -172,20 +201,18 @@ namespace Eklee.Azure.Functions.GraphQl
 		{
 			var graphQlDomain = executionContext.Resolve<IGraphQlDomain>();
 
-			using (var reader = new StreamReader(httpRequest.Body))
-			{
-				var requestBody = await reader.ReadToEndAsync();
+			using var reader = new StreamReader(httpRequest.Body);
+			var requestBody = await reader.ReadToEndAsync();
 
-				logger.LogInformation($"Request-Body: {requestBody}");
+			logger.LogInformation($"Request-Body: {requestBody}");
 
-				var results = await graphQlDomain.ExecuteAsync(handler(requestBody));
+			var results = await graphQlDomain.ExecuteAsync(handler(requestBody));
 
-				if (results.Errors != null && results.Errors.Any(x =>
-						x.InnerException != null && x.InnerException.GetType() == typeof(SecurityException)))
-					return new UnauthorizedResult();
+			if (results.Errors != null && results.Errors.Any(x =>
+					x.InnerException != null && x.InnerException.GetType() == typeof(SecurityException)))
+				return new UnauthorizedResult();
 
-				return new OkObjectResult(results);
-			}
+			return new OkObjectResult(results);
 		}
 
 		/// <summary>
@@ -368,9 +395,10 @@ namespace Eklee.Azure.Functions.GraphQl
 
 		public static Dictionary<string, object> ToUserContext(this IGraphRequestContext graphRequestContext)
 		{
-			var userContext = new Dictionary<string, object>();
-			userContext.Add(UserContextKey, graphRequestContext);
-			return userContext;
+			return new Dictionary<string, object>
+			{
+				{ UserContextKey, graphRequestContext }
+			};
 		}
 
 		public static IGraphRequestContext GetGraphRequestContext(this IResolveFieldContext<object> resolveFieldContext)

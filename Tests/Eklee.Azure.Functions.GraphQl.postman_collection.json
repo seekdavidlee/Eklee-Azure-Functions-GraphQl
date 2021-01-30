@@ -3942,6 +3942,84 @@
 					"response": []
 				},
 				{
+					"name": "QueryAllModel6_WithOptionalParamWithFieldUsingVariables",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var testName = pm.info.requestName + \": \";",
+									"",
+									"function findItem(list, id) {",
+									"        return list.filter(function(item){",
+									"           return item.id === id; ",
+									"        })[0];",
+									"}",
+									"",
+									"pm.test(testName + \"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(testName + \"Has no errors\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.eql(null);",
+									"});",
+									"",
+									"pm.test(testName + \"Contains correct JSON payload\", function () {",
+									"    ",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.searchAllModel6ByOptionalField.length).to.eql(1);",
+									"    ",
+									"    var model1 = findItem(jsonData.data.searchAllModel6ByOptionalField, \"model6_3\");",
+									"    pm.expect(model1.id).to.eql(\"model6_3\");",
+									"    pm.expect(model1.bestFriends).eql(null);",
+									"",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/graphql"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query ($fieldId:String) {\r\n  searchAllModel6ByOptionalField(field: { equal: $fieldId }) {\r\n    id\r\n    field\r\n    intField\r\n    bestFriends {\r\n      id\r\n      field\r\n      theFriend{\r\n        id\r\n        intField\r\n      }\r\n    }\r\n  }\r\n}",
+								"variables": "{\r\n    \"fieldId\":\"model6_3\"\r\n}"
+							}
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/testdocumentdb/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"testdocumentdb",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "QueryAllModel6_WithoutOptionalParamWithField",
 					"event": [
 						{

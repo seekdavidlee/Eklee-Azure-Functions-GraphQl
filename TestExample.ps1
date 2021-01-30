@@ -3,23 +3,13 @@ param(
 	[Parameter(Mandatory = $True)][string]$BuildConfig,
 	[Parameter(Mandatory = $True)][string]$ReportDir,
 	[Parameter(Mandatory = $True)][string]$EnvironmentPath,
-	[Parameter(Mandatory = $True)][string]$Name,
+	[Parameter(Mandatory = $True)][string]$StackName,
 	[Parameter(Mandatory = $True)][string]$ResourceGroupName,
 	[Parameter(Mandatory = $True)][string]$Location)
 
 $WorkingDirectory = "$Path\Examples\Eklee.Azure.Functions.GraphQl.Example\bin\$BuildConfig\netstandard2.1"
 
-$StackName = ($Name + $env:Build_BuildNumber).Replace(".", "")
-
 Compress-Archive -Path "$WorkingDirectory\*" -DestinationPath "$WorkingDirectory\Deploy.zip"
-
-Write-Host "Running deployment $StackName"
-
-az deployment group create `
-	--name $StackName `
-	--resource-group $ResourceGroupName `
-	--template-file Templates/app.json `
-	--parameters plan_name=$StackName location=$Location | Out-Null
 
 Write-Host "Configure app settings"
 

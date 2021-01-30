@@ -63,6 +63,17 @@ steps:
     publishWebProjects: false
     arguments: --configuration=$(config_version.buildConfig) -p:Version=$(config_version.version)
 
+- task: AzureResourceGroupDeployment@2
+  displayName: Build Example Environment
+  inputs:
+    azureSubscription: $(Global.ServiceConnectionName)
+    action: 'Create Or Update Resource Group'
+    resourceGroupName: $(Global.TestResourceGroupName)
+    location: $(Global.Location)
+    templateLocation: 'Linked artifact'
+    csmFile: '$(System.DefaultWorkingDirectory)/Templates/app.json'
+    overrideParameters: -plan_name $(StackName)
+
 - task: AzureCLI@2
   name: test_example
   displayName: Run functional tests

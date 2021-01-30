@@ -22,6 +22,7 @@ steps:
 
 - task: AzurePowerShell@4
   displayName: 'Prepare configuration values for integration tests'
+  name: prep
   inputs:
     azureSubscription: $(Global.ServiceConnectionName)
     scriptType: 'FilePath'
@@ -72,7 +73,7 @@ steps:
     location: $(Global.Location)
     templateLocation: 'Linked artifact'
     csmFile: '$(System.DefaultWorkingDirectory)/Templates/app.json'
-    overrideParameters: -plan_name $(StackName)
+    overrideParameters: -plan_name $(prep.StackName)
 
 - task: AzureCLI@2
   name: test_example

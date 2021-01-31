@@ -23,7 +23,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 
 		private string NextCounter()
 		{
-			return $"p{Guid.NewGuid().ToString("N")}";
+			return $"p{Guid.NewGuid():N}";
 		}
 
 		protected virtual bool AssertContextValue(T value)
@@ -39,7 +39,7 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 		public bool CanHandle(QueryParameter queryParameter)
 		{
 			// Reset from previous session.
-			Value = default(T);
+			Value = default;
 			Values = null;
 
 			QueryParameter = queryParameter;

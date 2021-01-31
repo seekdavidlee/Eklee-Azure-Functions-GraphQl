@@ -5,6 +5,7 @@ using System.Dynamic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using FastMember;
 using GraphQL;
 using Microsoft.Azure.Documents;
 using Microsoft.Azure.Documents.Client;
@@ -181,7 +182,8 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 			if (documentTypeInfo != null)
 			{
 				var memberExpression = documentTypeInfo.Expression;
-				var value = item.GetPropertyValue(memberExpression.Member.Name);
+				var t = TypeAccessor.Create(typeof(T));
+				var value = t[item, memberExpression.Member.Name];
 
 				if (value == null ||
 					value is int intValue && intValue == 0 ||
@@ -207,7 +209,9 @@ namespace Eklee.Azure.Functions.GraphQl.Repository.DocumentDb
 
 					if (results.Count == 1)
 					{
-						value = results.Single().GetPropertyValue(memberExpression.Member.Name);
+						var result = results.Single();
+						var ta = TypeAccessor.Create(result.GetType());
+						value = ta[result, memberExpression.Member.Name];
 
 						if (value == null)
 						{

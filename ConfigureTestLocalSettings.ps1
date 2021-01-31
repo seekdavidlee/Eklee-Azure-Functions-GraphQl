@@ -42,6 +42,8 @@ $primaryKey = (Invoke-AzResourceAction `
 
 Write-Host "Creating a test specific storage account"
 $StackName = ($Name + $env:Build_BuildNumber).Replace(".", "")
+Write-Host "##vso[task.setvariable variable=StackName;isOutput=true]$StackName"
+
 $TestStorageName = $StackName + "test"
 
 New-AzStorageAccount -ResourceGroupName $ResourceGroupName `

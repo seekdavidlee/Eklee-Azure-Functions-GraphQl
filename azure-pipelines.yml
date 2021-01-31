@@ -83,7 +83,7 @@ steps:
     scriptType: ps
     scriptLocation: scriptPath
     scriptPath: 'TestExample.ps1'
-    arguments: -Path $(Build.SourcesDirectory) -BuildConfig $(config_version.buildConfig) -ReportDir $(System.DefaultWorkingDirectory) -EnvironmentPath $(Build.Repository.LocalPath) -Name $(Global.Name) -Location $(Global.Location) -ResourceGroupName $(Global.TestResourceGroupName)
+    arguments: -Path $(Build.SourcesDirectory) -BuildConfig $(config_version.buildConfig) -ReportDir $(System.DefaultWorkingDirectory) -EnvironmentPath $(Build.Repository.LocalPath) -StackName $(prep.StackName) -Location $(Global.Location) -ResourceGroupName $(Global.TestResourceGroupName)
 
 - task: PublishTestResults@2
   displayName: Publish test results

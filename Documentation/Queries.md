@@ -243,3 +243,7 @@ Once search type has been configured in mutations, we can simple use BeginSearch
 ```
 .BeginSearch(typeof(BookSearch), typeof(ReviewerSearch))
 ```
+
+### useNullWhenOptional on ModelFieldAttribute
+
+With the ModelFieldAttribute on the property of your model, there's an attribute configuration useNullWhenOptional which lets you to treat a null value as valid when the field is optional. This is useful if you have a query and you wish to not set any particular value on an optional field as part of doing a query.

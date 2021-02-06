@@ -30,7 +30,10 @@ namespace Eklee.Azure.Functions.GraphQl.Queries
 					}
 					else
 					{
-						contextValue.Values = new List<object> { arg.First().Value };
+						var val = arg.First().Value;
+						if (modelMember.IsOptional && modelMember.UseNullWhenOptional() && val == null) return contextValue;
+
+						contextValue.Values = new List<object> { val };
 					}
 
 					if (contextValue.Values == null)

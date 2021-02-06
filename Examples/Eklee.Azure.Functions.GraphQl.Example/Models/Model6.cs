@@ -23,8 +23,9 @@ namespace Eklee.Azure.Functions.GraphQl.Example.Models
 		public DateTime DateField { get; set; }
 
 		[Description("Field")]
+		[ModelField(false, true)]
 		public string Field { get; set; }
-		
+
 		[ModelField(false)]
 		[Description("Field2")]
 		public string Field2 { get; set; }

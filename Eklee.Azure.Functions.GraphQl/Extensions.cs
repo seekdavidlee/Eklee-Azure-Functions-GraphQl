@@ -405,5 +405,16 @@ namespace Eklee.Azure.Functions.GraphQl
 		{
 			return resolveFieldContext.UserContext[UserContextKey] as IGraphRequestContext;
 		}
+
+		public static bool UseNullWhenOptional(this ModelMember modelMember)
+		{
+			if (modelMember.IsOptional)
+			{
+				var attr = modelMember.Member.GetAttribute(typeof(ModelFieldAttribute), false) as ModelFieldAttribute;
+				return attr != null && attr.UseNullWhenOptional;
+			}
+
+			return false;
+		}
 	}
 }

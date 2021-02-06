@@ -3560,7 +3560,7 @@
 								],
 								"body": {
 									"mode": "raw",
-									"raw": "mutation{\r\n  batchCreateOrUpdateModel6(model6:[{\r\n    id:\"model6_1\"\r\n    field:\"model6_1\"\r\n    intField: 22\r\n    dateField:\"2019-07-21\"\r\n    doubleField: 78.91\r\n    bestFriends:[{\r\n      id:\"model6_2\"\r\n      field:\"some info about this friend model 2\"\r\n    },\r\n    {\r\n      id:\"model6_3\"\r\n      field:\"some info about this friend model 3\"\r\n    },\r\n    {\r\n        id: \"model6_4\",\r\n        field: \"some info about this friend model 4\",\r\n        theFriend : {\r\n        \tid: \"model6_4\"\r\n        \tfield : \"model6_4\"\r\n        \tintField: 18\r\n    \t\tdateField:\"2019-01-20\"\r\n    \t\tdoubleField: 8.12\r\n        }\r\n    }\r\n    ] \r\n  }, \r\n\t{\r\n     id:\"model6_2\"\r\n    field:\"model6_2\"\r\n    intField: 21\r\n    dateField:\"2019-07-21\"\r\n    doubleField: 17.01     \r\n  } , \r\n\t{\r\n     id:\"model6_3\"\r\n    field:\"model6_3\"\r\n    intField: 20\r\n    dateField:\"2011-01-21\"\r\n    doubleField: 9.12     \r\n  }   \r\n  \r\n  ]){\r\n    id\r\n    field\r\n    bestFriends {\r\n      id\r\n      field\r\n    }\r\n  }\r\n}"
+									"raw": "mutation{\r\n  batchCreateOrUpdateModel6(model6:[{\r\n    id:\"model6_1\"\r\n    field:\"model6_1\"\r\n    field2:\"model6_1 field2\"\r\n    field3:\"model6_1 field3\"    \r\n    intField: 22\r\n    dateField:\"2019-07-21\"\r\n    doubleField: 78.91\r\n    bestFriends:[{\r\n      id:\"model6_2\"\r\n      field:\"some info about this friend model 2\"\r\n    },\r\n    {\r\n      id:\"model6_3\"\r\n      field:\"some info about this friend model 3\"\r\n    },\r\n    {\r\n        id: \"model6_4\",\r\n        field: \"some info about this friend model 4\",\r\n        theFriend : {\r\n        \tid: \"model6_4\"\r\n        \tfield : \"model6_4\"\r\n        \tintField: 18\r\n    \t\tdateField:\"2019-01-20\"\r\n    \t\tdoubleField: 8.12\r\n        }\r\n    }\r\n    ] \r\n  }, \r\n\t{\r\n     id:\"model6_2\"\r\n    field:\"model6_2\"\r\n    field2:\"model6_2 field2\"\r\n    field3:\"model6_2 field3\"\r\n    intField: 21\r\n    dateField:\"2019-07-21\"\r\n    doubleField: 17.01     \r\n  } , \r\n\t{\r\n     id:\"model6_3\"\r\n    field:\"model6_3\"\r\n    field2:\"model6_3 field2\"\r\n    field3:\"model6_3 field3\"\r\n    intField: 20\r\n    dateField:\"2011-01-21\"\r\n    doubleField: 9.12     \r\n  }   \r\n  \r\n  ]){\r\n    id\r\n    field\r\n    bestFriends {\r\n      id\r\n      field\r\n    }\r\n  }\r\n}"
 								},
 								"url": {
 									"raw": "{{endpoint}}/api/testdocumentdb/graph",
@@ -3712,7 +3712,7 @@
 							"response": []
 						},
 						{
-							"name": "SeedModel15",
+							"name": "SeedModel15_TestDateTimeOffset",
 							"event": [
 								{
 									"listen": "prerequest",
@@ -3761,6 +3761,266 @@
 								"body": {
 									"mode": "raw",
 									"raw": "mutation {\r\n  batchCreateOrUpdateModel15(model15:[{\r\n    id:\"model15_12\"\r\n    field:\"model15_12\"\r\n    dateTimeOffsetField: \"2019-01-20\"\r\n    dateTimeOffsetField2: \"2016-04-21\"\r\n  },{\r\n    id:\"model15_13\"\r\n    field:\"model15_13\"\r\n    dateTimeOffsetField: \"2012-01-12\"\r\n    dateTimeOffsetField2: null\r\n  }]){\r\n    id\r\n    field\r\n  }\r\n}"
+								},
+								"url": {
+									"raw": "{{endpoint}}/api/testdocumentdb/graph",
+									"host": [
+										"{{endpoint}}"
+									],
+									"path": [
+										"api",
+										"testdocumentdb",
+										"graph"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "SeedModel16_TestDateTime",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Has no errors\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.errors).to.eql(null);",
+											"});",
+											"",
+											"pm.test(\"Contains correct JSON payload\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.data.batchCreateOrUpdateModel16.length).to.eql(2);",
+											"    ",
+											"    pm.expect(jsonData.data.batchCreateOrUpdateModel16[0].id).to.eql(\"model16_12\");",
+											"    pm.expect(jsonData.data.batchCreateOrUpdateModel16[1].id).to.eql(\"model16_13\");",
+											"",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/graphql"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "mutation {\r\n  batchCreateOrUpdateModel16(model16:[{\r\n    id:\"model16_12\"\r\n    field:\"model16_12\"\r\n    dateTime: \"2019-01-20\"\r\n    dateTime2: \"2016-04-21\"\r\n  },{\r\n    id:\"model16_13\"\r\n    field:\"model16_13\"\r\n    dateTime: \"2012-01-12\"\r\n    dateTime2: null\r\n  }]){\r\n    id\r\n    field\r\n  }\r\n}"
+								},
+								"url": {
+									"raw": "{{endpoint}}/api/testdocumentdb/graph",
+									"host": [
+										"{{endpoint}}"
+									],
+									"path": [
+										"api",
+										"testdocumentdb",
+										"graph"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "SeedModel17_TestInt",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Has no errors\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.errors).to.eql(null);",
+											"});",
+											"",
+											"pm.test(\"Contains correct JSON payload\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.data.batchCreateOrUpdateModel17.length).to.eql(2);",
+											"    ",
+											"    pm.expect(jsonData.data.batchCreateOrUpdateModel17[0].id).to.eql(\"model17_12\");",
+											"    pm.expect(jsonData.data.batchCreateOrUpdateModel17[1].id).to.eql(\"model17_13\");",
+											"",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/graphql"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "mutation {\r\n  batchCreateOrUpdateModel17(model17:[{\r\n    id:\"model17_12\"\r\n    field:\"model17_12\"\r\n    value: 2000\r\n    value2: 1500\r\n  },{\r\n    id:\"model17_13\"\r\n    field:\"model17_13\"\r\n    value: 2000\r\n    value2: null\r\n  }]){\r\n    id\r\n    field\r\n  }\r\n}"
+								},
+								"url": {
+									"raw": "{{endpoint}}/api/testdocumentdb/graph",
+									"host": [
+										"{{endpoint}}"
+									],
+									"path": [
+										"api",
+										"testdocumentdb",
+										"graph"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "SeedModel18_TestDouble",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Has no errors\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.errors).to.eql(null);",
+											"});",
+											"",
+											"pm.test(\"Contains correct JSON payload\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.data.batchCreateOrUpdateModel18.length).to.eql(2);",
+											"    ",
+											"    pm.expect(jsonData.data.batchCreateOrUpdateModel18[0].id).to.eql(\"model18_12\");",
+											"    pm.expect(jsonData.data.batchCreateOrUpdateModel18[1].id).to.eql(\"model18_13\");",
+											"",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/graphql"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "mutation {\r\n  batchCreateOrUpdateModel18(model18:[{\r\n    id:\"model18_12\"\r\n    field:\"model18_12\"\r\n    value: 20.09\r\n    value2: 15.22\r\n  },{\r\n    id:\"model18_13\"\r\n    field:\"model18_13\"\r\n    value: 17.55\r\n    value2: null\r\n  }]){\r\n    id\r\n    field\r\n  }\r\n}"
+								},
+								"url": {
+									"raw": "{{endpoint}}/api/testdocumentdb/graph",
+									"host": [
+										"{{endpoint}}"
+									],
+									"path": [
+										"api",
+										"testdocumentdb",
+										"graph"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "SeedModel19_TestDecimal",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Has no errors\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.errors).to.eql(null);",
+											"});",
+											"",
+											"pm.test(\"Contains correct JSON payload\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.data.batchCreateOrUpdateModel19.length).to.eql(2);",
+											"    ",
+											"    pm.expect(jsonData.data.batchCreateOrUpdateModel19[0].id).to.eql(\"model19_12\");",
+											"    pm.expect(jsonData.data.batchCreateOrUpdateModel19[1].id).to.eql(\"model19_13\");",
+											"",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"type": "text",
+										"value": "application/graphql"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "mutation {\r\n  batchCreateOrUpdateModel19(model19:[{\r\n    id:\"model19_12\"\r\n    field:\"model19_12\"\r\n    value: 21.09\r\n    value2: 5.12\r\n  },{\r\n    id:\"model19_13\"\r\n    field:\"model19_13\"\r\n    value: 14.1\r\n    value2: null\r\n  }]){\r\n    id\r\n    field\r\n  }\r\n}"
 								},
 								"url": {
 									"raw": "{{endpoint}}/api/testdocumentdb/graph",
@@ -3926,6 +4186,84 @@
 						"body": {
 							"mode": "raw",
 							"raw": "query{\r\n  searchAllModel6ByOptionalField (field: { equal: \"model6_4\" }) {\r\n    id\r\n    field\r\n    intField\r\n    bestFriends {\r\n      id\r\n      field\r\n      theFriend{\r\n        id\r\n        intField\r\n      }\r\n    }\r\n  }\r\n}"
+						},
+						"url": {
+							"raw": "{{endpoint}}/api/testdocumentdb/graph",
+							"host": [
+								"{{endpoint}}"
+							],
+							"path": [
+								"api",
+								"testdocumentdb",
+								"graph"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "QueryAllModel6_WithOptionalParamWithNullValue",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var testName = pm.info.requestName + \": \";",
+									"",
+									"function findItem(list, id) {",
+									"        return list.filter(function(item){",
+									"           return item.id === id; ",
+									"        })[0];",
+									"}",
+									"",
+									"pm.test(testName + \"Status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(testName + \"Has no errors\", function () {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.errors).to.eql(null);",
+									"});",
+									"",
+									"pm.test(testName + \"Contains correct JSON payload\", function () {",
+									"    ",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.searchAllModel6ByOptionalField.length).to.eql(4);",
+									"    ",
+									"    var model1 = findItem(jsonData.data.searchAllModel6ByOptionalField, \"model6_3\");",
+									"    pm.expect(model1.id).to.eql(\"model6_3\");",
+									"    pm.expect(model1.bestFriends).eql(null);",
+									"",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"type": "text",
+								"value": "application/graphql"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query ($fieldId:String) {\r\n  searchAllModel6ByOptionalField(field: { equal: $fieldId }) {\r\n    id\r\n    field\r\n    intField\r\n    bestFriends {\r\n      id\r\n      field\r\n      theFriend{\r\n        id\r\n        intField\r\n      }\r\n    }\r\n  }\r\n}",
+								"variables": ""
+							}
 						},
 						"url": {
 							"raw": "{{endpoint}}/api/testdocumentdb/graph",

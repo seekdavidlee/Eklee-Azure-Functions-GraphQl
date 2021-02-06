@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using Eklee.Azure.Functions.GraphQl.Attributes;
 using FastMember;
 using Shouldly;
@@ -21,6 +22,18 @@ namespace Eklee.Azure.Functions.GraphQl.Tests
 		public string SomePartOne { get; set; }
 
 		public string Value { get; set; }
+	}
+
+	public class DtoWithOptional
+	{
+		[ModelField(false, true)]
+		public DateTime? Value { get; set; }
+	}
+
+	public class DtoWithOptional2
+	{
+		[ModelField(false, false)]
+		public DateTime? Value { get; set; }
 	}
 
 	[Trait(Constants.Category, Constants.UnitTests)]
@@ -45,6 +58,33 @@ namespace Eklee.Azure.Functions.GraphQl.Tests
 			var key = ta.GetModelKey(model1);
 			key.ShouldContain("One");
 			key.ShouldContain("Part1");
+		}
+
+		[Fact]
+		public void UseNullWhenOptionalIsTrueAndAttributeFlagIsSet()
+		{
+			var ta = TypeAccessor.Create(typeof(DtoWithOptional));
+
+			var modelMember = new ModelMember(null, null, ta.GetMembers().Single(), true);
+			modelMember.UseNullWhenOptional().ShouldBeTrue();
+		}
+
+		[Fact]
+		public void DoNotUseNullWhenOptionalIsFalseAndAttributeFlagIsSet()
+		{
+			var ta = TypeAccessor.Create(typeof(DtoWithOptional));
+
+			var modelMember = new ModelMember(null, null, ta.GetMembers().Single(), false);
+			modelMember.UseNullWhenOptional().ShouldBeFalse();
+		}
+
+		[Fact]
+		public void DoNotUseNullWhenOptionalIsTrueButAttributeFlagIsNotSet()
+		{
+			var ta = TypeAccessor.Create(typeof(DtoWithOptional2));
+
+			var modelMember = new ModelMember(null, null, ta.GetMembers().Single(), true);
+			modelMember.UseNullWhenOptional().ShouldBeFalse();
 		}
 	}
 }

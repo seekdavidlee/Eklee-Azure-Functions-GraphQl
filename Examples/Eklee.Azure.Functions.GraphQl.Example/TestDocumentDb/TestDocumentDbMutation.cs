@@ -150,7 +150,55 @@ namespace Eklee.Azure.Functions.GraphQl.Example.TestDocumentDb
 				.AddDatabase(db)
 				.AddPartition(x => x.Field)
 				.BuildDocumentDb()
-				.DeleteAll(() => new Status { Message = "All Model8 have been removed." })
+				.DeleteAll(() => new Status { Message = "All Model15 have been removed." })
+				.DisableBatchCreate()   // Note it would be hard to use batch create in this context. Use batchCreateOrUpdate instead.
+				.Build();
+
+			inputBuilderFactory.Create<Model16>(this)
+				.ConfigureDocumentDb<Model16>()
+				.AddKey(key)
+				.AddUrl(url)
+				.AddRequestUnit(requestUnits)
+				.AddDatabase(db)
+				.AddPartition(x => x.Field)
+				.BuildDocumentDb()
+				.DeleteAll(() => new Status { Message = "All Model16 have been removed." })
+				.DisableBatchCreate()   // Note it would be hard to use batch create in this context. Use batchCreateOrUpdate instead.
+				.Build();
+
+			inputBuilderFactory.Create<Model17>(this)
+				.ConfigureDocumentDb<Model17>()
+				.AddKey(key)
+				.AddUrl(url)
+				.AddRequestUnit(requestUnits)
+				.AddDatabase(db)
+				.AddPartition(x => x.Field)
+				.BuildDocumentDb()
+				.DeleteAll(() => new Status { Message = "All Model17 have been removed." })
+				.DisableBatchCreate()   // Note it would be hard to use batch create in this context. Use batchCreateOrUpdate instead.
+				.Build();
+
+			inputBuilderFactory.Create<Model18>(this)
+				.ConfigureDocumentDb<Model18>()
+				.AddKey(key)
+				.AddUrl(url)
+				.AddRequestUnit(requestUnits)
+				.AddDatabase(db)
+				.AddPartition(x => x.Field)
+				.BuildDocumentDb()
+				.DeleteAll(() => new Status { Message = "All Model18 have been removed." })
+				.DisableBatchCreate()   // Note it would be hard to use batch create in this context. Use batchCreateOrUpdate instead.
+				.Build();
+
+			inputBuilderFactory.Create<Model19>(this)
+				.ConfigureDocumentDb<Model19>()
+				.AddKey(key)
+				.AddUrl(url)
+				.AddRequestUnit(requestUnits)
+				.AddDatabase(db)
+				.AddPartition(x => x.Field)
+				.BuildDocumentDb()
+				.DeleteAll(() => new Status { Message = "All Model18 have been removed." })
 				.DisableBatchCreate()   // Note it would be hard to use batch create in this context. Use batchCreateOrUpdate instead.
 				.Build();
 		}

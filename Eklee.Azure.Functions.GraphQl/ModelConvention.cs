@@ -68,6 +68,7 @@ namespace Eklee.Azure.Functions.GraphQl
 					m.Type == typeof(long) ||
 					m.Type == typeof(bool) ||
 					m.Type == typeof(double) ||
+					m.Type == typeof(decimal) ||
 					m.Type == typeof(DateTime) ||
 					m.Type == typeof(DateTimeOffset) ||
 					m.Type == typeof(Guid) ||
@@ -95,12 +96,9 @@ namespace Eklee.Azure.Functions.GraphQl
 							return;
 						}
 
-						if (nullableType == typeof(DateTimeOffset))
-						{
-							addFieldAction(nullableType.GetGraphTypeFromType(true),
+						addFieldAction(nullableType.GetGraphTypeFromType(true),
 								m.Name, m.GetDescription(), null);
-							return;
-						}
+						return;
 					}
 
 					// See: https://docs.microsoft.com/en-us/dotnet/framework/reflection-and-codedom/how-to-examine-and-instantiate-generic-types-with-reflection
